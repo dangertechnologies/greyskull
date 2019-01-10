@@ -1,0 +1,144 @@
+enum DaySlot {
+  # Every second workout starting from the first
+  ODD
+
+  # Every second workout starting from the second
+  EVEN
+
+  # First workout every week
+  FIRST
+
+  # Second workout every week
+  SECOND
+
+  # Third workout every week
+  THIRD
+
+  # Every workout
+  EVERY
+}
+
+type User {
+  id: Int!
+  configured: Boolean
+  schedule: WorkoutSchedule
+  upcomingWorkouts: [Workout!]
+  workouts: [Workout!]
+}
+
+enum ExerciseState {
+  REQUIRED
+  EXCLUDED
+  INCLUDED
+}
+
+type Repetition {
+  # Multiply the weight by this number, e.g 0.9 for 90% of maxWeight
+  weightFactor: Float!
+
+  # How many times it should be completed. Set to null for AMRAP
+  count: Int
+}
+
+type ExerciseConfiguration {
+  id: String!
+  name: String!
+  shortName: String!
+
+  # Whether or not this exercise is part of the default set
+  include: ExerciseState
+
+  # Icon should be a string matching an existing icon
+  icon: String!
+
+  # How much to increment with after a successful workout.
+  # If this is null, the user will be asked to manually
+  # increment it after the workout has completed.
+  incrementFactor: Float
+
+  # Users initial weight to start with
+  initialWeight: Float
+
+  # List of good form descriptions to display during workout
+  goodForm: [String!]!
+
+  # List of bad form descriptions to display during workout
+  badForm: [String!]!
+
+  # Sets to perform in each workout
+  reps: [Repetition!]!
+
+  slot: DaySlot
+}
+
+type Exercise {
+  id: ID!
+  weight: Float!
+  completed: String
+  amrap: Int
+  config: ExerciseConfiguration
+}
+
+type Workout {
+  id: ID!
+  steps: [Exercise!]!
+  completed: String
+}
+
+type WorkoutSchedule {
+  id: ID!
+  exercises: [Exercise!]!
+}
+
+type Query {
+  user: User
+  workout(id: Int!): Workout
+  exercises: [ExerciseConfiguration!]!
+}
+
+input CompleteExerciseInput {
+  exerciseId: Int!
+}
+
+type CompleteExercisePayload {
+  exercise: Exercise
+}
+
+input CompleteWorkoutInput {
+  workoutId: Int!
+}
+
+type CompleteWorkoutPayload {
+  workout: Workout
+}
+
+input UpdateInitialWeightInput {
+  exerciseId: Int!
+  weight: Float!
+}
+
+type UpdateInitialWeightPayload {
+  exercise: Exercise
+}
+
+input IncludeExerciseInput {
+  exerciseId: Int!
+}
+
+type IncludeExercisePayload {
+  exercise: Exercise
+}
+
+type CompleteConfigurationPayload {
+  user: User
+}
+
+type Mutation {
+  completeExercise(input: CompleteExerciseInput!): CompleteExercisePayload
+  completeWorkout(input: CompleteWorkoutInput!): CompleteWorkoutPayload
+  toggleIncludeExercise(input: IncludeExerciseInput!): IncludeExercisePayload
+  updateInitialWeight(
+    input: UpdateInitialWeightInput!
+  ): UpdateInitialWeightPayload
+  completeConfiguration: CompleteConfigurationPayload
+}
