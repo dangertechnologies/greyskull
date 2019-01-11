@@ -1,10 +1,5 @@
-import React from "react";
-import {
-  TouchableOpacity,
-  TouchableOpacityProps,
-  Text,
-  StyleSheet
-} from "react-native";
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 
 interface IButtonProps extends TouchableOpacityProps {
   children: React.ReactNode;
@@ -22,18 +17,18 @@ const Btn = (props: IButtonProps) => {
 const styles = StyleSheet.create({
   button: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#FFFFFF",
+    borderColor: '#FFFFFF',
     padding: 20,
-    width: "100%",
+    width: '100%',
     borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
     fontSize: 20,
-    fontWeight: "200",
-    color: "#FFFFFF"
-  }
+    fontWeight: '200',
+    color: '#FFFFFF',
+  },
 });
 
 export default Btn;

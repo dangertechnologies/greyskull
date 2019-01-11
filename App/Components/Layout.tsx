@@ -1,11 +1,6 @@
-import React from "react";
-import {
-  ImageBackground,
-  View,
-  ImageSourcePropType,
-  StyleSheet
-} from "react-native";
-import Title from "./Title";
+import React from 'react';
+import { ImageBackground, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import Title from './Title';
 
 interface ILayoutProps {
   children: React.ReactNode;
@@ -15,13 +10,7 @@ interface ILayoutProps {
   containerStyle?: object;
 }
 
-const Layout = ({
-  children,
-  title,
-  subtitle,
-  image,
-  containerStyle
-}: ILayoutProps) => (
+const Layout = ({ children, title, subtitle, image, containerStyle }: ILayoutProps) => (
   <ImageBackground source={image} style={styles.background}>
     {title && <Title title={title} subtitle={subtitle} />}
 
@@ -32,15 +21,18 @@ const Layout = ({
 const styles = StyleSheet.create({
   background: {
     ...StyleSheet.absoluteFillObject,
-    resizeMode: "cover",
-    paddingTop: 50
+
+    paddingTop: 50,
+    resizeMode: 'cover',
   },
 
   container: {
-    flexGrow: 1,
+    display: 'flex',
     flex: 1,
-    marginHorizontal: 50
-  }
+    flexDirection: 'column',
+    flexGrow: 1,
+    marginHorizontal: 50,
+  },
 });
 
 export default Layout;

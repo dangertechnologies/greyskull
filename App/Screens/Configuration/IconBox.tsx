@@ -1,14 +1,14 @@
-import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
 
-import Icon, { IExerciseIconProps } from "../../Components/ExerciseIcon";
-import { ExerciseConfiguration } from "../../Apollo/types";
+import Icon, { IExerciseIconProps } from '../../Components/ExerciseIcon';
+import { IExerciseConfiguration } from '../../Providers/Types';
 
 interface IIconBox {
-  exercises: ExerciseConfiguration[];
+  exercises: IExerciseConfiguration[];
   title: string;
-  checked?(exercise: ExerciseConfiguration): boolean | undefined;
-  onIconPress?(exercise: ExerciseConfiguration): any;
+  checked?(exercise: IExerciseConfiguration): boolean | undefined;
+  onIconPress?(exercise: IExerciseConfiguration): any;
 }
 const IconBox = ({ exercises, title, checked, onIconPress }: IIconBox) => (
   <View style={styles.exerciseArea}>
@@ -18,7 +18,7 @@ const IconBox = ({ exercises, title, checked, onIconPress }: IIconBox) => (
         <Icon
           onPress={() => onIconPress && onIconPress(e)}
           key={e.shortName}
-          name={e.icon as IExerciseIconProps["name"]}
+          name={e.icon as IExerciseIconProps['name']}
           label={e.name}
           checked={checked && checked(e)}
           style={styles.iconContainer}
@@ -30,38 +30,38 @@ const IconBox = ({ exercises, title, checked, onIconPress }: IIconBox) => (
 
 const styles = StyleSheet.create({
   exerciseArea: {
-    height: 200
+    height: 200,
   },
 
   exercisesTitle: {
-    fontWeight: "300",
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 20,
-    textAlign: "center",
-    marginVertical: 10
+    fontWeight: '300',
+    marginVertical: 10,
+    textAlign: 'center',
   },
 
   check: {
-    position: "absolute",
+    position: 'absolute',
     right: 0,
-    top: 0
+    top: 0,
   },
 
   icons: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-evenly",
-    width: "100%",
-    flexWrap: "wrap"
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+    width: '100%',
   },
 
   iconContainer: {
+    alignItems: 'center',
     flex: undefined,
+    justifyContent: 'center',
     marginVertical: 10,
-    width: "33.333%",
-    alignItems: "center",
-    justifyContent: "center"
-  }
+    width: '33.333%',
+  },
 });
 
 export default IconBox;

@@ -5,6 +5,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "eject": "expo eject",
+    "lint": "tslint App/**/*.{ts,tsx}",
     "ts:graphql": "graphql-to-typescript App/Apollo/Schema.gql App/Apollo/Types.ts; apollo-codegen introspect-schema App/Apollo/Schema.gql --output App/Apollo/schema.json"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "graphql-tag": "^2.10.0",
     "graphql-tools": "^4.0.3",
     "lodash": "^4.17.11",
+    "memoize-one": "^5.0.0",
     "react": "16.5.0",
     "react-apollo": "^2.3.3",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
@@ -29,6 +31,7 @@
     "@types/graphql": "^14.0.4",
     "@types/jest": "^23.3.12",
     "@types/lodash": "^4.14.119",
+    "@types/memoize-one": "^4.1.0",
     "@types/react": "^16.7.18",
     "@types/react-native": "^0.57.26",
     "@types/react-navigation": "^3.0.1",
@@ -44,6 +47,7 @@
     "react-test-renderer": "^16.7.0",
     "ts-jest": "^23.10.5",
     "tslint": "^5.12.0",
+    "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.17.0",
     "tslint-plugin-prettier": "^2.0.1",
     "tslint-react": "^3.6.0",

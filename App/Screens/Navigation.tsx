@@ -1,24 +1,27 @@
-import { createStackNavigator, createAppContainer } from "react-navigation";
-import ConfigurationScreen from "./Configuration";
-import LaunchScreen from "./Launch";
-import ScheduleScreen from "./Schedule";
-import WorkoutScreen from "./Workout";
-import WorkoutBenchmarkScreen from "./WorkoutBenchmark";
-import WorkoutSummaryScreen from "./WorkoutSummary";
+import { createAppContainer, createStackNavigator } from 'react-navigation';
+import Configuration from './Configuration';
+import Launch from './Launch';
+import Schedule from './Schedule';
+import Workout from './Workout';
+import WorkoutBenchmark from './WorkoutBenchmark';
+import WorkoutSummary from './WorkoutSummary';
 
 export default createAppContainer(
   createStackNavigator(
     {
-      ConfigurationScreen,
-      LaunchScreen,
-      ScheduleScreen,
-      WorkoutScreen,
-      WorkoutBenchmarkScreen,
-      WorkoutSummaryScreen
+      ConfigurationScreen: Configuration,
+      LaunchScreen: Launch,
+      ScheduleScreen: Schedule,
+      WorkoutBenchmarkScreen: WorkoutBenchmark,
+      WorkoutScreen: Workout,
+      WorkoutSummaryScreen: WorkoutSummary,
     },
     {
-      initialRouteName: "ConfigurationScreen",
-      headerMode: "none"
+      headerMode: 'none',
+      initialRouteName: 'ScheduleScreen',
+      containerOptions: {
+        style: { flex: 1 },
+      },
     }
   )
 );

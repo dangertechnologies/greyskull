@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import React from 'react';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 
 interface ITitleProps {
   title: string;
@@ -7,7 +7,7 @@ interface ITitleProps {
   containerStyle?: object;
 }
 
-const { width } = Dimensions.get("screen");
+const { width } = Dimensions.get('screen');
 
 const Title = ({ title, subtitle, containerStyle }: ITitleProps) => (
   <View style={[styles.titleContainer, containerStyle]}>
@@ -22,26 +22,26 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginHorizontal: 50,
     width: width - 100,
-    alignItems: "center",
-    justifyContent: "center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
-    fontWeight: "100",
-    color: "#FFFFFF",
-    fontSize: 48
+    fontWeight: '100',
+    color: '#FFFFFF',
+    fontSize: 48,
   },
   subtitle: {
-    fontWeight: "100",
-    color: "#FFFFFF",
-    fontSize: 24
+    fontWeight: '100',
+    color: '#FFFFFF',
+    fontSize: 24,
   },
   line: {
     height: StyleSheet.hairlineWidth,
     width: width - 100,
     marginHorizontal: 50,
     marginVertical: 5,
-    backgroundColor: "#FFFFFF"
-  }
+    backgroundColor: '#FFFFFF',
+  },
 });
 
 export default Title;

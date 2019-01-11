@@ -1,134 +1,133 @@
-import { ExerciseConfiguration, Repetition } from "../Apollo/Types";
-import Icons from "./Icons";
+import { IExerciseConfiguration, IRepetition } from '../Providers/Types';
+import Icons from './Icons';
 
-type ExerciseConfig = Pick<
-  ExerciseConfiguration,
-  Exclude<keyof ExerciseConfiguration, "id" | "initialWeight">
-> & { icon: keyof typeof Icons };
-
-type Exercises = {
-  [key: string]: ExerciseConfig;
-};
-
-const DEFAULT_REPS: Repetition[] = [
+const DEFAULT_REPS: IRepetition[] = [
   { count: 5, weightFactor: 0.5 },
   { count: 4, weightFactor: 0.55 },
   { count: 3, weightFactor: 0.7 },
   { count: 2, weightFactor: 0.85 },
   { count: 5, weightFactor: 1 },
   { count: 5, weightFactor: 1 },
-  { count: null, weightFactor: 1 }
-].map(rep => ({ __typename: "Repetition", ...rep }));
-
-const AMRAP_REPS_WITH_SETS = [
-  { count: 5, weightFactor: 1 },
-  { count: 5, weightFactor: 1 },
-  { count: null, weightFactor: 1 }
-].map(rep => ({ __typename: "Repetition", ...rep }));
-
-const AMRAP_REPS_ONLY = [
   { count: null, weightFactor: 1 },
-  { count: null, weightFactor: 1 }
-].map(rep => ({ __typename: "Repetition", ...rep }));
+];
 
-const DEFAULT_EXERCISES: Exercises = {
-  BARBELL_SQUAT: {
-    include: "REQUIRED",
-    name: "Barbell Squat",
-    shortName: "Squat",
-    icon: "squat",
+const AMRAP_REPS_WITH_SETS: IRepetition[] = [
+  { count: 5, weightFactor: 1 },
+  { count: 5, weightFactor: 1 },
+  { count: null, weightFactor: 1 },
+];
+
+const AMRAP_REPS_ONLY: IRepetition[] = [
+  { count: null, weightFactor: 1 },
+  { count: null, weightFactor: 1 },
+];
+
+const DEFAULT_EXERCISES: IExerciseConfiguration[] = [
+  {
+    badForm: ['Arc your back', 'Lift heels off the ground'],
+    goodForm: ['Squat all the way down', 'Align knees and toes', 'Keep back straight'],
+    icon: 'squat',
+    include: 'REQUIRED',
     incrementFactor: 2,
-    slot: "ODD",
-    goodForm: [],
-    badForm: [],
-    reps: DEFAULT_REPS
+    initialWeight: null,
+    name: 'Barbell Squat',
+    reps: DEFAULT_REPS,
+    shortName: 'Squat',
+    slot: 'ODD',
   },
 
-  DEADLIFT: {
-    include: "REQUIRED",
-    name: "Deadlift",
-    shortName: "Deadlift",
-    icon: "deadlift",
+  {
+    badForm: [],
+    goodForm: [],
+    icon: 'deadlift',
+    include: 'REQUIRED',
     incrementFactor: 2,
-    slot: "EVEN",
-    goodForm: [],
-    badForm: [],
-    reps: DEFAULT_REPS
+    initialWeight: null,
+    name: 'Deadlift',
+    reps: DEFAULT_REPS,
+    shortName: 'Deadlift',
+    slot: 'EVEN',
   },
 
-  BENCH_PRESS: {
-    include: "REQUIRED",
-    name: "Bench-press",
-    shortName: "Bench",
-    icon: "incline-push",
-    incrementFactor: 1,
-    slot: "ODD",
-    goodForm: [],
+  {
     badForm: [],
-    reps: DEFAULT_REPS
+    goodForm: [],
+    icon: 'incline-push',
+    include: 'REQUIRED',
+    incrementFactor: 1,
+    initialWeight: null,
+    name: 'Bench-press',
+    reps: DEFAULT_REPS,
+    shortName: 'Bench',
+    slot: 'ODD',
   },
 
-  MILITARY_PRESS: {
-    include: "REQUIRED",
-    name: "Military press",
-    shortName: "Press",
-    icon: "military-press",
-    incrementFactor: 1,
-    slot: "EVEN",
-    goodForm: [],
+  {
     badForm: [],
-    reps: DEFAULT_REPS
+    goodForm: [],
+    icon: 'military-press',
+    include: 'REQUIRED',
+    incrementFactor: 1,
+    initialWeight: null,
+    name: 'Military press',
+    reps: DEFAULT_REPS,
+    shortName: 'Press',
+    slot: 'EVEN',
   },
 
-  CHIN_UP: {
-    include: "REQUIRED",
-    name: "Chin-up",
-    shortName: "Chin",
-    icon: "pullups",
-    incrementFactor: 1,
-    slot: "ODD",
-    goodForm: [],
+  {
     badForm: [],
-    reps: AMRAP_REPS_ONLY
+    goodForm: [],
+    icon: 'pullups',
+    include: 'REQUIRED',
+    incrementFactor: 1,
+    initialWeight: null,
+    name: 'Chin-up',
+    reps: AMRAP_REPS_ONLY,
+    shortName: 'Chin',
+    slot: 'ODD',
   },
 
-  CURLS: {
-    include: "REQUIRED",
-    name: "Curls",
-    shortName: "Curls",
-    icon: "curls",
-    incrementFactor: 1,
-    slot: "EVEN",
-    goodForm: [],
+  {
     badForm: [],
-    reps: AMRAP_REPS_ONLY
-  }
-};
+    goodForm: [],
+    icon: 'curls',
+    include: 'REQUIRED',
+    incrementFactor: 1,
+    initialWeight: null,
+    name: 'Curls',
+    reps: AMRAP_REPS_ONLY,
+    shortName: 'Curls',
+    slot: 'EVEN',
+  },
+];
 
-const OPTIONAL_EXERCISES: Exercises = {
-  CRUNCHES: {
-    include: "EXCLUDED",
-    name: "Weighted crunches",
-    shortName: "Crunches",
-    icon: "crunches",
-    incrementFactor: 1,
-    slot: "EVERY",
-    goodForm: [],
+const OPTIONAL_EXERCISES: IExerciseConfiguration[] = [
+  {
     badForm: [],
-    reps: AMRAP_REPS_WITH_SETS
+    goodForm: [],
+    icon: 'crunches',
+    include: 'EXCLUDED',
+    incrementFactor: 1,
+    initialWeight: null,
+    name: 'Weighted crunches',
+    reps: AMRAP_REPS_WITH_SETS,
+    shortName: 'Crunches',
+    slot: 'EVERY',
   },
 
-  BENT_OVER_ROW: {
-    include: "EXCLUDED",
-    name: "Bent-over row",
-    shortName: "Incline row",
-    icon: "row",
-    incrementFactor: 1,
-    slot: "EVERY",
-    goodForm: [],
+  {
     badForm: [],
-    reps: AMRAP_REPS_WITH_SETS
-  }
-};
+    goodForm: [],
+    icon: 'row',
+    include: 'EXCLUDED',
+    incrementFactor: 1,
+    initialWeight: null,
+    name: 'Bent-over row',
+    reps: AMRAP_REPS_WITH_SETS,
+    shortName: 'Incline row',
+    slot: 'EVERY',
+  },
+];
 
-export default { ...DEFAULT_EXERCISES, ...OPTIONAL_EXERCISES };
+export default [...DEFAULT_EXERCISES, ...OPTIONAL_EXERCISES];

@@ -1,19 +1,19 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 
-import { NavigationScreenProps, NavigationState } from "react-navigation";
-import { compose } from "recompose";
+import { NavigationScreenProps, NavigationState } from 'react-navigation';
+import { compose } from 'recompose';
 
-import Layout from "../../Components/Layout";
+import Layout from '../../Components/Layout';
 
 interface IScreenProps extends NavigationScreenProps<NavigationState> {}
 
-const BACKGROUND_IMAGE = require("../../Images/Backgrounds/squat-blur.jpg");
+const BACKGROUND_IMAGE = require('../../Images/Backgrounds/squat-blur.jpg');
 
 class Screen extends React.Component<IScreenProps> {
   public render(): JSX.Element {
     return (
-      <Layout image={BACKGROUND_IMAGE} title="Barbell Squat">
+      <Layout image={BACKGROUND_IMAGE} title="Barbell Squatzzz">
         <View />
       </Layout>
     );
