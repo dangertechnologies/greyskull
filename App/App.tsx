@@ -1,15 +1,19 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Provider } from './Providers/ApplicationState';
+import { StatusBar, StyleSheet, View } from 'react-native';
+import { WebReaderProvider } from './Components/WebReader';
 import Navigation from './Screens';
+import { Provider } from './Store/ApplicationState';
 
 export default class App extends React.Component {
   public render() {
     return (
       <Provider>
-        <View style={styles.container}>
-          <Navigation />
-        </View>
+        <WebReaderProvider>
+          <View style={styles.container}>
+            <StatusBar backgroundColor="transparent" barStyle="light-content" />
+            <Navigation />
+          </View>
+        </WebReaderProvider>
       </Provider>
     );
   }

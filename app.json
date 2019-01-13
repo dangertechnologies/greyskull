@@ -1,29 +1,26 @@
 {
   "expo": {
-    "name": "greyskull",
+    "name": "GSLP: 8 Weeks",
+    "description": "GSLP is a popular training program based around compound exercises. I didnt find an app I liked and thought I'd make my own. Fitness icons are from icons8.com, and most photos are by the talented Alora Griffiths (https://unsplash.com/@aloragriffiths) and Leon Martinez (https://www.pexels.com/@leon-martinez-714926)",
     "slug": "greyskull",
     "privacy": "public",
     "sdkVersion": "32.0.0",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dangertechnologies.gslp"
     }
   }
 }

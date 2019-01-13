@@ -18,7 +18,7 @@ export default createAppContainer(
     },
     {
       headerMode: 'none',
-      initialRouteName: 'ScheduleScreen',
+      initialRouteName: 'LaunchScreen',
       containerOptions: {
         style: { flex: 1 },
       },

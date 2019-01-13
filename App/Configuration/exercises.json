@@ -1,0 +1,185 @@
+{
+  "BARBELL_SQUAT": {
+    "badForm": ["Arc your back", "Lift heels off the ground"],
+    "description": "The Squat is the king of all exercises. Squats work the whole body: Your legs bend and straighten to move the weight; your abs and lower back muscles stabilize your trunk while your legs move; your upper back, shoulders and arms balance the bar on your back",
+    "goodForm": ["Squat all the way down", "Align knees and toes", "Keep back straight"],
+    "icon": "squat",
+    "include": "REQUIRED",
+    "incrementFactor": 2,
+    "initialWeight": null,
+    "name": "Barbell Squat",
+    "reps": "DEFAULT_REPS",
+    "shortName": "Squat",
+    "slot": "ODD",
+    "url": "https://stronglifts.com/squat/#Squat_Technique",
+    "video": "https://youtu.be/EP2g3Sj3qSw"
+  },
+
+  "DEADLIFT": {
+    "badForm": [
+      "Bounce the bar against the floor",
+      "Arc your lower back",
+      "Start with bar in the air",
+      "Start in a squatted position",
+      "Lean back when standing up",
+      "Shrug when standing up"
+    ],
+    "description": "The “dead” in Deadlift stands for dead weight. So every rep must start on the floor, from a dead stop. You don’t Deadlift top-down like on the Squat or Bench Press. You start at the bottom, pull the weight up and then return it to the floor",
+    "goodForm": [
+      "Mid-foot under the barbell",
+      "Grip with a shoulder-wide grip",
+      "Bend knees until shins touch the bar",
+      "Chest out, lower back straight"
+    ],
+    "icon": "deadlift",
+    "include": "REQUIRED",
+    "incrementFactor": 2,
+    "initialWeight": null,
+    "name": "Deadlift",
+    "reps": "DEFAULT_REPS",
+    "shortName": "Deadlift",
+    "slot": "EVEN",
+    "url": "https://stronglifts.com/deadlift/",
+    "video": "https://youtu.be/WP8lEbeY4LM"
+  },
+
+  "BENCH_PRESS": {
+    "badForm": [
+      "Keep elbows straight",
+      "Keep elbows too bent",
+      "Hold the bar with a thumbless grip"
+    ],
+    "description": "Bench-press is a full body compound exercise that works your chest, shoulders and triceps. The bench press is the most effective exercise for upper-body strength.",
+    "goodForm": [
+      "Start with eyes under bar",
+      "Grab with medium grip-width",
+      "Grip with thumbs around the bar",
+      "Lower bar to mid-chest",
+      "Press up until arms straight"
+    ],
+    "icon": "bench-press",
+    "include": "REQUIRED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Bench-press",
+    "reps": "DEFAULT_REPS",
+    "shortName": "Bench",
+    "slot": "ODD",
+    "url": "https://stronglifts.com/bench-press/"
+  },
+
+  "MILITARY_PRESS": {
+    "background": "overhead-press",
+    "badForm": [
+      "Keep your elbows behind the bar",
+      "Bend your knees",
+      "Arch your back",
+      "Lean back",
+      "Bend your wrists"
+    ],
+    "description": "The Overhead Press is a full body, compound exercise. Your shoulders and arms press the weight over your head while your legs, lower back and abs balance you. The Overhead Press is one of the best exercises to build strong, muscular and healthy shoulders with bigger arms.",
+    "goodForm": [
+      "Stand with heels hip-width apart",
+      "Keep feet flat on the floor",
+      "Hold bar low in your hand",
+      "Grip with hands just outside shoulders",
+      "Grip with palms facing yourself"
+    ],
+    "icon": "military-press",
+    "include": "REQUIRED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Overhead press",
+    "reps": "DEFAULT_REPS",
+    "shortName": "Press",
+    "slot": "EVEN",
+    "url": "https://stronglifts.com/overhead-press/",
+    "video": "https://youtu.be/ro3Mh9o7JPU"
+  },
+
+  "CHINUPS": {
+    "background": "pullups",
+    "badForm": ["Do half reps"],
+    "description": "Pullups (and chin-ups) are hard because you have to lift your entire body weight on day one. If you can't do one chin-up, do negatives: Climb up to the top position, and lift yourself down. Everybody is stronger on the way down, so you can do this. When you can do 10 good form negatives, you can do one chin-up.",
+    "goodForm": [
+      "Grab pullup bar with palms down",
+      "Grip with hands shoulder-width apart",
+      "Pull up by pulling elbows towards the floor",
+      "Go all the way up until chin passes bar"
+    ],
+    "bodyWeight": true,
+    "icon": "pullups",
+    "include": "REQUIRED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Chin-up",
+    "reps": "AMRAP_REPS_ONLY",
+    "shortName": "Chin",
+    "slot": "ODD",
+    "url": "https://stronglifts.com/pullups/",
+    "video": "https://www.youtube.com/watch?v=T78xCiw_R6g"
+  },
+
+  "CURLS": {
+    "background": "curls",
+    "badForm": ["Swing back and forth", "Lean back", "Use your knees"],
+    "description": "",
+    "goodForm": [
+      "Stand with torso upright",
+      "Shoulder-wide grip",
+      "Palms facing away from you",
+      "Only forearms should move"
+    ],
+    "icon": "curls",
+    "include": "REQUIRED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Curls",
+    "reps": "AMRAP_REPS_ONLY",
+    "shortName": "Curls",
+    "slot": "EVEN",
+    "url": "https://www.bodybuilding.com/exercises/barbell-curl"
+  },
+
+  "CRUNCHES": {
+    "background": "crunches",
+    "badForm": [],
+    "bodyweight": true,
+    "description": "",
+    "goodForm": [
+      "Hold weight to your chest",
+      "Knees bent at 90 degrees",
+      "Exhale when rising",
+      "Hold abs briefly at top of movement"
+    ],
+    "icon": "crunches",
+    "include": "EXCLUDED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Weighted crunches",
+    "reps": "AMRAP_REPS_WITH_SETS",
+    "shortName": "Crunches",
+    "slot": "EVERY",
+    "video": "https://www.youtube.com/watch?v=cbwLMF7oJGI"
+  },
+
+  "BENT_OVER_ROW": {
+    "badForm": ["Use your hips"],
+    "description": "Barbell Rows are a full body, compound exercise. They work your upper-back, lower back, hips and arms. They build a stronger, muscular back and bigger biceps. Barbell Rows are one of the most effective assistance exercises you can do to increase your Squat, Bench Press and Deadlift.",
+    "goodForm": [
+      "Stand with mid-foot under the bar",
+      "Lift chest and straighten back",
+      "Pull bar against your lower chest"
+    ],
+    "icon": "row",
+    "include": "EXCLUDED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Bent-over row",
+    "reps": "AMRAP_REPS_WITH_SETS",
+    "shortName": "Incline row",
+    "slot": "EVERY",
+    "url": "https://stronglifts.com/barbell-row/",
+    "video": "https://youtu.be/gQBSRBgRLVI"
+  }
+}

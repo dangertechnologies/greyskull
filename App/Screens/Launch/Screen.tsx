@@ -1,22 +1,35 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import { get } from 'lodash';
+import React from 'react';
+import { StyleSheet } from 'react-native';
 
-import { NavigationScreenProps, NavigationState } from "react-navigation";
-import { compose } from "recompose";
+import { NavigationScreenProps, NavigationState } from 'react-navigation';
+import { compose } from 'recompose';
 
-import Layout from "../../Components/Layout";
-import Title from "../../Components/Title";
+import Layout from '../../Components/Layout/Layout';
+import Title from '../../Components/Layout/Title';
+import Backgrounds from '../../Images/Backgrounds';
+import { IAppState, withApplicationState } from '../../Store';
 
-interface IScreenProps extends NavigationScreenProps<NavigationState> {}
-
-const BACKGROUND_IMAGE = require("../../Images/Backgrounds/athlete-nonfree-blur.jpg");
+interface IScreenProps extends NavigationScreenProps<NavigationState>, IAppState {}
 
 class Screen extends React.Component<IScreenProps> {
+  public componentDidMount() {
+    setTimeout(this.redirect, 2000);
+  }
+
+  public redirect = () => {
+    if (get(this.props, 'store.configuration.initialSetupComplete')) {
+      this.props.navigation.navigate('ScheduleScreen');
+    } else {
+      this.props.navigation.navigate('ConfigurationScreen');
+    }
+  };
+
   public render(): JSX.Element {
     return (
       <Layout
-        image={BACKGROUND_IMAGE}
-        containerStyle={{ alignItems: "center", justifyContent: "center" }}
+        image={Backgrounds['woman-with-barbell']}
+        containerStyle={{ alignItems: 'center', justifyContent: 'center' }}
       >
         <Title
           title="Greyskull LP"
@@ -30,4 +43,4 @@ class Screen extends React.Component<IScreenProps> {
 
 const styles = StyleSheet.create({});
 
-export default compose<IScreenProps, IScreenProps>()(Screen);
+export default compose<IScreenProps, IScreenProps>(withApplicationState)(Screen);

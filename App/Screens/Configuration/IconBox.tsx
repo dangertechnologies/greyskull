@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 
 import Icon, { IExerciseIconProps } from '../../Components/ExerciseIcon';
-import { IExerciseConfiguration } from '../../Providers/Types';
+import { IExerciseConfiguration } from '../../Store/Types';
 
 interface IIconBox {
   exercises: IExerciseConfiguration[];

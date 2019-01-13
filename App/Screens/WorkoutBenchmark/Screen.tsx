@@ -1,66 +1,65 @@
-import { findIndex } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { NavigationScreenProps, NavigationState } from 'react-navigation';
 import { compose } from 'recompose';
 
-import buildShedule from '../../Configuration/ScheduleBuilder';
+import { buildSchedule, ExerciseDefinitions } from '../../Configuration';
 
-import BenchmarkWorkout from '../../Components/BenchmarkWorkout';
-import { withApplicationState } from '../../Providers/ApplicationState';
-import { IApplicationState } from '../../Providers/Types';
+import BenchmarkWorkout from '../../Components/Exercise/Benchmark';
+import { IAppState, withApplicationState } from '../../Store/ApplicationState';
 
-interface IScreenProps extends NavigationScreenProps<NavigationState> {
-  configuration: IApplicationState['configuration'];
-  workoutPlan: IApplicationState['workoutPlan'];
-  update(plan: IApplicationState['workoutPlan']): any;
-}
+interface IScreenProps extends NavigationScreenProps<NavigationState>, IAppState {}
 
 interface IScreenState {
-  currentIndex: number;
+  currentKey: keyof typeof ExerciseDefinitions | null;
 }
 class Screen extends React.Component<IScreenProps> {
-  state: IScreenState = {
-    currentIndex: 0,
+  public state: IScreenState = {
+    currentKey: null,
   };
 
   public componentDidMount() {
+    const { store } = this.props;
+
     this.setState({
-      currentIndex: findIndex(
-        this.props.configuration.exercises,
-        ({ initialWeight }) => !initialWeight
+      currentKey: Object.keys(store.configuration.exercises).find(
+        key => !get(store.configuration, `weights.${key}.initial`)
       ),
     });
   }
 
   public next = () => {
-    if (!this.props.configuration.exercises.some(({ initialWeight }) => !initialWeight)) {
-      this.props.update(buildShedule(this.props.configuration.exercises));
+    const { store } = this.props;
+
+    const nextUnsetKey = Object.keys(store.configuration.exercises).find(
+      key =>
+        !get(store.configuration, `weights.${key}.initial`) &&
+        !get(store.configuration, `exercises.${key}.bodyweight`, false)
+    );
+    console.log({ nextUnsetKey });
+    if (!nextUnsetKey) {
+      this.props.update(buildSchedule(store));
       this.props.navigation.navigate('ScheduleScreen');
     } else {
       this.setState({
-        currentIndex: findIndex(
-          this.props.configuration.exercises,
-          ({ initialWeight }) => !initialWeight
-        ),
+        currentKey: nextUnsetKey,
       });
     }
   };
 
   public render(): JSX.Element {
     return (
-      <BenchmarkWorkout
-        exerciseConfig={this.props.configuration.exercises[this.state.currentIndex]}
-        onDone={this.next}
-      />
+      <>
+        {this.state.currentKey && (
+          <BenchmarkWorkout exerciseName={this.state.currentKey} onDone={() => this.next()} />
+        )}
+      </>
     );
   }
 }
 
 const styles = StyleSheet.create({});
 
-export default compose<IScreenProps, IScreenProps>(
-  withApplicationState('configuration'),
-  withApplicationState('workoutPlan')
-)(Screen);
+export default compose<IScreenProps, IScreenProps>(withApplicationState)(Screen);

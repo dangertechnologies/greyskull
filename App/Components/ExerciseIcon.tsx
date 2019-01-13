@@ -1,19 +1,27 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native';
+import { pure } from 'recompose';
 
-// @ts-ignore
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Icons from '../Configuration/Icons';
+import Icons from '../Images/Icons';
 
 const styles = StyleSheet.create({
-  icon: {
-    width: 38,
-    height: 38,
-    resizeMode: 'cover',
+  check: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
   container: {
-    width: 38,
     height: 38,
+    width: 38,
+  },
+  faded: {
+    opacity: 0.5,
+  },
+  icon: {
+    height: 38,
+    resizeMode: 'cover',
+    width: 38,
   },
   label: {
     color: '#FFFFFF',
@@ -21,14 +29,6 @@ const styles = StyleSheet.create({
     fontWeight: '100',
     textAlign: 'center',
     width: '100%',
-  },
-  check: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
-  faded: {
-    opacity: 0.5,
   },
 });
 
@@ -58,4 +58,4 @@ const ExerciseIcon = ({ name, label, style, checked, onPress }: IExerciseIconPro
   );
 };
 
-export default ExerciseIcon;
+export default pure(ExerciseIcon);

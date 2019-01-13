@@ -1,0 +1,22 @@
+{
+  "DEFAULT_REPS": [
+    { "type": "WARMUP", "count": 5, "weightFactor": 0.5 },
+    { "type": "WARMUP", "count": 4, "weightFactor": 0.55 },
+    { "type": "WARMUP", "count": 3, "weightFactor": 0.7 },
+    { "type": "WARMUP", "count": 2, "weightFactor": 0.85 },
+    { "type": "NORMAL", "count": 5, "weightFactor": 1, "restTime": 30000 },
+    { "type": "NORMAL", "count": 5, "weightFactor": 1, "restTime": 30000 },
+    { "type": "AMRAP", "count": null, "weightFactor": 1, "restTime": 30000 }
+  ],
+
+  "AMRAP_REPS_WITH_SETS": [
+    { "type": "NORMAL", "count": 5, "weightFactor": 1, "restTime": 30000 },
+    { "type": "NORMAL", "count": 5, "weightFactor": 1, "restTime": 30000 },
+    { "type": "AMRAP", "count": null, "weightFactor": 1, "restTime": 30000 }
+  ],
+
+  "AMRAP_REPS_ONLY": [
+    { "type": "AMRAP", "count": null, "weightFactor": 1, "restTime": 30000 },
+    { "type": "AMRAP", "count": null, "weightFactor": 1, "restTime": 30000 }
+  ]
+}
