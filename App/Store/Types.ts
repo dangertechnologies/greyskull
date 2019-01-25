@@ -18,7 +18,7 @@ export interface IWorkoutSchedule {
 
 export interface IExercise {
   weight: number;
-  completed: string | null;
+  completed: number | null;
   amrap: number | null;
   definition: keyof typeof exercises;
 }

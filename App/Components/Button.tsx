@@ -16,18 +16,18 @@ const Btn = (props: IButtonProps) => {
 
 const styles = StyleSheet.create({
   button: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#FFFFFF',
-    padding: 20,
-    width: '100%',
-    borderRadius: 10,
     alignItems: 'center',
+    borderColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    height: 56,
     justifyContent: 'center',
+    width: '100%',
   },
   label: {
+    color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '200',
-    color: '#FFFFFF',
   },
 });
 

@@ -2,6 +2,7 @@ import { findIndex, isEqual, round } from 'lodash';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Grid } from '../Layout';
 
 interface IDataValueDisplayProps {
   value: number | string;
@@ -24,17 +25,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 72,
     minWidth: 120,
-    paddingLeft: 50,
     textAlign: 'center',
-  },
-
-  decreaseControl: {},
-  increaseControl: {},
-
-  value: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
 });
 
@@ -67,32 +58,28 @@ class DataValueDisplay extends React.PureComponent<IDataValueDisplayProps> {
   public render(): JSX.Element {
     const { allowInput, step, value, onChange, unit } = this.props;
     return (
-      <View style={styles.container}>
-        {allowInput && (
-          <TouchableOpacity
-            style={styles.decreaseControl}
-            onPressIn={this.decrease}
-            onPressOut={this.stopTimers}
-          >
-            <Ionicons name="ios-remove" size={40} color="#FFFFFF" />
-          </TouchableOpacity>
-        )}
-        <View style={styles.value}>
+      <Grid row vertical="center">
+        <Grid size={2} vertical="center">
+          {allowInput && (
+            <TouchableOpacity onPressIn={this.decrease} onPressOut={this.stopTimers}>
+              <Ionicons name="ios-remove" size={40} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </Grid>
+        <Grid row size={8} vertical="bottom" horizontal="center">
           <Text allowFontScaling style={styles.valueLabel}>
             {value}
           </Text>
           <Text style={styles.unit}>{unit}</Text>
-        </View>
-        {allowInput && (
-          <TouchableOpacity
-            style={styles.increaseControl}
-            onPressIn={this.increase}
-            onPressOut={this.stopTimers}
-          >
-            <Ionicons name="ios-add" size={40} color="#FFFFFF" />
-          </TouchableOpacity>
-        )}
-      </View>
+        </Grid>
+        <Grid size={2} vertical="center" horizontal="right">
+          {allowInput && (
+            <TouchableOpacity onPressIn={this.increase} onPressOut={this.stopTimers}>
+              <Ionicons name="ios-add" size={40} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </Grid>
+      </Grid>
     );
   }
 }

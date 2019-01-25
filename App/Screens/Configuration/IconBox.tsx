@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import Icon, { IExerciseIconProps } from '../../Components/ExerciseIcon';
 import { IExerciseConfiguration } from '../../Store/Types';
@@ -30,7 +30,8 @@ const IconBox = ({ exercises, title, checked, onIconPress }: IIconBox) => (
 
 const styles = StyleSheet.create({
   exerciseArea: {
-    height: 200,
+    height: '100%',
+    marginTop: 15,
   },
 
   exercisesTitle: {

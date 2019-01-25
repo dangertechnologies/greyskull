@@ -1,14 +1,13 @@
 import { findIndex, isEqual, round } from 'lodash';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StyleSheet, Text, View } from 'react-native';
 import { compose, withState } from 'recompose';
 
 import { ExerciseSetDefinitions } from '../../Configuration';
 import Backgrounds from '../../Images/Backgrounds';
 import { IAppState, IExercise, withApplicationState } from '../../Store';
 import Button from '../Button';
-import Layout from '../Layout/Layout';
+import { Grid, ScreenLayout, ScreenTitle } from '../Layout';
 import RestTimer from '../RestTimer';
 import DataValueDisplay from './DataValueDisplay';
 import FormDescription from './Hints';
@@ -23,24 +22,13 @@ interface IWorkoutProps {
 interface IWorkoutInnerProps extends IWorkoutProps, IAppState {
   exerciseSetIndex: number;
   restTime: number | null;
+  amrap: 0;
+  setAMRAP(num: number): void;
   setExerciseSetIndex(idx: number): any;
   setRestTime(ms: number | null): any;
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexGrow: 1,
-    justifyContent: 'space-evenly',
-    paddingBottom: 30,
-  },
-  formDescription: {
-    flexDirection: 'row',
-    height: 200,
-    marginBottom: 50,
-    marginTop: 50,
-    width: '100%',
-  },
   formDivider: {
     backgroundColor: '#FFFFFF',
     height: 100,
@@ -51,10 +39,8 @@ const styles = StyleSheet.create({
 
   instructions: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 20,
     fontWeight: '100',
-    marginBottom: 20,
-    marginTop: 20,
   },
 });
 
@@ -62,18 +48,31 @@ class Workout extends React.PureComponent<IWorkoutInnerProps> {
   public componentDidUpdate(oldProps: IWorkoutInnerProps) {
     if (this.props.exercise.definition !== oldProps.exercise.definition) {
       this.props.setExerciseSetIndex(0);
+      this.props.setAMRAP(0);
     }
   }
 
   public render() {
-    const { exercise, store, setExerciseSetIndex, exerciseSetIndex, onDone, onAMRAP } = this.props;
+    const {
+      exercise,
+      amrap,
+      setAMRAP,
+      store,
+      setExerciseSetIndex,
+      exerciseSetIndex,
+      onDone,
+      onAMRAP,
+    } = this.props;
     const definition = store.configuration.exercises[exercise.definition];
     const sets = ExerciseSetDefinitions[definition.reps as keyof typeof ExerciseSetDefinitions];
 
     const currentSet = sets[exerciseSetIndex > sets.length ? 0 : exerciseSetIndex];
 
     const weights = store.configuration.weights[exercise.definition];
-    const weight = Math.ceil(weights && weights.current ? weights.current : 0 / 0.25) * 0.25;
+    const weight =
+      Math.ceil(
+        Number(weights && weights.current ? weights.current * currentSet.weightFactor : 0) / 0.5
+      ) * 0.5;
 
     let supertitle;
 
@@ -104,38 +103,57 @@ class Workout extends React.PureComponent<IWorkoutInnerProps> {
     return !exercise ? null : (
       <>
         {definition.url && <Info url={definition.url} />}
-        <Layout
+        <ScreenLayout
           image={
             definition.background && Backgrounds[definition.background]
-              ? Backgrounds[definition.background]
-              : Backgrounds.default
+              ? definition.background
+              : 'default'
           }
-          title={definition.name}
-          supertitle={`${supertitle} #${setNumber}`}
-          subtitle={weight ? `${weight}kg` : ''}
         >
-          <View style={styles.container}>
-            <Text style={styles.instructions} adjustsFontSizeToFit>
+          <Grid size={2} vertical="center" horizontal="center">
+            <ScreenTitle
+              title={definition.name}
+              supertitle={`${supertitle} #${setNumber}`}
+              subtitle={weight ? `${weight}kg` : ''}
+            />
+          </Grid>
+
+          <Grid size={3} vertical="center">
+            <Text style={styles.instructions}>
               {currentSet.count !== null
-                ? ''
+                ? definition.description
                 : 'This is your time to shine. Perform as many reps as you possibly can with good form. If you can do more than 5, your weight will increase next time: This is progress!'}
             </Text>
+          </Grid>
 
+          <Grid size={2}>
             <DataValueDisplay
-              onChange={(value: number) => onAMRAP && onAMRAP(value)}
-              value={currentSet.count === null ? exercise.amrap || 0 : currentSet.count}
+              onChange={(value: number) => setAMRAP(value)}
+              value={currentSet.count === null ? amrap || 0 : currentSet.count}
               allowInput={currentSet.count === null}
               step={1}
               unit="reps"
             />
+          </Grid>
 
-            <View style={styles.formDescription}>
+          <Grid row size={4} style={{ justifyContent: 'space-between' }}>
+            <Grid size={5.5}>
               <FormDescription hints={definition.goodForm} />
+            </Grid>
+            <Grid size={1} vertical="center" horizontal="center">
               <View style={styles.formDivider} />
-              <FormDescription hints={definition.badForm} bad />
-            </View>
+            </Grid>
+            <Grid size={5.5}>
+              <FormDescription bad hints={definition.badForm} />
+            </Grid>
+          </Grid>
+
+          <Grid row size={1}>
             <Button
               onPress={() => {
+                if (!currentSet.count && onAMRAP) {
+                  onAMRAP(amrap);
+                }
                 if (exerciseSetIndex === sets.length - 1) {
                   onDone(exercise);
                 } else {
@@ -149,8 +167,8 @@ class Workout extends React.PureComponent<IWorkoutInnerProps> {
             >
               Done
             </Button>
-          </View>
-        </Layout>
+          </Grid>
+        </ScreenLayout>
       </>
     );
   }
@@ -159,5 +177,6 @@ class Workout extends React.PureComponent<IWorkoutInnerProps> {
 export default compose<IWorkoutInnerProps, IWorkoutProps>(
   withApplicationState,
   withState('exerciseSetIndex', 'setExerciseSetIndex', 0),
-  withState('restTime', 'setRestTime', null)
+  withState('restTime', 'setRestTime', null),
+  withState('amrap', 'setAMRAP', 0)
 )(Workout);

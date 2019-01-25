@@ -9,19 +9,14 @@ interface IFormDescriptionProps {
 
 const styles = StyleSheet.create({
   container: {},
-  formDescription: {
-    width: '49%',
-  },
   hint: {
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '100',
-    paddingRight: 5,
+    paddingLeft: 5,
   },
 
-  icon: {
-    marginRight: 5,
-  },
+  icon: {},
 
   title: {
     color: '#FFFFFF',
@@ -48,7 +43,7 @@ const Item = ({ bad, children }: { bad: boolean; children: React.ReactNode }) =>
 );
 
 const FormDescription = ({ hints, bad }: IFormDescriptionProps) => (
-  <View style={styles.formDescription}>
+  <>
     <View style={styles.titleContainer}>
       <Text style={styles.title}>{bad ? 'Dont' : 'Do'}</Text>
     </View>
@@ -58,6 +53,6 @@ const FormDescription = ({ hints, bad }: IFormDescriptionProps) => (
         <Item bad={!!bad}>{hint}</Item>
       ))}
     </View>
-  </View>
+  </>
 );
 export default FormDescription;

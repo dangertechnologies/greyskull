@@ -1,39 +1,45 @@
 import React from 'react';
-import { ImageBackground, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
-import Title from './Title';
+import { ImageBackground, SafeAreaView, StyleSheet } from 'react-native';
+import { compose } from 'recompose';
+
+import Backgrounds from '../../Images/Backgrounds';
 
 interface ILayoutProps {
   children: React.ReactNode;
-  title?: string;
-  subtitle?: string;
-  supertitle?: string;
-  image: ImageSourcePropType;
+  image: keyof typeof Backgrounds;
   containerStyle?: object;
 }
 
-const Layout = ({ children, title, subtitle, supertitle, image, containerStyle }: ILayoutProps) => (
-  <ImageBackground source={image} style={styles.background}>
-    {title && <Title title={title} subtitle={subtitle} supertitle={supertitle} />}
-
-    <View style={[styles.container, containerStyle]}>{children}</View>
-  </ImageBackground>
-);
+class Layout extends React.PureComponent<ILayoutProps> {
+  public render(): JSX.Element {
+    return (
+      <ImageBackground
+        source={Backgrounds[this.props.image] || Backgrounds.default}
+        resizeMode="cover"
+        style={styles.background}
+      >
+        <SafeAreaView style={[styles.container, this.props.containerStyle]}>
+          {this.props.children}
+        </SafeAreaView>
+      </ImageBackground>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   background: {
     ...StyleSheet.absoluteFillObject,
-
-    paddingTop: 50,
-    resizeMode: 'cover',
+    resizeMode: 'stretch',
   },
-
   container: {
+    alignItems: 'center',
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
     flexGrow: 1,
+    marginBottom: 20,
     marginHorizontal: 35,
-    zIndex: 1000,
+    zIndex: 2,
   },
 });
 

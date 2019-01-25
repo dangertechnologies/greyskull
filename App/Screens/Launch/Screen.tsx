@@ -5,8 +5,7 @@ import { StyleSheet } from 'react-native';
 import { NavigationScreenProps, NavigationState } from 'react-navigation';
 import { compose } from 'recompose';
 
-import Layout from '../../Components/Layout/Layout';
-import Title from '../../Components/Layout/Title';
+import { ScreenLayout, ScreenTitle } from '../../Components/Layout';
 import Backgrounds from '../../Images/Backgrounds';
 import { IAppState, withApplicationState } from '../../Store';
 
@@ -27,20 +26,18 @@ class Screen extends React.Component<IScreenProps> {
 
   public render(): JSX.Element {
     return (
-      <Layout
-        image={Backgrounds['woman-with-barbell']}
+      <ScreenLayout
+        image={'woman-with-barbell'}
         containerStyle={{ alignItems: 'center', justifyContent: 'center' }}
       >
-        <Title
+        <ScreenTitle
           title="Greyskull LP"
           subtitle="8 week program"
           containerStyle={{ marginTop: -100 }}
         />
-      </Layout>
+      </ScreenLayout>
     );
   }
 }
-
-const styles = StyleSheet.create({});
 
 export default compose<IScreenProps, IScreenProps>(withApplicationState)(Screen);

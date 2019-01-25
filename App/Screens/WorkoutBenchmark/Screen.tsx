@@ -38,11 +38,12 @@ class Screen extends React.Component<IScreenProps> {
         !get(store.configuration, `weights.${key}.initial`) &&
         !get(store.configuration, `exercises.${key}.bodyweight`, false)
     );
-    console.log({ nextUnsetKey });
     if (!nextUnsetKey) {
+      console.log('Continuing');
       this.props.update(buildSchedule(store));
       this.props.navigation.navigate('ScheduleScreen');
     } else {
+      console.log({ nextUnsetKey });
       this.setState({
         currentKey: nextUnsetKey,
       });

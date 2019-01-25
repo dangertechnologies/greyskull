@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text } from 'react-native';
+import { View } from 'react-native-animatable';
 
 interface ITitleProps {
   title: string;
@@ -12,7 +13,7 @@ interface ITitleProps {
 const { width } = Dimensions.get('screen');
 
 const Title = ({ title, subtitle, supertitle, center, containerStyle }: ITitleProps) => (
-  <View style={[styles.titleContainer, containerStyle]}>
+  <View style={[styles.titleContainer, containerStyle]} animation="fadeIn">
     <Text style={[styles.supertitle, center && { textAlign: 'center' }]}>{supertitle}</Text>
     <Text
       style={[
@@ -24,7 +25,7 @@ const Title = ({ title, subtitle, supertitle, center, containerStyle }: ITitlePr
       {title}
     </Text>
     <View style={styles.line} />
-    {subtitle && (
+    {!subtitle ? null : (
       <Text style={[styles.subtitle, center && { textAlign: 'center' }]}>{subtitle}</Text>
     )}
   </View>
@@ -33,9 +34,6 @@ const Title = ({ title, subtitle, supertitle, center, containerStyle }: ITitlePr
 const styles = StyleSheet.create({
   titleContainer: {
     alignItems: 'center',
-    marginHorizontal: 35,
-    marginTop: 50,
-    width: width - 70,
   },
   title: {
     color: '#FFFFFF',

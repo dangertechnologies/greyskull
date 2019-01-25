@@ -16,6 +16,7 @@
   },
 
   "DEADLIFT": {
+    "background": "deadlift",
     "badForm": [
       "Bounce the bar against the floor",
       "Arc your lower back",
@@ -107,7 +108,7 @@
       "Pull up by pulling elbows towards the floor",
       "Go all the way up until chin passes bar"
     ],
-    "bodyWeight": true,
+    "bodyweight": true,
     "icon": "pullups",
     "include": "REQUIRED",
     "incrementFactor": 1,

@@ -1,6 +1,6 @@
 import React from 'react';
-import Drawer from './Drawer';
 import { WebView } from 'react-native';
+import Drawer from './Drawer';
 
 interface IWebReaderProps {}
 interface IWebReaderState {

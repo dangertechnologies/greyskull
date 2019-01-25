@@ -5,8 +5,7 @@ import { IApplicationState } from './Types';
 
 const exercises = require('../Configuration/exercises.json');
 
-console.log({ exercises });
-const CACHE_KEY = `GSLP_STATE_9`;
+const CACHE_KEY = `GSLP_STATE_13`;
 
 type RecursivePartial<T> = { [P in keyof T]?: RecursivePartial<T[P]> };
 

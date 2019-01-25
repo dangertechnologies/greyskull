@@ -7,7 +7,7 @@ import { Consumer } from '../WebReader';
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    right: 40,
+    right: 15,
     top: 40,
     zIndex: 1001,
   },

@@ -1,6 +1,7 @@
 import { get } from 'lodash';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { createAnimatableComponent } from 'react-native-animatable';
 import { IAppState, IExerciseConfiguration, IWorkout, withApplicationState } from '../Store';
 import ExerciseIcon from './ExerciseIcon';
 
@@ -18,6 +19,8 @@ interface IWorkoutItemProps {
 
 interface IWorkoutItemInnerProps extends IWorkoutItemProps, IAppState {}
 
+const AnimatedButtonContainer = createAnimatableComponent(TouchableOpacity);
+
 const styles = StyleSheet.create({
   container: {
     borderColor: '#FFFFFF',
@@ -27,6 +30,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     minHeight: 100,
     padding: 10,
+    width: '100%',
   },
 
   disabled: { opacity: 0.5 },
@@ -68,10 +72,11 @@ const WorkoutItem = ({
   return (
     <>
       {title && <Text style={styles.title}>{title}</Text>}
-      <TouchableOpacity
+      <AnimatedButtonContainer
         style={[styles.container, disabled ? styles.disabled : {}]}
         disabled={disabled}
         onPress={() => onPress && onPress()}
+        animation="slideInUp"
       >
         <View style={styles.innerContainer}>
           {number && (
@@ -100,7 +105,7 @@ const WorkoutItem = ({
             })}
           </View>
         </View>
-      </TouchableOpacity>
+      </AnimatedButtonContainer>
     </>
   );
 };

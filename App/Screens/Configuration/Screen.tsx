@@ -6,12 +6,10 @@ import { NavigationScreenProps, NavigationState } from 'react-navigation';
 import { compose } from 'recompose';
 
 import Button from '../../Components/Button';
-import Layout from '../../Components/Layout/Layout';
+import { Grid, ScreenLayout, ScreenTitle } from '../../Components/Layout';
 import { IAppState, withApplicationState } from '../../Store';
 
 import IconBox from './IconBox';
-
-const BACKGROUND_IMAGE = require('../../Images/Backgrounds/dumbbell-female-blur.jpg');
 
 interface IScreenProps extends NavigationScreenProps<NavigationState>, IAppState {}
 
@@ -29,52 +27,58 @@ class Screen extends React.Component<IScreenProps, IConfigurationState> {
   public render(): JSX.Element {
     const { exercises } = this.props.store.configuration;
     return (
-      <Layout image={BACKGROUND_IMAGE} title="Get Started">
-        <View style={styles.container}>
-          <View style={styles.instructions}>
-            <Text style={styles.body}>
-              The training program comes with 6 default exercises. You can add additional exercises
-              to the program if you want a heavier workout.
-            </Text>
+      <ScreenLayout image="dumbbell-female">
+        <Grid size={1.5} vertical="center" horizontal="center">
+          <ScreenTitle title="Get started" />
+        </Grid>
 
-            <View style={styles.exercises}>
-              <IconBox
-                title="Always included"
-                exercises={Object.values(exercises).filter(({ include }) => include === 'REQUIRED')}
-              />
+        <Grid size={2}>
+          <Text style={styles.body}>
+            The training program comes with 6 default exercises. You can add additional exercises to
+            the program if you want a heavier workout.
+          </Text>
+        </Grid>
 
-              <IconBox
-                title="Optional"
-                exercises={Object.values(exercises).filter(({ include }) => include !== 'REQUIRED')}
-                onIconPress={exercise =>
-                  this.props.update({
-                    configuration: {
-                      exercises: mapValues(exercises, e =>
-                        exercise.shortName === e.shortName
-                          ? {
-                              ...e,
-                              include:
-                                e.include === 'INCLUDED'
-                                  ? ('EXCLUDED' as 'EXCLUDED')
-                                  : ('INCLUDED' as 'INCLUDED'),
-                            }
-                          : e
-                      ),
-                    } as IAppState['store']['configuration'],
-                  })
-                }
-                checked={exercise => exercise.include === 'INCLUDED'}
-              />
-            </View>
+        <Grid size={4} horizontal="center">
+          <IconBox
+            title="Always included"
+            exercises={Object.values(exercises).filter(({ include }) => include === 'REQUIRED')}
+          />
+        </Grid>
 
-            <Button
-              onPress={() => this.props.update({ configuration: { initialSetupComplete: true } })}
-            >
-              Done
-            </Button>
-          </View>
-        </View>
-      </Layout>
+        <Grid size={4} horizontal="center">
+          <IconBox
+            title="Optional"
+            exercises={Object.values(exercises).filter(({ include }) => include !== 'REQUIRED')}
+            onIconPress={exercise =>
+              this.props.update({
+                configuration: {
+                  exercises: mapValues(exercises, e =>
+                    exercise.shortName === e.shortName
+                      ? {
+                          ...e,
+                          include:
+                            e.include === 'INCLUDED'
+                              ? ('EXCLUDED' as 'EXCLUDED')
+                              : ('INCLUDED' as 'INCLUDED'),
+                        }
+                      : e
+                  ),
+                } as IAppState['store']['configuration'],
+              })
+            }
+            checked={exercise => exercise.include === 'INCLUDED'}
+          />
+        </Grid>
+
+        <Grid row size={2}>
+          <Button
+            onPress={() => this.props.update({ configuration: { initialSetupComplete: true } })}
+          >
+            Done
+          </Button>
+        </Grid>
+      </ScreenLayout>
     );
   }
 }

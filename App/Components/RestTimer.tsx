@@ -1,10 +1,10 @@
 import { round } from 'lodash';
 import React from 'react';
-import { Text, View } from 'react-native';
-import ProgressCircle from 'react-native-progress-circle';
-import Layout from './Layout/Layout';
-
-const DEFAULT_BACKGROUND = require('../Images/Backgrounds/rest-blur.jpg');
+import { Text } from 'react-native';
+// @ts-ignore
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import Button from './Button';
+import { Grid, ScreenLayout, ScreenTitle } from './Layout';
 
 interface IRestTimerProps {
   ms: number;
@@ -16,6 +16,9 @@ interface IRestTimerState {
 }
 
 class RestTimer extends React.Component<IRestTimerProps, IRestTimerState> {
+  static defaultProps = {
+    ms: 30000,
+  };
   public state: IRestTimerState = {
     percentage: 0.0,
   };
@@ -43,24 +46,34 @@ class RestTimer extends React.Component<IRestTimerProps, IRestTimerState> {
 
   public render(): JSX.Element {
     return (
-      <Layout title="Rest" image={DEFAULT_BACKGROUND}>
-        <View style={{ flex: 1, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ marginTop: -100 }}>
-            <ProgressCircle
-              percent={this.state.percentage * 100}
-              radius={60}
-              borderWidth={8}
-              bgColor="#55CCFF"
-              shadowColor="#55CCFF"
-              color="#3399FF"
-            >
+      <ScreenLayout image="rest">
+        <Grid size={3} vertical="bottom">
+          <ScreenTitle title="Cool down" subtitle="You perform better when you rest between sets" />
+        </Grid>
+
+        <Grid size={7} vertical="center" horizontal="center">
+          <AnimatedCircularProgress
+            size={120}
+            width={3}
+            fill={this.state.percentage * 100}
+            tintColor="#FFFFFF"
+            onAnimationComplete={() => console.log('onAnimationComplete')}
+            backgroundColor="rgba(255, 255, 255, 0.2)"
+          >
+            {() => (
               <Text style={{ fontSize: 48, fontWeight: '100', color: '#FFFFFF' }}>{`${round(
                 round(this.props.ms - this.state.percentage * this.props.ms) / 1000
               )}`}</Text>
-            </ProgressCircle>
-          </View>
-        </View>
-      </Layout>
+            )}
+          </AnimatedCircularProgress>
+        </Grid>
+        <Grid size={1}>
+          <></>
+        </Grid>
+        <Grid size={1} row>
+          <Button onPress={this.props.onDone}>Skip</Button>
+        </Grid>
+      </ScreenLayout>
     );
   }
 }
