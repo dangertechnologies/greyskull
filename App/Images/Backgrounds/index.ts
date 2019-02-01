@@ -3,6 +3,7 @@ export default {
   curls: require('./curls-blur.jpg'),
   deadlift: require('./deadlift-blur.jpg'),
   default: require('./squat-blur.jpg'),
+  dips: require('./dips-blur.jpg'),
   'dumbbell-female': require('./dumbbell-female-blur.jpg'),
   'empty-gym': require('./empty-gym-blur.jpg'),
   'overhead-press': require('./press-blur.jpg'),

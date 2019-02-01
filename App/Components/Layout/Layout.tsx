@@ -1,6 +1,6 @@
 import React from 'react';
-import { ImageBackground, SafeAreaView, StyleSheet } from 'react-native';
-import { compose } from 'recompose';
+import { ImageBackground, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-navigation';
 
 import Backgrounds from '../../Images/Backgrounds';
 
@@ -28,7 +28,7 @@ class Layout extends React.PureComponent<ILayoutProps> {
 
 const styles = StyleSheet.create({
   background: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     resizeMode: 'stretch',
   },
   container: {

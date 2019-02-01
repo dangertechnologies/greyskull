@@ -17,7 +17,7 @@ interface IConfigurationState {
   optionalExercises: {};
 }
 
-class Screen extends React.Component<IScreenProps, IConfigurationState> {
+export class Screen extends React.Component<IScreenProps, IConfigurationState> {
   public componentDidUpdate() {
     if (this.props.store.configuration.initialSetupComplete && this.props.navigation.isFocused()) {
       this.props.navigation.navigate('ScheduleScreen');

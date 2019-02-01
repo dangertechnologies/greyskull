@@ -5,7 +5,7 @@ import { IApplicationState } from './Types';
 
 const exercises = require('../Configuration/exercises.json');
 
-const CACHE_KEY = `GSLP_STATE_13`;
+const CACHE_KEY = `GSLP_STATE_18`;
 
 type RecursivePartial<T> = { [P in keyof T]?: RecursivePartial<T[P]> };
 
@@ -22,10 +22,15 @@ const INITIAL_STATE: IApplicationState = {
 export interface IAppState {
   store: IApplicationState;
   update(value?: RecursivePartial<IApplicationState>): any;
+  resetApplicationState(): void;
 }
 
 const INITIAL_CONTEXT: IAppState = {
   store: INITIAL_STATE,
+
+  resetApplicationState: () => {
+    throw new Error('Provider not initialized');
+  },
   update: () => {
     throw new Error('Provider not initialized');
   },
@@ -57,9 +62,21 @@ class ApplicationStateProvider extends React.Component<IApplicationStateProps, I
     this.setState(merge(this.state, value), this.persist);
   };
 
+  public resetApplicationState = () => {
+    this.setState(INITIAL_STATE, this.persist);
+  };
+
   public render(): JSX.Element {
     return (
-      <Provider value={{ update: this.update, store: this.state }}>{this.props.children}</Provider>
+      <Provider
+        value={{
+          update: this.update,
+          store: this.state,
+          resetApplicationState: this.resetApplicationState,
+        }}
+      >
+        {this.props.children}
+      </Provider>
     );
   }
 
@@ -74,4 +91,4 @@ const withApplicationState = <T extends {}>(
   <Consumer>{applicationState => <Component {...props} {...applicationState} />}</Consumer>
 );
 
-export { ApplicationStateProvider as Provider, withApplicationState };
+export { Provider as InnerProvider, ApplicationStateProvider as Provider, withApplicationState };

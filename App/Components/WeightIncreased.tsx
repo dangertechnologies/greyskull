@@ -1,12 +1,14 @@
+import { isEqual } from 'lodash';
 import LottieView from 'lottie-react-native';
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Text, View } from 'react-native-animatable';
+import { createAnimatableComponent, Text, View } from 'react-native-animatable';
+import { BlurView } from 'react-native-blur';
 // @ts-ignore
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { ScreenTitle } from './Layout';
 
-interface IWeightIncreasedProps {
+export interface IWeightIncreasedProps {
   fromWeight: number;
   toWeight: number;
   title: string;
@@ -29,9 +31,13 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
     this.setState({
       weight: this.props.fromWeight,
     });
+  }
 
-    if (this._container && this._container.transitionTo) {
-      this._container.transitionTo({ opacity: 0.7 });
+  public componentDidUpdate(oldProps: IWeightIncreasedProps) {
+    if (!isEqual(this.props, oldProps)) {
+      this.setState({
+        weight: this.props.fromWeight,
+      });
     }
   }
 
@@ -50,18 +56,15 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
 
   public render(): JSX.Element {
     return (
-      <View
+      <BlurView
         style={{
           ...StyleSheet.absoluteFillObject,
           alignItems: 'center',
-          backgroundColor: 'black',
           flex: 1,
           justifyContent: 'center',
-          opacity: 0,
         }}
-        ref={(c: any) => {
-          this._container = c;
-        }}
+        blurAmount={30}
+        blurType="dark"
       >
         <View animation="fadeIn">
           <View
@@ -69,7 +72,14 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
             duration={800}
             style={{ color: 'white', marginTop: -200, fontSize: 30, fontWeight: '300' }}
           >
-            <ScreenTitle title={this.props.title} subtitle="Weight increased" />
+            <ScreenTitle
+              title={this.props.title}
+              subtitle="Weight increased"
+              subtitleStyle={{
+                fontSize: 20,
+                fontWeight: '100',
+              }}
+            />
           </View>
         </View>
 
@@ -91,13 +101,7 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
             }
             tintColor="#FFFFFF"
             onAnimationComplete={() => {
-              setTimeout(
-                () =>
-                  this._container && this._container.fadeOut
-                    ? this._container.fadeOut().then(this.props.onDone)
-                    : null,
-                1000
-              );
+              setTimeout(this.props.onDone, 5000);
             }}
             backgroundColor="rgba(255, 255, 255, 0.2)"
           >
@@ -110,7 +114,7 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
         </View>
 
         {this.state.weight >= this.props.toWeight && (
-          <View animation="fadeIn" delay={300}>
+          <View animation="fadeIn" delay={800} style={{ marginTop: -132 }}>
             <LottieView
               autoSize
               style={{ width: 144, marginTop: 0 }}
@@ -120,7 +124,7 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
             />
           </View>
         )}
-      </View>
+      </BlurView>
     );
   }
 }

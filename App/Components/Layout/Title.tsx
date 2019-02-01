@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, StyleSheet, Text } from 'react-native';
+import { Dimensions, StyleSheet, Text, TextProps } from 'react-native';
 import { View } from 'react-native-animatable';
 
 interface ITitleProps {
@@ -8,53 +8,57 @@ interface ITitleProps {
   subtitle?: string;
   supertitle?: string;
   containerStyle?: object;
+  subtitleStyle?: TextProps['style'];
 }
 
 const { width } = Dimensions.get('screen');
 
-const Title = ({ title, subtitle, supertitle, center, containerStyle }: ITitleProps) => (
+const Title = ({
+  title,
+  subtitle,
+  supertitle,
+  center,
+  subtitleStyle,
+  containerStyle,
+}: ITitleProps) => (
   <View style={[styles.titleContainer, containerStyle]} animation="fadeIn">
-    <Text style={[styles.supertitle, center && { textAlign: 'center' }]}>{supertitle}</Text>
-    <Text
-      style={[
-        styles.title,
-        center && { textAlign: 'center' },
-        title.length > 13 ? { fontSize: 40 } : {},
-      ]}
-    >
-      {title}
-    </Text>
+    <View style={{ alignItems: 'flex-start' }}>
+      <Text style={[styles.supertitle]}>{supertitle}</Text>
+      <Text style={[styles.title, title.length > 13 ? { fontSize: 40 } : {}]}>{title}</Text>
+    </View>
     <View style={styles.line} />
     {!subtitle ? null : (
-      <Text style={[styles.subtitle, center && { textAlign: 'center' }]}>{subtitle}</Text>
+      <Text style={[styles.subtitle, subtitleStyle || {}, center && { textAlign: 'center' }]}>
+        {subtitle}
+      </Text>
     )}
   </View>
 );
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    alignItems: 'center',
+  line: {
+    backgroundColor: '#FFFFFF',
+    height: StyleSheet.hairlineWidth,
+    marginHorizontal: 50,
+    marginVertical: 5,
+    width: width - 100,
+  },
+  subtitle: {
+    color: '#FFFFFF',
+    fontSize: 36,
+    fontWeight: '300',
+  },
+  supertitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
   },
   title: {
     color: '#FFFFFF',
     fontSize: 48,
     fontWeight: '100',
   },
-  subtitle: {
-    fontWeight: '100',
-    color: '#FFFFFF',
-    fontSize: 24,
-  },
-  supertitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-  },
-  line: {
-    height: StyleSheet.hairlineWidth,
-    width: width - 100,
-    marginHorizontal: 50,
-    marginVertical: 5,
-    backgroundColor: '#FFFFFF',
+  titleContainer: {
+    alignItems: 'center',
   },
 });
 

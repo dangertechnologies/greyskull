@@ -182,5 +182,22 @@
     "slot": "EVERY",
     "url": "https://stronglifts.com/barbell-row/",
     "video": "https://youtu.be/gQBSRBgRLVI"
+  },
+
+  "DIPS": {
+    "badForm": ["Perform too quickly", "Go too high", "Go too low"],
+    "description": "Dips are a compound, body-weight exercise. You do Dips by first raising yourself on two dip bars with straight arms. Lower your body until your shoulders are below your elbows. Push yourself up until your arms are straight again. Dips work your chest, shoulders, back and arm muscles.",
+    "bodyweight": true,
+    "goodForm": ["Start from top", "Dip until shoulders below elbows", "Lock elbows at the top"],
+    "icon": "triceps",
+    "include": "EXCLUDED",
+    "incrementFactor": 1,
+    "initialWeight": null,
+    "name": "Tricep dips",
+    "reps": "AMRAP_REPS_ONLY",
+    "shortName": "Dips",
+    "slot": "ODD",
+    "url": "https://stronglifts.com/dips/",
+    "video": "https://www.youtube.com/watch?v=049wbhkKCtM"
   }
 }

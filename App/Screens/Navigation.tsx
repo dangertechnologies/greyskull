@@ -1,15 +1,17 @@
 import { Animated, Easing } from 'react-native';
-import { createAppContainer, createStackNavigator } from 'react-navigation';
+import { createAppContainer, createStackNavigator, TransitionConfigurer } from 'react-navigation';
 
 import Storybook from '../../storybook';
-import Configuration from './Configuration';
-import Launch from './Launch';
-import Schedule from './Schedule';
-import Workout from './Workout';
-import WorkoutBenchmark from './WorkoutBenchmark';
-import WorkoutSummary from './WorkoutSummary';
+import ConfigurationScreen from './Configuration';
+import ExerciseBenchmarkScreen from './Exercise/Benchmark';
+import ExerciseScreen from './Exercise/Perform';
+import LaunchScreen from './Launch';
+import ProgressScreen from './Progress';
+import ScheduleScreen from './Schedule';
+import WorkoutScreen from './Workout';
+import WorkoutBenchmarkScreen from './WorkoutBenchmark';
 
-const crossFade = () => ({
+const crossFade: TransitionConfigurer = () => ({
   screenInterpolator: sceneProps => {
     const { layout, position, scene } = sceneProps;
     const { index } = scene;
@@ -33,15 +35,14 @@ const crossFade = () => ({
 export default createAppContainer(
   createStackNavigator(
     {
-      ConfigurationScreen: Configuration,
-      LaunchScreen: {
-        screen: Launch,
-        navigationOptions: { style: { backgroundColor: 'transparent' } },
-      },
-      ScheduleScreen: Schedule,
-      WorkoutBenchmarkScreen: WorkoutBenchmark,
-      WorkoutScreen: Workout,
-      WorkoutSummaryScreen: WorkoutSummary,
+      ConfigurationScreen,
+      ExerciseBenchmarkScreen,
+      ExerciseScreen,
+      LaunchScreen,
+      ProgressScreen,
+      ScheduleScreen,
+      WorkoutBenchmarkScreen,
+      WorkoutScreen,
 
       Storybook,
     },
@@ -50,7 +51,8 @@ export default createAppContainer(
         style: { flex: 1, backgroundColor: 'transparent' },
       },
       headerMode: 'none',
-      initialRouteName: 'Storybook',
+      initialRouteName: 'LaunchScreen',
+
       transitionConfig: crossFade,
     }
   )

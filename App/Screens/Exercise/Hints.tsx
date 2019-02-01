@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   container: {},
   hint: {
     color: '#FFFFFF',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '100',
     paddingLeft: 5,
   },
@@ -36,7 +36,7 @@ const Item = ({ bad, children }: { bad: boolean; children: React.ReactNode }) =>
       name={bad ? 'ios-close' : 'ios-checkmark'}
       color={bad ? 'red' : 'green'}
     />
-    <Text style={styles.hint} adjustsFontSizeToFit>
+    <Text style={styles.hint} numberOfLines={2}>
       {children}
     </Text>
   </View>

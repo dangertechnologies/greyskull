@@ -2,7 +2,7 @@ import { findIndex, isEqual, round } from 'lodash';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Grid } from '../Layout';
+import { Grid } from '../../Components/Layout';
 
 interface IDataValueDisplayProps {
   value: number | string;
@@ -19,11 +19,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
 
-  unit: { fontSize: 30, fontWeight: '100', color: '#FFFFFF', marginBottom: 10 },
+  unit: { fontSize: 30, fontWeight: '100', color: '#FFFFFF', marginBottom: 20 },
 
   valueLabel: {
     color: '#FFFFFF',
-    fontSize: 72,
+    fontSize: 114,
+    fontWeight: '100',
+    minWidth: 120,
+    textAlign: 'center',
+  },
+
+  valueLabelSmall: {
+    color: '#FFFFFF',
+    fontSize: 80,
+    fontWeight: '100',
     minWidth: 120,
     textAlign: 'center',
   },
@@ -39,7 +48,8 @@ class DataValueDisplay extends React.PureComponent<IDataValueDisplayProps> {
   };
 
   public decrease = () => {
-    this.props.onChange(Number(this.props.value) - this.props.step);
+    const newWeight = Number(this.props.value) - this.props.step;
+    this.props.onChange(newWeight > 0 ? newWeight : 0);
     this.increaseTimer = setTimeout(this.decrease, 50);
   };
 
@@ -66,8 +76,11 @@ class DataValueDisplay extends React.PureComponent<IDataValueDisplayProps> {
             </TouchableOpacity>
           )}
         </Grid>
-        <Grid row size={8} vertical="bottom" horizontal="center">
-          <Text allowFontScaling style={styles.valueLabel}>
+        <Grid row size={8} vertical="bottom" horizontal="center" style={{ paddingLeft: 30 }}>
+          <Text
+            allowFontScaling
+            style={`${value}`.length > 3 ? styles.valueLabelSmall : styles.valueLabel}
+          >
             {value}
           </Text>
           <Text style={styles.unit}>{unit}</Text>

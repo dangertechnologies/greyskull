@@ -59,21 +59,10 @@ class Progress extends React.Component<IProgressInnerProps, IProgressState> {
             subtitle="Progress"
           />
         </Grid>
-        <Grid size={2}>
-          <Text
-            style={{
-              color: '#FFFFFF',
-              fontSize: 15,
-              fontWeight: '100',
-            }}
-          >
-            {' '}
-            {definition.description}{' '}
-          </Text>
-        </Grid>
+        <Grid size={2} />
 
         <Grid size={5} row>
-          <Chart exercises={exercises} />
+          <Chart exercises={exercises} height={200} showAnnotations />
         </Grid>
         <Grid size={1} vertical="center">
           <RepSummary exerciseName={this.props.exerciseName} />

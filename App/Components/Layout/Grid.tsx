@@ -1,17 +1,18 @@
 import memoize from 'memoize-one';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View } from 'react-native-animatable';
 
 type TInferProps<T> = T extends React.ComponentType<infer P> ? P : {};
 
 interface IGridProps extends TInferProps<typeof View> {
   size?: number;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   row?: boolean;
   column?: boolean;
   horizontal?: 'center' | 'left' | 'right';
   vertical?: 'center' | 'top' | 'bottom';
+  onPress?(): any;
 }
 
 const verticalAlignment = memoize(
@@ -101,22 +102,33 @@ const styles = StyleSheet.create({
   },
 });
 
-const Grid = ({ size, row, vertical, horizontal, column, children, ...rest }: IGridProps) => {
+const Grid = ({
+  size,
+  row,
+  vertical,
+  horizontal,
+  column,
+  children,
+  onPress,
+  ...rest
+}: IGridProps) => {
   const isColumn = !row;
+  const Component: React.ComponentType<any> = onPress ? TouchableOpacity : View;
 
   return (
-    <View
+    <Component
       {...rest}
+      onPress={onPress}
       style={[
-        rest.style || {},
         isColumn ? styles.column : styles.row,
         verticalAlignment({ isColumn, vertical }),
         horizontalAlignment({ isColumn, horizontal }),
+        rest.style || {},
         { flex: (size || 12) / 12 },
       ]}
     >
       {children}
-    </View>
+    </Component>
   );
 };
 

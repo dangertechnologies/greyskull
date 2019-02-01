@@ -48,7 +48,11 @@ class RestTimer extends React.Component<IRestTimerProps, IRestTimerState> {
     return (
       <ScreenLayout image="rest">
         <Grid size={3} vertical="bottom">
-          <ScreenTitle title="Cool down" subtitle="You perform better when you rest between sets" />
+          <ScreenTitle
+            title="Cool down"
+            subtitle="You perform better when you rest between sets"
+            subtitleStyle={{ fontWeight: '100', fontSize: 20 }}
+          />
         </Grid>
 
         <Grid size={7} vertical="center" horizontal="center">

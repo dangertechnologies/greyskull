@@ -18,9 +18,9 @@ class Screen extends React.Component<IScreenProps> {
 
   public redirect = () => {
     if (get(this.props, 'store.configuration.initialSetupComplete')) {
-      this.props.navigation.navigate('ScheduleScreen');
+      this.props.navigation.replace('ScheduleScreen');
     } else {
-      this.props.navigation.navigate('ConfigurationScreen');
+      this.props.navigation.replace('ConfigurationScreen');
     }
   };
 
@@ -34,6 +34,10 @@ class Screen extends React.Component<IScreenProps> {
           title="Greyskull LP"
           subtitle="8 week program"
           containerStyle={{ marginTop: -100 }}
+          subtitleStyle={{
+            fontSize: 20,
+            fontWeight: '100',
+          }}
         />
       </ScreenLayout>
     );

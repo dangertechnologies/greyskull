@@ -1,21 +1,26 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { compose } from 'recompose';
-import { IAppState, IExerciseConfiguration, withApplicationState } from '../../Store';
-import Button from '../Button';
-import { Grid, ScreenLayout, ScreenTitle } from '../Layout';
-import DataValueDisplay from './DataValueDisplay';
-import FormDescription from './Hints';
-
 import { ExerciseDefinitions } from '../../Configuration';
 import Backgrounds from '../../Images/Backgrounds';
+import { IAppState, IExerciseConfiguration, withApplicationState } from '../../Store';
 
-interface IBenchmarkWorkoutProps {
+import Button from '../../Components/Button';
+import { Grid, ScreenLayout, ScreenTitle } from '../../Components/Layout';
+import DataValueDisplay from './DataValueDisplay';
+import FormDescription from './Hints';
+import { NavigationScreenProp, NavigationState } from 'react-navigation';
+
+interface IBenchmarkExerciseParams {
   exerciseName: keyof typeof ExerciseDefinitions;
   onDone(exercise: IExerciseConfiguration): any;
 }
 
-interface IBenchmarkWorkoutInnerProps extends IBenchmarkWorkoutProps, IAppState {}
+interface IBenchmarkExerciseProps {
+  navigation: NavigationScreenProp<NavigationState, IBenchmarkExerciseParams>;
+}
+
+interface IBenchmarkExerciseInnerProps extends IBenchmarkExerciseProps, IAppState {}
 
 const styles = StyleSheet.create({
   formDivider: {
@@ -33,13 +38,13 @@ const styles = StyleSheet.create({
   },
 });
 
-class BenchmarkWorkout extends React.PureComponent<IBenchmarkWorkoutInnerProps> {
+class BenchmarkWorkout extends React.PureComponent<IBenchmarkExerciseInnerProps> {
   public setExerciseInitialWeight = (weight: number) =>
     this.props.update({
       configuration: {
         ...this.props.store.configuration,
         weights: {
-          [this.props.exerciseName]: {
+          [this.props.navigation.state.params.exerciseName]: {
             current: weight,
             initial: weight,
           },
@@ -48,17 +53,17 @@ class BenchmarkWorkout extends React.PureComponent<IBenchmarkWorkoutInnerProps> 
     });
 
   public render(): JSX.Element {
-    const { store, exerciseName, onDone, update } = this.props;
+    const { store } = this.props;
+    const { exerciseName, onDone, update } = this.props.navigation.state.params;
     const { exercises } = store.configuration;
     const exercise = exercises[exerciseName];
+    console.log({ exercise, exerciseName, exercises });
     const weights = store.configuration.weights[exerciseName] || { initial: 0, current: 0 };
 
     return (
       <ScreenLayout
         image={
-          exercise.background && Backgrounds[exercise.background]
-            ? exercise.background
-            : 'default'
+          exercise.background && Backgrounds[exercise.background] ? exercise.background : 'default'
         }
       >
         <Grid size={2} vertical="center" horizontal="center" style={{ height: '100%' }}>
@@ -67,8 +72,8 @@ class BenchmarkWorkout extends React.PureComponent<IBenchmarkWorkoutInnerProps> 
         <Grid size={3}>
           <Text style={styles.instructions}>
             To calculate your weight progression, we need to calculate your maximum weight for this
-            exercise. Find a weight you can complete 5 good form repetitions with, but where you
-            wouldn’t be able to complete another repetition with good form.
+            exercise. Find a weight with which you can complete no more than 5 repetitions with good
+            form.
           </Text>
         </Grid>
 
@@ -110,6 +115,6 @@ class BenchmarkWorkout extends React.PureComponent<IBenchmarkWorkoutInnerProps> 
   }
 }
 
-export default compose<IBenchmarkWorkoutInnerProps, IBenchmarkWorkoutProps>(withApplicationState)(
+export default compose<IBenchmarkExerciseInnerProps, IBenchmarkExerciseProps>(withApplicationState)(
   BenchmarkWorkout
 );

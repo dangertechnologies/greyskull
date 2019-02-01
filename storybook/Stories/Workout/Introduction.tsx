@@ -1,7 +1,7 @@
 import { storiesOf } from '@storybook/react-native';
 import React from 'react';
 import { View } from 'react-native';
-import IntroductionScreen from '../../../App/Components/Workout/Introduction';
+import IntroductionScreen from '../../../App/Screens/Workout/Screen';
 
 storiesOf('Introduction', module).add('default view', () => (
   <View

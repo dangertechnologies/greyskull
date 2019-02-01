@@ -37,15 +37,16 @@ export interface IExerciseIconProps {
   label?: string;
   style?: ViewProps['style'];
   checked?: boolean;
+  iconStyle?: object;
   onPress?(): any;
 }
 
-const ExerciseIcon = ({ name, label, style, checked, onPress }: IExerciseIconProps) => {
+const ExerciseIcon = ({ name, label, style, iconStyle, checked, onPress }: IExerciseIconProps) => {
   const Container: React.ComponentType<any> = onPress ? TouchableOpacity : View;
   return (
     <Container style={style || styles.container} onPress={onPress}>
       <Image
-        style={[styles.icon, checked !== undefined && !checked ? styles.faded : {}]}
+        style={[styles.icon, checked !== undefined && !checked ? styles.faded : {}, iconStyle]}
         source={Icons[name]}
       />
       {label && (
