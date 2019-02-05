@@ -5361,10 +5361,10 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
-generator-rn-toolbox@^3.6.1:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/generator-rn-toolbox/-/generator-rn-toolbox-3.6.1.tgz#ab0e698e41d6caf6a44f446f8f48b7ef25f7b6b0"
-  integrity sha512-S5pwNS3QUdEEPElD8lPNP+wS0RLTrA9SnFEvrovR85F9cb508AGZPKcS/vcP+nSuwVu5dzIDKJyvUh15M/6uXg==
+generator-rn-toolbox@^3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/generator-rn-toolbox/-/generator-rn-toolbox-3.7.0.tgz#049393e963cc5d73c4f729c62f5b2eb61a930068"
+  integrity sha512-5cUcuFy7E0L5umhlqyXTcA5ULs3GPkeX6VBbSwQ4CRgS4JFa5KHPwG6UO9z8EjF8q1ppF8BC2W/Jc/Txzlsqvw==
   dependencies:
     bluebird "^3.5.0"
     color-js "^1.0.4"

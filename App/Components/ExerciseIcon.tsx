@@ -8,7 +8,7 @@ import Icons from '../Images/Icons';
 const styles = StyleSheet.create({
   check: {
     position: 'absolute',
-    right: 0,
+    right: 10,
     top: 0,
   },
   container: {
@@ -54,7 +54,14 @@ const ExerciseIcon = ({ name, label, style, iconStyle, checked, onPress }: IExer
           {label}
         </Text>
       )}
-      {checked && <Ionicons name="ios-checkmark" size={30} style={styles.check} color="green" />}
+      {checked && (
+        <Ionicons
+          name="ios-checkmark-circle-outline"
+          size={20}
+          style={styles.check}
+          color="green"
+        />
+      )}
     </Container>
   );
 };

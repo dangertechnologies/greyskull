@@ -5,7 +5,12 @@ import { StyleSheet, Text } from 'react-native';
 
 import { compose } from 'recompose';
 
-import { ExerciseDefinitions } from '../../Configuration';
+import {
+  epleyOneRepMax,
+  ExerciseDefinitions,
+  fiveRepMax,
+  metricToImperial,
+} from '../../Configuration';
 import { IAppState, IExercise, withApplicationState } from '../../Store';
 import { Grid } from '../Layout';
 
@@ -14,9 +19,6 @@ interface IRepSummaryProps {
 }
 
 interface IRepSummaryInnerProps extends IRepSummaryProps, IAppState {}
-
-const epleyOneRepMax = (weight: number, reps: number) => weight * (1 + reps / 30);
-const fiveRepMax = (weight: number, reps: number) => 0.87 * epleyOneRepMax(weight, reps);
 
 class RepSummary extends React.PureComponent<IRepSummaryInnerProps> {
   public render(): JSX.Element {
@@ -42,6 +44,8 @@ class RepSummary extends React.PureComponent<IRepSummaryInnerProps> {
       weight: 0,
     };
 
+    const { unit } = this.props.store.configuration;
+
     return (
       <Grid row>
         <Grid size={2} horizontal="left">
@@ -51,16 +55,26 @@ class RepSummary extends React.PureComponent<IRepSummaryInnerProps> {
         </Grid>
         <Grid size={4} horizontal="right">
           <Text style={styles.smallText}>Initial</Text>
-          <Text style={styles.bodyText}>{`${initialWeight}kg`}</Text>
-          <Text style={styles.bodyText}>{`${round(epleyOneRepMax(initialWeight, 5))}kg`}</Text>
+          <Text style={styles.bodyText}>
+            {unit === 'METRIC' ? `${initialWeight}kg` : `${metricToImperial(initialWeight)}lbs`}
+          </Text>
+          <Text style={styles.bodyText}>
+            {unit === 'METRIC'
+              ? `${round(epleyOneRepMax(initialWeight, 5))}kg`
+              : `${round(metricToImperial(epleyOneRepMax(initialWeight, 5)))}lbs`}
+          </Text>
         </Grid>
         <Grid size={4} horizontal="right">
           <Text style={styles.smallText}>Current</Text>
-          <Text style={styles.bodyText}>{`${round(
-            fiveRepMax(lastWeight, lastRepCount || 0)
-          )}kg`}</Text>
           <Text style={styles.bodyText}>
-            {`${round(epleyOneRepMax(lastWeight, lastRepCount || 0))}kg`}
+            {unit === 'METRIC'
+              ? `${round(fiveRepMax(lastWeight, lastRepCount || 0))}kg`
+              : `${round(metricToImperial(fiveRepMax(lastWeight, lastRepCount || 0)))}lbs`}
+          </Text>
+          <Text style={styles.bodyText}>
+            {unit === 'METRIC'
+              ? `${round(epleyOneRepMax(lastWeight, lastRepCount || 0))}kg`
+              : `${round(metricToImperial(epleyOneRepMax(lastWeight, lastRepCount || 0)))}lbs`}
           </Text>
         </Grid>
       </Grid>

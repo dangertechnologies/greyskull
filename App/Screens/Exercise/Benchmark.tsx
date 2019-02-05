@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { compose } from 'recompose';
-import { ExerciseDefinitions } from '../../Configuration';
+import { ExerciseDefinitions, metricToImperial, imperialToMetric } from '../../Configuration';
 import Backgrounds from '../../Images/Backgrounds';
 import { IAppState, IExerciseConfiguration, withApplicationState } from '../../Store';
 
@@ -79,11 +79,19 @@ class BenchmarkWorkout extends React.PureComponent<IBenchmarkExerciseInnerProps>
 
         <Grid size={2}>
           <DataValueDisplay
-            step={0.5}
-            value={parseFloat(`${weights.initial || 20}`).toFixed(1)}
-            unit="kg"
+            step={store.configuration.unit === 'METRIC' ? 2.5 : 5}
+            value={parseFloat(
+              store.configuration.unit === 'METRIC'
+                ? `${weights.initial || 20}`
+                : metricToImperial(weights.initial || 20.45).toString()
+            ).toFixed(1)}
+            unit={store.configuration.unit === 'METRIC' ? 'kg' : 'lbs'}
             allowInput
-            onChange={(weight: number) => this.setExerciseInitialWeight(weight)}
+            onChange={(weight: number) =>
+              this.setExerciseInitialWeight(
+                store.configuration.unit === 'IMPERIAL' ? imperialToMetric(weight) : weight
+              )
+            }
           />
         </Grid>
 

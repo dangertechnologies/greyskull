@@ -52,8 +52,6 @@ const styles = StyleSheet.create({
   scrollContainer: { flex: 8.5 / 12 },
 });
 
-const epleyOneRepMax = (weight: number, reps: number) => weight * (1 + reps / 30);
-
 export class Screen extends React.PureComponent<ISettingsInnerProps> {
   public container: typeof BlurView | null = null;
   public onClose = () => {

@@ -2,16 +2,19 @@ import { isEqual } from 'lodash';
 import LottieView from 'lottie-react-native';
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { createAnimatableComponent, Text, View } from 'react-native-animatable';
+import { Text, View } from 'react-native-animatable';
 import { BlurView } from 'react-native-blur';
 // @ts-ignore
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { metricToImperial } from '../Configuration';
+import { IApplicationState } from '../Store';
 import { ScreenTitle } from './Layout';
 
 export interface IWeightIncreasedProps {
   fromWeight: number;
   toWeight: number;
   title: string;
+  unit: IApplicationState['configuration']['unit'];
   onDone(): any;
 }
 
@@ -55,6 +58,7 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
   };
 
   public render(): JSX.Element {
+    const { unit } = this.props;
     return (
       <BlurView
         style={{
@@ -107,8 +111,11 @@ class WeightIncreased extends React.Component<IWeightIncreasedProps, IWeightIncr
           >
             {() => (
               <Text style={{ fontSize: 36, fontWeight: '100', color: '#FFFFFF' }}>{`${parseFloat(
-                (this.state.weight || 0).toString()
-              ).toFixed(1)}kg`}</Text>
+                (unit === 'METRIC'
+                  ? this.state.weight || 0
+                  : metricToImperial(this.state.weight || 0)
+                ).toString()
+              ).toFixed(1)}${unit === 'METRIC' ? 'kg' : 'lbs'}`}</Text>
             )}
           </AnimatedCircularProgress>
         </View>

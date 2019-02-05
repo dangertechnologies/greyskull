@@ -10,7 +10,7 @@
     "name": "Barbell Squat",
     "reps": "DEFAULT_REPS",
     "shortName": "Squat",
-    "slot": "ODD",
+    "slot": "EVEN",
     "url": "https://stronglifts.com/squat/#Squat_Technique",
     "video": "https://youtu.be/EP2g3Sj3qSw"
   },
@@ -39,7 +39,7 @@
     "name": "Deadlift",
     "reps": "DEFAULT_REPS",
     "shortName": "Deadlift",
-    "slot": "EVEN",
+    "slot": "ODD",
     "url": "https://stronglifts.com/deadlift/",
     "video": "https://youtu.be/WP8lEbeY4LM"
   },
@@ -65,7 +65,7 @@
     "name": "Bench-press",
     "reps": "DEFAULT_REPS",
     "shortName": "Bench",
-    "slot": "ODD",
+    "slot": "EVEN",
     "url": "https://stronglifts.com/bench-press/"
   },
 
@@ -93,7 +93,7 @@
     "name": "Overhead press",
     "reps": "DEFAULT_REPS",
     "shortName": "Press",
-    "slot": "EVEN",
+    "slot": "ODD",
     "url": "https://stronglifts.com/overhead-press/",
     "video": "https://youtu.be/ro3Mh9o7JPU"
   },
@@ -116,7 +116,7 @@
     "name": "Chin-up",
     "reps": "AMRAP_REPS_ONLY",
     "shortName": "Chin",
-    "slot": "ODD",
+    "slot": "EVEN",
     "url": "https://stronglifts.com/pullups/",
     "video": "https://www.youtube.com/watch?v=T78xCiw_R6g"
   },
@@ -138,7 +138,7 @@
     "name": "Curls",
     "reps": "AMRAP_REPS_ONLY",
     "shortName": "Curls",
-    "slot": "EVEN",
+    "slot": "ODD",
     "url": "https://www.bodybuilding.com/exercises/barbell-curl"
   },
 
@@ -196,7 +196,7 @@
     "name": "Tricep dips",
     "reps": "AMRAP_REPS_ONLY",
     "shortName": "Dips",
-    "slot": "ODD",
+    "slot": "EVEN",
     "url": "https://stronglifts.com/dips/",
     "video": "https://www.youtube.com/watch?v=049wbhkKCtM"
   }

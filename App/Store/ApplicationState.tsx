@@ -13,6 +13,7 @@ const INITIAL_STATE: IApplicationState = {
   configuration: {
     exercises,
     initialSetupComplete: false,
+    unit: 'IMPERIAL',
     weights: {},
   },
 

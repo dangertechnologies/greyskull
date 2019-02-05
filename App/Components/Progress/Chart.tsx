@@ -6,8 +6,9 @@ import { Circle, G, Line, Text as SVGText } from 'react-native-svg';
 import { AreaChart, Grid as ChartGrid, XAxis, YAxis } from 'react-native-svg-charts';
 
 import { compose } from 'recompose';
+import { metricToImperial } from '../../Configuration';
 
-import { IExercise, withApplicationState } from '../../Store';
+import { IAppState, IExercise, withApplicationState } from '../../Store';
 import { Grid } from '../Layout';
 
 interface IChartProps {
@@ -16,6 +17,7 @@ interface IChartProps {
   showAnnotations: 'FIRST_LAST_CHART_ONLY' | boolean;
 }
 
+interface IChartInnerProps extends IChartProps, IAppState {}
 interface IChartState {
   chartWidth: number;
 }
@@ -25,9 +27,10 @@ interface ITooltipProps {
   y?: (datapoint: number) => number;
   data?: any;
   disableLabels: boolean;
+  units: IAppState['store']['configuration']['unit'];
 }
 
-const Tooltip = ({ x, y, data, disableLabels }: ITooltipProps) => {
+const Tooltip = ({ x, y, data, units, disableLabels }: ITooltipProps) => {
   if (!x || !y || !data) {
     return null;
   }
@@ -50,7 +53,9 @@ const Tooltip = ({ x, y, data, disableLabels }: ITooltipProps) => {
             stroke={'white'}
             fontSize={10}
           >
-            {`${round(point.weight, 1)}kg`}
+            {units === 'METRIC'
+              ? `${round(point.weight, 1)}kg}`
+              : `${round(metricToImperial(point.weight), 1)}lbs}`}
           </SVGText>
         )}
 
@@ -60,7 +65,7 @@ const Tooltip = ({ x, y, data, disableLabels }: ITooltipProps) => {
     );
   });
 };
-class Chart extends React.Component<IChartProps, IChartState> {
+class Chart extends React.Component<IChartInnerProps, IChartState> {
   public static defaultProps = {
     showAnnotations: true,
   };
@@ -120,7 +125,10 @@ class Chart extends React.Component<IChartProps, IChartState> {
               }}
             >
               {this.props.showAnnotations && (
-                <Tooltip disableLabels={this.props.showAnnotations === 'FIRST_LAST_CHART_ONLY'} />
+                <Tooltip
+                  units={this.props.store.configuration.unit}
+                  disableLabels={this.props.showAnnotations === 'FIRST_LAST_CHART_ONLY'}
+                />
               )}
               <ChartGrid />
             </AreaChart>
@@ -146,6 +154,7 @@ class Chart extends React.Component<IChartProps, IChartState> {
                   fill: '#FFFFFF',
                   fontSize: 10,
                 }}
+                // @ts-ignore
                 formatLabel={(_, i) =>
                   Boolean(i === 0 || i === exercises.length - 1)
                     ? `${round(exercises[i].weight, 1)}kg`
@@ -169,4 +178,4 @@ const styles = StyleSheet.create({
   yaxis: { position: 'absolute', height: 200, left: 0 },
 });
 
-export default compose<IChartProps, IChartProps>(withApplicationState)(Chart);
+export default compose<IChartInnerProps, IChartProps>(withApplicationState)(Chart);

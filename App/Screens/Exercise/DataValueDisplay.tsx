@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 114,
     fontWeight: '100',
-    minWidth: 120,
+    minWidth: 124,
     textAlign: 'center',
   },
 
@@ -44,13 +44,13 @@ class DataValueDisplay extends React.PureComponent<IDataValueDisplayProps> {
 
   public increase = () => {
     this.props.onChange(Number(this.props.value) + this.props.step);
-    this.increaseTimer = setTimeout(this.increase, 50);
+    this.increaseTimer = setTimeout(this.increase, 100);
   };
 
   public decrease = () => {
     const newWeight = Number(this.props.value) - this.props.step;
     this.props.onChange(newWeight > 0 ? newWeight : 0);
-    this.increaseTimer = setTimeout(this.decrease, 50);
+    this.increaseTimer = setTimeout(this.decrease, 100);
   };
 
   public stopTimers = () => {
@@ -69,14 +69,14 @@ class DataValueDisplay extends React.PureComponent<IDataValueDisplayProps> {
     const { allowInput, step, value, onChange, unit } = this.props;
     return (
       <Grid row vertical="center">
-        <Grid size={2} vertical="center">
+        <Grid size={1} vertical="center">
           {allowInput && (
             <TouchableOpacity onPressIn={this.decrease} onPressOut={this.stopTimers}>
               <Ionicons name="ios-remove" size={40} color="#FFFFFF" />
             </TouchableOpacity>
           )}
         </Grid>
-        <Grid row size={8} vertical="bottom" horizontal="center" style={{ paddingLeft: 30 }}>
+        <Grid row size={10} vertical="bottom" horizontal="center" style={{ paddingLeft: 30 }}>
           <Text
             allowFontScaling
             style={`${value}`.length > 3 ? styles.valueLabelSmall : styles.valueLabel}
@@ -85,7 +85,7 @@ class DataValueDisplay extends React.PureComponent<IDataValueDisplayProps> {
           </Text>
           <Text style={styles.unit}>{unit}</Text>
         </Grid>
-        <Grid size={2} vertical="center" horizontal="right">
+        <Grid size={1} vertical="center" horizontal="right">
           {allowInput && (
             <TouchableOpacity onPressIn={this.increase} onPressOut={this.stopTimers}>
               <Ionicons name="ios-add" size={40} color="#FFFFFF" />

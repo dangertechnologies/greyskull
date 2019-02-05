@@ -7,6 +7,7 @@ export interface IApplicationState {
     initialSetupComplete: boolean;
     exercises: { [K in keyof typeof exercises]: IExerciseConfiguration };
     weights: { [K in keyof typeof exercises]?: { initial: number; current: number } };
+    unit: 'METRIC' | 'IMPERIAL';
   };
 
   workoutPlan: IWorkout[];

@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
 
   exercisesTitle: {
     color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '300',
+    fontSize: 14,
+    fontWeight: '600',
     marginVertical: 10,
     textAlign: 'center',
   },

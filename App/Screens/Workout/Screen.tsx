@@ -1,6 +1,6 @@
 import { flatten, get } from 'lodash';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
 import { compose } from 'recompose';
@@ -9,6 +9,7 @@ import { IAppState, IExercise, IWorkout, withApplicationState } from '../../Stor
 import ExerciseIcon from '../../Components/ExerciseIcon';
 import { Grid, ScreenLayout, ScreenTitle } from '../../Components/Layout';
 import WeightIncreased, { IWeightIncreasedProps } from '../../Components/WeightIncreased';
+import { fiveRepMax, roundToAvailableWeightPlates } from '../../Configuration';
 
 interface IWorkoutScreenParams {
   workout: IWorkout;
@@ -37,9 +38,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const epleyOneRepMax = (weight: number, reps: number) => weight * (1 + reps / 30);
-const fiveRepMax = (weight: number, reps: number) => 0.87 * epleyOneRepMax(weight, reps);
-
 export class Screen extends React.Component<IWorkoutScreenInnerProps, IWorkoutScreenState> {
   public state: IWorkoutScreenState = {
     successDisplayProps: undefined,
@@ -63,13 +61,16 @@ export class Screen extends React.Component<IWorkoutScreenInnerProps, IWorkoutSc
           [exercise.definition]: {
             current:
               definition.incrementFactor && reps >= 5 && !definition.bodyweight
-                ? fiveRepMax(currentWeight, reps)
+                ? roundToAvailableWeightPlates(
+                    fiveRepMax(currentWeight, reps),
+                    store.configuration.unit
+                  )
                 : currentWeight,
           },
         },
       },
       workoutPlan: store.workoutPlan.map(plannedWorkout => {
-        return plannedWorkout && plannedWorkout.id === workout.id
+        return Boolean(plannedWorkout) && plannedWorkout.id === workout.id
           ? {
               ...plannedWorkout,
               exercises: plannedWorkout.exercises.map(step => {
@@ -169,7 +170,11 @@ export class Screen extends React.Component<IWorkoutScreenInnerProps, IWorkoutSc
                                 fromWeight: currentWeight,
                                 onDone: () => this.onAMRAP(exercise, reps),
                                 title: definition.name,
-                                toWeight: fiveRepMax(currentWeight, reps),
+                                toWeight: roundToAvailableWeightPlates(
+                                  fiveRepMax(currentWeight, reps),
+                                  store.configuration.unit
+                                ),
+                                unit: store.configuration.unit,
                               },
                             });
                           } else {

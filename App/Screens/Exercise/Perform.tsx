@@ -1,9 +1,14 @@
+import { round } from 'lodash';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
 import { compose } from 'recompose';
 
-import { ExerciseSetDefinitions } from '../../Configuration';
+import {
+  ExerciseSetDefinitions,
+  metricToImperial,
+  roundToAvailableWeightPlates,
+} from '../../Configuration';
 import Backgrounds from '../../Images/Backgrounds';
 import { IAppState, IExercise, withApplicationState } from '../../Store';
 
@@ -71,9 +76,7 @@ export class Screen extends React.PureComponent<IExerciseInnerProps, IWorkoutSta
 
     const { amrap, exerciseSetIndex } = this.state;
     const definition = store.configuration.exercises[exercise.definition];
-    console.log({ definition });
     const sets = ExerciseSetDefinitions[definition.reps as keyof typeof ExerciseSetDefinitions];
-    console.log({ sets });
 
     const currentSet = sets[exerciseSetIndex > sets.length ? 0 : exerciseSetIndex];
 
@@ -109,6 +112,14 @@ export class Screen extends React.PureComponent<IExerciseInnerProps, IWorkoutSta
       return <RestTimer ms={this.state.restTime} onDone={() => this.setRestTime(null)} />;
     }
 
+    const practicalWeight =
+      store.configuration.unit === 'METRIC'
+        ? roundToAvailableWeightPlates(weight, store.configuration.unit)
+        : roundToAvailableWeightPlates(metricToImperial(weight || 0), store.configuration.unit);
+
+    const displayWeight =
+      store.configuration.unit === 'METRIC' ? `${practicalWeight}kg` : `${practicalWeight}lbs`;
+
     return !exercise ? null : (
       <>
         {definition.url && <Info url={definition.url} />}
@@ -125,7 +136,7 @@ export class Screen extends React.PureComponent<IExerciseInnerProps, IWorkoutSta
             <ScreenTitle
               title={definition.name}
               supertitle={`${supertitle} #${setNumber}`}
-              subtitle={weight ? `${weight}kg` : ''}
+              subtitle={weight ? `${displayWeight}` : ''}
             />
           </Grid>
 
