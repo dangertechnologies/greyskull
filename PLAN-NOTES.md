@@ -215,3 +215,21 @@ Decisions, deviations and manual-check items, appended per Session.
   eliminated it before resolving, which is why `expo export` passed). The fixture now lives in
   `src/dev/v1-imperial.json`; CI also runs `expo export --dev` so this cannot regress.
 - UI modernization plan written to `docs/UI-MODERNIZATION.md` (not started).
+
+## 2026-10-08 — Exercise content, technique videos, assets; UI plan rewrite
+- Form tips rewritten for all nine built-ins (chin-up tips described pull-ups; several bench cues were wrong).
+  Names cleaned up (Squat, Bench press, Barbell curl, Barbell row, Dips).
+- Technique videos (YouTube; IDs, titles and uploaders confirmed through web search because youtube.com is
+  blocked from the sandbox): Starting Strength "Learning to Squat" `nhoikoUEI8U`, "Learning to Deadlift"
+  `p2OPUi4xGrM`, "Learning to Bench Press" `rxD321l2svE`, "Learning to Press" `8dacy5hjaE8`, "The Barbell Row with
+  Mark Rippetoe" `I0uhDZ06hrQ`, "The Barbell Curl with Mark Rippetoe" `bAWLx7PPK10`; Barbell Logic "How To Do
+  Chin-Ups" `qV7vOUcUfD4`; Jeff Nippard "How To Do Dips For A Bigger Chest and Shoulders" `yN6Q1UI_xkE`. Crunches:
+  none (no tutorial from a well-known coach found). The old v1 video IDs could not be verified and were replaced.
+- The `video`/`url` fields were never shown in v2; `TechniqueLinks` now opens them in the in-app browser
+  (immersive + minimal session, lift editor). Custom exercises can store a video.
+- `CATALOG_VERSION` / `refreshCatalog`: built-in content (tips, videos, links, photo, icon) updates on launch for
+  existing installs; user names/increments/kind are kept.
+- Asset audit + `src/assets.test.ts`. Removed the unused `athlete-nonfree-blur.jpg`; Dips use their photo.
+- `docs/UI-MODERNIZATION.md` rewritten as an executable plan (verified APIs, spacing system, icons via
+  expo-symbols, exercise monograms replacing the 50 px PNGs, plate diagram, app icon/splash variants, phased tasks).
+- Needs manual check on device: each technique link opens and plays; the videos are the intended ones.
