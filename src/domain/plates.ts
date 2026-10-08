@@ -8,6 +8,12 @@ export interface Loadable {
 
 /** Tolerance (display unit) for float noise after kg ↔ lb round trips. */
 const EPS = 1e-6;
+/**
+ * Plate lookups match a total within what the display rounds away (pounds show 1 decimal), so v1's
+ * 2-decimal kilograms (185 lb stored as 83.91 kg = 184.99 lb) still get their plates. Loadable totals are
+ * at least 0.5 apart in either unit, so this never picks the wrong one.
+ */
+const DISPLAY_EPS = 0.05;
 
 const q = (v: number): number => Math.round(v * 4);
 
@@ -98,17 +104,22 @@ export const ceilLoadableKg = (kg: number, inv: PlateInventory, unit: Unit): num
 export const floorLoadableKg = (kg: number, inv: PlateInventory, unit: Unit): number =>
   pick(kg, inv, unit, 'floor');
 
-/** Plates on one side for a total; [] when the total is the bar or not loadable. */
-export function platesPerSide(kg: number, inv: PlateInventory, unit: Unit): number[] {
+/** Plates on one side for a total; [] when the total is the bar, null when it is not loadable. */
+function match(kg: number, inv: PlateInventory, unit: Unit): number[] | null {
   const { totals, perSide } = loadable(inv, unit);
   const value = toUnit(kg, unit);
-  const i = lowerIndex(totals, value);
-  if (i >= totals.length || Math.abs(totals[i] - value) > EPS) return [];
+  const i = lowerIndex(totals, value - DISPLAY_EPS);
+  if (i >= totals.length || Math.abs(totals[i] - value) > DISPLAY_EPS) return null;
   return perSide.get(totals[i]) ?? [];
 }
 
+/** Plates on one side for a total; [] when the total is the bar or not loadable. */
+export const platesPerSide = (kg: number, inv: PlateInventory, unit: Unit): number[] =>
+  match(kg, inv, unit) ?? [];
+
 export function formatPlates(kg: number, inv: PlateInventory, unit: Unit): string {
-  const side = platesPerSide(kg, inv, unit);
+  const side = match(kg, inv, unit);
+  if (side === null) return 'not loadable with your plates';
   return side.length === 0 ? 'bar only' : `per side: ${side.map((p) => trim(p)).join(' + ')}`;
 }
 

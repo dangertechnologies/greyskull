@@ -62,11 +62,15 @@ test('plate reconstruction uses the fewest plates, largest first', () => {
   expect(formatPlates(82.5, inv, 'kg')).toBe('per side: 25 + 5 + 1.25');
   expect(formatPlates(20, inv, 'kg')).toBe('bar only');
   expect(platesPerSide(61, inv, 'kg')).toEqual([]);
+  expect(formatPlates(61, inv, 'kg')).toBe('not loadable with your plates');
 });
 
 test('float noise from lb round trips does not break lookups', () => {
   const kg = toKg(135, 'lb');
   expect(platesPerSide(kg, inv, 'lb')).toEqual([45]);
+  // v1 stored 185 lb as 83.91 kg (184.99 lb): it still gets its plates, not "bar only".
+  expect(platesPerSide(83.91, inv, 'lb')).toEqual(platesPerSide(toKg(185, 'lb'), inv, 'lb'));
+  expect(platesPerSide(83.91, inv, 'lb').length).toBeGreaterThan(0);
   expect(toUnit(ceilLoadableKg(kg + 1e-12, lbSmall, 'lb'), 'lb')).toBeCloseTo(135, 9);
 });
 
