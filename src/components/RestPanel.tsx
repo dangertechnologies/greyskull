@@ -1,4 +1,6 @@
-import { View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, View } from 'react-native';
+import { useReduceMotion } from '../design/motion';
 import { useTheme } from '../design/theme';
 import { Button } from '../ui/Button';
 import { Text } from '../ui/Text';
@@ -22,9 +24,22 @@ export function RestPanel({
   onSkip(): void;
 }) {
   const t = useTheme();
+  const reduceMotion = useReduceMotion();
+  const appear = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
+  useEffect(() => {
+    if (reduceMotion) appear.setValue(1);
+    else Animated.timing(appear, { toValue: 1, duration: t.motion.base, useNativeDriver: true }).start();
+  }, [appear, reduceMotion, t.motion.base]);
   const fraction = total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 0;
   return (
-    <View style={{ gap: t.space[4] }} accessibilityLiveRegion="polite">
+    <Animated.View
+      style={{
+        gap: t.space[4],
+        opacity: appear,
+        transform: [{ translateY: appear.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+      }}
+      accessibilityLiveRegion="polite"
+    >
       <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <Text variant="label" color="textMuted">
           Rest
@@ -64,6 +79,6 @@ export function RestPanel({
         </View>
       </View>
       <Button title="Skip rest" testID="rest-skip" onPress={onSkip} />
-    </View>
+    </Animated.View>
   );
 }

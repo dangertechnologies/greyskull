@@ -233,3 +233,33 @@ Decisions, deviations and manual-check items, appended per Session.
 - `docs/UI-MODERNIZATION.md` rewritten as an executable plan (verified APIs, spacing system, icons via
   expo-symbols, exercise monograms replacing the 50 px PNGs, plate diagram, app icon/splash variants, phased tasks).
 - Needs manual check on device: each technique link opens and plays; the videos are the intended ones.
+
+## 2026-10-08 — UI modernization (docs/UI-MODERNIZATION.md) implemented
+Bugs fixed first (from device screenshots): the safe-area layer in `Background` had an opaque black background that
+hid every photo; Progress had no way to pick a lift; the rest overlay was 82 % transparent over the set screen.
+
+Implemented: design tokens (light/dark, Inter, spacing scale), `ThemeProvider` with an Appearance setting (system/
+light/dark) and a haptics setting, primitives in `src/ui` (Text, Button, IconButton, Icon via expo-symbols, Card,
+Section, ListRow, Chip, SegmentedControl, TextField, NumberStepper, Sheet, Snackbar, Monogram, PlateStack, EmptyState,
+layout helpers), dev gallery (`/gallery`), four native tabs (Today, Progress, Plan, Settings), Today (week strip,
+pinned Start/Resume, skip with Undo snackbar), immersive session (photo header, plate diagram, last-time line, set
+rail where any logged set can be corrected, rest panel with ±30 s in the bottom bar), minimal session, Celebration
+(per-lift badges, PR, next workout), Progress list with sparklines, lift detail with scrubbing area chart + range
+chips, history screen, Plan tab with rules editor and Change plan, three-step onboarding, scheme sheet, exercise
+monograms replacing the 50 px PNGs, app icon variants (adaptive/dark/tinted) and splash via
+`scripts/make-icons.py`, per-exercise header photos (`CATALOG_VERSION` 3).
+
+Deviations from the plan, and why:
+- Weight/reps/scheme editors are `Sheet` (a transparent Modal) components, not `formSheet` routes: they hold local
+  state (setup edits a draft before the store) and behave the same on both platforms.
+- No react-native-reanimated: it needs native worklets, does not run in jest, and the only animation (rest panel
+  fade-in) works with RN `Animated`, gated by Reduce Motion. Removed again after trying it.
+- `@expo/vector-icons` removed; icons come from expo-symbols.
+- Skip lives under the Today card (plain button + Undo snackbar) rather than behind an alert.
+- `goHome()` = `dismissAll()` + `navigate('/')`: `dismissTo('/')` does not switch tabs.
+- Liquid Glass (`expo-glass-effect`) and Material You accent are installed/optional but not wired; both need a device
+  to judge. Drag-to-reorder, confetti, widgets stay out of scope.
+- A colour-literal lint test (`src/design/no-literal-colours.test.ts`) fails the build when a screen hard-codes a colour.
+
+Needs manual check on device: everything in §10 of the plan (spacing, light/dark, Inter weights on Android, tabs,
+sheets, session reachability, plate colours, monograms, icons and splash, Dynamic Type, technique links).

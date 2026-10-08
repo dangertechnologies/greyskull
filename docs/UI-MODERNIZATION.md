@@ -1,5 +1,9 @@
 # UI modernization plan (executable)
 
+> **Status (2026-10-08): implemented on `v2`** (phases 1–6, with the deviations listed in `PLAN-NOTES.md`
+> under "UI modernization"). Phase 0 (device baseline) and the §10 device checklist are still open: nothing here
+> has been run on a phone.
+
 This is a work order for an implementing agent (Claude Sonnet or similar). It is detailed enough to start
 without asking questions: every decision below has been made, APIs and package versions were checked against
 the installed SDK 57 packages on 2026-10-08, and each task names its files, its tests and its "done" check.

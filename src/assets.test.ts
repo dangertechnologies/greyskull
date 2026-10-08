@@ -31,10 +31,44 @@ test('no orphaned background files (unused images ship in the bundle for nothing
   expect(onDisk.filter((f) => !used.has(f))).toEqual([]);
 });
 
-test('app config points at existing icon and splash images', () => {
+test('app config points at existing icon, adaptive icon, iOS variants and splash images', () => {
+  type Plugin = string | [string, { image?: string; dark?: { image?: string } }];
   const app = JSON.parse(readFileSync(join(root, 'app.json'), 'utf8')) as {
-    expo: { icon: string; splash?: { image: string } };
+    expo: {
+      icon: string;
+      ios: { icon: Record<'light' | 'dark' | 'tinted', string> };
+      android: { adaptiveIcon: Record<'foregroundImage' | 'backgroundImage' | 'monochromeImage', string> };
+      plugins: Plugin[];
+    };
   };
-  expect(existsSync(join(root, app.expo.icon))).toBe(true);
-  if (app.expo.splash) expect(existsSync(join(root, app.expo.splash.image))).toBe(true);
+  const splash = app.expo.plugins.find((p) => Array.isArray(p) && p[0] === 'expo-splash-screen') as
+    | [string, { image: string; dark: { image: string } }]
+    | undefined;
+  const files = [
+    app.expo.icon,
+    ...Object.values(app.expo.ios.icon),
+    ...Object.values(app.expo.android.adaptiveIcon),
+    splash?.[1].image,
+    splash?.[1].dark.image,
+  ];
+  expect(splash).toBeDefined();
+  for (const file of files) expect(existsSync(join(root, file ?? 'missing'))).toBe(true);
+});
+
+test('icon artwork is square, 1024 px, and the adaptive foreground is transparent at the edges', () => {
+  const size = (name: string) => {
+    const png = readFileSync(join(root, 'assets', name));
+    return [png.readUInt32BE(16), png.readUInt32BE(20), png[25]] as const; // width, height, colour type
+  };
+  for (const name of [
+    'icon.png',
+    'icon-dark.png',
+    'icon-tinted.png',
+    'adaptive-foreground.png',
+    'adaptive-background.png',
+    'adaptive-monochrome.png',
+  ]) {
+    expect(size(name).slice(0, 2)).toEqual([1024, 1024]);
+  }
+  expect(size('adaptive-foreground.png')[2]).toBe(6); // RGBA
 });
