@@ -62,3 +62,12 @@ test('unmounting clears the repeat timer', () => {
   act(() => void jest.advanceTimersByTime(REPEAT_MS * 5));
   expect(onChange).toHaveBeenCalledTimes(1);
 });
+
+test('screen readers can adjust the value with increment/decrement actions', () => {
+  const onChange = jest.fn();
+  render(<Harness onChange={onChange} />);
+  const value = screen.getByRole('adjustable');
+  fireEvent(value, 'accessibilityAction', { nativeEvent: { actionName: 'increment' } });
+  fireEvent(value, 'accessibilityAction', { nativeEvent: { actionName: 'decrement' } });
+  expect(onChange.mock.calls).toEqual([[11], [10]]);
+});

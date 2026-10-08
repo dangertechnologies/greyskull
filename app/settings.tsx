@@ -4,6 +4,7 @@ import { Button } from '../src/components/Button';
 import { GymSettings } from '../src/components/GymSettings';
 import { Screen } from '../src/components/Screen';
 import { Stepper } from '../src/components/Stepper';
+import { goHome } from '../src/navigation';
 import { useStore } from '../src/store';
 import { colors, type } from '../src/theme';
 
@@ -11,7 +12,7 @@ function devSeed() {
   const fixture: unknown = require('../src/domain/__tests__/fixtures/v1-imperial.json');
   const { reset, importLegacy } = useStore.getState();
   reset();
-  void importLegacy(JSON.stringify(fixture)).then(() => router.replace('/'));
+  void importLegacy(JSON.stringify(fixture)).then(goHome);
 }
 
 function devFastForward() {
@@ -31,7 +32,7 @@ export default function Settings() {
   const confirmReset = () =>
     Alert.alert('Reset everything?', 'This deletes your program, weights and history on this device.', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Reset', style: 'destructive', onPress: () => { reset(); router.replace('/'); } },
+      { text: 'Reset', style: 'destructive', onPress: () => { reset(); goHome(); } },
     ]);
 
   return (

@@ -12,6 +12,7 @@ import {
 import type { Program } from '../../src/domain';
 import { nameOf } from '../../src/format';
 import { useSetup } from '../../src/setup/SetupContext';
+import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { colors, type } from '../../src/theme';
 
@@ -58,12 +59,19 @@ export default function Days() {
     router.push('/setup/weights');
   };
   const save = () => {
-    try {
-      setProgram(program);
-      router.replace('/');
-    } catch (e) {
-      Alert.alert('Cannot save', e instanceof Error ? e.message : String(e));
-    }
+    const commit = () => {
+      try {
+        setProgram(program);
+        goHome();
+      } catch (e) {
+        Alert.alert('Cannot save', e instanceof Error ? e.message : String(e));
+      }
+    };
+    if (!useStore.getState().draft) return commit();
+    Alert.alert('Discard the workout in progress?', 'Saving a new program ends the current workout without logging it.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Discard and save', style: 'destructive', onPress: commit },
+    ]);
   };
 
   return (

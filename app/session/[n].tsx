@@ -1,10 +1,10 @@
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Celebration } from '../../src/components/Celebration';
 import { nameOf, outcomeLine } from '../../src/format';
 import { useSession } from '../../src/hooks/useSession';
 import type { FinishedExercise } from '../../src/hooks/useSession';
-import { goBackOr } from '../../src/navigation';
+import { goBackOr, goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { SessionImmersive } from '../../src/views/SessionImmersive';
 import { SessionMinimal } from '../../src/views/SessionMinimal';
@@ -25,7 +25,7 @@ export default function SessionScreen() {
     const lines = summary
       .map((f) => outcomeLine(nameOf(exercises, f.exerciseId), f.fromKg, f.outcome, unit))
       .filter((l): l is string => l !== null);
-    return <Celebration lines={lines} onHome={() => router.replace('/')} />;
+    return <Celebration lines={lines} onHome={goHome} />;
   }
   if (!hasDraft && n !== nextSession) return <Redirect href="/" />;
   if (!session) return null;

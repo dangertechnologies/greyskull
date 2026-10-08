@@ -62,9 +62,13 @@ export function Stepper({ value, onChange, format, label, large, ...config }: Pr
       <View style={styles.row}>
         {button(-1)}
         <Text
+          accessible
           accessibilityRole="adjustable"
           accessibilityLabel={label}
           accessibilityValue={{ text: format(value) }}
+          // Screen readers adjust with swipe up/down instead of hunting for the +/− buttons.
+          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+          onAccessibilityAction={(e) => step(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
           style={[styles.value, large && type.big]}
         >
           {format(value)}

@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
@@ -6,6 +5,7 @@ import { PlatesLine } from '../../src/components/PlatesLine';
 import { Screen } from '../../src/components/Screen';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { exerciseIdsOf, roundForExercise } from '../../src/domain';
+import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { type } from '../../src/theme';
 
@@ -41,7 +41,7 @@ export default function ConfirmWeights() {
         title="Confirm"
         onPress={() => {
           confirmWeights(weights);
-          router.replace('/');
+          goHome();
         }}
       />
     </Screen>

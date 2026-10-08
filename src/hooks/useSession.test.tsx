@@ -38,10 +38,11 @@ test('warm-ups can be switched off in the program rules', () => {
 
 test('recording a set persists it, advances, and starts the rest timer', () => {
   const { result } = renderHook(() => useSession(0));
-  act(() => result.current!.record(0, 5)); // warm-up
+  act(() => result.current!.record(0, 5)); // warm-up: no rest
   expect(result.current!.activeIndex).toBe(1);
-  expect(result.current!.restRemaining).toBe(90);
+  expect(result.current!.restRemaining).toBeNull();
   act(() => result.current!.record(1, 5));
+  expect(result.current!.restRemaining).toBe(90);
   expect(useStore.getState().draft?.results.MILITARY_PRESS.sets[0].reps).toBe(5);
   act(() => void jest.advanceTimersByTime(30_000));
   expect(result.current!.restRemaining).toBeLessThanOrEqual(60);
@@ -56,7 +57,7 @@ test('recording a set persists it, advances, and starts the rest timer', () => {
 test('rest time 0 disables the rest timer; the last set never rests', () => {
   useStore.getState().setSettings({ restSeconds: 0 });
   const { result } = renderHook(() => useSession(0));
-  act(() => result.current!.record(0, 5));
+  act(() => result.current!.record(1, 5));
   expect(result.current!.restRemaining).toBeNull();
   useStore.getState().setSettings({ restSeconds: 60 });
   const last = result.current!.items.length - 1;

@@ -15,3 +15,8 @@ export function goBackOr(fallback: '/' | '/exercises'): void {
   if (router.canGoBack()) router.back();
   else router.replace(fallback);
 }
+
+/** Back to the Home that is already in the stack (or Home as the only screen); never stacks a second Home. */
+export function goHome(): void {
+  router.dismissTo('/');
+}

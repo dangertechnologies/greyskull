@@ -5,7 +5,7 @@ import { PlatesLine } from '../../src/components/PlatesLine';
 import { Screen } from '../../src/components/Screen';
 import { Stepper } from '../../src/components/Stepper';
 import { WeightStepper } from '../../src/components/WeightStepper';
-import { smallestStep, toKg, toUnit, trim } from '../../src/domain';
+import { DEFAULT_RULES, incrementFor, smallestStep, toUnit, trim } from '../../src/domain';
 import { formatDate, nameOf } from '../../src/format';
 import { useInventory, useLift, useStore, useUnit } from '../../src/store';
 import { colors, type } from '../../src/theme';
@@ -19,6 +19,7 @@ export default function LiftEditor() {
   const inventory = useInventory();
   const exercises = useStore((s) => s.exercises);
   const setLift = useStore((s) => s.setLift);
+  const program = useStore((s) => s.program);
 
   if (!exercise || !lift) {
     return (
@@ -35,16 +36,14 @@ export default function LiftEditor() {
   const bestAmrap = history.reduce((best, h) => Math.max(best, h.reps), 0);
   const oneRm = lift.weightKg * (1 + bestAmrap / 30);
 
-  const increment = (lift.incrementOverride ?? exercise.increment)[unit];
+  const planIncrement = program?.rules.increments?.[id] ?? exercise.increment;
+  const increment = incrementFor(lift, program?.rules ?? DEFAULT_RULES, exercise, unit);
   const jump = smallestStep(inventory, unit);
   const offGrid = exercise.kind === 'barbell' && jump > 0 && Math.abs(increment / jump - Math.round(increment / jump)) > 1e-9;
-  const setIncrement = (v: number) => {
-    const other = unit === 'kg' ? 'lb' : 'kg';
-    const base = lift.incrementOverride ?? exercise.increment;
-    setLift(id, {
-      incrementOverride: { ...base, [unit]: v, [other]: Math.round(toUnit(toKg(v, unit), other) * 4) / 4 } as { kg: number; lb: number },
-    });
-  };
+  // Only the unit being edited changes; the other keeps its own default (1.25 kg ≠ 2.75 lb on real plates).
+  const setIncrement = (v: number) =>
+    setLift(id, { incrementOverride: { ...(lift.incrementOverride ?? planIncrement), [unit]: v } });
+
 
   return (
     <Screen image={exercise.background}>

@@ -1,4 +1,4 @@
-import { Redirect, router } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { PlatesLine } from '../../src/components/PlatesLine';
@@ -6,6 +6,7 @@ import { Screen } from '../../src/components/Screen';
 import { exerciseIdsOf, formatWeight, sessionFor, sessionWeightKg } from '../../src/domain';
 import { intensityLabel, nameOf, schemeLabel } from '../../src/format';
 import { useSetup } from '../../src/setup/SetupContext';
+import { goHome } from '../../src/navigation';
 import { startingWeightKg, useStore } from '../../src/store';
 import { colors, type } from '../../src/theme';
 
@@ -30,7 +31,7 @@ export default function Summary() {
       const kg = weightOf(id);
       store.setLift(id, { weightKg: kg, startKg: kg });
     }
-    router.replace('/');
+    goHome();
   };
 
   return (

@@ -150,7 +150,8 @@ export function useSession(n: number): SessionApi | null {
       } else if (item.setIndex !== null) {
         logSet(item.exerciseId, item.setIndex, Math.max(1, reps));
       }
-      if (restSeconds > 0 && itemIndex < items.length - 1) {
+      // Rest only after work sets: warm-ups flow straight into the next set.
+      if (item.kind !== 'warmup' && restSeconds > 0 && itemIndex < items.length - 1) {
         void ensureRestAlertPermission();
         const start = Date.now();
         setNow(start);
