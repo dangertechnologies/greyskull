@@ -154,7 +154,18 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
       ) : null}
 
       {restRemaining !== null ? (
-        <RestRing remaining={restRemaining} total={restSeconds} onSkip={skipRest} />
+        <RestRing
+          remaining={restRemaining}
+          total={restSeconds}
+          onSkip={skipRest}
+          next={
+            item && exercise
+              ? `${nameOf(exercises, item.exerciseId, true)} · ${supertitle(item)} · ${
+                  exercise.kind === 'bodyweight' ? 'bodyweight' : formatWeight(item.weightKg, unit)
+                } × ${item.targetReps ?? 'max'}`
+              : undefined
+          }
+        />
       ) : null}
     </Background>
   );

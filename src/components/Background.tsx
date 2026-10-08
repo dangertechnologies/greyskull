@@ -18,13 +18,13 @@ export function Background({ image = 'default', topInset = false, children }: Pr
   return (
     <ImageBackground
       source={BACKGROUNDS[image] ?? BACKGROUNDS.default}
-      style={styles.fill}
+      style={styles.image}
       resizeMode="cover"
     >
       <StatusBar style="light" />
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay }]} />
       <SafeAreaView
-        style={styles.fill}
+        style={styles.content}
         edges={topInset ? ['top', 'bottom', 'left', 'right'] : ['bottom', 'left', 'right']}
       >
         {children}
@@ -33,4 +33,8 @@ export function Background({ image = 'default', topInset = false, children }: Pr
   );
 }
 
-const styles = StyleSheet.create({ fill: { flex: 1, backgroundColor: colors.bg } });
+const styles = StyleSheet.create({
+  // Black shows only while the photo decodes; the content layer must stay transparent or it hides the photo.
+  image: { flex: 1, backgroundColor: colors.bg },
+  content: { flex: 1 },
+});

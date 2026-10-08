@@ -38,12 +38,15 @@ test('charts render per lift in kg and lb', async () => {
   expect(screen.getAllByText('45 lb → 55 lb').length).toBeGreaterThan(0); // start/current are snapped to lb plates
 });
 
-test('chin-ups chart reps and the last page projects nine sessions', async () => {
+test('a chip per lift picks what to show: chin-ups chart reps, projection lists nine sessions', async () => {
   playSessions(3, 7);
   renderRouter(routes(), { initialUrl: '/progress' });
   await screen.findByText('Overhead press');
+  expect(screen.getByRole('tab', { name: 'Press' }).props.accessibilityState.selected).toBe(true);
+  expect(screen.queryByLabelText(/^Chin-up:/)).toBeNull();
+  fireEvent.press(screen.getByRole('tab', { name: 'Chin' }));
   expect(screen.getByLabelText('Chin-up: 7 reps to 7 reps over 3 sessions')).toBeTruthy();
-  expect(screen.getByText('Projection')).toBeTruthy();
+  fireEvent.press(screen.getByRole('tab', { name: 'Projection' }));
   const rows = screen.getAllByText(/^#\d+ Day \d/);
   expect(rows).toHaveLength(9);
   expect(rows[0].props.children).toMatch(/^#4 Day 1/);
@@ -64,4 +67,13 @@ test('editing a past session changes its record, not the current lifts', async (
   expect(squat.sets[1].reps).toBe(7);
   expect(squat.weightKg).toBe(22.5);
   expect(JSON.stringify(useStore.getState().lifts)).toBe(liftsBefore);
+});
+
+test('?lift= preselects a lift and its editor is one tap away', async () => {
+  playSessions(3, 6);
+  renderRouter(routes(), { initialUrl: '/progress?lift=DEADLIFT' });
+  expect(await screen.findByRole('tab', { name: 'Deadlift' })).toBeTruthy();
+  expect(screen.getByRole('tab', { name: 'Deadlift' }).props.accessibilityState.selected).toBe(true);
+  fireEvent.press(screen.getByText('Edit weights and increment'));
+  expect(await screen.findByText('Working weight')).toBeTruthy();
 });

@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { BACKGROUNDS } from '../backgrounds';
 import { colors, type } from '../theme';
 import { Button } from './Button';
 
@@ -12,13 +13,23 @@ interface Props {
   remaining: number;
   total: number;
   onSkip(): void;
+  /** What comes after the rest, e.g. "Set 3 of 5 · 20 kg × 5". */
+  next?: string;
 }
 
 /** Full-screen rest countdown. Purely presentational: no timers, no state writes. */
-export function RestRing({ remaining, total, onSkip }: Props) {
+export function RestRing({ remaining, total, onSkip, next }: Props) {
   const fraction = total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 0;
   return (
-    <View style={styles.wrap} accessibilityViewIsModal accessibilityLiveRegion="polite">
+    <ImageBackground
+      source={BACKGROUNDS.rest}
+      resizeMode="cover"
+      style={styles.wrap}
+      accessibilityViewIsModal
+      accessibilityLiveRegion="polite"
+    >
+      {/* Opaque: the set screen underneath must not show through the countdown. */}
+      <View style={styles.scrim} />
       <Text style={type.label}>Rest</Text>
       <View style={styles.ring}>
         <Svg width={SIZE} height={SIZE}>
@@ -48,8 +59,11 @@ export function RestRing({ remaining, total, onSkip }: Props) {
           {remaining}
         </Text>
       </View>
-      <Button title="Skip" variant="link" onPress={onSkip} />
-    </View>
+      {next ? <Text style={[type.body, styles.next]}>{`Next: ${next}`}</Text> : null}
+      <View style={styles.skip}>
+        <Button title="Skip rest" onPress={onSkip} />
+      </View>
+    </ImageBackground>
   );
 }
 
@@ -60,11 +74,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.82)',
+    backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 24,
+    gap: 32,
+    paddingHorizontal: 32,
   },
+  scrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)' },
+  next: { textAlign: 'center' },
+  skip: { alignSelf: 'stretch' },
   ring: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   seconds: { position: 'absolute', color: colors.text, fontSize: 72, fontWeight: '200' },
 });

@@ -1,27 +1,32 @@
-import { useMemo } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, useWindowDimensions } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Background } from '../src/components/Background';
+import { Button } from '../src/components/Button';
 import { Chart } from '../src/components/Chart';
 import { exerciseIdsOf, formatWeight, project, toUnit, trim } from '../src/domain';
 import { nameOf } from '../src/format';
 import { seriesFor } from '../src/series';
 import { useStore } from '../src/store';
-import { type } from '../src/theme';
+import { colors, type } from '../src/theme';
 
-type Page = { kind: 'lift'; id: string } | { kind: 'projection' };
+const PROJECTION = 'projection';
 
+/** Progress per lift. A chip row at the top picks the lift (or the projection); `?lift=ID` preselects one. */
 export default function Progress() {
+  const params = useLocalSearchParams<{ lift?: string }>();
   const state = useStore();
   const { sessions, lifts, unit, exercises, program } = state;
-  const { width } = useWindowDimensions();
-  const pages = useMemo<Page[]>(
-    () => [
-      ...(program ? exerciseIdsOf(program) : []).map((id) => ({ kind: 'lift', id }) as const),
-      { kind: 'projection' },
-    ],
-    [program],
+  const ids = useMemo(() => (program ? exerciseIdsOf(program) : []), [program]);
+  const [selected, setSelected] = useState(() =>
+    params.lift && ids.includes(params.lift) ? params.lift : (ids[0] ?? PROJECTION),
   );
   const upcoming = useMemo(() => project(state, 9), [state]);
+
+  const choices = [
+    ...ids.map((id) => ({ key: id, label: nameOf(exercises, id, true) })),
+    { key: PROJECTION, label: 'Projection' },
+  ];
 
   const renderLift = (id: string) => {
     const exercise = exercises[id];
@@ -33,7 +38,7 @@ export default function Progress() {
     const best = Math.max(0, ...amraps);
     const oneRm = lift ? lift.weightKg * (1 + best / 30) : 0;
     return (
-      <>
+      <View style={styles.section}>
         <Text style={type.title} accessibilityRole="header">
           {nameOf(exercises, id)}
         </Text>
@@ -42,56 +47,91 @@ export default function Progress() {
           values={values}
           format={(v) => (bodyweight ? `${trim(v)} reps` : `${trim(v)} ${unit}`)}
         />
+        <View style={styles.stats}>
+          {!bodyweight && lift ? (
+            <Text style={type.body}>
+              {`${formatWeight(lift.startKg, unit)} → ${formatWeight(lift.weightKg, unit)}`}
+            </Text>
+          ) : null}
+          <Text style={type.body}>{best > 0 ? `Best AMRAP: ${best} reps` : 'No AMRAP sets yet'}</Text>
+          {!bodyweight && best > 0 ? (
+            <Text style={type.body}>{`Estimated 1RM: ${formatWeight(oneRm, unit)}`}</Text>
+          ) : null}
+        </View>
         {!bodyweight && lift ? (
-          <Text
-            style={type.body}
-          >{`${formatWeight(lift.startKg, unit)} → ${formatWeight(lift.weightKg, unit)}`}</Text>
+          <Button title="Edit weights and increment" onPress={() => router.push(`/lift/${id}`)} />
         ) : null}
-        <Text style={type.body}>{best > 0 ? `Best AMRAP: ${best} reps` : 'No AMRAP sets yet'}</Text>
-        {!bodyweight && best > 0 ? (
-          <Text style={type.body}>{`Estimated 1RM: ${formatWeight(oneRm, unit)}`}</Text>
-        ) : null}
-      </>
+      </View>
     );
   };
 
   return (
     <Background>
-      <FlatList
-        data={pages}
+      <ScrollView
         horizontal
-        pagingEnabled
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(p) => (p.kind === 'lift' ? p.id : 'projection')}
-        renderItem={({ item, index }) => (
-          <ScrollView style={{ width }} contentContainerStyle={styles.page}>
-            {item.kind === 'lift' ? (
-              renderLift(item.id)
-            ) : (
-              <>
-                <Text style={type.title} accessibilityRole="header">
-                  Projection
+        style={styles.chipBar}
+        contentContainerStyle={styles.chips}
+        accessibilityRole="tablist"
+      >
+        {choices.map((c) => {
+          const on = c.key === selected;
+          return (
+            <Pressable
+              key={c.key}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: on }}
+              accessibilityLabel={c.label}
+              onPress={() => setSelected(c.key)}
+              style={[styles.chip, on && styles.chipOn]}
+            >
+              <Text style={[styles.chipText, on && styles.chipTextOn]}>{c.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      <ScrollView contentContainerStyle={styles.page}>
+        {selected === PROJECTION ? (
+          <View style={styles.section}>
+            <Text style={type.title} accessibilityRole="header">
+              Projection
+            </Text>
+            <Text style={type.small}>If you hit your reps every time</Text>
+            <View style={styles.stats}>
+              {upcoming.map((s) => (
+                <Text key={s.n} style={type.body}>
+                  {`#${s.n + 1} ${s.dayName} · ${s.lifts
+                    .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
+                    .map((l) => `${nameOf(exercises, l.exercise, true)} ${trim(toUnit(l.weightKg, unit))}`)
+                    .join(' · ')}`}
                 </Text>
-                <Text style={type.small}>If you hit five reps every time</Text>
-                {upcoming.map((s) => (
-                  <Text key={s.n} style={type.body}>
-                    {`#${s.n + 1} ${s.dayName} · ${s.lifts
-                      .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
-                      .map((l) => `${nameOf(exercises, l.exercise, true)} ${trim(toUnit(l.weightKg, unit))}`)
-                      .join(' · ')}`}
-                  </Text>
-                ))}
-              </>
-            )}
-            <Text style={[type.small, styles.count]}>{`${index + 1} / ${pages.length}`}</Text>
-          </ScrollView>
+              ))}
+            </View>
+          </View>
+        ) : (
+          renderLift(selected)
         )}
-      />
+      </ScrollView>
     </Background>
   );
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 16, gap: 14, flexGrow: 1 },
-  count: { marginTop: 'auto', textAlign: 'center' },
+  chipBar: { flexGrow: 0 },
+  chips: { paddingHorizontal: 20, paddingVertical: 12, gap: 8 },
+  chip: {
+    minHeight: 40,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.dim,
+  },
+  chipOn: { backgroundColor: colors.text, borderColor: colors.text },
+  chipText: { color: colors.text, fontSize: 15, fontWeight: '400' },
+  chipTextOn: { color: colors.bg },
+  page: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 48 },
+  section: { gap: 24 },
+  stats: { gap: 8 },
 });
