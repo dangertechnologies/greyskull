@@ -10,6 +10,8 @@ test('constants and formatting', () => {
   expect(trim(20.4999999)).toBe('20.5');
   expect(formatWeight(62.5, 'kg')).toBe('62.5 kg');
   expect(formatWeight(toKg(135, 'lb'), 'lb')).toBe('135 lb');
+  expect(formatWeight(83.91, 'lb')).toBe('185 lb'); // v1 stored 185 lb as 2-decimal kg
+  expect(formatWeight(toKg(137.5, 'lb'), 'lb')).toBe('137.5 lb');
 });
 
 test('135 lb → kg → lb → nearest loadable is 135', () => {

@@ -109,7 +109,7 @@ export function platesPerSide(kg: number, inv: PlateInventory, unit: Unit): numb
 
 export function formatPlates(kg: number, inv: PlateInventory, unit: Unit): string {
   const side = platesPerSide(kg, inv, unit);
-  return side.length === 0 ? 'bar only' : `per side: ${side.map(trim).join(' + ')}`;
+  return side.length === 0 ? 'bar only' : `per side: ${side.map((p) => trim(p)).join(' + ')}`;
 }
 
 export function isLoadable(kg: number, inv: PlateInventory, unit: Unit): boolean {
