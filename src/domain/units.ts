@@ -10,9 +10,15 @@ export function trim(value: number, decimals = 2): string {
   return String(Number(value.toFixed(decimals)));
 }
 
+/** Finest display step per unit: a real bar never lands between these, and converted history should not look like it does. */
+const DISPLAY_STEP: Record<Unit, number> = { kg: 0.25, lb: 0.5 };
+
 /**
- * Pounds get 1 decimal: every loadable lb weight is a multiple of 0.5, and v1 stored
- * pounds as 2-decimal kilograms, which would otherwise come back as "184.99 lb".
+ * Weights for display, to the nearest 0.25 kg or 0.5 lb. Every loadable weight is already on that grid, so
+ * only converted history moves: a 130 lb session reads "59 kg", not "58.97 kg", and a v1 import's 2-decimal
+ * kilograms come back as "185 lb", not "184.99 lb".
  */
-export const formatWeight = (kg: number, unit: Unit): string =>
-  `${trim(toUnit(kg, unit), unit === 'lb' ? 1 : 2)} ${unit}`;
+export const formatWeight = (kg: number, unit: Unit): string => {
+  const step = DISPLAY_STEP[unit];
+  return `${trim(Math.round(toUnit(kg, unit) / step) * step)} ${unit}`;
+};

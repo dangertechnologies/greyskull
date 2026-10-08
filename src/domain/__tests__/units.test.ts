@@ -12,6 +12,8 @@ test('constants and formatting', () => {
   expect(formatWeight(toKg(135, 'lb'), 'lb')).toBe('135 lb');
   expect(formatWeight(83.91, 'lb')).toBe('185 lb'); // v1 stored 185 lb as 2-decimal kg
   expect(formatWeight(toKg(137.5, 'lb'), 'lb')).toBe('137.5 lb');
+  expect(formatWeight(toKg(130, 'lb'), 'kg')).toBe('59 kg'); // converted history, not 58.97
+  expect(formatWeight(toKg(45, 'lb'), 'kg')).toBe('20.5 kg');
 });
 
 test('135 lb → kg → lb → nearest loadable is 135', () => {

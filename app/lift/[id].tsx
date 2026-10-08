@@ -4,7 +4,7 @@ import { LiftChart } from '../../src/components/LiftChart';
 import { TechniqueLinks } from '../../src/components/TechniqueLinks';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
-import { DEFAULT_RULES, formatWeight, incrementFor, smallestStep, trim } from '../../src/domain';
+import { DEFAULT_RULES, formatWeight, incrementFor, smallestStep, toKg, trim } from '../../src/domain';
 import { formatDate, nameOf } from '../../src/format';
 import { seriesPoints } from '../../src/series';
 import { useInventory, useLift, useStore, useUnit } from '../../src/store';
@@ -61,7 +61,7 @@ export default function LiftDetail() {
       <LiftChart
         label={exercise.name}
         points={points}
-        format={(v) => (bodyweight ? `${trim(v)} reps` : `${trim(v)} ${unit}`)}
+        format={(v) => (bodyweight ? `${trim(v)} reps` : formatWeight(toKg(v, unit), unit))}
       />
 
       <Section label="Stats" card>

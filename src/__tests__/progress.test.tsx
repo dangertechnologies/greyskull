@@ -58,7 +58,7 @@ test('a lift opens its chart in kg and lb, and a bodyweight lift charts reps', a
   expect(screen.getAllByText('20 kg → 25 kg').length).toBeGreaterThan(0);
 
   await act(async () => useStore.getState().setUnit('lb'));
-  expect(await screen.findByLabelText('Overhead press: 44.09 lb to 49.6 lb over 2 sessions')).toBeTruthy();
+  expect(await screen.findByLabelText('Overhead press: 44 lb to 49.5 lb over 2 sessions')).toBeTruthy();
   expect(screen.getAllByText('45 lb → 55 lb').length).toBeGreaterThan(0);
 
   act(() => router.push('/lift/CHINUPS'));
