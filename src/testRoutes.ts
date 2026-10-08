@@ -7,6 +7,7 @@ export const routes = () => ({
   '(tabs)/plan': require('../app/(tabs)/plan'),
   '(tabs)/settings': require('../app/(tabs)/settings'),
   history: require('../app/history'),
+  gallery: require('../app/gallery'),
   'plan/rules': require('../app/plan/rules'),
   'setup/_layout': require('../app/setup/_layout'),
   'setup/index': require('../app/setup/index'),

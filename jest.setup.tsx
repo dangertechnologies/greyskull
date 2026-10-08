@@ -15,3 +15,9 @@ jest.mock('expo-glass-effect', () => {
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
+
+// Primitives read safe-area insets; without a provider in unit tests, use the library's mock (zero insets).
+jest.mock('react-native-safe-area-context', () => {
+  const real = jest.requireActual('react-native-safe-area-context');
+  return { ...real, ...require('react-native-safe-area-context/jest/mock').default };
+});

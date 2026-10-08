@@ -28,7 +28,7 @@ export function Sheet({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close"
-          style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)' }]}
+          style={[StyleSheet.absoluteFill, { backgroundColor: t.color.backdrop }]}
           onPress={onClose}
         />
         <View

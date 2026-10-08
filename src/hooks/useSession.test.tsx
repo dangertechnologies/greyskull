@@ -116,3 +116,48 @@ test('changing the weight mid-session rescales warm-ups', async () => {
   );
   expect(squatWarm.map((w) => w.weightKg)).toEqual([20, 32.5, 42.5, 50]);
 });
+
+describe('editing and rest controls', () => {
+  test('selecting a logged set shows it; logging it again changes reps without a rest', async () => {
+    useStore.getState().setSettings({ restSeconds: 90 });
+    const { result } = renderHook(() => useSession(0));
+    act(() => result.current?.record(0, 5)); // warm-up
+    act(() => result.current?.record(1, 5)); // set 1 → rest starts
+    act(() => result.current?.skipRest());
+    expect(result.current?.selectedIndex).toBe(result.current?.activeIndex);
+    await act(async () => result.current?.select(1));
+    expect(result.current?.selectedIndex).toBe(1);
+    act(() => result.current?.record(1, 7));
+    expect(useStore.getState().draft?.results.MILITARY_PRESS.sets[0].reps).toBe(7);
+    expect(result.current?.restRemaining).toBeNull();
+    expect(result.current?.selectedIndex).toBe(result.current?.activeIndex); // follows the open set again
+  });
+
+  test('±30 s changes the rest, never below zero, and the total follows', () => {
+    useStore.getState().setSettings({ restSeconds: 90 });
+    const { result } = renderHook(() => useSession(0));
+    act(() => result.current?.record(1, 5));
+    expect(result.current?.restTotal).toBe(90);
+    act(() => result.current?.addRest(30));
+    expect(result.current?.restTotal).toBe(120);
+    expect(result.current?.restRemaining).toBe(120);
+    act(() => result.current?.addRest(-30));
+    act(() => result.current?.addRest(-30));
+    act(() => result.current?.addRest(-30));
+    act(() => result.current?.addRest(-30));
+    expect(result.current?.restRemaining ?? null).toBeNull(); // shortened to nothing: the rest is over
+  });
+
+  test('finish reports personal records against earlier sessions only', () => {
+    const { result } = renderHook(() => useSession(0));
+    result.current?.items.forEach((_i, index) => {
+      act(() => result.current?.record(index, 5));
+      act(() => result.current?.skipRest());
+    });
+    let first: ReturnType<NonNullable<ReturnType<typeof useSession>>['finish']> = [];
+    act(() => {
+      first = result.current?.finish() ?? [];
+    });
+    expect(first.every((f) => f.pr === false)).toBe(true); // nothing to beat on the first session
+  });
+});

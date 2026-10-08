@@ -141,3 +141,13 @@ test('a logged set can be corrected from the set rail without starting a rest', 
   expect(useStore.getState().draft?.results.MILITARY_PRESS.sets[0].reps).toBe(6);
   expect(screen.queryByTestId('rest-remaining')).toBeNull();
 });
+
+describe('the design gallery (dev only)', () => {
+  test('renders every primitive in both colour schemes', async () => {
+    renderRouter(routes(), { initialUrl: '/gallery' });
+    expect(await screen.findByText('dark theme')).toBeTruthy();
+    expect(screen.getByText('light theme')).toBeTruthy();
+    expect(screen.getAllByText('Start workout')).toHaveLength(2);
+    expect(screen.getAllByText('OHP', { includeHiddenElements: true })).toHaveLength(2);
+  });
+});
