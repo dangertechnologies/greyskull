@@ -72,7 +72,7 @@ export function ListRow({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? [title, subtitle, value].filter(Boolean).join(', ')}
       onPress={onPress}
-      style={({ pressed }) => ({ backgroundColor: pressed ? t.color.surfaceRaised : 'transparent' })}
+      style={({ pressed }) => ({ backgroundColor: pressed ? t.color.border : 'transparent' })}
     >
       {body}
     </Pressable>

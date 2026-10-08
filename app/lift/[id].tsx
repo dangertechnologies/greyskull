@@ -1,14 +1,15 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import { LiftChart } from '../../src/components/LiftChart';
 import { TechniqueLinks } from '../../src/components/TechniqueLinks';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
-import { DEFAULT_RULES, formatWeight, incrementFor, smallestStep, toUnit, trim } from '../../src/domain';
+import { DEFAULT_RULES, formatWeight, incrementFor, smallestStep, trim } from '../../src/domain';
 import { formatDate, nameOf } from '../../src/format';
 import { seriesPoints } from '../../src/series';
 import { useInventory, useLift, useStore, useUnit } from '../../src/store';
 import { Button } from '../../src/ui/Button';
+import { EmptyState } from '../../src/ui/EmptyState';
 import { ListRow } from '../../src/ui/ListRow';
 import { ScreenScroll } from '../../src/ui/layout';
 import { NumberStepper } from '../../src/ui/NumberStepper';
@@ -29,7 +30,12 @@ export default function LiftDetail() {
   if (!exercise) {
     return (
       <ScreenScroll>
-        <Text>This exercise no longer exists.</Text>
+        <EmptyState
+          icon="lift"
+          title="Exercise not found"
+          body="It may have been deleted. Your history keeps its sets."
+          action={{ title: 'All exercises', onPress: () => router.replace('/exercises') }}
+        />
       </ScreenScroll>
     );
   }
@@ -63,8 +69,8 @@ export default function LiftDetail() {
         format={(v) => (bodyweight ? `${trim(v)} reps` : `${trim(v)} ${unit}`)}
       />
 
-      <Section label="Stats">
-        <View style={{ gap: t.space[2] }}>
+      <Section label="Stats" card>
+        <View style={{ gap: t.space[2], paddingVertical: t.space[4] }}>
           {lift && !bodyweight ? (
             <Text>{`${formatWeight(lift.startKg, unit)} → ${formatWeight(lift.weightKg, unit)}`}</Text>
           ) : null}
@@ -78,16 +84,14 @@ export default function LiftDetail() {
       {lift && !bodyweight ? <LiftControls id={id} /> : null}
 
       {history.length > 0 ? (
-        <Section label="History">
-          <View>
-            {history.map((h) => (
-              <ListRow
-                key={h.n}
-                title={`${trim(toUnit(h.weightKg, unit))} ${unit} × ${h.reps}`}
-                subtitle={formatDate(h.date)}
-              />
-            ))}
-          </View>
+        <Section label="History" card>
+          {history.map((h) => (
+            <ListRow
+              key={h.n}
+              title={`${formatWeight(h.weightKg, unit)} × ${h.reps}`}
+              subtitle={formatDate(h.date)}
+            />
+          ))}
         </Section>
       ) : null}
     </ScreenScroll>

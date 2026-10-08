@@ -22,8 +22,8 @@ function Row({ exercise, inProgram }: { exercise: Exercise; inProgram: boolean }
         flexDirection: 'row',
         alignItems: 'center',
         gap: t.space[4],
-        minHeight: 64,
-        backgroundColor: pressed ? t.color.surface : 'transparent',
+        minHeight: 72,
+        backgroundColor: pressed ? t.color.border : 'transparent',
       })}
     >
       <Monogram exercise={exercise} size={40} />
@@ -41,6 +41,7 @@ function Row({ exercise, inProgram }: { exercise: Exercise; inProgram: boolean }
 }
 
 export default function Exercises() {
+  const t = useTheme();
   const exercises = useStore((s) => s.exercises);
   const program = useStore((s) => s.program);
   const used = new Set(program ? exerciseIdsOf(program) : []);
@@ -57,20 +58,20 @@ export default function Exercises() {
         Exercises
       </Text>
       <Button title="New exercise" icon="add" onPress={() => router.push('/exercises/new')} />
-      <Section label="Custom">
-        {custom.length === 0 ? <Text color="textMuted">None yet.</Text> : null}
-        <View>
-          {custom.map((e) => (
-            <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />
-          ))}
-        </View>
+      <Section label="Custom" card>
+        {custom.length === 0 ? (
+          <Text color="textMuted" style={{ paddingVertical: t.space[4] }}>
+            None yet.
+          </Text>
+        ) : null}
+        {custom.map((e) => (
+          <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />
+        ))}
       </Section>
-      <Section label="Built-in">
-        <View>
-          {builtIn.map((e) => (
-            <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />
-          ))}
-        </View>
+      <Section label="Built-in" card>
+        {builtIn.map((e) => (
+          <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />
+        ))}
       </Section>
     </ScreenScroll>
   );

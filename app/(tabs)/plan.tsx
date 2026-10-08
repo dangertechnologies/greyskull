@@ -38,50 +38,46 @@ export default function Plan() {
       </Card>
 
       {program ? (
-        <Section label="Days">
-          <View style={{ gap: t.space[5] }}>
-            {program.days.map((day) => (
-              <View key={day.name} style={{ gap: t.space[1] }}>
-                <Text variant="bodyStrong">
-                  {day.intensity && day.intensity < 1
-                    ? `${day.name} · ${Math.round(day.intensity * 100)} %`
-                    : day.name}
-                </Text>
-                {day.slots.map((slot) => {
-                  const ids = typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise;
-                  return (
-                    <Text key={ids.join('/')} variant="callout" color="textMuted">
-                      {`${ids.map((id) => nameOf(exercises, id)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
-                    </Text>
-                  );
-                })}
-              </View>
-            ))}
-          </View>
+        <Section label="Days" card>
+          {program.days.map((day) => (
+            <View key={day.name} style={{ gap: t.space[1], paddingVertical: t.space[4] }}>
+              <Text variant="bodyStrong">
+                {day.intensity && day.intensity < 1
+                  ? `${day.name} · ${Math.round(day.intensity * 100)} %`
+                  : day.name}
+              </Text>
+              {day.slots.map((slot) => {
+                const ids = typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise;
+                return (
+                  <Text key={ids.join('/')} variant="callout" color="textMuted">
+                    {`${ids.map((id) => nameOf(exercises, id)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
+                  </Text>
+                );
+              })}
+            </View>
+          ))}
         </Section>
       ) : null}
 
-      <Section label="Edit">
-        <View>
-          <ListRow
-            title="Days and exercises"
-            accessory="chevron"
-            onPress={() => router.push('/setup/days?edit=1')}
-          />
-          <ListRow title="Progression rules" accessory="chevron" onPress={() => router.push('/plan/rules')} />
-          <ListRow
-            title="Exercises"
-            subtitle="Form tips, videos, custom exercises"
-            accessory="chevron"
-            onPress={() => router.push('/exercises')}
-          />
-          <ListRow
-            title="Change plan"
-            subtitle="Keeps your weights and history"
-            accessory="chevron"
-            onPress={() => router.push('/setup/plan?change=1')}
-          />
-        </View>
+      <Section label="Edit" card>
+        <ListRow
+          title="Days and exercises"
+          accessory="chevron"
+          onPress={() => router.push('/setup/days?edit=1')}
+        />
+        <ListRow title="Progression rules" accessory="chevron" onPress={() => router.push('/plan/rules')} />
+        <ListRow
+          title="Exercises"
+          subtitle="Form tips, videos, custom exercises"
+          accessory="chevron"
+          onPress={() => router.push('/exercises')}
+        />
+        <ListRow
+          title="Change plan"
+          subtitle="Keeps your weights and history"
+          accessory="chevron"
+          onPress={() => router.push('/setup/plan?change=1')}
+        />
       </Section>
     </ScreenScroll>
   );

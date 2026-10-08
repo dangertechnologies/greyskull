@@ -129,29 +129,25 @@ export default function Today() {
 
         <View style={{ height: t.space[2] }} />
 
-        <Section label="Coming up">
-          <View style={{ gap: t.space[3] }}>
-            {upcoming.slice(1).map((s) => (
-              <Text key={s.n} variant="callout" color="textMuted">
-                {`${s.dayName} · ${s.lifts
-                  .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
-                  .map(
-                    (l) =>
-                      `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit).replace(/ (kg|lb)$/, '')}`,
-                  )
-                  .join(' · ')}`}
-              </Text>
-            ))}
-          </View>
+        <Section label="Coming up" card>
+          {upcoming.slice(1).map((s) => (
+            <Text key={s.n} variant="callout" color="textMuted" style={{ paddingVertical: t.space[3] }}>
+              {`${s.dayName} · ${s.lifts
+                .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
+                .map(
+                  (l) =>
+                    `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit).replace(/ (kg|lb)$/, '')}`,
+                )
+                .join(' · ')}`}
+            </Text>
+          ))}
         </Section>
 
         {recent.length > 0 ? (
-          <Section label="Recent">
-            <View>
-              {recent.map((log) => (
-                <WorkoutRow key={log.n} log={log} />
-              ))}
-            </View>
+          <Section label="Recent" card>
+            {recent.map((log) => (
+              <WorkoutRow key={log.n} log={log} />
+            ))}
             <Button title="See all history" variant="plain" onPress={() => router.push('/history')} />
           </Section>
         ) : null}

@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { FlatList, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { WorkoutRow } from '../src/components/WorkoutRow';
 import { useTheme } from '../src/design/theme';
 import { useStore } from '../src/store';
@@ -30,10 +30,29 @@ export default function History() {
           </Text>
         }
         ListEmptyComponent={<EmptyState icon="calendar" title="No workouts yet" />}
+        // One grouped card, built from the rows so the list stays virtualised.
         ItemSeparatorComponent={() => (
-          <View style={{ height: 1, backgroundColor: t.color.border, marginVertical: t.space[1] }} />
+          <View style={{ backgroundColor: t.color.surface, paddingHorizontal: t.space[5] }}>
+            <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.color.border }} />
+          </View>
         )}
-        renderItem={({ item: log }) => <WorkoutRow log={log} />}
+        renderItem={({ item: log, index }) => {
+          const r = t.radius.xl;
+          return (
+            <View
+              style={{
+                backgroundColor: t.color.surface,
+                paddingHorizontal: t.space[5],
+                borderTopLeftRadius: index === 0 ? r : 0,
+                borderTopRightRadius: index === 0 ? r : 0,
+                borderBottomLeftRadius: index === data.length - 1 ? r : 0,
+                borderBottomRightRadius: index === data.length - 1 ? r : 0,
+              }}
+            >
+              <WorkoutRow log={log} />
+            </View>
+          );
+        }}
       />
     </>
   );

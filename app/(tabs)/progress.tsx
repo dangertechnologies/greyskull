@@ -48,77 +48,71 @@ export default function Progress() {
       <Section
         label="Lifts"
         footer={finished > 0 && !anyTrend ? 'Trends show once a lift has 2 workouts.' : undefined}
+        card
       >
-        <View>
-          {ids.map((id) => {
-            const exercise = exercises[id];
-            if (!exercise) return null;
-            const values = series[id];
-            const bodyweight = exercise.kind === 'bodyweight';
-            const first = values[0];
-            const last = values[values.length - 1];
-            const delta = values.length > 1 ? last - first : 0;
-            const current = bodyweight
-              ? last !== undefined
-                ? `${trim(last)} reps`
-                : '–'
-              : formatWeight(lifts[id]?.weightKg ?? 0, unit);
-            const trend =
-              values.length > 1
-                ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta), bodyweight || unit === 'kg' ? 2 : 1)} ${bodyweight ? 'reps' : unit} since the start`
-                : null;
-            return (
-              <Pressable
-                key={id}
-                accessibilityRole="button"
-                accessibilityLabel={`${exercise.name}, ${current}.${trend ? ` ${trend}` : ''}`}
-                onPress={() => router.push(`/lift/${id}`)}
-                style={({ pressed }) => ({
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: t.space[4],
-                  minHeight: 72,
-                  paddingVertical: t.space[3],
-                  backgroundColor: pressed ? t.color.surface : 'transparent',
-                })}
-              >
-                <Monogram exercise={exercise} size={40} />
-                <View style={{ flex: 1, gap: t.space[1] }}>
-                  <Text variant="bodyStrong">{exercise.name}</Text>
-                  {trend ? (
-                    <Text
-                      variant="caption"
-                      color={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'textMuted'}
-                    >
-                      {trend}
-                    </Text>
-                  ) : null}
-                </View>
-                <Sparkline values={values} />
-                <View style={{ alignItems: 'flex-end', minWidth: 72 }}>
-                  <Text variant="bodyStrong">{current}</Text>
-                </View>
-                <Icon name="chevron" size={16} color="textMuted" />
-              </Pressable>
-            );
-          })}
-        </View>
+        {ids.map((id) => {
+          const exercise = exercises[id];
+          if (!exercise) return null;
+          const values = series[id];
+          const bodyweight = exercise.kind === 'bodyweight';
+          const first = values[0];
+          const last = values[values.length - 1];
+          const delta = values.length > 1 ? last - first : 0;
+          const current = bodyweight
+            ? last !== undefined
+              ? `${trim(last)} reps`
+              : '–'
+            : formatWeight(lifts[id]?.weightKg ?? 0, unit);
+          const trend =
+            values.length > 1
+              ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta), bodyweight || unit === 'kg' ? 2 : 1)} ${bodyweight ? 'reps' : unit} since the start`
+              : null;
+          return (
+            <Pressable
+              key={id}
+              accessibilityRole="button"
+              accessibilityLabel={`${exercise.name}, ${current}.${trend ? ` ${trend}` : ''}`}
+              onPress={() => router.push(`/lift/${id}`)}
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: t.space[4],
+                minHeight: 72,
+                paddingVertical: t.space[3],
+                backgroundColor: pressed ? t.color.border : 'transparent',
+              })}
+            >
+              <Monogram exercise={exercise} size={40} />
+              <View style={{ flex: 1, gap: t.space[1] }}>
+                <Text variant="bodyStrong">{exercise.name}</Text>
+                {trend ? (
+                  <Text variant="caption" color={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'textMuted'}>
+                    {trend}
+                  </Text>
+                ) : null}
+              </View>
+              <Sparkline values={values} />
+              <View style={{ alignItems: 'flex-end', minWidth: 72 }}>
+                <Text variant="bodyStrong">{current}</Text>
+              </View>
+              <Icon name="chevron" size={16} color="textMuted" />
+            </Pressable>
+          );
+        })}
       </Section>
 
-      <Section label="Projection" footer="If you hit your reps every time.">
-        <View style={{ gap: t.space[4] }}>
-          {upcoming.map((s) => (
-            <View key={s.n} style={{ gap: t.space[1] }}>
-              <Text variant="bodyStrong">{`Workout ${s.n + 1} · ${s.dayName}`}</Text>
-              <Text variant="callout" color="textMuted">
-                {s.lifts
-                  .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
-                  .map((l) => `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit)}`)
-                  .join(' · ')}
-              </Text>
-            </View>
-          ))}
-        </View>
+      <Section label="Projection" footer="If you hit your reps every time." card>
+        {upcoming.map((s) => (
+          <View key={s.n} style={{ gap: t.space[1], paddingVertical: t.space[3] }}>
+            <Text variant="bodyStrong">{`Workout ${s.n + 1} · ${s.dayName}`}</Text>
+            <Text variant="callout" color="textMuted">
+              {s.lifts
+                .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
+                .map((l) => `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit)}`)
+                .join(' · ')}
+            </Text>
+          </View>
+        ))}
       </Section>
 
       <Section label="History">
