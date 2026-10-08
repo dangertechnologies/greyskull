@@ -22,6 +22,12 @@
       "package": "com.greyskull",
       "versionCode": 2
     },
-    "plugins": ["expo-router", "expo-splash-screen", "expo-web-browser"]
+    "plugins": [
+      "expo-router",
+      "expo-splash-screen",
+      "expo-web-browser",
+      "expo-asset",
+      "expo-font"
+    ]
   }
 }

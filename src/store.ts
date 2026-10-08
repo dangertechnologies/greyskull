@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { builtInExercises } from './catalog';
 import {
   DEFAULT_INVENTORY, DEFAULT_STEP, exerciseIdsOf, migrateV1, nextLift, sessionFor, setTargets,
-  toKg, validateProgram,
+  roundForExercise, toKg, validateProgram,
 } from './domain';
 import type {
   AppState, Exercise, ExerciseResult, LiftState, Outcome, PlateInventory, Program, SessionLog, Unit,
@@ -51,8 +51,8 @@ interface Actions {
   confirmWeights(weights: Record<string, number>): void;
   exportJson(): string;
   reset(): void;
-  /** Re-run the v1 import from the legacy key (also used by the dev seed button). */
-  importLegacy(): Promise<boolean>;
+  /** Import v1 data from `raw`, or from the legacy key when omitted (read-only; the key is never written). */
+  importLegacy(raw?: string): Promise<boolean>;
 }
 
 export type Store = AppState & { hydrated: boolean } & Actions;
@@ -79,7 +79,26 @@ export const useStore = create<Store>()(
       ...initialState(),
       hydrated: false,
 
-      setUnit: (unit) => set({ unit }),
+      setUnit: (unit) =>
+        set((s) => {
+          if (unit === s.unit) return {};
+          // Weights are stored in kg, but a bar loaded in lb is not a whole number of kg: move every
+          // working weight to the nearest weight that is loadable in the new unit.
+          const snap = (id: string, kg: number): number => {
+            const exercise = s.exercises[id];
+            return exercise && kg > 0 ? roundForExercise(kg, exercise, 'nearest', s.inventory, unit) : kg;
+          };
+          const lifts = Object.fromEntries(
+            Object.entries(s.lifts).map(([id, l]) => [id, { ...l, weightKg: snap(id, l.weightKg), startKg: snap(id, l.startKg) }]),
+          );
+          const draft = s.draft && {
+            ...s.draft,
+            results: Object.fromEntries(
+              Object.entries(s.draft.results).map(([id, r]) => [id, { ...r, weightKg: snap(id, r.weightKg) }]),
+            ),
+          };
+          return { unit, lifts, draft };
+        }),
       setInventory: (patch) => set((s) => ({ inventory: { ...s.inventory, ...patch } })),
       setSettings: ({ minimalist, restSeconds }) =>
         set((s) => ({
@@ -220,9 +239,9 @@ export const useStore = create<Store>()(
 
       reset: () => set({ ...initialState(), legacyChecked: true }),
 
-      importLegacy: async () => {
-        const raw = await AsyncStorage.getItem(LEGACY_KEY);
-        const migrated = raw === null ? null : migrateV1(raw, get().exercises);
+      importLegacy: async (raw) => {
+        const data = raw ?? (await AsyncStorage.getItem(LEGACY_KEY));
+        const migrated = data === null ? null : migrateV1(data, get().exercises);
         if (!migrated) return false;
         set(migrated.patch);
         return true;

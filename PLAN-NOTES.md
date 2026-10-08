@@ -3,7 +3,8 @@
 Decisions, deviations and manual-check items, appended per Session.
 
 ## Needs manual check on device
-- (filled in as Sessions complete)
+- Session 4: look and feel of Home/Settings/Lift editor/Confirm; header icons tappable; Stepper long-press feel on a real finger
+- Session 4: splash screen hides once the store is hydrated (no 2 s delay); no flash of the Setup stub on launch with saved data
 
 ## 2026-10-08 — Session 1 (scaffold)
 - Branch `v2` created from the working checkout of master (2ba6d3e).
@@ -61,3 +62,21 @@ Decisions, deviations and manual-check items, appended per Session.
 - `finishSession` leaves bodyweight lifts untouched (outcome `none`) and uses the weight actually lifted.
 - `startSession(n)` with a draft for a different `n` replaces the draft (Home only ever starts `nextSession`).
 - Store tests simulate "kill and reopen" by snapshotting the persisted payload and rehydrating a blank store.
+
+## 2026-10-08 — Session 4 (shell, home, settings, lift editor, confirm)
+- **Unit switch snaps weights.** Weights are stored in kg, but 20 kg is 44.09 lb, not a loadable weight with a
+  45 lb bar. `setUnit` therefore moves every lift (`weightKg`, `startKg`) and the draft's weights to the nearest
+  weight loadable in the new unit. Round trips are lossless for default and finer inventories (kg → lb → kg
+  tested 20×). History is never rewritten. PLAN's "Home shows 45 lb after switching" requires this.
+- Headers: root Stack uses an opaque black header (not `headerTransparent`) because expo-router 57 no longer
+  re-exports a header-height hook to inset content; the session screens hide the header and draw their own
+  overlay back button so they stay immersive.
+- `StatusBar` is rendered inside `Background` (a Fragment root layout trips expo-router's layout props).
+- Dev seed uses `importLegacy(rawFixture)`; it never writes `GSLP_STATE_18`. `Fast-forward` finishes the current
+  session with reps 8. Both are `__DEV__` only (fixture is `require`d lazily inside the handler).
+- Deps added beyond PLAN §3.2: `expo-asset`, `expo-font` (runtime peers of `@expo/vector-icons`; jest failed
+  without them), `@testing-library/react-native@13` (v14 needs a not-installed `test-renderer`), `react-test-renderer`.
+- Component/screen tests: `Stepper.test.tsx` (tap = one step, long-press repeat at 150 ms, stop on release/unmount),
+  `src/__tests__/screens.test.tsx` mounts the real route modules in expo-router's in-memory test router.
+- Confirm screen snaps migrated weights to the nearest loadable weight before showing them.
+- Needs manual check on device (added): header icons and layout on Home, thin-font look, Stepper feel.

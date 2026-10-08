@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import fixture from './domain/__tests__/fixtures/v1-imperial.json';
-import { PLUGINS, TEMPLATES, toKg } from './domain';
+import { isLoadable, PLUGINS, TEMPLATES, toKg } from './domain';
 import type { Program } from './domain';
 import { initialState, initStore, LEGACY_KEY, snapshot, STORAGE_KEY, useStore } from './store';
 
@@ -189,11 +189,26 @@ describe('actions', () => {
     expect(json.setUnit).toBeUndefined();
   });
 
-  test('kg → lb toggling 20 times leaves stored weights untouched', () => {
-    get().setLift('BARBELL_SQUAT', { weightKg: 62.5 });
-    for (let i = 0; i < 20; i++) get().setUnit(i % 2 === 0 ? 'lb' : 'kg');
-    expect(get().unit).toBe('kg');
-    expect(get().lifts.BARBELL_SQUAT.weightKg).toBe(62.5);
+  test('switching to lb snaps lifts to lb-loadable weights; toggling 20 times is lossless', () => {
+    const original = { BARBELL_SQUAT: 100, DEADLIFT: 62.5, BENCH_PRESS: 20, MILITARY_PRESS: 37.5 };
+    for (const [id, kg] of Object.entries(original)) get().setLift(id, { weightKg: kg, startKg: kg });
+    get().setUnit('lb');
+    expect(get().lifts.BENCH_PRESS.weightKg).toBeCloseTo(toKg(45, 'lb'), 9);
+    for (const id of Object.keys(original)) expect(isLoadable(get().lifts[id].weightKg, get().inventory, 'lb')).toBe(true);
+    get().setUnit('kg');
+    for (let i = 0; i < 19; i++) get().setUnit(i % 2 === 0 ? 'lb' : 'kg');
+    expect(get().unit).toBe('lb');
+    get().setUnit('kg');
+    for (const [id, kg] of Object.entries(original)) {
+      expect(get().lifts[id].weightKg).toBe(kg);
+      expect(get().lifts[id].startKg).toBe(kg);
+    }
+  });
+
+  test('switching units mid-session re-snaps the draft weights too', () => {
+    get().startSession(0);
+    get().setUnit('lb');
+    expect(get().draft?.results.BARBELL_SQUAT.weightKg).toBeCloseTo(toKg(45, 'lb'), 9);
   });
 });
 
