@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  Platform,
   ScrollView,
   type StyleProp,
   StyleSheet,
@@ -47,7 +48,7 @@ export function ScreenScroll({
 }: {
   children: ReactNode;
   withBottomBar?: boolean;
-  /** Tab screens have no navigation header: reserve the top safe area. */
+  /** Tab screens have no navigation header: reserve the top safe area (iOS already does, via the inset adjustment). */
   headerless?: boolean;
   gap?: SpaceKey;
 }) {
@@ -61,7 +62,7 @@ export function ScreenScroll({
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
         paddingHorizontal: gutter,
-        paddingTop: theme.space[6] + (headerless ? insets.top : 0),
+        paddingTop: theme.space[6] + (headerless && Platform.OS !== 'ios' ? insets.top : 0),
         paddingBottom: theme.space[12] + insets.bottom + (withBottomBar ? BOTTOM_BAR_CLEARANCE : 0),
         gap: theme.space[gap],
       }}
