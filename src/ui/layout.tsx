@@ -108,7 +108,8 @@ export function BottomBar({ children }: { children: ReactNode }) {
         styles.bar,
         {
           paddingHorizontal: gutter,
-          paddingBottom: Math.max(insets.bottom, theme.space[4]) + theme.space[1],
+          // 20 above whatever is below: the home indicator, or the tab bar (which already eats the inset).
+          paddingBottom: insets.bottom + theme.space[5],
         },
         glass && { backgroundColor: 'transparent', borderTopWidth: 0 },
       ]}

@@ -74,6 +74,19 @@ test('Reset in settings confirms, wipes the program and sends you to setup', asy
   alert.mockRestore();
 });
 
+test('the developer seed plays three months of backdated workouts with a deload in them', async () => {
+  renderRouter(routes(), { initialUrl: '/settings' });
+  fireEvent.press(await screen.findByLabelText('Seed 3 months of workouts'));
+  const { sessions, program } = useStore.getState();
+  expect(program).not.toBeNull();
+  expect(sessions.length).toBe(39);
+  const span = Date.parse(sessions[38].finishedAt ?? '') - Date.parse(sessions[0].finishedAt ?? '');
+  expect(span / 86_400_000).toBeCloseTo(90 * (38 / 39), 0);
+  const squat = sessions.map((l) => l.results.BARBELL_SQUAT?.weightKg).filter((w) => w !== undefined);
+  expect(squat.some((w, i) => i > 0 && w < squat[i - 1])).toBe(true);
+  expect(await screen.findByText('Start workout')).toBeTruthy();
+});
+
 test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async () => {
   const store = useStore.getState();
   store.setProgram(TEMPLATES.base);

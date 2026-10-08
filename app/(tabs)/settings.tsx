@@ -3,6 +3,7 @@ import { Alert, Share, View } from 'react-native';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
 import { dynamicColorSupported, useTheme } from '../../src/design/theme';
+import { TEMPLATES } from '../../src/domain';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
@@ -21,15 +22,35 @@ function devSeed() {
   void importLegacy(JSON.stringify(fixture)).then(goHome);
 }
 
-function devFastForward() {
+function devFastForward(reps = 8) {
   const { nextSession, startSession, logSet, finishSession } = useStore.getState();
   const draft = startSession(nextSession);
   for (const id of draft.order) {
     draft.results[id].sets.forEach((_s, i) => {
-      logSet(id, i, 8);
+      logSet(id, i, reps);
     });
   }
   finishSession();
+}
+
+/** Three months of workouts, backdated evenly; three stalls in a row every 9 workouts, so deloads show on the charts. */
+function devSeedHistory() {
+  const days = 90;
+  const s = useStore.getState();
+  if (!s.program) s.setProgram(TEMPLATES.base);
+  const perWeek = useStore.getState().program?.sessionsPerWeek ?? 3;
+  const count = Math.round((days / 7) * perWeek);
+  const first = useStore.getState().sessions.length;
+  for (let i = 0; i < count; i++) devFastForward(i % 9 >= 6 ? 3 : 5 + (i % 3));
+  const now = Date.now();
+  useStore.setState((st) => ({
+    sessions: st.sessions.map((log, i) => {
+      if (i < first) return log;
+      const at = new Date(now - ((count - 1 - (i - first)) * days * 86_400_000) / count).toISOString();
+      return { ...log, startedAt: at, finishedAt: at };
+    }),
+  }));
+  goHome();
 }
 
 export default function Settings() {
@@ -146,7 +167,8 @@ export default function Settings() {
       {__DEV__ ? (
         <Section label="Developer">
           <Button title="Seed v1 data" variant="secondary" onPress={devSeed} />
-          <Button title="Fast-forward" variant="secondary" onPress={devFastForward} />
+          <Button title="Fast-forward" variant="secondary" onPress={() => devFastForward()} />
+          <Button title="Seed 3 months of workouts" variant="secondary" onPress={devSeedHistory} />
           <Button title="Design gallery" variant="secondary" onPress={() => router.push('/gallery')} />
         </Section>
       ) : null}

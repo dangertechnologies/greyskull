@@ -236,6 +236,14 @@ C5 and C7 were already in place when checked against the code. Kept below for th
   diagram when there are no plates and let the caption carry it. `src/views/SessionImmersive.tsx`.
 - **C7. Edit exercise: the kg and lb increment steppers are centred** while the rules screen uses the
   inline row layout. Use `inline` for both. `app/exercises/[id].tsx`.
+- **C8. Start/Resume bar sat 4 pt above the tab bar.** Inside the tabs the safe-area bottom inset is 0
+  (the tab bar consumes it), so `BottomBar`'s `max(inset, 16) + 4` left 4 pt. Now `inset + 20`, as §5.3
+  says: 20 pt above the tab bar on Today, 20 pt above the home indicator in a session. The pinned bar
+  stays: it is the one primary action, in reach of the thumb whatever length the Recent list grows to.
+  Option if the two stacked bars ever bother on iOS 26: drop the strip on tab screens and float the
+  button as a pill. Not done.
+- **Developer seed.** Settings → Developer → "Seed 3 months of workouts" plays 39 backdated workouts
+  with three stalls every ninth, so charts, trends, PR dots and deloads have data.
 
 ## Out of scope
 - Redesigning Today. Its layout works, and B1, B2 and B5 fix most of what looks wrong there.
