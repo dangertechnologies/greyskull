@@ -1,9 +1,9 @@
 import { Modal, StyleSheet, Text, View } from 'react-native';
 import type { Exercise } from '../domain';
+import { colors, type } from '../theme';
 import { Button } from './Button';
 import { PlatesLine } from './PlatesLine';
 import { WeightStepper } from './WeightStepper';
-import { colors, type } from '../theme';
 
 interface Props {
   visible: boolean;
@@ -31,5 +31,13 @@ export function WeightModal({ visible, exercise, kg, onChange, onClose }: Props)
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', padding: 24 },
-  sheet: { backgroundColor: '#111', borderRadius: 8, padding: 24, gap: 16, alignItems: 'center', borderWidth: 1, borderColor: colors.faint },
+  sheet: {
+    backgroundColor: '#111',
+    borderRadius: 8,
+    padding: 24,
+    gap: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.faint,
+  },
 });

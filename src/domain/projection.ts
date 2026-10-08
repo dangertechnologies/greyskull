@@ -1,5 +1,5 @@
-import { nextLift, sessionWeightKg, SUCCESS_REPS } from './progression';
 import { sessionFor, setTargets } from './program';
+import { nextLift, SUCCESS_REPS, sessionWeightKg } from './progression';
 import type { AppState, LiftState, Scheme } from './types';
 import { toKg } from './units';
 

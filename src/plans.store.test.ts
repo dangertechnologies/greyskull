@@ -9,7 +9,10 @@ const get = () => useStore.getState();
 
 function play(reps: (target: number | null) => number) {
   const draft = get().startSession(get().nextSession);
-  for (const id of draft.order) draft.results[id].sets.forEach((s, i) => get().logSet(id, i, reps(s.target)));
+  for (const id of draft.order)
+    draft.results[id].sets.forEach((s, i) => {
+      get().logSet(id, i, reps(s.target));
+    });
   return { draft, outcomes: get().finishSession() };
 }
 
@@ -32,13 +35,19 @@ test('AllPro: heavy day adds reps, light/medium days use 80/90 % and change noth
   get().setLift('BARBELL_SQUAT', { weightKg: 100 });
 
   const heavy = play((t) => t ?? 0);
-  expect(heavy.draft.results.BARBELL_SQUAT).toMatchObject({ weightKg: 100, sets: [{ target: 8 }, { target: 8 }] });
+  expect(heavy.draft.results.BARBELL_SQUAT).toMatchObject({
+    weightKg: 100,
+    sets: [{ target: 8 }, { target: 8 }],
+  });
   expect(heavy.outcomes.BARBELL_SQUAT.change).toBe('reps');
   expect(get().lifts.BARBELL_SQUAT).toMatchObject({ weightKg: 100, reps: 9 });
 
   const light = play((t) => t ?? 0);
   expect(light.draft.intensity).toBe(0.8);
-  expect(light.draft.results.BARBELL_SQUAT).toMatchObject({ weightKg: 80, sets: [{ target: 9 }, { target: 9 }] });
+  expect(light.draft.results.BARBELL_SQUAT).toMatchObject({
+    weightKg: 80,
+    sets: [{ target: 9 }, { target: 9 }],
+  });
   expect(light.outcomes.BARBELL_SQUAT.change).toBe('none');
 
   const medium = play((t) => t ?? 0);

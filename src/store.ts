@@ -2,12 +2,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { builtInExercises } from './catalog';
-import {
-  DEFAULT_INVENTORY, DEFAULT_STEP, exerciseIdsOf, migrateV1, nextLift, sessionFor, sessionWeightKg, setTargets,
-  roundForExercise, toKg, validateProgram,
-} from './domain';
 import type {
-  AppState, Exercise, ExerciseResult, LiftState, Outcome, PlateInventory, Program, SessionLog, Unit,
+  AppState,
+  Exercise,
+  ExerciseResult,
+  LiftState,
+  Outcome,
+  PlateInventory,
+  Program,
+  SessionLog,
+  Unit,
+} from './domain';
+import {
+  DEFAULT_INVENTORY,
+  DEFAULT_STEP,
+  exerciseIdsOf,
+  migrateV1,
+  nextLift,
+  roundForExercise,
+  sessionFor,
+  sessionWeightKg,
+  setTargets,
+  toKg,
+  validateProgram,
 } from './domain';
 
 export const STORAGE_KEY = 'gslp-v2';
@@ -89,12 +106,18 @@ export const useStore = create<Store>()(
             return exercise && kg > 0 ? roundForExercise(kg, exercise, 'nearest', s.inventory, unit) : kg;
           };
           const lifts = Object.fromEntries(
-            Object.entries(s.lifts).map(([id, l]) => [id, { ...l, weightKg: snap(id, l.weightKg), startKg: snap(id, l.startKg) }]),
+            Object.entries(s.lifts).map(([id, l]) => [
+              id,
+              { ...l, weightKg: snap(id, l.weightKg), startKg: snap(id, l.startKg) },
+            ]),
           );
           const draft = s.draft && {
             ...s.draft,
             results: Object.fromEntries(
-              Object.entries(s.draft.results).map(([id, r]) => [id, { ...r, weightKg: snap(id, r.weightKg) }]),
+              Object.entries(s.draft.results).map(([id, r]) => [
+                id,
+                { ...r, weightKg: snap(id, r.weightKg) },
+              ]),
             ),
           };
           return { unit, lifts, draft };
@@ -104,7 +127,9 @@ export const useStore = create<Store>()(
         set((s) => ({
           minimalist: minimalist ?? s.minimalist,
           restSeconds:
-            restSeconds === undefined ? s.restSeconds : Math.min(MAX_REST_SECONDS, Math.max(0, Math.round(restSeconds))),
+            restSeconds === undefined
+              ? s.restSeconds
+              : Math.min(MAX_REST_SECONDS, Math.max(0, Math.round(restSeconds))),
         })),
 
       setProgram: (program) => {
@@ -141,7 +166,9 @@ export const useStore = create<Store>()(
           const exercise = exercises[id];
           const working = lifts[id]?.weightKg ?? barKg(inventory, unit);
           results[id] = {
-            weightKg: exercise ? sessionWeightKg(working, session.intensity, exercise, inventory, unit) : working,
+            weightKg: exercise
+              ? sessionWeightKg(working, session.intensity, exercise, inventory, unit)
+              : working,
             sets: setTargets(scheme, lifts[id]?.reps).map((target) => ({ target, reps: 0 })),
           };
         }
@@ -161,15 +188,21 @@ export const useStore = create<Store>()(
         set((s) => {
           const result = s.draft?.results[exerciseId];
           if (!s.draft || !result?.sets[setIndex]) return {};
-          const sets = result.sets.map((set_, i) => (i === setIndex ? { ...set_, reps: Math.max(0, Math.round(reps)) } : set_));
-          return { draft: { ...s.draft, results: { ...s.draft.results, [exerciseId]: { ...result, sets } } } };
+          const sets = result.sets.map((set_, i) =>
+            i === setIndex ? { ...set_, reps: Math.max(0, Math.round(reps)) } : set_,
+          );
+          return {
+            draft: { ...s.draft, results: { ...s.draft.results, [exerciseId]: { ...result, sets } } },
+          };
         }),
 
       setDraftWeight: (exerciseId, kg) =>
         set((s) => {
           const result = s.draft?.results[exerciseId];
           if (!s.draft || !result || !(kg > 0)) return {};
-          return { draft: { ...s.draft, results: { ...s.draft.results, [exerciseId]: { ...result, weightKg: kg } } } };
+          return {
+            draft: { ...s.draft, results: { ...s.draft.results, [exerciseId]: { ...result, weightKg: kg } } },
+          };
         }),
 
       finishSession: () => {
@@ -204,7 +237,13 @@ export const useStore = create<Store>()(
         set((s) => {
           const now = new Date().toISOString();
           const skipped: SessionLog = {
-            n: s.nextSession, dayName: '', startedAt: now, finishedAt: now, results: {}, order: [], skipped: true,
+            n: s.nextSession,
+            dayName: '',
+            startedAt: now,
+            finishedAt: now,
+            results: {},
+            order: [],
+            skipped: true,
           };
           return { sessions: [...s.sessions, skipped], nextSession: s.nextSession + 1, draft: null };
         }),
@@ -220,7 +259,9 @@ export const useStore = create<Store>()(
         if (!exercise) return [];
         if (!exercise.custom) throw new Error('Built-in exercises cannot be deleted');
         const using = (program?.days ?? []).filter((d) =>
-          d.slots.some((slot) => (typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise).includes(id)),
+          d.slots.some((slot) =>
+            (typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise).includes(id),
+          ),
         );
         if (using.length > 0) return using.map((d) => d.name);
         set((s) => {
@@ -281,4 +322,3 @@ export async function initStore(): Promise<void> {
 export const useUnit = (): Unit => useStore((s) => s.unit);
 export const useInventory = (): PlateInventory => useStore((s) => s.inventory);
 export const useLift = (id: string): LiftState | undefined => useStore((s) => s.lifts[id]);
-

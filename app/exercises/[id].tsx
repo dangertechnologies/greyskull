@@ -5,8 +5,8 @@ import { Button } from '../../src/components/Button';
 import { ExerciseIcon } from '../../src/components/ExerciseIcon';
 import { Screen } from '../../src/components/Screen';
 import { Stepper } from '../../src/components/Stepper';
-import { trim } from '../../src/domain';
 import type { Exercise, Kind } from '../../src/domain';
+import { trim } from '../../src/domain';
 import { customId } from '../../src/exerciseId';
 import { ICONS } from '../../src/icons';
 import { goBackOr } from '../../src/navigation';
@@ -20,7 +20,11 @@ const KINDS: { kind: Kind; label: string }[] = [
   { kind: 'bodyweight', label: 'Bodyweight' },
 ];
 
-const lines = (text: string): string[] => text.split('\n').map((l) => l.trim()).filter(Boolean);
+const lines = (text: string): string[] =>
+  text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -87,7 +91,10 @@ export default function ExerciseEditor() {
   const remove = () => {
     const days = deleteExercise(id);
     if (days.length > 0) {
-      Alert.alert('Still in your program', `Remove it from ${days.join(', ')} first (Settings → Edit program).`);
+      Alert.alert(
+        'Still in your program',
+        `Remove it from ${days.join(', ')} first (Settings → Edit program).`,
+      );
     } else {
       goBackOr('/exercises');
     }
@@ -96,13 +103,29 @@ export default function ExerciseEditor() {
   return (
     <Screen>
       <Stack.Screen options={{ title: isNew ? 'New exercise' : existing?.shortName }} />
-      <Text style={type.title} accessibilityRole="header">{isNew ? 'New exercise' : 'Edit exercise'}</Text>
+      <Text style={type.title} accessibilityRole="header">
+        {isNew ? 'New exercise' : 'Edit exercise'}
+      </Text>
 
       <Field label="Name">
-        <TextInput accessibilityLabel="Name" value={name} onChangeText={setName} style={styles.input} placeholder="Front squat" placeholderTextColor={colors.dim} />
+        <TextInput
+          accessibilityLabel="Name"
+          value={name}
+          onChangeText={setName}
+          style={styles.input}
+          placeholder="Front squat"
+          placeholderTextColor={colors.dim}
+        />
       </Field>
       <Field label="Short name">
-        <TextInput accessibilityLabel="Short name" value={shortName} onChangeText={setShortName} style={styles.input} placeholder="Front" placeholderTextColor={colors.dim} />
+        <TextInput
+          accessibilityLabel="Short name"
+          value={shortName}
+          onChangeText={setShortName}
+          style={styles.input}
+          placeholder="Front"
+          placeholderTextColor={colors.dim}
+        />
       </Field>
 
       <Field label="Type">
@@ -114,7 +137,11 @@ export default function ExerciseEditor() {
               accessibilityState={{ selected: kind === k.kind, disabled: !!locked }}
               disabled={!!locked}
               onPress={() => setKind(k.kind)}
-              style={[styles.chip, kind === k.kind && styles.chipOn, locked && kind !== k.kind && { opacity: 0.3 }]}
+              style={[
+                styles.chip,
+                kind === k.kind && styles.chipOn,
+                locked && kind !== k.kind && { opacity: 0.3 },
+              ]}
             >
               <Text style={[styles.chipText, kind === k.kind && { color: '#000' }]}>{k.label}</Text>
             </Pressable>
@@ -124,14 +151,42 @@ export default function ExerciseEditor() {
 
       {kind !== 'bodyweight' ? (
         <>
-          <Stepper label="Increase per session (kg)" value={incKg} step={0.25} min={0} format={(v) => `${trim(v)} kg`} onChange={setIncKg} />
-          <Stepper label="Increase per session (lb)" value={incLb} step={0.25} min={0} format={(v) => `${trim(v)} lb`} onChange={setIncLb} />
+          <Stepper
+            label="Increase per session (kg)"
+            value={incKg}
+            step={0.25}
+            min={0}
+            format={(v) => `${trim(v)} kg`}
+            onChange={setIncKg}
+          />
+          <Stepper
+            label="Increase per session (lb)"
+            value={incLb}
+            step={0.25}
+            min={0}
+            format={(v) => `${trim(v)} lb`}
+            onChange={setIncLb}
+          />
         </>
       ) : null}
       {kind === 'dumbbell' || kind === 'machine' ? (
         <>
-          <Stepper label="Weight step (kg)" value={stepKg} step={0.5} min={0.5} format={(v) => `${trim(v)} kg`} onChange={setStepKg} />
-          <Stepper label="Weight step (lb)" value={stepLb} step={0.5} min={0.5} format={(v) => `${trim(v)} lb`} onChange={setStepLb} />
+          <Stepper
+            label="Weight step (kg)"
+            value={stepKg}
+            step={0.5}
+            min={0.5}
+            format={(v) => `${trim(v)} kg`}
+            onChange={setStepKg}
+          />
+          <Stepper
+            label="Weight step (lb)"
+            value={stepLb}
+            step={0.5}
+            min={0.5}
+            format={(v) => `${trim(v)} lb`}
+            onChange={setStepLb}
+          />
         </>
       ) : null}
 
@@ -153,16 +208,43 @@ export default function ExerciseEditor() {
       </Field>
 
       <Field label="Description">
-        <TextInput accessibilityLabel="Description" value={description} onChangeText={setDescription} multiline style={[styles.input, styles.multi]} />
+        <TextInput
+          accessibilityLabel="Description"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          style={[styles.input, styles.multi]}
+        />
       </Field>
       <Field label="Good form (one per line)">
-        <TextInput accessibilityLabel="Good form" value={good} onChangeText={setGood} multiline style={[styles.input, styles.multi]} />
+        <TextInput
+          accessibilityLabel="Good form"
+          value={good}
+          onChangeText={setGood}
+          multiline
+          style={[styles.input, styles.multi]}
+        />
       </Field>
       <Field label="Bad form (one per line)">
-        <TextInput accessibilityLabel="Bad form" value={bad} onChangeText={setBad} multiline style={[styles.input, styles.multi]} />
+        <TextInput
+          accessibilityLabel="Bad form"
+          value={bad}
+          onChangeText={setBad}
+          multiline
+          style={[styles.input, styles.multi]}
+        />
       </Field>
       <Field label="Link">
-        <TextInput accessibilityLabel="Link" value={url} onChangeText={setUrl} autoCapitalize="none" keyboardType="url" style={styles.input} placeholder="https://" placeholderTextColor={colors.dim} />
+        <TextInput
+          accessibilityLabel="Link"
+          value={url}
+          onChangeText={setUrl}
+          autoCapitalize="none"
+          keyboardType="url"
+          style={styles.input}
+          placeholder="https://"
+          placeholderTextColor={colors.dim}
+        />
       </Field>
 
       <Button title="Save" disabled={!valid} onPress={save} />
@@ -172,12 +254,36 @@ export default function ExerciseEditor() {
 }
 
 const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: colors.dim, borderRadius: 4, color: colors.text, paddingHorizontal: 12, minHeight: 44, fontSize: 16, fontWeight: '300' },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.dim,
+    borderRadius: 4,
+    color: colors.text,
+    paddingHorizontal: 12,
+    minHeight: 44,
+    fontSize: 16,
+    fontWeight: '300',
+  },
   multi: { minHeight: 88, paddingTop: 10, textAlignVertical: 'top' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { minHeight: 40, paddingHorizontal: 14, justifyContent: 'center', borderWidth: 1, borderColor: colors.dim, borderRadius: 20 },
+  chip: {
+    minHeight: 40,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.dim,
+    borderRadius: 20,
+  },
   chipOn: { backgroundColor: colors.text, borderColor: colors.text },
   chipText: { color: colors.text, fontSize: 15, fontWeight: '300' },
-  iconCell: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.faint, borderRadius: 8 },
+  iconCell: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.faint,
+    borderRadius: 8,
+  },
   iconOn: { borderColor: colors.text, backgroundColor: colors.faint },
 });

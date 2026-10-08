@@ -18,7 +18,6 @@ function seed(minimalist: boolean) {
 
 const lifts = () => JSON.parse(JSON.stringify(useStore.getState().lifts)) as Record<string, unknown>;
 
-
 test('circles: tap logs the target, tap again counts down to empty, long-press edits reps', async () => {
   seed(true);
   renderRouter(routes(), { initialUrl: '/session/0' });
@@ -77,7 +76,8 @@ test('minimal and immersive views give identical progression for the same reps',
   const rendered = renderRouter(routes(), { initialUrl: '/session/0' });
   await screen.findByText('Warm-up 1 of 1');
   const press = () => fireEvent.press(screen.getByText('Done'));
-  press(); press(); // press warm-up, set 1
+  press();
+  press(); // press warm-up, set 1
   for (let i = 0; i < 7; i++) fireEvent.press(screen.getByLabelText('Increase'));
   press();
   for (let i = 0; i < 5; i++) press(); // 4 squat warm-ups + set 1

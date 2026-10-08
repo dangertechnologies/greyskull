@@ -46,7 +46,9 @@ test('base + curls: every day ends with curls 2xAMRAP; extras honour the unit ch
   await runSetup('Greyskull LP', () => fireEvent(screen.getByLabelText('Curls'), 'valueChange', true));
   await screen.findAllByText(/Week 1/);
   const { program } = useStore.getState();
-  expect(program?.days.every((d) => d.slots.at(-1)?.exercise === 'CURLS' && d.slots.at(-1)?.scheme === '2xAMRAP')).toBe(true);
+  expect(
+    program?.days.every((d) => d.slots.at(-1)?.exercise === 'CURLS' && d.slots.at(-1)?.scheme === '2xAMRAP'),
+  ).toBe(true);
 });
 
 test('lb chosen in setup means 45 lb starting weights', async () => {

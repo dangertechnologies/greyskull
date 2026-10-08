@@ -1,8 +1,8 @@
-import { router } from 'expo-router';
-import { Alert } from 'react-native';
 import { act } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
-import fixture from '../domain/__tests__/fixtures/v1-imperial.json';
+import { Alert } from 'react-native';
+import fixture from '../dev/v1-imperial.json';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';

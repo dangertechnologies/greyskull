@@ -1,7 +1,14 @@
 import { builtInExercises } from '../../catalog';
-import { nextLift, sessionWeightKg, warmups } from '../progression';
 import { ceilLoadableKg, floorLoadableKg, isLoadable } from '../plates';
-import { DEFAULT_INVENTORY, DEFAULT_RULES, Exercise, LiftState, PlateInventory, Unit } from '../types';
+import { nextLift, sessionWeightKg, warmups } from '../progression';
+import {
+  DEFAULT_INVENTORY,
+  DEFAULT_RULES,
+  type Exercise,
+  type LiftState,
+  type PlateInventory,
+  type Unit,
+} from '../types';
 import { toKg, toUnit } from '../units';
 
 const ex = builtInExercises();
@@ -9,12 +16,23 @@ const inv = DEFAULT_INVENTORY;
 const lb125: PlateInventory = { ...inv, platesLb: [...inv.platesLb, 1.25] };
 const inc = (kg: number, lb: number): Exercise => ({ ...ex.BENCH_PRESS, increment: { kg, lb } });
 
-const run = (
-  e: Exercise, unit: Unit, curDisplay: number, reps: number, failsBefore: number, i = inv,
-) => {
+const run = (e: Exercise, unit: Unit, curDisplay: number, reps: number, failsBefore: number, i = inv) => {
   const weightKg = toKg(curDisplay, unit);
   const lift: LiftState = { weightKg, startKg: weightKg, fails: failsBefore };
-  return nextLift(lift, { weightKg, sets: [{ target: 5, reps: 5 }, { target: null, reps }] }, DEFAULT_RULES, e, i, unit);
+  return nextLift(
+    lift,
+    {
+      weightKg,
+      sets: [
+        { target: 5, reps: 5 },
+        { target: null, reps },
+      ],
+    },
+    DEFAULT_RULES,
+    e,
+    i,
+    unit,
+  );
 };
 
 // unit, inc, cur, reps, failsBefore, expected weight (display), failsAfter, change
@@ -31,12 +49,15 @@ const rows: Row[] = [
   ['lb', 2.5, 135, 5, 0, 137.5, 0, 'up', lb125],
 ];
 
-test.each(rows)('%s inc %s cur %s reps %s fails %s → %s (fails %s, %s)', (unit, i, cur, reps, f0, want, f1, change, custom) => {
-  const o = run(inc(i, i), unit, cur, reps, f0, custom);
-  expect(toUnit(o.next.weightKg, unit)).toBeCloseTo(want, 9);
-  expect(o.next.fails).toBe(f1);
-  expect(o.change).toBe(change);
-});
+test.each(rows)(
+  '%s inc %s cur %s reps %s fails %s → %s (fails %s, %s)',
+  (unit, i, cur, reps, f0, want, f1, change, custom) => {
+    const o = run(inc(i, i), unit, cur, reps, f0, custom);
+    expect(toUnit(o.next.weightKg, unit)).toBeCloseTo(want, 9);
+    expect(o.next.fails).toBe(f1);
+    expect(o.change).toBe(change);
+  },
+);
 
 test('bodyweight never changes', () => {
   const o = run(ex.CHINUPS, 'kg', 0, 15, 0);
@@ -46,7 +67,14 @@ test('bodyweight never changes', () => {
 
 test('uses the weight actually lifted, not the stored weight', () => {
   const lift: LiftState = { weightKg: 100, startKg: 100, fails: 0 };
-  const o = nextLift(lift, { weightKg: 60, sets: [{ target: null, reps: 6 }] }, DEFAULT_RULES, inc(2.5, 5), inv, 'kg');
+  const o = nextLift(
+    lift,
+    { weightKg: 60, sets: [{ target: null, reps: 6 }] },
+    DEFAULT_RULES,
+    inc(2.5, 5),
+    inv,
+    'kg',
+  );
   expect(o.next.weightKg).toBe(62.5);
 });
 
@@ -70,7 +98,14 @@ test('200 successes stay loadable and bounded', () => {
   const e = inc(2.5, 5);
   let lift: LiftState = { weightKg: 60, startKg: 60, fails: 0 };
   for (let i = 0; i < 200; i++) {
-    lift = nextLift(lift, { weightKg: lift.weightKg, sets: [{ target: null, reps: 6 }] }, DEFAULT_RULES, e, inv, 'kg').next;
+    lift = nextLift(
+      lift,
+      { weightKg: lift.weightKg, sets: [{ target: null, reps: 6 }] },
+      DEFAULT_RULES,
+      e,
+      inv,
+      'kg',
+    ).next;
     expect(isLoadable(lift.weightKg, inv, 'kg')).toBe(true);
   }
   expect(lift.weightKg).toBeLessThanOrEqual(60 + 200 * 2.5 + 2.5);
@@ -81,7 +116,14 @@ test('200 successes in lb keep lb steps (no kg rounding leak)', () => {
   const e = inc(2.5, 5);
   let lift: LiftState = { weightKg: toKg(45, 'lb'), startKg: 0, fails: 0 };
   for (let i = 0; i < 10; i++) {
-    lift = nextLift(lift, { weightKg: lift.weightKg, sets: [{ target: null, reps: 6 }] }, DEFAULT_RULES, e, inv, 'lb').next;
+    lift = nextLift(
+      lift,
+      { weightKg: lift.weightKg, sets: [{ target: null, reps: 6 }] },
+      DEFAULT_RULES,
+      e,
+      inv,
+      'lb',
+    ).next;
   }
   expect(toUnit(lift.weightKg, 'lb')).toBeCloseTo(45 + 10 * 5, 6);
 });
@@ -99,10 +141,18 @@ describe('warmups', () => {
   const w = (kg: number, scheme: Parameters<typeof warmups>[1], e: Exercise, unit: Unit = 'kg') =>
     warmups(kg, scheme, e, inv, unit).map((x) => [x.kg, x.reps]);
   test('squat 100 kg', () => {
-    expect(w(100, '2x5+', ex.BARBELL_SQUAT)).toEqual([[20, 5], [55, 4], [70, 3], [85, 2]]);
+    expect(w(100, '2x5+', ex.BARBELL_SQUAT)).toEqual([
+      [20, 5],
+      [55, 4],
+      [70, 3],
+      [85, 2],
+    ]);
   });
   test('deadlift 140 kg', () => {
-    expect(w(140, '1x5+', ex.DEADLIFT)).toEqual([[70, 5], [105, 3]]);
+    expect(w(140, '1x5+', ex.DEADLIFT)).toEqual([
+      [70, 5],
+      [105, 3],
+    ]);
   });
   test('bench 22.5 kg collapses to the empty bar', () => {
     expect(w(22.5, '2x5+', ex.BENCH_PRESS)).toEqual([[20, 5]]);
@@ -127,7 +177,14 @@ describe('linear progression (StrongLifts / Starting Strength)', () => {
   const sets = (...reps: number[]) => reps.map((r) => ({ target: 5, reps: r }));
 
   test('all five sets of five adds one increment (never doubles)', () => {
-    const o = nextLift(lift, { weightKg: 60, sets: sets(5, 5, 5, 5, 12) }, linear, ex.BARBELL_SQUAT, inv, 'kg');
+    const o = nextLift(
+      lift,
+      { weightKg: 60, sets: sets(5, 5, 5, 5, 12) },
+      linear,
+      ex.BARBELL_SQUAT,
+      inv,
+      'kg',
+    );
     expect(o).toMatchObject({ change: 'up', next: { weightKg: 62.5, fails: 0 } });
   });
 
@@ -144,7 +201,9 @@ describe('linear progression (StrongLifts / Starting Strength)', () => {
   test('plan increments override the catalog, the user override beats both', () => {
     const rules = { ...linear, increments: { DEADLIFT: { kg: 5, lb: 10 } } };
     const r = { weightKg: 100, sets: [{ target: 5, reps: 5 }] };
-    expect(nextLift({ weightKg: 100, startKg: 100, fails: 0 }, r, rules, ex.DEADLIFT, inv, 'kg').next.weightKg).toBe(105);
+    expect(
+      nextLift({ weightKg: 100, startKg: 100, fails: 0 }, r, rules, ex.DEADLIFT, inv, 'kg').next.weightKg,
+    ).toBe(105);
     const own = { weightKg: 100, startKg: 100, fails: 0, incrementOverride: { kg: 2.5, lb: 5 } };
     expect(nextLift(own, r, rules, ex.DEADLIFT, inv, 'kg').next.weightKg).toBe(102.5);
   });
@@ -157,7 +216,11 @@ describe('double progression (AllPro)', () => {
     nextLift(
       { weightKg: 60, startKg: 60, fails: 0, reps },
       { weightKg: 60, sets: done.map((r) => ({ target: reps ?? 8, reps: r })) },
-      dbl, ex.BARBELL_SQUAT, inv, 'kg', ctx,
+      dbl,
+      ex.BARBELL_SQUAT,
+      inv,
+      'kg',
+      ctx,
     );
 
   test('hitting the target adds a rep, keeps the weight', () => {
@@ -172,12 +235,34 @@ describe('double progression (AllPro)', () => {
   test('a miss repeats, a second miss deloads and resets the reps', () => {
     const first = at(10, [10, 9]);
     expect(first).toMatchObject({ change: 'same', next: { weightKg: 60, reps: 10, fails: 1 } });
-    const second = nextLift(first.next, { weightKg: 60, sets: [{ target: 10, reps: 7 }, { target: 10, reps: 7 }] }, dbl, ex.BARBELL_SQUAT, inv, 'kg', ctx);
+    const second = nextLift(
+      first.next,
+      {
+        weightKg: 60,
+        sets: [
+          { target: 10, reps: 7 },
+          { target: 10, reps: 7 },
+        ],
+      },
+      dbl,
+      ex.BARBELL_SQUAT,
+      inv,
+      'kg',
+      ctx,
+    );
     expect(second).toMatchObject({ change: 'deload', next: { weightKg: 52.5, reps: 8, fails: 0 } });
   });
 
   test('light and medium days never change the lift', () => {
-    const o = nextLift({ weightKg: 60, startKg: 60, fails: 0 }, { weightKg: 47.5, sets: [{ target: 8, reps: 8 }] }, dbl, ex.BARBELL_SQUAT, inv, 'kg', { ...ctx, intensity: 0.8 });
+    const o = nextLift(
+      { weightKg: 60, startKg: 60, fails: 0 },
+      { weightKg: 47.5, sets: [{ target: 8, reps: 8 }] },
+      dbl,
+      ex.BARBELL_SQUAT,
+      inv,
+      'kg',
+      { ...ctx, intensity: 0.8 },
+    );
     expect(o.change).toBe('none');
   });
 });
@@ -190,7 +275,8 @@ test('session weight on a light day is re-rounded to a loadable weight', () => {
 });
 
 test('warm-ups: single-set schemes get two jumps, 5x5 ramps from the bar, rep-range work too', () => {
-  const w = (kg: number, scheme: Parameters<typeof warmups>[1], e: Exercise) => warmups(kg, scheme, e, inv, 'kg').map((x) => x.kg);
+  const w = (kg: number, scheme: Parameters<typeof warmups>[1], e: Exercise) =>
+    warmups(kg, scheme, e, inv, 'kg').map((x) => x.kg);
   expect(w(140, '1x5', ex.DEADLIFT)).toEqual([70, 105]);
   expect(w(100, '5x5', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
   expect(w(100, '2x8-12', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);

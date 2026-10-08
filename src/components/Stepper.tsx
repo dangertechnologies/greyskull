@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { stepValue } from '../stepperLogic';
 import type { StepConfig } from '../stepperLogic';
+import { stepValue } from '../stepperLogic';
 import { colors, type } from '../theme';
 
 export const LONG_PRESS_MS = 400;
@@ -26,7 +26,12 @@ export function Stepper({ value, onChange, format, label, large, ...config }: Pr
     if (timer.current) clearInterval(timer.current);
     timer.current = null;
   };
-  useEffect(() => stop, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearInterval(timer.current);
+    },
+    [],
+  );
 
   const step = (dir: 1 | -1) => {
     const { value: v, onChange: change, config: c } = latest.current;
@@ -84,8 +89,13 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 },
   value: { color: colors.text, fontSize: 32, fontWeight: '200', minWidth: 110, textAlign: 'center' },
   button: {
-    width: 48, height: 48, borderRadius: 24, borderWidth: 1, borderColor: colors.border,
-    alignItems: 'center', justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pressed: { backgroundColor: colors.faint },
   glyph: { color: colors.text, fontSize: 26, fontWeight: '200', lineHeight: 30 },

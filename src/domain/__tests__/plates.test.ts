@@ -1,9 +1,15 @@
 import { builtInExercises } from '../../catalog';
 import {
-  ceilLoadableKg, floorLoadableKg, formatPlates, loadable, nearestLoadableKg, platesPerSide,
-  roundForExercise, smallestStep,
+  ceilLoadableKg,
+  floorLoadableKg,
+  formatPlates,
+  loadable,
+  nearestLoadableKg,
+  platesPerSide,
+  roundForExercise,
+  smallestStep,
 } from '../plates';
-import { DEFAULT_INVENTORY, PlateInventory, Unit } from '../types';
+import { DEFAULT_INVENTORY, type PlateInventory, type Unit } from '../types';
 import { toKg, toUnit } from '../units';
 
 const inv = DEFAULT_INVENTORY;

@@ -1,6 +1,14 @@
 import { builtInExercises } from '../../catalog';
 import { PLANS } from '../../config/plans';
-import { PLUGINS, parseScheme, tryParseScheme, sessionFor, setTargets, TEMPLATES, validateProgram } from '../program';
+import {
+  PLUGINS,
+  parseScheme,
+  sessionFor,
+  setTargets,
+  TEMPLATES,
+  tryParseScheme,
+  validateProgram,
+} from '../program';
 import type { Program } from '../types';
 
 const ex = builtInExercises();
@@ -9,8 +17,12 @@ const short = (p: Program, n: number) => ids(p, n).map((id) => ex[id].shortName)
 
 test('base template: press/bench alternate, squat sessions 0 and 2, deadlift once in 3', () => {
   expect([0, 1, 2, 3, 4, 5].map((n) => short(TEMPLATES.base, n))).toEqual([
-    ['Press', 'Squat'], ['Bench', 'Deadlift'], ['Press', 'Squat'],
-    ['Bench', 'Squat'], ['Press', 'Deadlift'], ['Bench', 'Squat'],
+    ['Press', 'Squat'],
+    ['Bench', 'Deadlift'],
+    ['Press', 'Squat'],
+    ['Bench', 'Squat'],
+    ['Press', 'Deadlift'],
+    ['Bench', 'Squat'],
   ]);
   const deadlifts = Array.from({ length: 30 }, (_, n) => ids(TEMPLATES.base, n).includes('DEADLIFT'));
   expect(deadlifts.filter(Boolean)).toHaveLength(10);
@@ -25,7 +37,10 @@ test('phrak template: A B A B…, deadlift only on B', () => {
 });
 
 test('sessionFor is O(1)-correct for large n and works with a single day', () => {
-  const one: Program = { ...TEMPLATES.base, days: [{ name: 'Only', slots: [{ exercise: ['A', 'B'], scheme: '2x5+' }] }] };
+  const one: Program = {
+    ...TEMPLATES.base,
+    days: [{ name: 'Only', slots: [{ exercise: ['A', 'B'], scheme: '2x5+' }] }],
+  };
   expect(ids(one, 0)).toEqual(['A']);
   expect(ids(one, 1)).toEqual(['B']);
   expect(ids(one, 100001)).toEqual(['B']);
@@ -74,7 +89,9 @@ describe('validateProgram', () => {
 });
 
 describe('plugins', () => {
-  const offered = PLANS.flatMap((plan) => plan.plugins.map((id) => [`${plan.id}/${id}`, plan.id, id] as const));
+  const offered = PLANS.flatMap((plan) =>
+    plan.plugins.map((id) => [`${plan.id}/${id}`, plan.id, id] as const),
+  );
   test.each(offered)('%s is idempotent and does not mutate its input', (_name, planId, id) => {
     const plugin = PLUGINS[id];
     const before = JSON.stringify(TEMPLATES[planId]);

@@ -15,7 +15,10 @@ export default function Progress() {
   const { sessions, lifts, unit, exercises, program } = state;
   const { width } = useWindowDimensions();
   const pages = useMemo<Page[]>(
-    () => [...(program ? exerciseIdsOf(program) : []).map((id) => ({ kind: 'lift', id }) as const), { kind: 'projection' }],
+    () => [
+      ...(program ? exerciseIdsOf(program) : []).map((id) => ({ kind: 'lift', id }) as const),
+      { kind: 'projection' },
+    ],
     [program],
   );
   const upcoming = useMemo(() => project(state, 9), [state]);
@@ -31,17 +34,23 @@ export default function Progress() {
     const oneRm = lift ? lift.weightKg * (1 + best / 30) : 0;
     return (
       <>
-        <Text style={type.title} accessibilityRole="header">{nameOf(exercises, id)}</Text>
+        <Text style={type.title} accessibilityRole="header">
+          {nameOf(exercises, id)}
+        </Text>
         <Chart
           label={nameOf(exercises, id)}
           values={values}
           format={(v) => (bodyweight ? `${trim(v)} reps` : `${trim(v)} ${unit}`)}
         />
         {!bodyweight && lift ? (
-          <Text style={type.body}>{`${formatWeight(lift.startKg, unit)} → ${formatWeight(lift.weightKg, unit)}`}</Text>
+          <Text
+            style={type.body}
+          >{`${formatWeight(lift.startKg, unit)} → ${formatWeight(lift.weightKg, unit)}`}</Text>
         ) : null}
         <Text style={type.body}>{best > 0 ? `Best AMRAP: ${best} reps` : 'No AMRAP sets yet'}</Text>
-        {!bodyweight && best > 0 ? <Text style={type.body}>{`Estimated 1RM: ${formatWeight(oneRm, unit)}`}</Text> : null}
+        {!bodyweight && best > 0 ? (
+          <Text style={type.body}>{`Estimated 1RM: ${formatWeight(oneRm, unit)}`}</Text>
+        ) : null}
       </>
     );
   };
@@ -60,7 +69,9 @@ export default function Progress() {
               renderLift(item.id)
             ) : (
               <>
-                <Text style={type.title} accessibilityRole="header">Projection</Text>
+                <Text style={type.title} accessibilityRole="header">
+                  Projection
+                </Text>
                 <Text style={type.small}>If you hit five reps every time</Text>
                 {upcoming.map((s) => (
                   <Text key={s.n} style={type.body}>

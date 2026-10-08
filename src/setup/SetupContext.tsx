@@ -1,7 +1,7 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { DEFAULT_RULES, buildProgram } from '../domain';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { PlateInventory, PluginId, Program, Rules, Unit } from '../domain';
+import { buildProgram, DEFAULT_RULES } from '../domain';
 import { useStore } from '../store';
 
 /** Everything the onboarding flow collects. Lives here, not in the store, until the Summary screen. */
@@ -31,7 +31,14 @@ export function SetupProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState<SetupDraft>(() => {
     const { unit, inventory } = useStore.getState();
     return {
-      unit, inventory, base: null, plugins: [], sessionsPerWeek: 3, rules: { ...DEFAULT_RULES }, program: null, weights: {},
+      unit,
+      inventory,
+      base: null,
+      plugins: [],
+      sessionsPerWeek: 3,
+      rules: { ...DEFAULT_RULES },
+      program: null,
+      weights: {},
     };
   });
   const update = useCallback((patch: Partial<SetupDraft>) => setDraft((d) => ({ ...d, ...patch })), []);
@@ -40,7 +47,12 @@ export function SetupProvider({ children }: { children: ReactNode }) {
       const next = { ...d, ...patch };
       return {
         ...next,
-        program: next.base ? buildProgram(next.base, next.plugins, { sessionsPerWeek: next.sessionsPerWeek, rules: next.rules }) : null,
+        program: next.base
+          ? buildProgram(next.base, next.plugins, {
+              sessionsPerWeek: next.sessionsPerWeek,
+              rules: next.rules,
+            })
+          : null,
       };
     });
   }, []);

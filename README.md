@@ -21,6 +21,8 @@ dependencies are autolinked into native builds.
 ```sh
 pnpm test            # jest (domain, store, hooks, components, screens)
 pnpm typecheck       # tsc --noEmit with TypeScript 7 (native compiler)
+pnpm lint            # Biome: lint + format + import order (pnpm lint:fix / pnpm format to fix)
+pnpm check           # lint + typecheck + test, what CI runs
 pnpm expo export --platform ios   # proves the bundle builds
 ```
 
@@ -36,6 +38,29 @@ Beginner Routine (experimental). Every plan is validated and simulated by the te
 
 Structure: `src/domain` is pure TypeScript (units, plate maths, progression, program templates, projection,
 v1 migration); `src/store.ts` is the persisted zustand store; `app/` holds the expo-router screens.
+
+## CI and releases
+
+- `.github/workflows/ci.yml` runs on every pull request and on pushes to `master`: Biome, typecheck, jest and
+  an iOS + Android Metro bundle.
+- `.github/workflows/preview.yml` publishes each same-repo PR to an EAS Update branch (`pr-<number>`) and
+  comments a QR code.
+- `.github/workflows/release.yml` (Actions → Release → Run workflow) runs CI, bumps `version` in
+  `package.json` (patch/minor/major/none), commits `chore(release): vX.Y.Z`, tags `vX.Y.Z`, publishes an
+  over-the-air update to the `production` channel, and can start EAS store builds (`build`: ios/android/all).
+
+**Versioning.** `package.json` `version` is the single source of truth; `app.config.ts` copies it to the
+store version. iOS build numbers and Android version codes are managed by EAS (`appVersionSource: remote`,
+`autoIncrement` on production builds). OTA updates use `runtimeVersion.policy = fingerprint`, so a JS-only
+release reaches all installed binaries with the same native code; a release that changes native dependencies
+or config needs a store build (`build` input) before users get it.
+
+**One-time setup** (owner): run `eas init` locally, then add to the GitHub repository
+- variable `EAS_PROJECT_ID` (the project id `eas init` prints),
+- secret `EXPO_TOKEN` (an Expo access token),
+
+and allow the Actions bot to push to the release branch (or release from an unprotected branch). Build
+profiles `preview` and `production` map to the update channels of the same name.
 
 ## Build
 

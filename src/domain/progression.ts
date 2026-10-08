@@ -1,6 +1,6 @@
-import type { Exercise, ExerciseResult, LiftState, PlateInventory, Rules, Scheme, Unit } from './types';
 import { nearestLoadableKg, roundForExercise } from './plates';
 import { tryParseScheme } from './program';
+import type { Exercise, ExerciseResult, LiftState, PlateInventory, Rules, Scheme, Unit } from './types';
 import { toKg, toUnit } from './units';
 
 export interface Outcome {
@@ -38,7 +38,8 @@ export function nextLift(
   context: SessionContext = {},
 ): Outcome {
   const last = result.sets[result.sets.length - 1];
-  if (exercise.kind === 'bodyweight' || !last || (context.intensity ?? 1) < 1) return { next: lift, change: 'none' };
+  if (exercise.kind === 'bodyweight' || !last || (context.intensity ?? 1) < 1)
+    return { next: lift, change: 'none' };
 
   const inc = incrementFor(lift, rules, exercise, unit);
   const cur = toUnit(result.weightKg, unit); // the weight actually lifted
@@ -52,7 +53,10 @@ export function nextLift(
     success = last.reps >= SUCCESS_REPS;
     if (success) {
       const doubled = last.reps >= rules.doubleAt;
-      outcome = { next: { ...lift, weightKg: up(doubled ? 2 : 1), fails: 0 }, change: doubled ? 'double' : 'up' };
+      outcome = {
+        next: { ...lift, weightKg: up(doubled ? 2 : 1), fails: 0 },
+        change: doubled ? 'double' : 'up',
+      };
     }
   } else {
     // Every set must reach its target (an AMRAP set counts from SUCCESS_REPS).

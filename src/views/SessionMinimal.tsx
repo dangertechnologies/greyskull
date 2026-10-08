@@ -20,7 +20,8 @@ interface Props {
   onFinish(): void;
 }
 
-const clock = (seconds: number): string => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+const clock = (seconds: number): string =>
+  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
 /** StrongLifts-style checklist: every exercise and set on one scrollable page. */
 export function SessionMinimal({ session, onBack, onFinish }: Props) {
@@ -46,7 +47,9 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
         accessibilityLabel={label}
         delayLongPress={400}
         onPress={press}
-        onLongPress={() => setRepsFor({ exerciseId, setIndex, reps: item.logged ? item.reps : (item.targetReps ?? 5) })}
+        onLongPress={() =>
+          setRepsFor({ exerciseId, setIndex, reps: item.logged ? item.reps : (item.targetReps ?? 5) })
+        }
         style={[styles.circle, item.logged && styles.circleOn]}
       >
         <Text style={[styles.circleText, item.logged && { color: '#000' }]}>
@@ -61,7 +64,13 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
   return (
     <Background topInset>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Back to home" hitSlop={12} onPress={onBack} style={styles.back}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back to home"
+          hitSlop={12}
+          onPress={onBack}
+          style={styles.back}
+        >
           <Ionicons name="chevron-back" size={30} color={colors.text} />
         </Pressable>
         <Text style={type.heading} accessibilityRole="header">
@@ -75,8 +84,14 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
           const result = draft.results[id];
           if (!exercise || !result) return null;
           const bodyweight = exercise.kind === 'bodyweight';
-          const own = items.map((item, index) => ({ item, index })).filter(({ item }) => item.exerciseId === id);
-          const warm = own.filter(({ item }) => item.kind === 'warmup').map(({ item }) => item.targetReps !== null ? `${trim(toUnit(item.weightKg, unit))} ×${item.targetReps}` : '');
+          const own = items
+            .map((item, index) => ({ item, index }))
+            .filter(({ item }) => item.exerciseId === id);
+          const warm = own
+            .filter(({ item }) => item.kind === 'warmup')
+            .map(({ item }) =>
+              item.targetReps !== null ? `${trim(toUnit(item.weightKg, unit))} ×${item.targetReps}` : '',
+            );
           return (
             <View key={id} style={styles.exercise}>
               <View style={styles.titleRow}>
@@ -88,13 +103,17 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
                   onPress={() => setWeightFor(id)}
                   style={styles.weight}
                 >
-                  <Text style={type.heading}>{bodyweight ? 'Bodyweight' : formatWeight(result.weightKg, unit)}</Text>
+                  <Text style={type.heading}>
+                    {bodyweight ? 'Bodyweight' : formatWeight(result.weightKg, unit)}
+                  </Text>
                   {bodyweight ? null : <PlatesLine kg={result.weightKg} />}
                 </Pressable>
               </View>
               {warm.length > 0 ? <Text style={type.small}>{`Warm-up: ${warm.join(' · ')}`}</Text> : null}
               <View style={styles.circles}>
-                {own.filter(({ item }) => item.kind !== 'warmup').map(({ item, index }) => circle(item, index))}
+                {own
+                  .filter(({ item }) => item.kind !== 'warmup')
+                  .map(({ item, index }) => circle(item, index))}
               </View>
             </View>
           );
@@ -112,10 +131,21 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
       </View>
 
       {weightExercise && weightFor ? (
-        <WeightModal visible exercise={weightExercise} kg={draft.results[weightFor].weightKg} onChange={(kg) => setWeight(weightFor, kg)} onClose={() => setWeightFor(null)} />
+        <WeightModal
+          visible
+          exercise={weightExercise}
+          kg={draft.results[weightFor].weightKg}
+          onChange={(kg) => setWeight(weightFor, kg)}
+          onClose={() => setWeightFor(null)}
+        />
       ) : null}
 
-      <Modal visible={repsFor !== null} transparent animationType="fade" onRequestClose={() => setRepsFor(null)}>
+      <Modal
+        visible={repsFor !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRepsFor(null)}
+      >
         <View style={styles.backdrop}>
           <View style={styles.sheet}>
             <Stepper
@@ -149,10 +179,32 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   weight: { alignItems: 'flex-end', minHeight: 44, justifyContent: 'center' },
   circles: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingTop: 4 },
-  circle: { width: CIRCLE, height: CIRCLE, borderRadius: CIRCLE / 2, borderWidth: 1, borderColor: colors.text, alignItems: 'center', justifyContent: 'center' },
+  circle: {
+    width: CIRCLE,
+    height: CIRCLE,
+    borderRadius: CIRCLE / 2,
+    borderWidth: 1,
+    borderColor: colors.text,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   circleOn: { backgroundColor: colors.text },
   circleText: { color: colors.text, fontSize: 16, fontWeight: '300' },
-  bar: { padding: 12, gap: 8, alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.faint },
+  bar: {
+    padding: 12,
+    gap: 8,
+    alignItems: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.faint,
+  },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', padding: 24 },
-  sheet: { backgroundColor: '#111', borderRadius: 8, padding: 24, gap: 16, alignItems: 'center', borderWidth: 1, borderColor: colors.faint },
+  sheet: {
+    backgroundColor: '#111',
+    borderRadius: 8,
+    padding: 24,
+    gap: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.faint,
+  },
 });

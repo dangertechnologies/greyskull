@@ -1,10 +1,21 @@
 import { getPlan } from '../config/plans';
-import { PLUGINS } from './program';
 import type { PluginId } from './program';
+import { PLUGINS } from './program';
 import type { Program, Rules, Scheme, Slot } from './types';
 
 /** Schemes the scheme chip cycles through, roughly from GSLP to hypertrophy work. */
-export const SCHEMES: Scheme[] = ['2x5+', '1x5+', '3x5+', '5x5', '3x5', '1x5', '2x8-12', '3x8', '2x10', '2xAMRAP'];
+export const SCHEMES: Scheme[] = [
+  '2x5+',
+  '1x5+',
+  '3x5+',
+  '5x5',
+  '3x5',
+  '1x5',
+  '2x8-12',
+  '3x8',
+  '2x10',
+  '2xAMRAP',
+];
 
 const clone = (p: Program): Program => JSON.parse(JSON.stringify(p)) as Program;
 
@@ -39,12 +50,23 @@ function withDay(program: Program, dayIndex: number, change: (slots: Slot[]) => 
   return next;
 }
 
-export function addSlot(program: Program, dayIndex: number, exercise: string, scheme: Scheme = '2x5+'): Program {
+export function addSlot(
+  program: Program,
+  dayIndex: number,
+  exercise: string,
+  scheme: Scheme = '2x5+',
+): Program {
   return withDay(program, dayIndex, (slots) => [...slots, { exercise, scheme }]);
 }
 
 /** Add an alternating pair; an already-used pair keeps its existing order so every day agrees. */
-export function addAlternatingSlot(program: Program, dayIndex: number, a: string, b: string, scheme: Scheme = '2x5+'): Program {
+export function addAlternatingSlot(
+  program: Program,
+  dayIndex: number,
+  a: string,
+  b: string,
+  scheme: Scheme = '2x5+',
+): Program {
   const pair = knownOrder(program, a, b) ?? [a, b];
   return withDay(program, dayIndex, (slots) => [...slots, { exercise: pair, scheme }]);
 }
@@ -63,7 +85,12 @@ export function moveSlot(program: Program, dayIndex: number, slotIndex: number, 
   });
 }
 
-export function setSlotScheme(program: Program, dayIndex: number, slotIndex: number, scheme: Scheme): Program {
+export function setSlotScheme(
+  program: Program,
+  dayIndex: number,
+  slotIndex: number,
+  scheme: Scheme,
+): Program {
   return withDay(program, dayIndex, (slots) => slots.map((s, i) => (i === slotIndex ? { ...s, scheme } : s)));
 }
 

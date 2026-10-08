@@ -1,7 +1,6 @@
-import { DEFAULT_INVENTORY } from './types';
-import type { AppState, Exercise, ExerciseResult, LiftState, Program, SessionLog } from './types';
 import { exerciseIdsOf, PLUGINS, TEMPLATES } from './program';
-
+import type { AppState, Exercise, ExerciseResult, LiftState, Program, SessionLog } from './types';
+import { DEFAULT_INVENTORY } from './types';
 
 interface V1Workout {
   id: number;

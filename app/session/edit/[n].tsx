@@ -17,18 +17,28 @@ export default function EditSession() {
   const log = useStore((s) => s.sessions.find((x) => x.n === Number(n)));
   const exercises = useStore((s) => s.exercises);
   const editSession = useStore((s) => s.editSession);
-  const [results, setResults] = useState<Record<string, ExerciseResult>>(() => (JSON.parse(JSON.stringify(log?.results ?? {})) as Record<string, ExerciseResult>));
+  const [results, setResults] = useState<Record<string, ExerciseResult>>(
+    () => JSON.parse(JSON.stringify(log?.results ?? {})) as Record<string, ExerciseResult>,
+  );
 
   if (!log || log.skipped) return <Redirect href="/" />;
 
   const setReps = (id: string, setIndex: number, reps: number) =>
-    setResults((r) => ({ ...r, [id]: { ...r[id], sets: r[id].sets.map((s, i) => (i === setIndex ? { ...s, reps } : s)) } }));
+    setResults((r) => ({
+      ...r,
+      [id]: { ...r[id], sets: r[id].sets.map((s, i) => (i === setIndex ? { ...s, reps } : s)) },
+    }));
 
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">{`Session ${log.n + 1}${log.dayName ? ` · ${log.dayName}` : ''}`}</Text>
+      <Text
+        style={type.title}
+        accessibilityRole="header"
+      >{`Session ${log.n + 1}${log.dayName ? ` · ${log.dayName}` : ''}`}</Text>
       {log.finishedAt ? <Text style={type.small}>{formatDate(log.finishedAt)}</Text> : null}
-      <Text style={type.small}>Changing a past session does not recalculate your current weights. Adjust them in the lift editor.</Text>
+      <Text style={type.small}>
+        Changing a past session does not recalculate your current weights. Adjust them in the lift editor.
+      </Text>
 
       {log.order.map((id) => {
         const result = results[id];
@@ -50,6 +60,7 @@ export default function EditSession() {
             )}
             {result.sets.map((set, i) => (
               <Stepper
+                // biome-ignore lint/suspicious/noArrayIndexKey: sets have no id; their position is their identity
                 key={i}
                 label={`Set ${i + 1}${set.target === null ? ' (AMRAP)' : ''}`}
                 value={set.reps}

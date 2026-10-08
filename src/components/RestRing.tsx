@@ -22,7 +22,14 @@ export function RestRing({ remaining, total, onSkip }: Props) {
       <Text style={type.label}>Rest</Text>
       <View style={styles.ring}>
         <Svg width={SIZE} height={SIZE}>
-          <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} stroke={colors.faint} strokeWidth={STROKE} fill="none" />
+          <Circle
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={RADIUS}
+            stroke={colors.faint}
+            strokeWidth={STROKE}
+            fill="none"
+          />
           <Circle
             cx={SIZE / 2}
             cy={SIZE / 2}
@@ -47,7 +54,17 @@ export function RestRing({ remaining, total, onSkip }: Props) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.82)', alignItems: 'center', justifyContent: 'center', gap: 24 },
+  wrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.82)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+  },
   ring: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   seconds: { position: 'absolute', color: colors.text, fontSize: 72, fontWeight: '200' },
 });

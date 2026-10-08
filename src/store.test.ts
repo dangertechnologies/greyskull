@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import fixture from './domain/__tests__/fixtures/v1-imperial.json';
-import { isLoadable, PLUGINS, TEMPLATES, toKg } from './domain';
+import fixture from './dev/v1-imperial.json';
 import type { Program } from './domain';
-import { initialState, initStore, LEGACY_KEY, snapshot, STORAGE_KEY, useStore } from './store';
+import { isLoadable, PLUGINS, TEMPLATES, toKg } from './domain';
+import { initialState, initStore, LEGACY_KEY, STORAGE_KEY, snapshot, useStore } from './store';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
@@ -32,7 +32,9 @@ function playSession(reps: number) {
   const { nextSession } = get();
   const draft = get().startSession(nextSession);
   for (const id of draft.order) {
-    draft.results[id].sets.forEach((_s, i) => get().logSet(id, i, reps));
+    draft.results[id].sets.forEach((_s, i) => {
+      get().logSet(id, i, reps);
+    });
   }
   return get().finishSession();
 }
@@ -64,7 +66,10 @@ describe('actions', () => {
     const b = get().startSession(0);
     expect(b).toBe(a);
     expect(a.order).toEqual(['MILITARY_PRESS', 'BARBELL_SQUAT']);
-    expect(a.results.BARBELL_SQUAT.sets).toEqual([{ target: 5, reps: 0 }, { target: null, reps: 0 }]);
+    expect(a.results.BARBELL_SQUAT.sets).toEqual([
+      { target: 5, reps: 0 },
+      { target: null, reps: 0 },
+    ]);
     expect(a.results.BARBELL_SQUAT.weightKg).toBe(20);
   });
 
@@ -156,8 +161,13 @@ describe('actions', () => {
   test('custom exercises: built-ins protected, referenced ones refused, unreferenced deleted', () => {
     expect(() => get().deleteExercise('BENCH_PRESS')).toThrow();
     get().upsertExercise({
-      id: 'custom_front_squat', name: 'Front squat', shortName: 'Front', icon: 'squat', kind: 'barbell',
-      increment: { kg: 2.5, lb: 5 }, custom: true,
+      id: 'custom_front_squat',
+      name: 'Front squat',
+      shortName: 'Front',
+      icon: 'squat',
+      kind: 'barbell',
+      increment: { kg: 2.5, lb: 5 },
+      custom: true,
     });
     const p = baseProgram();
     p.days[0].slots.push({ exercise: 'custom_front_squat', scheme: '2x5+' });
@@ -194,7 +204,8 @@ describe('actions', () => {
     for (const [id, kg] of Object.entries(original)) get().setLift(id, { weightKg: kg, startKg: kg });
     get().setUnit('lb');
     expect(get().lifts.BENCH_PRESS.weightKg).toBeCloseTo(toKg(45, 'lb'), 9);
-    for (const id of Object.keys(original)) expect(isLoadable(get().lifts[id].weightKg, get().inventory, 'lb')).toBe(true);
+    for (const id of Object.keys(original))
+      expect(isLoadable(get().lifts[id].weightKg, get().inventory, 'lb')).toBe(true);
     get().setUnit('kg');
     for (let i = 0; i < 19; i++) get().setUnit(i % 2 === 0 ? 'lb' : 'kg');
     expect(get().unit).toBe('lb');

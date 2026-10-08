@@ -9,7 +9,7 @@ import { useStore } from '../src/store';
 import { colors, type } from '../src/theme';
 
 function devSeed() {
-  const fixture: unknown = require('../src/domain/__tests__/fixtures/v1-imperial.json');
+  const fixture: unknown = require('../src/dev/v1-imperial.json');
   const { reset, importLegacy } = useStore.getState();
   reset();
   void importLegacy(JSON.stringify(fixture)).then(goHome);
@@ -18,7 +18,10 @@ function devSeed() {
 function devFastForward() {
   const { nextSession, startSession, logSet, finishSession } = useStore.getState();
   const draft = startSession(nextSession);
-  for (const id of draft.order) draft.results[id].sets.forEach((_s, i) => logSet(id, i, 8));
+  for (const id of draft.order)
+    draft.results[id].sets.forEach((_s, i) => {
+      logSet(id, i, 8);
+    });
   finishSession();
 }
 
@@ -32,13 +35,27 @@ export default function Settings() {
   const confirmReset = () =>
     Alert.alert('Reset everything?', 'This deletes your program, weights and history on this device.', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Reset', style: 'destructive', onPress: () => { reset(); goHome(); } },
+      {
+        text: 'Reset',
+        style: 'destructive',
+        onPress: () => {
+          reset();
+          goHome();
+        },
+      },
     ]);
 
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">Settings</Text>
-      <GymSettings unit={unit} inventory={inventory} onUnitChange={setUnit} onInventoryChange={setInventory} />
+      <Text style={type.title} accessibilityRole="header">
+        Settings
+      </Text>
+      <GymSettings
+        unit={unit}
+        inventory={inventory}
+        onUnitChange={setUnit}
+        onInventoryChange={setInventory}
+      />
 
       <View style={styles.row}>
         <Text style={type.body}>Minimalist workout view</Text>
@@ -79,5 +96,11 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
-  actions: { gap: 10, marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.faint, paddingTop: 16 },
+  actions: {
+    gap: 10,
+    marginTop: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.faint,
+    paddingTop: 16,
+  },
 });

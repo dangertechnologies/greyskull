@@ -32,28 +32,50 @@ export default function LiftEditor() {
   const history = [...sessions]
     .reverse()
     .filter((s) => s.results[id])
-    .map((s) => ({ n: s.n, date: s.finishedAt ?? s.startedAt, weightKg: s.results[id].weightKg, reps: s.results[id].sets.at(-1)?.reps ?? 0 }));
+    .map((s) => ({
+      n: s.n,
+      date: s.finishedAt ?? s.startedAt,
+      weightKg: s.results[id].weightKg,
+      reps: s.results[id].sets.at(-1)?.reps ?? 0,
+    }));
   const bestAmrap = history.reduce((best, h) => Math.max(best, h.reps), 0);
   const oneRm = lift.weightKg * (1 + bestAmrap / 30);
 
   const planIncrement = program?.rules.increments?.[id] ?? exercise.increment;
   const increment = incrementFor(lift, program?.rules ?? DEFAULT_RULES, exercise, unit);
   const jump = smallestStep(inventory, unit);
-  const offGrid = exercise.kind === 'barbell' && jump > 0 && Math.abs(increment / jump - Math.round(increment / jump)) > 1e-9;
+  const offGrid =
+    exercise.kind === 'barbell' &&
+    jump > 0 &&
+    Math.abs(increment / jump - Math.round(increment / jump)) > 1e-9;
   // Only the unit being edited changes; the other keeps its own default (1.25 kg ≠ 2.75 lb on real plates).
   const setIncrement = (v: number) =>
     setLift(id, { incrementOverride: { ...(lift.incrementOverride ?? planIncrement), [unit]: v } });
 
-
   return (
     <Screen image={exercise.background}>
       <Stack.Screen options={{ title: exercise.shortName }} />
-      <Text style={type.title} accessibilityRole="header">{nameOf(exercises, id)}</Text>
+      <Text style={type.title} accessibilityRole="header">
+        {nameOf(exercises, id)}
+      </Text>
 
-      <WeightStepper label="Working weight" large exercise={exercise} kg={lift.weightKg} onChange={(kg) => setLift(id, { weightKg: kg })} />
-      <View style={{ alignItems: 'center' }}><PlatesLine kg={lift.weightKg} /></View>
+      <WeightStepper
+        label="Working weight"
+        large
+        exercise={exercise}
+        kg={lift.weightKg}
+        onChange={(kg) => setLift(id, { weightKg: kg })}
+      />
+      <View style={{ alignItems: 'center' }}>
+        <PlatesLine kg={lift.weightKg} />
+      </View>
 
-      <WeightStepper label="Start weight" exercise={exercise} kg={lift.startKg} onChange={(kg) => setLift(id, { startKg: kg })} />
+      <WeightStepper
+        label="Start weight"
+        exercise={exercise}
+        kg={lift.startKg}
+        onChange={(kg) => setLift(id, { startKg: kg })}
+      />
 
       <Stepper
         label="Increment per session"
@@ -64,22 +86,40 @@ export default function LiftEditor() {
         onChange={setIncrement}
       />
       {offGrid ? (
-        <Text style={type.error}>{`Not a multiple of your smallest jump (${trim(jump)} ${unit}); weights round up to the next plate.`}</Text>
+        <Text
+          style={type.error}
+        >{`Not a multiple of your smallest jump (${trim(jump)} ${unit}); weights round up to the next plate.`}</Text>
       ) : null}
 
       <View style={{ alignItems: 'center', gap: 8 }}>
         <Text style={type.label}>Failed AMRAPs in a row</Text>
         <Text style={type.heading}>{lift.fails}</Text>
-        <Button title="Reset fails" variant="link" disabled={lift.fails === 0} onPress={() => setLift(id, { fails: 0 })} />
+        <Button
+          title="Reset fails"
+          variant="link"
+          disabled={lift.fails === 0}
+          onPress={() => setLift(id, { fails: 0 })}
+        />
       </View>
 
       {bestAmrap > 0 ? (
-        <Text style={[type.body, { textAlign: 'center' }]}>{`Estimated 1RM ${trim(toUnit(oneRm, unit))} ${unit} (best AMRAP ${bestAmrap})`}</Text>
+        <Text
+          style={[type.body, { textAlign: 'center' }]}
+        >{`Estimated 1RM ${trim(toUnit(oneRm, unit))} ${unit} (best AMRAP ${bestAmrap})`}</Text>
       ) : null}
 
       {history.length > 0 ? <Text style={[type.heading, { marginTop: 16 }]}>History</Text> : null}
       {history.map((h) => (
-        <View key={h.n} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.faint }}>
+        <View
+          key={h.n}
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingVertical: 6,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.faint,
+          }}
+        >
           <Text style={type.small}>{formatDate(h.date)}</Text>
           <Text style={type.body}>{`${trim(toUnit(h.weightKg, unit))} ${unit} × ${h.reps}`}</Text>
         </View>

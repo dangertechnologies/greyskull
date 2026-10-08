@@ -1,7 +1,7 @@
 import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
-import { Alert } from 'react-native';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { Alert } from 'react-native';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
@@ -25,8 +25,13 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
 
   const created = useStore.getState().exercises.custom_front_squat;
   expect(created).toMatchObject({
-    name: 'Front squat', shortName: 'Front', kind: 'barbell', custom: true, icon: 'squat',
-    increment: { kg: 2.5, lb: 5 }, goodForm: ['Elbows up', 'Chest tall'],
+    name: 'Front squat',
+    shortName: 'Front',
+    kind: 'barbell',
+    custom: true,
+    icon: 'squat',
+    increment: { kg: 2.5, lb: 5 },
+    goodForm: ['Elbows up', 'Chest tall'],
   });
 
   // Add it to Day 1 through the program editor (the picker lists custom exercises).
@@ -46,7 +51,9 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
   expect(alert.mock.calls[0][1]).toMatch(/Day 1/);
   expect(useStore.getState().exercises.custom_front_squat).toBeDefined();
 
-  const program = JSON.parse(JSON.stringify(useStore.getState().program)) as NonNullable<ReturnType<typeof useStore.getState>['program']>;
+  const program = JSON.parse(JSON.stringify(useStore.getState().program)) as NonNullable<
+    ReturnType<typeof useStore.getState>['program']
+  >;
   program.days[0].slots = program.days[0].slots.filter((s) => s.exercise !== 'custom_front_squat');
   useStore.getState().setProgram(program);
   fireEvent.press(screen.getByLabelText('Delete'));
@@ -56,7 +63,13 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
 
 test('the exercise list separates custom from built-in and flags those in the program', async () => {
   useStore.getState().upsertExercise({
-    id: 'custom_x', name: 'X lift', shortName: 'X', icon: 'muscle', kind: 'barbell', increment: { kg: 1, lb: 2 }, custom: true,
+    id: 'custom_x',
+    name: 'X lift',
+    shortName: 'X',
+    icon: 'muscle',
+    kind: 'barbell',
+    increment: { kg: 1, lb: 2 },
+    custom: true,
   });
   renderRouter(routes(), { initialUrl: '/exercises' });
   expect(await screen.findByText('X lift')).toBeTruthy();

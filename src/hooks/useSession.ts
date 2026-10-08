@@ -1,8 +1,8 @@
 import * as Haptics from 'expo-haptics';
-import { AppState } from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { sessionFor, warmups } from '../domain';
+import { AppState } from 'react-native';
 import type { Outcome, SessionLog } from '../domain';
+import { sessionFor, warmups } from '../domain';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
 
@@ -90,14 +90,28 @@ export function useSession(n: number): SessionApi | null {
       warm.forEach((w, i) => {
         const logged = anyLogged || laterLogged.has(id) || doneWarmups.has(`${id}:${i}`);
         out.push({
-          exerciseId: id, kind: 'warmup', setIndex: null, position: i + 1, total: warm.length,
-          targetReps: w.reps, weightKg: w.kg, logged, reps: logged ? w.reps : 0,
+          exerciseId: id,
+          kind: 'warmup',
+          setIndex: null,
+          position: i + 1,
+          total: warm.length,
+          targetReps: w.reps,
+          weightKg: w.kg,
+          logged,
+          reps: logged ? w.reps : 0,
         });
       });
       result.sets.forEach((set, i) => {
         out.push({
-          exerciseId: id, kind: set.target === null ? 'amrap' : 'work', setIndex: i, position: i + 1,
-          total: result.sets.length, targetReps: set.target, weightKg: result.weightKg, logged: set.reps > 0, reps: set.reps,
+          exerciseId: id,
+          kind: set.target === null ? 'amrap' : 'work',
+          setIndex: i,
+          position: i + 1,
+          total: result.sets.length,
+          targetReps: set.target,
+          weightKg: result.weightKg,
+          logged: set.reps > 0,
+          reps: set.reps,
         });
       });
     }

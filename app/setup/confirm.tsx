@@ -18,22 +18,33 @@ export default function ConfirmWeights() {
   const unit = useStore((s) => s.unit);
   const inventory = useStore((s) => s.inventory);
 
-  const ids = (program ? exerciseIdsOf(program) : []).filter((id) => storedLifts[id] && exercises[id]?.kind !== 'bodyweight');
+  const ids = (program ? exerciseIdsOf(program) : []).filter(
+    (id) => storedLifts[id] && exercises[id]?.kind !== 'bodyweight',
+  );
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(
-      ids.map((id) => [id, roundForExercise(storedLifts[id].weightKg, exercises[id], 'nearest', inventory, unit)]),
+      ids.map((id) => [
+        id,
+        roundForExercise(storedLifts[id].weightKg, exercises[id], 'nearest', inventory, unit),
+      ]),
     ),
   );
 
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">Check your weights</Text>
+      <Text style={type.title} accessibilityRole="header">
+        Check your weights
+      </Text>
       <Text style={type.body}>We moved your data from the old version. Please check these weights.</Text>
       {ids.map((id) => (
         <View key={id} style={styles.row}>
           <Text style={type.heading}>{exercises[id].name}</Text>
           {suspects.includes(id) ? <Text style={type.error}>looks wrong</Text> : null}
-          <WeightStepper exercise={exercises[id]} kg={weights[id]} onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))} />
+          <WeightStepper
+            exercise={exercises[id]}
+            kg={weights[id]}
+            onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))}
+          />
           <PlatesLine kg={weights[id]} />
         </View>
       ))}

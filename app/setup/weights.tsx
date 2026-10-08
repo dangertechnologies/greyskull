@@ -14,12 +14,17 @@ export default function Weights() {
   const exercises = useStore((s) => s.exercises);
   if (!draft.program) return <Redirect href="/setup/template" />;
 
-  const ids = exerciseIdsOf(draft.program).filter((id) => exercises[id] && exercises[id].kind !== 'bodyweight');
-  const weightOf = (id: string) => draft.weights[id] ?? startingWeightKg(exercises[id], draft.inventory, draft.unit);
+  const ids = exerciseIdsOf(draft.program).filter(
+    (id) => exercises[id] && exercises[id].kind !== 'bodyweight',
+  );
+  const weightOf = (id: string) =>
+    draft.weights[id] ?? startingWeightKg(exercises[id], draft.inventory, draft.unit);
 
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">Starting weights</Text>
+      <Text style={type.title} accessibilityRole="header">
+        Starting weights
+      </Text>
       <Text style={type.body}>Start light. You add weight every session, so a bar-only start is fine.</Text>
       {ids.map((id) => (
         <View key={id} style={styles.row}>

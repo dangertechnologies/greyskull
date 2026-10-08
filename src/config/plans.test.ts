@@ -11,12 +11,15 @@ test('plan ids are unique and match their program template', () => {
   expect(getPlan('nope')).toBeUndefined();
 });
 
-test.each(PLANS.map((p) => [p.id, p] as const))('%s is valid, alone and with every extra it offers', (_id, plan) => {
-  expect(validateProgram(plan.program, catalog)).toEqual([]);
-  let all = plan.program;
-  for (const id of plan.plugins) all = PLUGINS[id].apply(all);
-  expect(validateProgram(all, catalog)).toEqual([]);
-});
+test.each(PLANS.map((p) => [p.id, p] as const))(
+  '%s is valid, alone and with every extra it offers',
+  (_id, plan) => {
+    expect(validateProgram(plan.program, catalog)).toEqual([]);
+    let all = plan.program;
+    for (const id of plan.plugins) all = PLUGINS[id].apply(all);
+    expect(validateProgram(all, catalog)).toEqual([]);
+  },
+);
 
 test('offers more than the two Greyskull variants, with the new ones marked experimental', () => {
   expect(PLANS.length).toBeGreaterThanOrEqual(5);
@@ -34,7 +37,10 @@ test('StrongLifts alternates A/B with squat every session and deadlift on B only
 test('AllPro runs heavy, light (80 %), medium (90 %) with an 8–12 rep range', () => {
   const plan = getPlan('allpro')!.program;
   expect([0, 1, 2, 3].map((n) => [sessionFor(plan, n).dayName, sessionFor(plan, n).intensity])).toEqual([
-    ['Heavy', 1], ['Light', 0.8], ['Medium', 0.9], ['Heavy', 1],
+    ['Heavy', 1],
+    ['Light', 0.8],
+    ['Medium', 0.9],
+    ['Heavy', 1],
   ]);
   expect(plan.rules.progression).toBe('double');
   expect(new Set(plan.days.flatMap((d) => d.slots.map((s) => s.scheme)))).toEqual(new Set(['2x8-12']));

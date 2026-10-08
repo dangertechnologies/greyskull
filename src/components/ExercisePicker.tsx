@@ -16,7 +16,14 @@ interface Props {
 }
 
 /** Searchable list of all exercises, built-in and custom. */
-export function ExercisePicker({ visible, title = 'Choose an exercise', exercises, exclude = [], onPick, onClose }: Props) {
+export function ExercisePicker({
+  visible,
+  title = 'Choose an exercise',
+  exercises,
+  exclude = [],
+  onPick,
+  onClose,
+}: Props) {
   const [query, setQuery] = useState('');
   const list = useMemo(
     () =>
@@ -28,7 +35,9 @@ export function ExercisePicker({ visible, title = 'Choose an exercise', exercise
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.page}>
-        <Text style={type.heading} accessibilityRole="header">{title}</Text>
+        <Text style={type.heading} accessibilityRole="header">
+          {title}
+        </Text>
         <TextInput
           accessibilityLabel="Search exercises"
           placeholder="Search"
@@ -59,7 +68,14 @@ export function ExercisePicker({ visible, title = 'Choose an exercise', exercise
             </Pressable>
           )}
         />
-        <Button title="Cancel" variant="link" onPress={() => { setQuery(''); onClose(); }} />
+        <Button
+          title="Cancel"
+          variant="link"
+          onPress={() => {
+            setQuery('');
+            onClose();
+          }}
+        />
       </View>
     </Modal>
   );
@@ -67,6 +83,21 @@ export function ExercisePicker({ visible, title = 'Choose an exercise', exercise
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: colors.bg, padding: 16, paddingTop: 56, gap: 12 },
-  input: { borderWidth: 1, borderColor: colors.dim, borderRadius: 4, color: colors.text, paddingHorizontal: 12, minHeight: 44, fontSize: 16 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.faint },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.dim,
+    borderRadius: 4,
+    color: colors.text,
+    paddingHorizontal: 12,
+    minHeight: 44,
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: 52,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.faint,
+  },
 });

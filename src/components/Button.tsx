@@ -25,7 +25,13 @@ export function Button({ title, onPress, variant = 'outline', disabled, accessib
         disabled && styles.disabled,
       ]}
     >
-      <Text style={[styles.text, variant === 'danger' && { color: colors.danger }, variant === 'link' && styles.link]}>
+      <Text
+        style={[
+          styles.text,
+          variant === 'danger' && { color: colors.danger },
+          variant === 'link' && styles.link,
+        ]}
+      >
         {title}
       </Text>
     </Pressable>

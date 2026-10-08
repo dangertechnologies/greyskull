@@ -14,10 +14,20 @@ import { colors, type } from '../src/theme';
 function HeaderIcons() {
   return (
     <View style={styles.headerIcons}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Progress" hitSlop={8} onPress={() => router.push('/progress')}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Progress"
+        hitSlop={8}
+        onPress={() => router.push('/progress')}
+      >
         <Ionicons name="stats-chart-outline" size={24} color={colors.text} />
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="Settings" hitSlop={8} onPress={() => router.push('/settings')}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Settings"
+        hitSlop={8}
+        onPress={() => router.push('/settings')}
+      >
         <Ionicons name="settings-outline" size={24} color={colors.text} />
       </Pressable>
     </View>
@@ -26,7 +36,18 @@ function HeaderIcons() {
 
 export default function Home() {
   const state = useStore();
-  const { program, lifts, nextSession, draft, sessions, unit, inventory, exercises, needsWeightConfirm, skipSession } = state;
+  const {
+    program,
+    lifts,
+    nextSession,
+    draft,
+    sessions,
+    unit,
+    inventory,
+    exercises,
+    needsWeightConfirm,
+    skipSession,
+  } = state;
   const upcoming = useMemo(() => project(state, 9), [state]);
 
   if (program === null) return <Redirect href="/setup" />;
@@ -35,7 +56,8 @@ export default function Home() {
   const session = sessionFor(program, nextSession);
   const week = weekOf(nextSession, program.sessionsPerWeek);
   const weeks = upcoming.reduce<Record<number, typeof upcoming>>((acc, s) => {
-    (acc[weekOf(s.n, program.sessionsPerWeek)] ??= []).push(s);
+    const week = weekOf(s.n, program.sessionsPerWeek);
+    acc[week] = [...(acc[week] ?? []), s];
     return acc;
   }, {});
 
@@ -51,7 +73,9 @@ export default function Home() {
       <Text style={type.label}>Next up</Text>
       <Text style={type.title} accessibilityRole="header">{`${session.dayName} · Week ${week}`}</Text>
       {intensityLabel(session.dayName, session.intensity) ? (
-        <Text style={type.small}>{`${intensityLabel(session.dayName, session.intensity)} of your working weights`}</Text>
+        <Text
+          style={type.small}
+        >{`${intensityLabel(session.dayName, session.intensity)} of your working weights`}</Text>
       ) : null}
 
       <View style={styles.card}>
@@ -90,7 +114,11 @@ export default function Home() {
           {list.map((s) => (
             <Text key={s.n} style={type.small}>
               {`${s.dayName} · ${s.lifts
-                .map((l) => (exercises[l.exercise]?.kind === 'bodyweight' ? nameOf(exercises, l.exercise, true) : `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit).replace(/ (kg|lb)$/, '')}`))
+                .map((l) =>
+                  exercises[l.exercise]?.kind === 'bodyweight'
+                    ? nameOf(exercises, l.exercise, true)
+                    : `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit).replace(/ (kg|lb)$/, '')}`,
+                )
                 .join(' · ')}`}
             </Text>
           ))}
@@ -123,5 +151,10 @@ const styles = StyleSheet.create({
   slotRight: { alignItems: 'flex-end' },
   section: { marginTop: 24 },
   group: { gap: 4 },
-  historyRow: { paddingVertical: 10, gap: 2, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.faint },
+  historyRow: {
+    paddingVertical: 10,
+    gap: 2,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.faint,
+  },
 });

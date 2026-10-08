@@ -392,7 +392,7 @@ export function migrateV1(raw: string, catalog: Record<string, Exercise>):
 5. `needsWeightConfirm = true`. Return `{ patch, suspects }`.
 Never delete or overwrite `GSLP_STATE_18`.
 
-Fixture for tests and the dev seed button — `src/domain/__tests__/fixtures/v1-imperial.json`:
+Fixture for tests and the dev seed button — `src/dev/v1-imperial.json` (moved: Metro blocks `__tests__` folders):
 ```json
 { "configuration": { "initialSetupComplete": true, "unit": "IMPERIAL",
     "exercises": { "BARBELL_SQUAT": { "include": "REQUIRED" }, "DEADLIFT": { "include": "REQUIRED" },

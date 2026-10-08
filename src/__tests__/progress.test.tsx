@@ -13,7 +13,10 @@ function playSessions(count: number, reps: number) {
   for (let i = 0; i < count; i++) {
     const s = useStore.getState();
     const draft = s.startSession(s.nextSession);
-    for (const id of draft.order) draft.results[id].sets.forEach((_x, j) => useStore.getState().logSet(id, j, reps));
+    for (const id of draft.order)
+      draft.results[id].sets.forEach((_x, j) => {
+        useStore.getState().logSet(id, j, reps);
+      });
     useStore.getState().finishSession();
   }
 }

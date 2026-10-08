@@ -10,7 +10,9 @@ export default function Units() {
   const { draft, update } = useSetup();
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">Your gym</Text>
+      <Text style={type.title} accessibilityRole="header">
+        Your gym
+      </Text>
       <Text style={type.body}>Weights you are offered are always ones you can load with these plates.</Text>
       <GymSettings
         unit={draft.unit}

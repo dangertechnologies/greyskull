@@ -1,7 +1,7 @@
 import { builtInExercises } from '../../catalog';
+import fixture from '../../dev/v1-imperial.json';
 import { migrateV1 } from '../migrateV1';
 import { PLUGINS, TEMPLATES } from '../program';
-import fixture from './fixtures/v1-imperial.json';
 
 const raw = JSON.stringify(fixture);
 const catalog = builtInExercises();
@@ -28,7 +28,9 @@ test('migrates the imperial fixture', () => {
 test('program is base + curls + chins + a row slot on every day', () => {
   const { program } = migrateV1(raw, catalog)!.patch;
   const expected = PLUGINS.chins.apply(PLUGINS.curls.apply(TEMPLATES.base));
-  expected.days.forEach((d) => d.slots.push({ exercise: 'BENT_OVER_ROW', scheme: '2x5+' }));
+  expected.days.forEach((d) => {
+    d.slots.push({ exercise: 'BENT_OVER_ROW', scheme: '2x5+' });
+  });
   expect(program).toEqual(expected);
 });
 

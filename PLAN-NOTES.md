@@ -193,3 +193,25 @@ Decisions, deviations and manual-check items, appended per Session.
 - Needs manual check on device (added): plan picker with experimental badges; AllPro light-day weights on Home and
   in the session; StrongLifts 5×5 session length in both views.
 - Push access works again: `v2` is on origin (all commits from Session 1 on).
+
+## 2026-10-08 — Follow-up: Biome, CI, release workflow
+- **Biome 2.5.15** (`biome.json`): lint (recommended + `noExplicitAny`, `noUnusedImports`, exhaustive hook deps as
+  warnings), formatter (2 spaces, single quotes, 110 cols) and import sorting, replacing ESLint/Prettier. The whole
+  tree was reformatted once. Intentional exceptions carry a `biome-ignore` with a reason (positional keys for days,
+  slots and sets that have no ids; one effect that resets the AMRAP stepper on set change).
+  `expo lint` is not used: it needs typescript-eslint, which depends on the JS TypeScript API TS 7 lacks.
+- **Versioning:** `package.json` version (now 2.0.0) is the source of truth; `app.json` no longer has `version`;
+  `app.config.ts` injects it, `runtimeVersion.policy = fingerprint` (chosen over `appVersion` so a JS-only release
+  made by a version bump still reaches installed binaries) and, when `EAS_PROJECT_ID` is set, `updates.url` +
+  `extra.eas.projectId`. `eas.json`: `appVersionSource: remote`, production `autoIncrement`, channels
+  `preview`/`production`. Added `expo-updates`.
+- **Workflows:** `ci.yml` (PR, push to master, reusable), `preview.yml` (EAS Update per PR with QR comment,
+  same-repo PRs only), `release.yml` (manual: CI → bump → commit + tag → `eas update --branch production` →
+  optional `eas build --no-wait`). Inputs reach shell steps through `env` (no expression injection).
+- Not verifiable in the sandbox: the workflows themselves (YAML parses; commands were run locally except the EAS
+  ones), `EAS_PROJECT_ID`/`EXPO_TOKEN` setup, and pushing the release commit to a protected branch.
+- **Dev seed fix:** Metro excludes `__tests__` folders from resolution by default, so the dev "Seed v1 data" button
+  (`require('../src/domain/__tests__/fixtures/…')`) failed to bundle in development (production builds dead-code
+  eliminated it before resolving, which is why `expo export` passed). The fixture now lives in
+  `src/dev/v1-imperial.json`; CI also runs `expo export --dev` so this cannot regress.
+- UI modernization plan written to `docs/UI-MODERNIZATION.md` (not started).

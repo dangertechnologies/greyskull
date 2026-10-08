@@ -1,8 +1,8 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { initStore, useStore } from '../src/store';
 import { stackScreenOptions } from '../src/navigation';
+import { initStore, useStore } from '../src/store';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 

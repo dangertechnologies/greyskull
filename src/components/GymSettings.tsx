@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { BAR_OPTIONS, DEFAULT_INVENTORY, OPTIONAL_PLATES, smallestStep, trim } from '../domain';
 import type { PlateInventory, Unit } from '../domain';
+import { BAR_OPTIONS, DEFAULT_INVENTORY, OPTIONAL_PLATES, smallestStep, trim } from '../domain';
 import { colors, type } from '../theme';
 
 interface Props {
@@ -10,8 +10,16 @@ interface Props {
   onInventoryChange(patch: Partial<PlateInventory>): void;
 }
 
-function Chip({ label, selected, onPress, role = 'radio' }: {
-  label: string; selected: boolean; onPress(): void; role?: 'radio' | 'checkbox';
+function Chip({
+  label,
+  selected,
+  onPress,
+  role = 'radio',
+}: {
+  label: string;
+  selected: boolean;
+  onPress(): void;
+  role?: 'radio' | 'checkbox';
 }) {
   return (
     <Pressable
@@ -59,7 +67,13 @@ export function GymSettings({ unit, inventory, onUnitChange, onInventoryChange }
       <Text style={type.label}>Plates (per side)</Text>
       <View style={styles.row}>
         {options.map((p) => (
-          <Chip key={p} role="checkbox" label={trim(p)} selected={owned.includes(p)} onPress={() => toggle(p)} />
+          <Chip
+            key={p}
+            role="checkbox"
+            label={trim(p)}
+            selected={owned.includes(p)}
+            onPress={() => toggle(p)}
+          />
         ))}
       </View>
       <Text style={type.small}>
@@ -72,7 +86,16 @@ export function GymSettings({ unit, inventory, onUnitChange, onInventoryChange }
 const styles = StyleSheet.create({
   wrap: { gap: 10 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { minHeight: 40, minWidth: 56, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.dim, borderRadius: 20 },
+  chip: {
+    minHeight: 40,
+    minWidth: 56,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.dim,
+    borderRadius: 20,
+  },
   chipOn: { backgroundColor: colors.text, borderColor: colors.text },
   chipText: { color: colors.text, fontSize: 15, fontWeight: '300' },
   chipTextOn: { color: '#000' },

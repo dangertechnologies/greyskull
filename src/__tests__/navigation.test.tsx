@@ -43,7 +43,11 @@ test('editing the program during a workout warns before discarding logged sets',
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
   renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
   fireEvent.press(await screen.findByText('Save'));
-  expect(alert).toHaveBeenCalledWith('Discard the workout in progress?', expect.any(String), expect.any(Array));
+  expect(alert).toHaveBeenCalledWith(
+    'Discard the workout in progress?',
+    expect.any(String),
+    expect.any(Array),
+  );
   expect(useStore.getState().draft).not.toBeNull();
   alert.mockRestore();
 });

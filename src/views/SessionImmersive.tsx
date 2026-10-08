@@ -24,7 +24,8 @@ interface Props {
 
 function supertitle(item: SessionApi['items'][number]): string {
   if (item.kind === 'warmup') return `Warm-up ${item.position} of ${item.total}`;
-  if (item.kind === 'amrap') return item.total > 1 && item.targetReps !== null ? `Set ${item.position} of ${item.total}` : 'AMRAP';
+  if (item.kind === 'amrap')
+    return item.total > 1 && item.targetReps !== null ? `Set ${item.position} of ${item.total}` : 'AMRAP';
   return `Set ${item.position} of ${item.total}`;
 }
 
@@ -39,6 +40,7 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
   const [amrapReps, setAmrapReps] = useState(DEFAULT_AMRAP);
 
   const item = items[activeIndex];
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset the AMRAP stepper whenever the active set changes
   useEffect(() => setAmrapReps(DEFAULT_AMRAP), [activeIndex]);
 
   const exercise = item ? exercises[item.exerciseId] : undefined;
@@ -61,9 +63,13 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
       {item && exercise ? (
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={type.label}>
-            {[intensityLabel(session.draft.dayName, session.draft.intensity ?? 1), supertitle(item)].filter(Boolean).join(' · ')}
+            {[intensityLabel(session.draft.dayName, session.draft.intensity ?? 1), supertitle(item)]
+              .filter(Boolean)
+              .join(' · ')}
           </Text>
-          <Text style={type.title} accessibilityRole="header">{nameOf(exercises, item.exerciseId)}</Text>
+          <Text style={type.title} accessibilityRole="header">
+            {nameOf(exercises, item.exerciseId)}
+          </Text>
 
           <Pressable
             accessibilityRole="button"
@@ -72,13 +78,23 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
             onPress={() => setEditing(true)}
             style={styles.weight}
           >
-            <Text style={styles.bigWeight}>{bodyweight ? 'Bodyweight' : formatWeight(item.weightKg, unit)}</Text>
+            <Text style={styles.bigWeight}>
+              {bodyweight ? 'Bodyweight' : formatWeight(item.weightKg, unit)}
+            </Text>
             {bodyweight ? null : <PlatesLine kg={item.weightKg} />}
           </Pressable>
 
           <View style={styles.reps}>
             {item.kind === 'amrap' ? (
-              <Stepper label="Reps (as many as possible)" large value={amrapReps} min={1} step={1} format={String} onChange={setAmrapReps} />
+              <Stepper
+                label="Reps (as many as possible)"
+                large
+                value={amrapReps}
+                min={1}
+                step={1}
+                format={String}
+                onChange={setAmrapReps}
+              />
             ) : (
               <>
                 <Text style={styles.bigReps}>{item.targetReps}</Text>
@@ -90,11 +106,19 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
           <View style={styles.form}>
             <View style={styles.column}>
               <Text style={type.label}>Do</Text>
-              {(exercise.goodForm ?? []).map((t) => <Text key={t} style={type.small}>{t}</Text>)}
+              {(exercise.goodForm ?? []).map((t) => (
+                <Text key={t} style={type.small}>
+                  {t}
+                </Text>
+              ))}
             </View>
             <View style={styles.column}>
               <Text style={type.label}>Don't</Text>
-              {(exercise.badForm ?? []).map((t) => <Text key={t} style={type.small}>{t}</Text>)}
+              {(exercise.badForm ?? []).map((t) => (
+                <Text key={t} style={type.small}>
+                  {t}
+                </Text>
+              ))}
             </View>
           </View>
 
@@ -112,16 +136,32 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
       )}
 
       {editing && exercise && item ? (
-        <WeightModal visible exercise={exercise} kg={item.weightKg} onChange={(kg) => setWeight(item.exerciseId, kg)} onClose={() => setEditing(false)} />
+        <WeightModal
+          visible
+          exercise={exercise}
+          kg={item.weightKg}
+          onChange={(kg) => setWeight(item.exerciseId, kg)}
+          onClose={() => setEditing(false)}
+        />
       ) : null}
 
-      {restRemaining !== null ? <RestRing remaining={restRemaining} total={restSeconds} onSkip={skipRest} /> : null}
+      {restRemaining !== null ? (
+        <RestRing remaining={restRemaining} total={restSeconds} onSkip={skipRest} />
+      ) : null}
     </Background>
   );
 }
 
 const styles = StyleSheet.create({
-  back: { position: 'absolute', left: 8, zIndex: 5, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  back: {
+    position: 'absolute',
+    left: 8,
+    zIndex: 5,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   content: { padding: 24, paddingTop: 72, gap: 16, flexGrow: 1 },
   weight: { gap: 4, paddingVertical: 8 },
   bigWeight: { color: colors.text, fontSize: 56, fontWeight: '200' },

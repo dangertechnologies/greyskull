@@ -5,14 +5,31 @@ import { seriesFor } from './series';
 
 const ex = builtInExercises();
 const log = (n: number, results: SessionLog['results'], skipped = false): SessionLog => ({
-  n, dayName: '', startedAt: '', finishedAt: '', results, order: Object.keys(results), skipped,
+  n,
+  dayName: '',
+  startedAt: '',
+  finishedAt: '',
+  results,
+  order: Object.keys(results),
+  skipped,
 });
 
 const sessions = [
-  log(0, { BARBELL_SQUAT: { weightKg: 20, sets: [{ target: null, reps: 8 }] }, CHINUPS: { weightKg: 0, sets: [{ target: null, reps: 6 }] } }),
+  log(0, {
+    BARBELL_SQUAT: { weightKg: 20, sets: [{ target: null, reps: 8 }] },
+    CHINUPS: { weightKg: 0, sets: [{ target: null, reps: 6 }] },
+  }),
   log(1, {}, true),
   log(2, { BARBELL_SQUAT: { weightKg: 22.5, sets: [{ target: null, reps: 5 }] } }),
-  log(3, { CHINUPS: { weightKg: 0, sets: [{ target: 5, reps: 5 }, { target: null, reps: 9 }] } }),
+  log(3, {
+    CHINUPS: {
+      weightKg: 0,
+      sets: [
+        { target: 5, reps: 5 },
+        { target: null, reps: 9 },
+      ],
+    },
+  }),
 ];
 
 test('weights per finished session in the chosen unit; skipped sessions are ignored', () => {

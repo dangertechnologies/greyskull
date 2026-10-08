@@ -1,6 +1,5 @@
-import type { Exercise, SessionLog } from './domain';
+import type { Exercise, Outcome, Scheme, SessionLog, Unit } from './domain';
 import { formatWeight, setTargets, toUnit, trim, tryParseScheme } from './domain';
-import type { Outcome, Scheme, Unit } from './domain';
 
 export const weekOf = (n: number, sessionsPerWeek: number): number => Math.floor(n / sessionsPerWeek) + 1;
 

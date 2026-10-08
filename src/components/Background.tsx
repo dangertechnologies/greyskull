@@ -16,10 +16,17 @@ interface Props {
 /** Full-bleed blurred photo, dark overlay, safe-area content. */
 export function Background({ image = 'default', topInset = false, children }: Props) {
   return (
-    <ImageBackground source={BACKGROUNDS[image] ?? BACKGROUNDS.default} style={styles.fill} resizeMode="cover">
+    <ImageBackground
+      source={BACKGROUNDS[image] ?? BACKGROUNDS.default}
+      style={styles.fill}
+      resizeMode="cover"
+    >
       <StatusBar style="light" />
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay }]} />
-      <SafeAreaView style={styles.fill} edges={topInset ? ['top', 'bottom', 'left', 'right'] : ['bottom', 'left', 'right']}>
+      <SafeAreaView
+        style={styles.fill}
+        edges={topInset ? ['top', 'bottom', 'left', 'right'] : ['bottom', 'left', 'right']}
+      >
         {children}
       </SafeAreaView>
     </ImageBackground>

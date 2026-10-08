@@ -6,8 +6,9 @@
  * `experimental` plans use progression models or day intensities that have unit tests but have not been run
  * through a real training block in the app yet. They are labelled as such in the UI.
  */
-import { DEFAULT_RULES } from '../domain/types';
+
 import type { Program, Rules } from '../domain/types';
+import { DEFAULT_RULES } from '../domain/types';
 
 export type PluginId = 'curls' | 'chins' | 'dips' | 'abs' | 'rows_instead_of_chins';
 
@@ -46,9 +47,27 @@ export const PLANS: PlanDefinition[] = [
       sessionsPerWeek: 3,
       rules: DEFAULT_RULES,
       days: [
-        { name: 'Day 1', slots: [{ exercise: [press, bench], scheme: '2x5+' }, { exercise: squat, scheme: '2x5+' }] },
-        { name: 'Day 2', slots: [{ exercise: [press, bench], scheme: '2x5+' }, { exercise: deadlift, scheme: '1x5+' }] },
-        { name: 'Day 3', slots: [{ exercise: [press, bench], scheme: '2x5+' }, { exercise: squat, scheme: '2x5+' }] },
+        {
+          name: 'Day 1',
+          slots: [
+            { exercise: [press, bench], scheme: '2x5+' },
+            { exercise: squat, scheme: '2x5+' },
+          ],
+        },
+        {
+          name: 'Day 2',
+          slots: [
+            { exercise: [press, bench], scheme: '2x5+' },
+            { exercise: deadlift, scheme: '1x5+' },
+          ],
+        },
+        {
+          name: 'Day 3',
+          slots: [
+            { exercise: [press, bench], scheme: '2x5+' },
+            { exercise: squat, scheme: '2x5+' },
+          ],
+        },
       ],
     },
   },
@@ -107,8 +126,22 @@ export const PLANS: PlanDefinition[] = [
         },
       }),
       days: [
-        { name: 'A', slots: [{ exercise: squat, scheme: '5x5' }, { exercise: bench, scheme: '5x5' }, { exercise: row, scheme: '5x5' }] },
-        { name: 'B', slots: [{ exercise: squat, scheme: '5x5' }, { exercise: press, scheme: '5x5' }, { exercise: deadlift, scheme: '1x5' }] },
+        {
+          name: 'A',
+          slots: [
+            { exercise: squat, scheme: '5x5' },
+            { exercise: bench, scheme: '5x5' },
+            { exercise: row, scheme: '5x5' },
+          ],
+        },
+        {
+          name: 'B',
+          slots: [
+            { exercise: squat, scheme: '5x5' },
+            { exercise: press, scheme: '5x5' },
+            { exercise: deadlift, scheme: '1x5' },
+          ],
+        },
       ],
     },
   },
@@ -129,8 +162,22 @@ export const PLANS: PlanDefinition[] = [
         increments: { [squat]: { kg: 2.5, lb: 5 }, [deadlift]: { kg: 5, lb: 10 } },
       }),
       days: [
-        { name: 'A', slots: [{ exercise: squat, scheme: '3x5' }, { exercise: press, scheme: '3x5' }, { exercise: deadlift, scheme: '1x5' }] },
-        { name: 'B', slots: [{ exercise: squat, scheme: '3x5' }, { exercise: bench, scheme: '3x5' }, { exercise: deadlift, scheme: '1x5' }] },
+        {
+          name: 'A',
+          slots: [
+            { exercise: squat, scheme: '3x5' },
+            { exercise: press, scheme: '3x5' },
+            { exercise: deadlift, scheme: '1x5' },
+          ],
+        },
+        {
+          name: 'B',
+          slots: [
+            { exercise: squat, scheme: '3x5' },
+            { exercise: bench, scheme: '3x5' },
+            { exercise: deadlift, scheme: '1x5' },
+          ],
+        },
       ],
     },
   },

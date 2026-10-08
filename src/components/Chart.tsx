@@ -30,10 +30,19 @@ export function Chart({ values, format, height = 180, label }: Props) {
     >
       {width > 0 ? (
         <Svg width={width} height={height}>
-          <Line x1={PAD} y1={height - PAD} x2={width - PAD} y2={height - PAD} stroke={colors.faint} strokeWidth={1} />
-          {points.length > 1 ? <Polyline points={line} fill="none" stroke={colors.text} strokeWidth={1.5} /> : null}
-          {points.map((p, i) => (
-            <Circle key={i} cx={p.x} cy={p.y} r={3.5} fill={colors.text} />
+          <Line
+            x1={PAD}
+            y1={height - PAD}
+            x2={width - PAD}
+            y2={height - PAD}
+            stroke={colors.faint}
+            strokeWidth={1}
+          />
+          {points.length > 1 ? (
+            <Polyline points={line} fill="none" stroke={colors.text} strokeWidth={1.5} />
+          ) : null}
+          {points.map((p) => (
+            <Circle key={p.x} cx={p.x} cy={p.y} r={3.5} fill={colors.text} />
           ))}
         </Svg>
       ) : null}

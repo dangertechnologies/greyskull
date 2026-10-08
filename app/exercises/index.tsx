@@ -3,8 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { ExerciseIcon } from '../../src/components/ExerciseIcon';
 import { Screen } from '../../src/components/Screen';
-import { exerciseIdsOf } from '../../src/domain';
 import type { Exercise } from '../../src/domain';
+import { exerciseIdsOf } from '../../src/domain';
 import { useStore } from '../../src/store';
 import { colors, type } from '../../src/theme';
 
@@ -33,19 +33,34 @@ export default function Exercises() {
 
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">Exercises</Text>
+      <Text style={type.title} accessibilityRole="header">
+        Exercises
+      </Text>
       <Button title="New exercise" onPress={() => router.push('/exercises/new')} />
       <Text style={type.label}>Custom</Text>
       <View>
         {custom.length === 0 ? <Text style={type.small}>None yet.</Text> : null}
-        {custom.map((e) => <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />)}
+        {custom.map((e) => (
+          <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />
+        ))}
       </View>
       <Text style={type.label}>Built-in</Text>
-      <View>{builtIn.map((e) => <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />)}</View>
+      <View>
+        {builtIn.map((e) => (
+          <Row key={e.id} exercise={e} inProgram={used.has(e.id)} />
+        ))}
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.faint },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: 52,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.faint,
+  },
 });

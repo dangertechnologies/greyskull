@@ -21,7 +21,10 @@ export async function scheduleRestAlert(seconds: number): Promise<string | null>
     if (!(await Notifications.getPermissionsAsync()).granted) return null;
     return await Notifications.scheduleNotificationAsync({
       content: { title: 'Rest over', body: 'Time for your next set.' },
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: Math.max(1, seconds) },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: Math.max(1, seconds),
+      },
     });
   } catch {
     return null;

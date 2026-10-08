@@ -1,0 +1,106 @@
+name: Release
+
+# Manual release: runs the full CI, bumps the version in package.json (the single source of truth for
+# the app version), tags it, and publishes an over-the-air update to the `production` channel.
+# Optionally starts store builds. Native changes (new native dependency, config plugin, permissions)
+# change the runtime fingerprint and only reach binaries built after them, so set `build` for those.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump (none republishes the current version)
+        type: choice
+        options: [patch, minor, major, none]
+        default: patch
+      build:
+        description: Also start EAS store builds
+        type: choice
+        options: [none, ios, android, all]
+        default: none
+      message:
+        description: Release note shown with the update (defaults to the tag)
+        type: string
+        required: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Version and publish
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write # commit the version bump and push the tag
+    env:
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check publishing credentials
+        run: |
+          test -n "$EXPO_TOKEN" || { echo "::error::Add the EXPO_TOKEN repository secret"; exit 1; }
+          test -n "$EAS_PROJECT_ID" || { echo "::error::Add the EAS_PROJECT_ID repository variable (run 'eas init')"; exit 1; }
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Bump version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          if [ "$BUMP" != "none" ]; then
+            npm version "$BUMP" --no-git-tag-version
+          fi
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag
+        if: inputs.bump != 'none'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore(release): v${{ steps.version.outputs.version }}"
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "HEAD:${{ github.ref_name }}" "v${{ steps.version.outputs.version }}"
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Publish over-the-air update
+        env:
+          RELEASE_MESSAGE: ${{ inputs.message || format('v{0}', steps.version.outputs.version) }}
+        run: eas update --branch production --non-interactive --message "$RELEASE_MESSAGE"
+
+      - name: Start store builds
+        if: inputs.build != 'none'
+        env:
+          PLATFORM: ${{ inputs.build }}
+        run: eas build --platform "$PLATFORM" --profile production --non-interactive --no-wait
+
+      - name: Summary
+        run: |
+          {
+            echo "### Released v${{ steps.version.outputs.version }}"
+            echo "- Channel: \`production\` (OTA update published)"
+            echo "- Store builds: ${{ inputs.build }}"
+          } >> "$GITHUB_STEP_SUMMARY"

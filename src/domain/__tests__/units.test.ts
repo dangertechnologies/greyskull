@@ -1,5 +1,5 @@
-import { DEFAULT_INVENTORY } from '../types';
 import { nearestLoadableKg } from '../plates';
+import { DEFAULT_INVENTORY } from '../types';
 import { formatWeight, KG_PER_LB, toKg, toUnit, trim } from '../units';
 
 test('constants and formatting', () => {

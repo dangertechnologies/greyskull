@@ -10,15 +10,8 @@
       "lb": 5
     },
     "description": "The Squat is the king of all exercises. Squats work the whole body: Your legs bend and straighten to move the weight; your abs and lower back muscles stabilize your trunk while your legs move; your upper back, shoulders and arms balance the bar on your back",
-    "goodForm": [
-      "Squat all the way down",
-      "Align knees and toes",
-      "Keep back straight"
-    ],
-    "badForm": [
-      "Arc your back",
-      "Lift heels off the ground"
-    ],
+    "goodForm": ["Squat all the way down", "Align knees and toes", "Keep back straight"],
+    "badForm": ["Arc your back", "Lift heels off the ground"],
     "video": "https://youtu.be/EP2g3Sj3qSw",
     "url": "https://stronglifts.com/squat/#Squat_Technique"
   },
@@ -69,11 +62,7 @@
       "Lower bar to mid-chest",
       "Press up until arms straight"
     ],
-    "badForm": [
-      "Keep elbows straight",
-      "Keep elbows too bent",
-      "Hold the bar with a thumbless grip"
-    ],
+    "badForm": ["Keep elbows straight", "Keep elbows too bent", "Hold the bar with a thumbless grip"],
     "url": "https://stronglifts.com/bench-press/"
   },
   "MILITARY_PRESS": {
@@ -122,9 +111,7 @@
       "Pull up by pulling elbows towards the floor",
       "Go all the way up until chin passes bar"
     ],
-    "badForm": [
-      "Do half reps"
-    ],
+    "badForm": ["Do half reps"],
     "video": "https://www.youtube.com/watch?v=T78xCiw_R6g",
     "url": "https://stronglifts.com/pullups/",
     "background": "pullups"
@@ -146,11 +133,7 @@
       "Palms facing away from you",
       "Only forearms should move"
     ],
-    "badForm": [
-      "Swing back and forth",
-      "Lean back",
-      "Use your knees"
-    ],
+    "badForm": ["Swing back and forth", "Lean back", "Use your knees"],
     "url": "https://www.bodybuilding.com/exercises/barbell-curl",
     "background": "curls"
   },
@@ -191,9 +174,7 @@
       "Lift chest and straighten back",
       "Pull bar against your lower chest"
     ],
-    "badForm": [
-      "Use your hips"
-    ],
+    "badForm": ["Use your hips"],
     "video": "https://youtu.be/gQBSRBgRLVI",
     "url": "https://stronglifts.com/barbell-row/"
   },
@@ -208,16 +189,8 @@
       "lb": 0
     },
     "description": "Dips are a compound, body-weight exercise. You do Dips by first raising yourself on two dip bars with straight arms. Lower your body until your shoulders are below your elbows. Push yourself up until your arms are straight again. Dips work your chest, shoulders, back and arm muscles.",
-    "goodForm": [
-      "Start from top",
-      "Dip until shoulders below elbows",
-      "Lock elbows at the top"
-    ],
-    "badForm": [
-      "Perform too quickly",
-      "Go too high",
-      "Go too low"
-    ],
+    "goodForm": ["Start from top", "Dip until shoulders below elbows", "Lock elbows at the top"],
+    "badForm": ["Perform too quickly", "Go too high", "Go too low"],
     "video": "https://www.youtube.com/watch?v=049wbhkKCtM",
     "url": "https://stronglifts.com/dips/"
   }

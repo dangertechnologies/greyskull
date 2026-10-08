@@ -4,8 +4,8 @@ import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
 import { Stepper } from '../../src/components/Stepper';
 import { getPlan } from '../../src/config/plans';
-import { PLUGINS } from '../../src/domain';
 import type { PluginId } from '../../src/domain';
+import { PLUGINS } from '../../src/domain';
 import { useSetup } from '../../src/setup/SetupContext';
 import { type } from '../../src/theme';
 
@@ -30,11 +30,18 @@ export default function Options() {
 
   return (
     <Screen>
-      <Text style={type.title} accessibilityRole="header">Options</Text>
+      <Text style={type.title} accessibilityRole="header">
+        Options
+      </Text>
 
       {plugins.length > 0 ? <Text style={type.label}>Extras</Text> : null}
       {plugins.map((id) => (
-        <Row key={id} label={PLUGINS[id].label} value={draft.plugins.includes(id)} onChange={(on) => togglePlugin(id, on)} />
+        <Row
+          key={id}
+          label={PLUGINS[id].label}
+          value={draft.plugins.includes(id)}
+          onChange={(on) => togglePlugin(id, on)}
+        />
       ))}
 
       <Text style={type.label}>Sessions per week</Text>
@@ -52,10 +59,34 @@ export default function Options() {
 
       <Row label="Warm-up sets" value={draft.rules.warmups} onChange={(warmups) => setRules({ warmups })} />
       {model === 'amrap' ? (
-        <Stepper label="Double the jump at (reps)" value={draft.rules.doubleAt} step={1} min={6} max={15} format={(v) => `${v}+`} onChange={(doubleAt) => setRules({ doubleAt })} />
+        <Stepper
+          label="Double the jump at (reps)"
+          value={draft.rules.doubleAt}
+          step={1}
+          min={6}
+          max={15}
+          format={(v) => `${v}+`}
+          onChange={(doubleAt) => setRules({ doubleAt })}
+        />
       ) : null}
-      <Stepper label="Deload" value={Math.round(draft.rules.deloadPct * 100)} step={5} min={5} max={20} format={(v) => `${v} %`} onChange={(v) => setRules({ deloadPct: v / 100 })} />
-      <Stepper label="Fails before deload" value={draft.rules.failsBeforeDeload} step={1} min={0} max={3} format={String} onChange={(failsBeforeDeload) => setRules({ failsBeforeDeload })} />
+      <Stepper
+        label="Deload"
+        value={Math.round(draft.rules.deloadPct * 100)}
+        step={5}
+        min={5}
+        max={20}
+        format={(v) => `${v} %`}
+        onChange={(v) => setRules({ deloadPct: v / 100 })}
+      />
+      <Stepper
+        label="Fails before deload"
+        value={draft.rules.failsBeforeDeload}
+        step={1}
+        min={0}
+        max={3}
+        format={String}
+        onChange={(failsBeforeDeload) => setRules({ failsBeforeDeload })}
+      />
 
       <Button title="Next" onPress={() => router.push('/setup/days')} />
     </Screen>

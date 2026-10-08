@@ -8,7 +8,10 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 
 const labels = (items: ReturnType<typeof useSession>) =>
-  items!.items.map((i) => `${i.exerciseId.slice(0, 3)}:${i.kind}:${i.kind === 'warmup' ? i.weightKg + 'x' + i.targetReps : i.targetReps}`);
+  items!.items.map(
+    (i) =>
+      `${i.exerciseId.slice(0, 3)}:${i.kind}:${i.kind === 'warmup' ? `${i.weightKg}x${i.targetReps}` : i.targetReps}`,
+  );
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -21,8 +24,15 @@ afterEach(() => jest.useRealTimers());
 test('session 0 lists warm-ups then work sets in program order', () => {
   const { result } = renderHook(() => useSession(0));
   expect(labels(result.current)).toEqual([
-    'MIL:warmup:20x5', 'MIL:work:5', 'MIL:amrap:null',
-    'BAR:warmup:20x5', 'BAR:warmup:55x4', 'BAR:warmup:70x3', 'BAR:warmup:85x2', 'BAR:work:5', 'BAR:amrap:null',
+    'MIL:warmup:20x5',
+    'MIL:work:5',
+    'MIL:amrap:null',
+    'BAR:warmup:20x5',
+    'BAR:warmup:55x4',
+    'BAR:warmup:70x3',
+    'BAR:warmup:85x2',
+    'BAR:work:5',
+    'BAR:amrap:null',
   ]);
   expect(result.current!.activeIndex).toBe(0);
   expect(result.current!.isComplete).toBe(false);
@@ -105,6 +115,8 @@ test('full session: press AMRAP 12 and squat AMRAP 4 progress once; finishing do
 test('changing the weight mid-session rescales warm-ups', async () => {
   const { result } = renderHook(() => useSession(0));
   await act(async () => result.current!.setWeight('BARBELL_SQUAT', 60));
-  const squatWarm = result.current!.items.filter((i) => i.exerciseId === 'BARBELL_SQUAT' && i.kind === 'warmup');
+  const squatWarm = result.current!.items.filter(
+    (i) => i.exerciseId === 'BARBELL_SQUAT' && i.kind === 'warmup',
+  );
   expect(squatWarm.map((w) => w.weightKg)).toEqual([20, 32.5, 42.5, 50]);
 });

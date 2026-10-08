@@ -1,5 +1,5 @@
-import { PLANS } from '../config/plans';
 import type { PluginId } from '../config/plans';
+import { PLANS } from '../config/plans';
 import type { Exercise, Program, Scheme, Slot } from './types';
 
 /** Programs of the built-in plans, by plan id (see src/config/plans.ts). */
@@ -79,8 +79,11 @@ export function parseScheme(s: Scheme): ParsedScheme {
  */
 export function setTargets(s: Scheme, liftReps?: number): (number | null)[] {
   const { sets, reps, repsMax, amrap } = parseScheme(s);
-  const target = reps !== null && repsMax !== null ? Math.min(repsMax, Math.max(reps, liftReps ?? reps)) : reps;
-  return Array.from({ length: sets }, (_, i) => (target === null || (amrap && i === sets - 1) ? null : target));
+  const target =
+    reps !== null && repsMax !== null ? Math.min(repsMax, Math.max(reps, liftReps ?? reps)) : reps;
+  return Array.from({ length: sets }, (_, i) =>
+    target === null || (amrap && i === sets - 1) ? null : target,
+  );
 }
 
 const pairKey = (a: string, b: string): string => [a, b].sort().join('|');
@@ -136,7 +139,8 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
         const order = `${a}|${b}`;
         const known = pairOrder.get(key);
         if (known === undefined) pairOrder.set(key, order);
-        else if (known !== order) errors.push(`${day.name}: ${a} / ${b} must use the same order on every day.`);
+        else if (known !== order)
+          errors.push(`${day.name}: ${a} / ${b} must use the same order on every day.`);
       }
     }
   }
@@ -145,6 +149,10 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
 
 export function exerciseIdsOf(program: Program): string[] {
   const ids = new Set<string>();
-  for (const day of program.days) for (const slot of day.slots) slotIds(slot).forEach((id) => ids.add(id));
+  for (const day of program.days)
+    for (const slot of day.slots)
+      slotIds(slot).forEach((id) => {
+        ids.add(id);
+      });
   return [...ids];
 }
