@@ -17,8 +17,14 @@ const lifts = () => JSON.parse(JSON.stringify(useStore.getState().lifts)) as Rec
 test('circles: tap logs the target, tap again counts down to empty, long-press edits reps', async () => {
   seed(true);
   renderRouter(routes(), { initialUrl: '/session/0' });
-  expect(await screen.findByText('Warm-up: 20 ×5')).toBeTruthy(); // press: bar only
-  expect(screen.getByText('Warm-up: 20 ×5 · 55 ×4 · 70 ×3 · 85 ×2')).toBeTruthy();
+  expect(await screen.findByLabelText('Warm-up 1 of 1, 20 kg ×5')).toBeTruthy(); // press: bar only
+  for (const w of ['20 kg ×5', '55 kg ×4', '70 kg ×3', '85 kg ×2'])
+    expect(screen.getAllByText(w).length).toBeGreaterThan(0);
+  // A warm-up ticks off without touching the logged sets.
+  const before = JSON.stringify(useStore.getState().draft?.results);
+  fireEvent.press(screen.getByLabelText('Warm-up 2 of 4, 55 kg ×4'));
+  expect(screen.getByLabelText('Warm-up 2 of 4, 55 kg ×4, done')).toBeTruthy();
+  expect(JSON.stringify(useStore.getState().draft?.results)).toBe(before);
 
   const first = screen.getAllByLabelText(/^Set 1 of 2, target 5$/)[0];
   fireEvent.press(first);

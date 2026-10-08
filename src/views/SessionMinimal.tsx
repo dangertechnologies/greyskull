@@ -6,7 +6,7 @@ import { TechniqueLinks } from '../components/TechniqueLinks';
 import { WeightSheet } from '../components/WeightSheet';
 import { haptics } from '../design/haptics';
 import { useTheme } from '../design/theme';
-import { formatWeight, toUnit, trim } from '../domain';
+import { formatWeight } from '../domain';
 import { intensityLabel, nameOf } from '../format';
 import type { SessionApi, SessionItem } from '../hooks/useSession';
 import { useStore } from '../store';
@@ -84,6 +84,38 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
     );
   };
 
+  // Warm-ups are tappable too, so you can tick them off here as in the one-lift view (they start no rest).
+  const warmupPill = (item: SessionItem, index: number) => {
+    const text = `${formatWeight(item.weightKg, unit)} ×${item.targetReps ?? 0}`;
+    return (
+      <Pressable
+        key={`warmup-${item.position}`}
+        accessibilityRole="button"
+        accessibilityLabel={`Warm-up ${item.position} of ${item.total}, ${text}${item.logged ? ', done' : ''}`}
+        accessibilityState={{ disabled: item.logged }}
+        disabled={item.logged}
+        onPress={() => {
+          haptics.tick();
+          record(index, item.targetReps ?? 0);
+        }}
+        style={{
+          minHeight: 44,
+          paddingHorizontal: t.space[3],
+          borderRadius: t.radius.pill,
+          justifyContent: 'center',
+          backgroundColor: item.logged ? t.color.surfaceRaised : 'transparent',
+          borderWidth: item.logged ? 0 : 1,
+          borderStyle: 'dashed',
+          borderColor: t.color.borderStrong,
+        }}
+      >
+        <Text variant="callout" color={item.logged ? 'textMuted' : 'text'}>
+          {text}
+        </Text>
+      </Pressable>
+    );
+  };
+
   const weightExercise = weightFor ? exercises[weightFor] : undefined;
   const next = items.find((i) => !i.logged);
   const nextText =
@@ -124,9 +156,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
           const own = items
             .map((item, index) => ({ item, index }))
             .filter(({ item }) => item.exerciseId === id);
-          const warm = own
-            .filter(({ item }) => item.kind === 'warmup')
-            .map(({ item }) => `${trim(toUnit(item.weightKg, unit))} ×${item.targetReps}`);
+          const warm = own.filter(({ item }) => item.kind === 'warmup');
           return (
             <Card key={id} style={{ gap: t.space[5] }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
@@ -150,7 +180,14 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
                 <PlateStack kg={result.weightKg} size="sm" />
               )}
               {warm.length > 0 ? (
-                <Text variant="caption" color="textMuted">{`Warm-up: ${warm.join(' · ')}`}</Text>
+                <View style={{ gap: t.space[2] }}>
+                  <Text variant="label" color="textMuted">
+                    Warm-up
+                  </Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                    {warm.map(({ item, index }) => warmupPill(item, index))}
+                  </View>
+                </View>
               ) : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
                 {own.filter(({ item }) => item.kind !== 'warmup').map(({ item, index }) => pill(item, index))}
