@@ -474,8 +474,10 @@ primitives. Delete `units.tsx`, `template.tsx`, `options.tsx`, `weights.tsx`, `s
 `chore(ui): remove legacy UI`.
 
 ### Out of scope (later, separate plans)
-Widgets, Live Activities, Apple Watch, share-as-image, confetti, drag-to-reorder, custom exercise
-illustrations, Skia charts.
+Apple Watch app, custom exercise illustrations, Skia charts.
+
+> Status 2026-10-08: widgets, Live Activities, share-as-image, confetti, drag-to-reorder, Liquid Glass and the
+> Material You accent were built afterwards; see the last section of `PLAN-NOTES.md`.
 
 ## 8. Testing strategy
 - **Keep** all domain/store tests untouched. **Update** screen tests for moved routes and new copy; prefer

@@ -86,6 +86,19 @@ Profiles are in `eas.json`. Install the preview build over a device that still h
 
 Android keystore: not checked in cloud environment, must be checked on the owner's Mac.
 
+## Widgets and Live Activities (iOS)
+
+`expo-widgets` adds a "Next workout" widget and a rest-timer Live Activity (Lock Screen and Dynamic Island). They need a
+development or production build, not Expo Go: `eas build`, with the App Group `group.com.dangertechnologies.gslp`
+enabled for the app and the generated `ExpoWidgetsTarget` extension (EAS provisions both when it can sign for the
+account). Widget layouts live in `src/widgets/definitions.tsx`; they run in the extension's own runtime and may only use
+`@expo/ui/swift-ui` components. Everything degrades to a no-op on Android, in Expo Go and in tests.
+
+## Backups
+
+Settings → Export backup shares the whole app state as JSON; Import backup restores it from the clipboard or a file
+after showing what it contains and asking to replace the current data.
+
 ## Migration from v1
 
 v1 stored everything as one JSON blob under the AsyncStorage key `GSLP_STATE_18`. On the first v2 launch (no v2

@@ -257,9 +257,51 @@ Deviations from the plan, and why:
 - `@expo/vector-icons` removed; icons come from expo-symbols.
 - Skip lives under the Today card (plain button + Undo snackbar) rather than behind an alert.
 - `goHome()` = `dismissAll()` + `navigate('/')`: `dismissTo('/')` does not switch tabs.
-- Liquid Glass (`expo-glass-effect`) and Material You accent are installed/optional but not wired; both need a device
-  to judge. Drag-to-reorder, confetti, widgets stay out of scope.
 - A colour-literal lint test (`src/design/no-literal-colours.test.ts`) fails the build when a screen hard-codes a colour.
 
 Needs manual check on device: everything in §10 of the plan (spacing, light/dark, Inter weights on Android, tabs,
 sheets, session reachability, plate colours, monograms, icons and splash, Dynamic Type, technique links).
+
+## Scoped-out items, now implemented (2026-10-08)
+
+All of these were listed as "out of scope" in `docs/UI-MODERNIZATION.md`. Built and unit-tested; none of the native
+parts could be run in the sandbox (see "Needs manual check").
+
+- **Backup import** (`src/backup.ts`, `src/importFlow.ts`, Settings → Import backup): paste from clipboard or pick a
+  file; `parseBackup` validates shape, sessions, weights and the program before anything is touched; the user sees a
+  summary and confirms; `importBackup` replaces state and sets `legacyChecked`. Drafts are not restored. v1 data is
+  not accepted here (that is `importLegacy`). `GSLP_STATE_18` is untouched.
+- **Persist `migrate`**: store version 2 → 3 with `migratePersisted` (fills defaults for fields added later).
+- **Soft delete**: deleting a custom exercise that appears in history sets `archived: true` (hidden from pickers and the
+  exercise list, history keeps its name); unused ones are removed outright.
+- **Liquid Glass**: `BottomBar` uses `GlassView` when `isLiquidGlassAvailable()` and Reduce Transparency is off, else
+  the solid `surfaceRaised`. `RestPanel` has no container surface of its own (it sits in the bottom bar), so nothing to
+  do there.
+- **Material You** (Android 12+): Settings → "Match wallpaper colours" swaps `accent`/`onAccent` for
+  `Color.android.dynamic.primary/onPrimary`. Off by default. These are opaque platform colours, so the WCAG test cannot
+  cover them; Material guarantees the primary/onPrimary pair.
+- **Drag to reorder** exercises in the day editor (`SlotRow`, `DragHandle`, pure `moveSlotTo`/`dragTarget`); the up/down
+  buttons stay as the accessible alternative.
+- **Confetti** after a progression (RN `Animated`, deterministic pieces, hidden under Reduce Motion).
+- **Share summary as image** (`react-native-view-shot` + `expo-sharing`).
+- **iOS widget + Live Activity** (`expo-widgets`, `@expo/ui/swift-ui`): `NextWorkout` home-screen/lock-screen widget fed
+  from the store (`watchStoreForWidgets`), `RestTimer` Live Activity started/ended by `useSession` with a native
+  countdown (`Text timerInterval`). Config plugin entry in `app.json` (app group `group.com.dangertechnologies.gslp`);
+  `expo config --type introspect` confirms the entitlement, `NSSupportsLiveActivities` and the extension target. The
+  layouts are babel-compiled strings that run in the extension's own runtime, so `layouts.test.tsx` evaluates the
+  compiled source with only the extension's globals to prove they reference nothing else. The glue is a no-op on
+  Android, in Expo Go and in tests.
+
+Not done, on purpose:
+- **Apple Watch app**: needs a watchOS target built in Xcode (Swift/SwiftUI); not possible from this JS-only setup and
+  not verifiable here. `expo-widgets` Live Activities already appear on a paired watch's Smart Stack.
+- **Skia charts**: the SVG area chart handles the data volume (hundreds of points); no measured need.
+- **Custom exercise illustrations**: needs artwork; monograms plus technique videos cover the purpose.
+
+Needs manual check on device (additions): development build with the widgets target (EAS must provision the App Group
+`group.com.dangertechnologies.gslp` and the `ExpoWidgetsTarget` extension for `com.dangertechnologies.gslp`); widget
+shows the next workout and updates after finishing one; rest Live Activity counts down on the Lock Screen and Dynamic
+Island and ends when rest ends or is skipped; Liquid Glass bar legibility over photos on iOS 26; Material You accent
+legibility on Android 12+; drag reorder feel inside the scroll view; share sheet receives a PNG; backup round-trip
+(export on one device, import on another). The new native modules and the widget target change the native fingerprint:
+ship them with a new store build, not an OTA update.
