@@ -77,8 +77,8 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
   const ownIndices = item
     ? items.flatMap((i, index) => (i.exerciseId === item.exerciseId ? [index] : []))
     : [];
-  const doneSets = items.filter((i) => i.kind !== 'warmup' && i.logged).length;
-  const totalSets = items.filter((i) => i.kind !== 'warmup').length;
+  // Counts this lift's pills, warm-ups included, so the label matches the row under it.
+  const doneSets = ownIndices.filter((i) => items[i].logged).length;
   const light = intensityLabel(draft.dayName, draft.intensity ?? 1);
   const next = items.find((i, index) => index > selectedIndex && !i.logged);
   const nextText =
@@ -165,7 +165,7 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
                 )}
               </View>
 
-              <Section label={`${doneSets} of ${totalSets} sets done`}>
+              <Section label={`${doneSets} of ${ownIndices.length} sets done`}>
                 <SetRail items={items} indices={ownIndices} selectedIndex={selectedIndex} onSelect={select} />
               </Section>
 

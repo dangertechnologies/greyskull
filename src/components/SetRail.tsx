@@ -4,8 +4,9 @@ import type { SessionItem } from '../hooks/useSession';
 import { Text } from '../ui/Text';
 
 /**
- * One pill per set of the current exercise: filled when logged, outlined when open, accent ring on the one
- * being shown. Tap any set to see or correct it (this is the undo for a mistaken Done).
+ * One pill per set of the current exercise: filled when logged, outlined when open (dashed for warm-ups),
+ * accent ring on the one being shown. All pills are one size, so the row reads as one count of sets. Tap any
+ * set to see or correct it (this is the undo for a mistaken Done).
  */
 export function SetRail({
   items,
@@ -40,19 +41,20 @@ export function SetRail({
             onPress={() => onSelect(index)}
             hitSlop={4}
             style={{
-              minWidth: warmup ? 36 : 52,
-              height: warmup ? 36 : 52,
+              minWidth: 48,
+              height: 48,
               paddingHorizontal: t.space[2],
               borderRadius: t.radius.pill,
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: logged ? (warmup ? t.color.surfaceRaised : t.color.success) : 'transparent',
               borderWidth: selected ? 2 : 1,
+              borderStyle: warmup && !logged && !selected ? 'dashed' : 'solid',
               borderColor: selected ? t.color.accent : logged ? 'transparent' : t.color.borderStrong,
             }}
           >
             <Text
-              variant={warmup ? 'caption' : 'bodyStrong'}
+              variant="bodyStrong"
               color={logged && !warmup ? 'background' : warmup ? 'textMuted' : 'text'}
               maxFontSizeMultiplier={1.2}
             >
