@@ -1,0 +1,19 @@
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo } from 'react-native';
+
+/** True when the user asked the OS to reduce motion; animations then become plain appear/disappear. */
+export function useReduceMotion(): boolean {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((value) => alive && setReduce(value))
+      .catch(() => undefined);
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}

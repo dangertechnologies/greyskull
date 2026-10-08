@@ -1,4 +1,64 @@
 {
-  "displayName": "GSLP: 8 Weeks",
-  "name": "Greyskull"
+  "expo": {
+    "name": "Greyskull LP",
+    "slug": "greyskull",
+    "scheme": "gslp",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "ios": {
+      "bundleIdentifier": "com.dangertechnologies.gslp",
+      "buildNumber": "2",
+      "supportsTablet": false,
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      }
+    },
+    "android": {
+      "package": "com.greyskull",
+      "versionCode": 2,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-foreground.png",
+        "backgroundImage": "./assets/adaptive-background.png",
+        "monochromeImage": "./assets/adaptive-monochrome.png"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 176,
+          "backgroundColor": "#0B0C0E",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#0B0C0E"
+          }
+        }
+      ],
+      "expo-web-browser",
+      "expo-asset",
+      "expo-font",
+      "expo-notifications",
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.dangertechnologies.gslp",
+          "widgets": [
+            {
+              "name": "NextWorkout",
+              "displayName": "Next workout",
+              "description": "Today's lifts and weights at a glance.",
+              "supportedFamilies": ["systemSmall", "systemMedium", "accessoryRectangular"],
+              "contentMarginsDisabled": false
+            }
+          ]
+        }
+      ]
+    ]
+  }
 }

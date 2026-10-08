@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, typecheck, test, bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # The pnpm version comes from "packageManager" in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint and format (Biome)
+        run: pnpm lint
+
+      - name: Typecheck (TypeScript 7)
+        run: pnpm typecheck
+
+      - name: Unit and screen tests
+        run: pnpm test --ci
+
+      # Proves Metro can bundle the app for both platforms. The --dev pass keeps `__DEV__` code (the
+      # developer seed button) so a module Metro cannot resolve there fails CI, not a developer's first launch.
+      - name: Bundle (production)
+        run: pnpm exec expo export --platform ios --platform android
+        env:
+          EXPO_NO_TELEMETRY: '1'
+
+      - name: Bundle (development)
+        run: pnpm exec expo export --platform ios --dev
+        env:
+          EXPO_NO_TELEMETRY: '1'
