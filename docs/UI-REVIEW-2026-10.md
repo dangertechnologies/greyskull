@@ -202,6 +202,39 @@ All items are done and pushed on `v2`, one commit per item. Notes from doing the
 - **B11:** no change needed. Content scrolling under the glass bars is normal iOS behaviour, and
   scroll padding already clears the bars.
 
+## Round 2 (2026-10-09)
+
+Second pass through every route in light and dark after B1–B13 and the large-title headers. Dark mode
+matches light on every screen. Done in this round:
+
+- **C1. Welcome photo sat below the status bar.** `PhotoHeader` pads for `insets.top` itself, but
+  `ScreenScroll` also insets the content, so a strip of background showed above the photo and the status
+  bar was dark-on-light instead of light-on-photo. `ScreenScroll` now takes `edgeToEdge` (no inset
+  adjustment, no top padding) and Welcome uses it, with the header's side margins from `useGutter`.
+  **Celebration has the same bug** (`src/components/Celebration.tsx`, the `marginTop: -space[6]`
+  wrapper): pass `edgeToEdge` and drop the negative top margin. Not done here because that file was
+  mid-edit in another session.
+- **C2. Lift chart with one workout.** One point drew a flat dashed line, a lone dot and the same label
+  top and bottom, which read as broken. `LiftChart` now shows "The chart starts after 2 workouts." under
+  the current value, and hides the range control, until there are 2 points.
+
+Still open, small:
+
+- **C3. Exercises: primary button at the top.** "New exercise" is a full-width accent button above the
+  large title, the biggest thing on a list screen. Move it to the header (`headerRight` with an `add`
+  `IconButton`) or a `BottomBar`. `app/exercises/index.tsx`.
+- **C4. Progress: bodyweight lifts show "–".** Chin-up has no weight, so its row value is a dash. Show
+  the last AMRAP reps ("8 reps") or "Bodyweight". `app/(tabs)/progress.tsx`.
+- **C5. Progress: weights are muted.** The row value uses `textMuted`, so the one number the screen is
+  for is the quietest thing on it. Give the value `text` colour on Progress (keep muted on Settings-style
+  rows).
+- **C6. Session: reps block is centred, the weight is left-aligned.** Two alignments on one screen.
+  Either left-align the reps stepper under the weight, or centre both. For a bar-only warm-up the
+  `PlateStack` draws just the sleeve stub, which looks like a stray dash above "bar only"; hide the
+  diagram when there are no plates and let the caption carry it. `src/views/SessionImmersive.tsx`.
+- **C7. Edit exercise: the kg and lb increment steppers are centred** while the rules screen uses the
+  inline row layout. Use `inline` for both. `app/exercises/[id].tsx`.
+
 ## Out of scope
 - Redesigning Today. Its layout works, and B1, B2 and B5 fix most of what looks wrong there.
 - Charts on Progress beyond a one-line trend. That needs a separate plan; `src/chartMath.ts` exists.

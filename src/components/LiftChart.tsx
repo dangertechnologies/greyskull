@@ -68,16 +68,32 @@ export function LiftChart({
     ? `${label}: ${format(Math.min(...visible.map((p) => p.value)))} to ${format(Math.max(...visible.map((p) => p.value)))} over ${visible.length} ${visible.length === 1 ? 'session' : 'sessions'}`
     : `${label}: no sessions yet`;
 
-  return (
-    <View style={{ gap: t.space[4] }}>
-      <View style={{ minHeight: 48, gap: t.space[1] }}>
-        <Text variant="numberLarge">{shown ? format(shown.value) : '–'}</Text>
-        <Text variant="caption" color="textMuted">
-          {shown
-            ? `${shortDate(shown.date)}${shown.reps ? ` · ${shown.reps} reps` : ''}${shown.pr ? ' · PR' : ''}`
-            : 'No finished sessions yet'}
+  const header = (
+    <View style={{ minHeight: 48, gap: t.space[1] }}>
+      <Text variant="numberLarge">{shown ? format(shown.value) : '–'}</Text>
+      <Text variant="caption" color="textMuted">
+        {shown
+          ? `${shortDate(shown.date)}${shown.reps ? ` · ${shown.reps} reps` : ''}${shown.pr ? ' · PR' : ''}`
+          : 'No finished sessions yet'}
+      </Text>
+    </View>
+  );
+
+  // One point is not a trend: a flat line with the same label top and bottom reads as a broken chart.
+  if (points.length < 2) {
+    return (
+      <View style={{ gap: t.space[4] }} accessibilityLabel={summary}>
+        {header}
+        <Text variant="callout" color="textMuted">
+          The chart starts after 2 workouts.
         </Text>
       </View>
+    );
+  }
+
+  return (
+    <View style={{ gap: t.space[4] }}>
+      {header}
 
       <View
         accessible

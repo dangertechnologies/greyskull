@@ -4,7 +4,7 @@ import { PhotoHeader } from '../../src/components/PhotoHeader';
 import { useTheme } from '../../src/design/theme';
 import { Button } from '../../src/ui/Button';
 import { Icon } from '../../src/ui/Icon';
-import { BottomBar, ScreenScroll } from '../../src/ui/layout';
+import { BottomBar, ScreenScroll, useGutter } from '../../src/ui/layout';
 import { Text } from '../../src/ui/Text';
 
 const POINTS = [
@@ -15,10 +15,11 @@ const POINTS = [
 
 export default function Welcome() {
   const t = useTheme();
+  const gutter = useGutter();
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <ScreenScroll withBottomBar gap={8}>
-        <View style={{ marginHorizontal: -t.space[5], marginTop: -t.space[6] }}>
+      <ScreenScroll withBottomBar edgeToEdge gap={8}>
+        <View style={{ marginHorizontal: -gutter }}>
           <PhotoHeader image="woman-with-barbell" fraction={0.42}>
             <View style={{ flex: 1 }} />
             <Text variant="display" color="onPhoto" accessibilityRole="header">

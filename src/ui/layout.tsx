@@ -44,12 +44,15 @@ export function ScreenScroll({
   children,
   withBottomBar = false,
   headerless = false,
+  edgeToEdge = false,
   gap = 10,
 }: {
   children: ReactNode;
   withBottomBar?: boolean;
   /** Tab screens have no navigation header: reserve the top safe area (iOS already does, via the inset adjustment). */
   headerless?: boolean;
+  /** The first child is a PhotoHeader: content starts under the status bar, with no top padding. */
+  edgeToEdge?: boolean;
   gap?: SpaceKey;
 }) {
   const theme = useTheme();
@@ -60,11 +63,13 @@ export function ScreenScroll({
     <View style={{ flex: 1, backgroundColor: theme.color.background }}>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.color.background }}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior={edgeToEdge ? 'never' : 'automatic'}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingHorizontal: gutter,
-          paddingTop: theme.space[6] + (headerless && Platform.OS !== 'ios' ? insets.top : 0),
+          paddingTop: edgeToEdge
+            ? 0
+            : theme.space[6] + (headerless && Platform.OS !== 'ios' ? insets.top : 0),
           paddingBottom: theme.space[12] + insets.bottom + (withBottomBar ? BOTTOM_BAR_CLEARANCE : 0),
           gap: theme.space[gap],
         }}
