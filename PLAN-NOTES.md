@@ -8,6 +8,7 @@ Decisions, deviations and manual-check items, appended per Session.
 - Session 5: immersive session look; rest ring; haptic at rest end; rest-over notification while backgrounded (permission prompt, delivery); kill app mid-session then reopen → Resume at same set; back arrow keeps sets
 - Session 6: onboarding flow end to end; exercise picker modal and search; renaming a day with the keyboard open
 - Session 7: custom exercise editor with keyboard; icon grid; delete alert wording
+- Session 8: minimal view tap/long-press feel; rest bar; same result as immersive on a real workout
 
 ## 2026-10-08 — Session 1 (scaffold)
 - Branch `v2` created from the working checkout of master (2ba6d3e).
@@ -132,3 +133,12 @@ Decisions, deviations and manual-check items, appended per Session.
   exercise and its lift. History keeps the id and shows it as such (`nameOf` falls back to the id).
 - `goBackOr()` in `src/navigation.ts`: pops, or replaces with a fallback route when a screen was opened directly.
 - Needs manual check on device: editor form with the keyboard (multiline fields), icon grid, delete Alert.
+
+## 2026-10-08 — Session 8 (minimal session view)
+- `SessionMinimal` shares `useSession` with the immersive view, so progression cannot diverge; a test plays the
+  same reps in both modes from the same starting state and compares lifts and the logged session.
+- Circle behaviour: tap empty → logs the target (AMRAP circles show `5+` and log 5) and starts the rest; tap a
+  logged circle → reps − 1 (0 turns it back to empty, no rest); long-press (400 ms) → reps stepper modal (min 1,
+  no rest). Warm-ups are one collapsed line, weights in the user's unit without the unit suffix.
+- Rest bar at the bottom: `Rest m:ss` + Skip; Finish workout appears when every work set is logged.
+- Needs manual check on device: circle sizes/tap feel, long-press timing, scroll with many exercises, safe areas.

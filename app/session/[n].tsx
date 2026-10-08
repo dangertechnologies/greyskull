@@ -7,6 +7,7 @@ import type { FinishedExercise } from '../../src/hooks/useSession';
 import { goBackOr } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { SessionImmersive } from '../../src/views/SessionImmersive';
+import { SessionMinimal } from '../../src/views/SessionMinimal';
 
 
 export default function SessionScreen() {
@@ -16,6 +17,7 @@ export default function SessionScreen() {
   const hasDraft = useStore((s) => s.draft !== null);
   const exercises = useStore((s) => s.exercises);
   const unit = useStore((s) => s.unit);
+  const minimalist = useStore((s) => s.minimalist);
   const session = useSession(n);
   const [summary, setSummary] = useState<FinishedExercise[] | null>(null);
 
@@ -28,5 +30,6 @@ export default function SessionScreen() {
   if (!hasDraft && n !== nextSession) return <Redirect href="/" />;
   if (!session) return null;
 
-  return <SessionImmersive session={session} onBack={() => goBackOr('/')} onFinish={() => setSummary(session.finish())} />;
+  const Session = minimalist ? SessionMinimal : SessionImmersive;
+  return <Session session={session} onBack={() => goBackOr('/')} onFinish={() => setSummary(session.finish())} />;
 }
