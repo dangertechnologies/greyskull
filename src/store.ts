@@ -80,6 +80,8 @@ interface Actions {
   deleteExercise(id: string): string[];
   confirmWeights(weights: Record<string, number>): void;
   exportJson(): string;
+  /** Replace everything with a validated backup (see `parseBackup`). */
+  importBackup(state: AppState): void;
   reset(): void;
   /** Import v1 data from `raw`, or from the legacy key when omitted (read-only; the key is never written). */
   importLegacy(raw?: string): Promise<boolean>;
@@ -101,6 +103,26 @@ const barKg = (inv: PlateInventory, unit: Unit): number => toKg(unit === 'kg' ? 
 export function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: Unit): number {
   if (exercise.kind === 'barbell') return barKg(inv, unit);
   return toKg((exercise.step ?? DEFAULT_STEP)[unit], unit);
+}
+
+/** Bump when the persisted shape changes and teach `migratePersisted` the step. */
+export const STORE_VERSION = 3;
+
+/**
+ * Bring a persisted snapshot from any earlier store version up to date. v2 → v3 added `archived` on
+ * exercises (optional, nothing to rewrite), so every step is "fill in what is missing"; the last-writer
+ * fields (`appearance`, `hapticsEnabled`, `catalogVersion`, `legacyChecked`) default via `initialState`.
+ */
+export function migratePersisted(persisted: unknown, _fromVersion: number): Store {
+  const base = initialState();
+  const old = (typeof persisted === 'object' && persisted !== null ? persisted : {}) as Partial<AppState>;
+  return {
+    ...base,
+    ...old,
+    version: 2,
+    inventory: { ...base.inventory, ...old.inventory },
+    exercises: old.exercises ?? base.exercises,
+  } as Store;
 }
 
 export const useStore = create<Store>()(
@@ -289,8 +311,12 @@ export const useStore = create<Store>()(
         );
         if (using.length > 0) return using.map((d) => d.name);
         set((s) => {
-          const { [id]: _removed, ...rest } = s.exercises;
           const { [id]: _lift, ...lifts } = s.lifts;
+          // History keeps the exercise's name: archive instead of deleting once a session used it.
+          if (s.sessions.some((log) => id in log.results)) {
+            return { exercises: { ...s.exercises, [id]: { ...exercise, archived: true } }, lifts };
+          }
+          const { [id]: _removed, ...rest } = s.exercises;
           return { exercises: rest, lifts };
         });
         return [];
@@ -308,6 +334,8 @@ export const useStore = create<Store>()(
 
       exportJson: () => JSON.stringify(snapshot(get()), null, 2),
 
+      importBackup: (state) => set({ ...snapshot(state), legacyChecked: true }),
+
       reset: () => set({ ...initialState(), legacyChecked: true }),
 
       importLegacy: async (raw) => {
@@ -320,7 +348,8 @@ export const useStore = create<Store>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 2,
+      version: STORE_VERSION,
+      migrate: migratePersisted,
       storage: createJSONStorage(() => AsyncStorage),
       skipHydration: true,
       partialize: (s) => snapshot(s),

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Alert, Share } from 'react-native';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
+import { importFromClipboard, importFromFile } from '../../src/importFlow';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -111,6 +112,18 @@ export default function Settings() {
           variant="secondary"
           icon="share"
           onPress={() => void Share.share({ message: exportJson() })}
+        />
+        <Button
+          title="Import backup"
+          variant="secondary"
+          icon="import"
+          onPress={() =>
+            Alert.alert('Import backup', 'Restore from a backup you exported earlier.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Paste from clipboard', onPress: () => void importFromClipboard(goHome) },
+              { text: 'Choose file…', onPress: () => void importFromFile(goHome) },
+            ])
+          }
         />
         <Button title="Reset" variant="destructive" onPress={confirmReset} />
       </Section>

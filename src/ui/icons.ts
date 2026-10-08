@@ -29,6 +29,7 @@ export const ICON_NAMES = {
   guide: { ios: 'book', android: 'menu_book' },
   rules: { ios: 'slider.horizontal.3', android: 'tune' },
   share: { ios: 'square.and.arrow.up', android: 'share' },
+  import: { ios: 'square.and.arrow.down', android: 'download' },
 } as const satisfies Record<string, SymbolName>;
 
 export type IconName = keyof typeof ICON_NAMES;

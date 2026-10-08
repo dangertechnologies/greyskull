@@ -21,3 +21,7 @@ jest.mock('react-native-safe-area-context', () => {
   const real = jest.requireActual('react-native-safe-area-context');
   return { ...real, ...require('react-native-safe-area-context/jest/mock').default };
 });
+
+jest.mock('expo-clipboard', () => ({ getStringAsync: jest.fn(async () => ''), setStringAsync: jest.fn() }));
+jest.mock('expo-document-picker', () => ({ getDocumentAsync: jest.fn(async () => ({ canceled: true })) }));
+jest.mock('expo-file-system', () => ({ File: class { async text() { return ''; } } }));

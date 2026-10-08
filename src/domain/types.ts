@@ -17,6 +17,8 @@ export interface Exercise {
   url?: string;
   background?: string; // key into src/backgrounds.ts
   custom?: boolean;
+  /** Deleted by the user but kept because past sessions still reference it (hidden from pickers). */
+  archived?: boolean;
 }
 
 /**

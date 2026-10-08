@@ -44,7 +44,9 @@ export default function Exercises() {
   const exercises = useStore((s) => s.exercises);
   const program = useStore((s) => s.program);
   const used = new Set(program ? exerciseIdsOf(program) : []);
-  const all = Object.values(exercises).sort((a, b) => a.name.localeCompare(b.name));
+  const all = Object.values(exercises)
+    .filter((e) => !e.archived)
+    .sort((a, b) => a.name.localeCompare(b.name));
   const builtIn = all.filter((e) => !e.custom);
   const custom = all.filter((e) => e.custom);
 
