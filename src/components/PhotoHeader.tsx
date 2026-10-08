@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import type { ReactNode } from 'react';
 import { ImageBackground, useWindowDimensions, View } from 'react-native';
@@ -7,7 +8,7 @@ import { useTheme } from '../design/theme';
 
 /**
  * Photo with a scrim at the top of a screen. Text placed in it is always light (`onPhoto`), in both schemes,
- * and so is the status bar while the header is mounted.
+ * and so is the status bar while its screen is focused (a screen pushed on top keeps this one mounted).
  */
 export function PhotoHeader({
   image = 'default',
@@ -21,13 +22,14 @@ export function PhotoHeader({
   const t = useTheme();
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const focused = useIsFocused();
   return (
     <ImageBackground
       source={BACKGROUNDS[image] ?? BACKGROUNDS.default}
       resizeMode="cover"
       style={{ height: Math.max(240, height * fraction), backgroundColor: t.color.surface }}
     >
-      <StatusBar style="light" />
+      {focused ? <StatusBar style="light" /> : null}
       <View
         style={{
           flex: 1,

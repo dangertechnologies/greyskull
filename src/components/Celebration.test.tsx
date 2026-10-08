@@ -6,6 +6,9 @@ import { ThemeProvider } from '../design/theme';
 import { Celebration } from './Celebration';
 import { Confetti, makePieces } from './Confetti';
 
+// Rendered outside a navigator here; in the app it always has one.
+jest.mock('expo-router', () => ({ ...jest.requireActual('expo-router'), useIsFocused: () => true }));
+
 const ex = builtInExercises();
 const line = (change: 'up' | 'same') => ({
   exercise: ex.BENCH_PRESS,
