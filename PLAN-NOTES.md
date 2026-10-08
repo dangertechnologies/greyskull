@@ -7,6 +7,7 @@ Decisions, deviations and manual-check items, appended per Session.
 - Session 4: splash screen hides once the store is hydrated (no 2 s delay); no flash of the Setup stub on launch with saved data
 - Session 5: immersive session look; rest ring; haptic at rest end; rest-over notification while backgrounded (permission prompt, delivery); kill app mid-session then reopen → Resume at same set; back arrow keeps sets
 - Session 6: onboarding flow end to end; exercise picker modal and search; renaming a day with the keyboard open
+- Session 7: custom exercise editor with keyboard; icon grid; delete alert wording
 
 ## 2026-10-08 — Session 1 (scaffold)
 - Branch `v2` created from the working checkout of master (2ba6d3e).
@@ -121,3 +122,13 @@ Decisions, deviations and manual-check items, appended per Session.
 - `src/testRoutes.ts` mounts the real route modules for screen tests (kept out of `__tests__` so jest does not treat it as a suite).
 - Needs manual check on device: whole onboarding flow look, picker modal, keyboard behaviour while renaming a day,
   ▲▼ tap targets.
+
+## 2026-10-08 — Session 7 (custom exercises)
+- `/exercises/new` is handled by `app/exercises/[id].tsx` with `id === 'new'` (custom ids are `custom_…` so no clash).
+- Ids: `customId()` (`src/exerciseId.ts`) slugifies the name and appends `_2`, `_3`… on collision.
+- Built-ins are editable (name, increment, description, form tips, icon, link) but their *type* is locked and
+  they cannot be deleted. Dumbbell/machine exercises also expose a rounding-step stepper (kg and lb).
+- Deleting a custom exercise that a program day uses shows an Alert naming the days; otherwise it removes the
+  exercise and its lift. History keeps the id and shows it as such (`nameOf` falls back to the id).
+- `goBackOr()` in `src/navigation.ts`: pops, or replaces with a fallback route when a screen was opened directly.
+- Needs manual check on device: editor form with the keyboard (multiline fields), icon grid, delete Alert.

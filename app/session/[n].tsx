@@ -4,13 +4,10 @@ import { Celebration } from '../../src/components/Celebration';
 import { nameOf, outcomeLine } from '../../src/format';
 import { useSession } from '../../src/hooks/useSession';
 import type { FinishedExercise } from '../../src/hooks/useSession';
+import { goBackOr } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { SessionImmersive } from '../../src/views/SessionImmersive';
 
-const goHome = () => {
-  if (router.canGoBack()) router.back();
-  else router.replace('/');
-};
 
 export default function SessionScreen() {
   const params = useLocalSearchParams<{ n: string }>();
@@ -31,5 +28,5 @@ export default function SessionScreen() {
   if (!hasDraft && n !== nextSession) return <Redirect href="/" />;
   if (!session) return null;
 
-  return <SessionImmersive session={session} onBack={goHome} onFinish={() => setSummary(session.finish())} />;
+  return <SessionImmersive session={session} onBack={() => goBackOr('/')} onFinish={() => setSummary(session.finish())} />;
 }
