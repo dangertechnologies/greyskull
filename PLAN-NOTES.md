@@ -159,3 +159,11 @@ Decisions, deviations and manual-check items, appended per Session.
   leaves weights unchanged.
 - Cleanup: store selector helpers (`useUnit`, `useInventory`, `useLift`) are now actually used.
 - Needs manual check on device: chart rendering/legibility, horizontal paging feel, edit-session screen layout.
+
+## 2026-10-08 — Session 10 (docs only) and push status
+- README has run/test/build/release/migration/keystore sections; no EAS command was run, `android.package` unchanged.
+- **Push blocked.** Every `git push` (to `v2` and to the session branch `claude/greyskull-expo-sdk57-zs2tcm`) failed
+  with HTTP 403: the Claude GitHub App is not installed/authorised for write access to
+  `dangertechnologies/greyskull` in this environment (read through the GitHub MCP works). All work is committed
+  locally on `v2` (10 commits after 2ba6d3e). Run `git push -u origin v2` once access is fixed.
+- Final state: 138 jest tests in 21 suites, `tsc --noEmit` clean, `npx expo export --platform ios` succeeds.
