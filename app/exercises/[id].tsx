@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useTheme } from '../../src/design/theme';
@@ -9,6 +9,7 @@ import { goBackOr } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Chip } from '../../src/ui/Chip';
+import { EmptyState } from '../../src/ui/EmptyState';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
@@ -54,7 +55,12 @@ export default function ExerciseEditor() {
   if (!isNew && !existing) {
     return (
       <ScreenScroll>
-        <Text>This exercise no longer exists.</Text>
+        <EmptyState
+          icon="lift"
+          title="Exercise not found"
+          body="It may have been deleted. Your history keeps its sets."
+          action={{ title: 'All exercises', onPress: () => router.replace('/exercises') }}
+        />
       </ScreenScroll>
     );
   }
