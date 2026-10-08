@@ -4,7 +4,7 @@ import { Appearance } from 'react-native';
 import { initialState, initStore, STORAGE_KEY, useStore } from '../store';
 import { Text } from '../ui/Text';
 import { setHapticsEnabled } from './haptics';
-import { makeStyles, ThemeProvider, useTheme } from './theme';
+import { makeStyles, makeTheme, ThemeProvider, useTheme } from './theme';
 import { palettes } from './tokens';
 
 beforeEach(() => useStore.setState({ ...initialState(), hydrated: true }));
@@ -71,4 +71,20 @@ test('turning haptics off silences them', () => {
   setHapticsEnabled(true);
   haptics.tick();
   expect(spy).toHaveBeenCalledTimes(1);
+});
+
+describe('dynamic colour', () => {
+  test('withAccent only swaps the accent pair', () => {
+    const { withAccent } = require('./theme') as typeof import('./theme');
+    const base = makeTheme('dark').color;
+    const out = withAccent(base, 'A', 'B');
+    expect(out.accent).toBe('A');
+    expect(out.onAccent).toBe('B');
+    expect(out.background).toBe(base.background);
+  });
+
+  test('is off outside Android 12+', () => {
+    const { dynamicColorSupported } = require('./theme') as typeof import('./theme');
+    expect(dynamicColorSupported()).toBe(false); // jest-expo defaults to iOS
+  });
 });

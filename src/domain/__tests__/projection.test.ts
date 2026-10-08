@@ -26,6 +26,7 @@ function state(patch: Partial<AppState> = {}): AppState {
     legacyChecked: true,
     appearance: 'system',
     hapticsEnabled: true,
+    dynamicColor: false,
     catalogVersion: 2,
     ...patch,
   };

@@ -8,7 +8,7 @@ jest.mock('expo-symbols', () => {
 });
 jest.mock('expo-glass-effect', () => {
   const { View } = require('react-native');
-  return { GlassView: View, GlassContainer: View, isLiquidGlassAvailable: () => false };
+  return { GlassView: View, GlassContainer: View, isLiquidGlassAvailable: jest.fn(() => false) };
 });
 
 // The store (imported by the theme) persists to AsyncStorage; use the in-memory mock everywhere.

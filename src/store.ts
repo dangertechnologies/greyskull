@@ -51,6 +51,7 @@ export function initialState(): AppState {
     legacyChecked: false,
     appearance: 'system',
     hapticsEnabled: true,
+    dynamicColor: false,
     catalogVersion: CATALOG_VERSION,
   };
 }
@@ -63,6 +64,7 @@ interface Actions {
     restSeconds?: number;
     appearance?: AppState['appearance'];
     hapticsEnabled?: boolean;
+    dynamicColor?: boolean;
   }): void;
   setProgram(program: Program): void;
   /** Change progression rules in place (keeps the workout in progress, unlike `setProgram`). */
@@ -158,11 +160,12 @@ export const useStore = create<Store>()(
           return { unit, lifts, draft };
         }),
       setInventory: (patch) => set((s) => ({ inventory: { ...s.inventory, ...patch } })),
-      setSettings: ({ minimalist, restSeconds, appearance, hapticsEnabled }) =>
+      setSettings: ({ minimalist, restSeconds, appearance, hapticsEnabled, dynamicColor }) =>
         set((s) => ({
           minimalist: minimalist ?? s.minimalist,
           appearance: appearance ?? s.appearance,
           hapticsEnabled: hapticsEnabled ?? s.hapticsEnabled,
+          dynamicColor: dynamicColor ?? s.dynamicColor,
           restSeconds:
             restSeconds === undefined
               ? s.restSeconds

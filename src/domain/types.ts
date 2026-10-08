@@ -120,6 +120,7 @@ export interface AppState {
   legacyChecked: boolean; // v1 data was looked for once; stops a Reset from re-importing it
   appearance: 'system' | 'light' | 'dark';
   hapticsEnabled: boolean;
+  dynamicColor: boolean; // Android 12+: take the accent from the wallpaper (Material You)
   catalogVersion: number; // version of the built-in exercise content in `exercises`
 }
 

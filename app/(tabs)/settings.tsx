@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Alert, Share } from 'react-native';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
+import { dynamicColorSupported } from '../../src/design/theme';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
@@ -38,6 +39,7 @@ export default function Settings() {
   const restSeconds = useStore((s) => s.restSeconds);
   const appearance = useStore((s) => s.appearance);
   const hapticsEnabled = useStore((s) => s.hapticsEnabled);
+  const dynamicColor = useStore((s) => s.dynamicColor);
   const { setUnit, setInventory, setSettings, reset, exportJson } = useStore.getState();
 
   const confirmReset = () => {
@@ -98,6 +100,15 @@ export default function Settings() {
           value={appearance}
           onChange={(v) => setSettings({ appearance: v as 'system' | 'light' | 'dark' })}
         />
+        {dynamicColorSupported() ? (
+          <ListRow
+            title="Match wallpaper colours"
+            subtitle="Use your Android theme colour as the accent"
+            accessory="switch"
+            switchValue={dynamicColor}
+            onSwitch={(v) => setSettings({ dynamicColor: v })}
+          />
+        ) : null}
         <ListRow
           title="Haptic feedback"
           accessory="switch"

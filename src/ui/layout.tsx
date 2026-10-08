@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { type Theme, useTheme } from '../design/theme';
 import type { SpaceKey } from '../design/tokens';
+import { GlassPane, useGlass } from './Glass';
 
 /** Horizontal screen gutter: 20, or 24 on wider phones. */
 export function useGutter(): number {
@@ -88,6 +89,7 @@ const barStyles = (t: Theme) =>
 /** Primary action(s) of a screen pinned above the home indicator. */
 export function BottomBar({ children }: { children: ReactNode }) {
   const theme = useTheme();
+  const glass = useGlass();
   const gutter = useGutter();
   const insets = useSafeAreaInsets();
   const styles = barStyles(theme);
@@ -99,8 +101,10 @@ export function BottomBar({ children }: { children: ReactNode }) {
           paddingHorizontal: gutter,
           paddingBottom: Math.max(insets.bottom, theme.space[4]) + theme.space[1],
         },
+        glass && { backgroundColor: 'transparent', borderTopWidth: 0 },
       ]}
     >
+      {glass ? <GlassPane /> : null}
       {children}
     </View>
   );
