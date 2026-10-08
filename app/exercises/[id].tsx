@@ -55,6 +55,7 @@ export default function ExerciseEditor() {
   const [good, setGood] = useState((existing?.goodForm ?? []).join('\n'));
   const [bad, setBad] = useState((existing?.badForm ?? []).join('\n'));
   const [url, setUrl] = useState(existing?.url ?? '');
+  const [video, setVideo] = useState(existing?.video ?? '');
 
   if (!isNew && !existing) {
     return (
@@ -82,6 +83,7 @@ export default function ExerciseEditor() {
       goodForm: lines(good),
       badForm: lines(bad),
       url: url.trim() || undefined,
+      video: video.trim() || undefined,
       custom: existing ? existing.custom : true,
     };
     upsertExercise(saved);
@@ -232,6 +234,18 @@ export default function ExerciseEditor() {
           onChangeText={setBad}
           multiline
           style={[styles.input, styles.multi]}
+        />
+      </Field>
+      <Field label="Technique video">
+        <TextInput
+          accessibilityLabel="Technique video"
+          value={video}
+          onChangeText={setVideo}
+          autoCapitalize="none"
+          keyboardType="url"
+          style={styles.input}
+          placeholder="https://www.youtube.com/watch?v=…"
+          placeholderTextColor={colors.dim}
         />
       </Field>
       <Field label="Link">

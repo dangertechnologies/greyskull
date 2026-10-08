@@ -115,6 +115,7 @@ export interface AppState {
   needsWeightConfirm: boolean; // true after migrating v1 data
   needsWeightConfirmSuspects: string[]; // lift ids whose migrated weight looked wrong
   legacyChecked: boolean; // v1 data was looked for once; stops a Reset from re-importing it
+  catalogVersion: number; // version of the built-in exercise content in `exercises`
 }
 
 export const DEFAULT_INVENTORY: PlateInventory = {

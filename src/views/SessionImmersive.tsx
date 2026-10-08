@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { PlatesLine } from '../components/PlatesLine';
 import { RestRing } from '../components/RestRing';
 import { Stepper } from '../components/Stepper';
+import { TechniqueLinks } from '../components/TechniqueLinks';
 import { WeightModal } from '../components/WeightModal';
 import { formatWeight } from '../domain';
 import { intensityLabel, nameOf } from '../format';
@@ -103,29 +104,36 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
             )}
           </View>
 
-          <View style={styles.form}>
-            <View style={styles.column}>
-              <Text style={type.label}>Do</Text>
-              {(exercise.goodForm ?? []).map((t) => (
-                <Text key={t} style={type.small}>
-                  {t}
-                </Text>
-              ))}
-            </View>
-            <View style={styles.column}>
-              <Text style={type.label}>Don't</Text>
-              {(exercise.badForm ?? []).map((t) => (
-                <Text key={t} style={type.small}>
-                  {t}
-                </Text>
-              ))}
-            </View>
-          </View>
-
           <Button
             title="Done"
             onPress={() => record(activeIndex, item.kind === 'amrap' ? amrapReps : (item.targetReps ?? 0))}
           />
+
+          <View style={styles.form}>
+            {(exercise.goodForm ?? []).map((t) => (
+              <View key={`do-${t}`} style={styles.tip}>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={18}
+                  color={colors.good}
+                  accessibilityLabel="Do"
+                />
+                <Text style={[type.body, styles.tipText]}>{t}</Text>
+              </View>
+            ))}
+            {(exercise.badForm ?? []).map((t) => (
+              <View key={`dont-${t}`} style={styles.tip}>
+                <Ionicons
+                  name="close-circle-outline"
+                  size={18}
+                  color={colors.danger}
+                  accessibilityLabel="Don't"
+                />
+                <Text style={[type.body, styles.tipText]}>{t}</Text>
+              </View>
+            ))}
+          </View>
+          <TechniqueLinks exercise={exercise} />
           <Text style={[type.small, styles.progress]}>{`${doneSets} of ${sets.length} sets done`}</Text>
         </ScrollView>
       ) : (
@@ -167,7 +175,8 @@ const styles = StyleSheet.create({
   bigWeight: { color: colors.text, fontSize: 56, fontWeight: '200' },
   reps: { alignItems: 'flex-start', paddingVertical: 8 },
   bigReps: { color: colors.text, fontSize: 96, fontWeight: '200', lineHeight: 104 },
-  form: { flexDirection: 'row', gap: 16 },
-  column: { flex: 1, gap: 4 },
+  form: { gap: 10, paddingTop: 8 },
+  tip: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  tipText: { flex: 1, fontSize: 15, lineHeight: 21 },
   progress: { textAlign: 'center' },
 });

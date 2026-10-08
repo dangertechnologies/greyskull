@@ -5,6 +5,7 @@ import { Background } from '../components/Background';
 import { Button } from '../components/Button';
 import { PlatesLine } from '../components/PlatesLine';
 import { Stepper } from '../components/Stepper';
+import { TechniqueLinks } from '../components/TechniqueLinks';
 import { WeightModal } from '../components/WeightModal';
 import { formatWeight, toUnit, trim } from '../domain';
 import { intensityLabel, nameOf } from '../format';
@@ -110,6 +111,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
                 </Pressable>
               </View>
               {warm.length > 0 ? <Text style={type.small}>{`Warm-up: ${warm.join(' · ')}`}</Text> : null}
+              <TechniqueLinks exercise={exercise} compact />
               <View style={styles.circles}>
                 {own
                   .filter(({ item }) => item.kind !== 'warmup')

@@ -282,3 +282,13 @@ describe('persistence and migration', () => {
     expect(get().program).toBeNull();
   });
 });
+
+test('an install with an older exercise catalog gets the new form tips and videos on launch', async () => {
+  const stale = { ...initialState(), catalogVersion: 1 };
+  stale.exercises.BENCH_PRESS = { ...stale.exercises.BENCH_PRESS, goodForm: ['old'], video: undefined };
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ state: stale, version: 2 }));
+  await initStore();
+  expect(useStore.getState().exercises.BENCH_PRESS.goodForm).not.toEqual(['old']);
+  expect(useStore.getState().exercises.BENCH_PRESS.video).toMatch(/youtube/);
+  expect(useStore.getState().catalogVersion).toBe(2);
+});

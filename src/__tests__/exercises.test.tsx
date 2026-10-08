@@ -73,7 +73,7 @@ test('the exercise list separates custom from built-in and flags those in the pr
   });
   renderRouter(routes(), { initialUrl: '/exercises' });
   expect(await screen.findByText('X lift')).toBeTruthy();
-  expect(screen.getByText('Barbell Squat')).toBeTruthy();
+  expect(screen.getByText('Squat')).toBeTruthy();
   expect(screen.getAllByText('in program').length).toBeGreaterThan(0);
 });
 

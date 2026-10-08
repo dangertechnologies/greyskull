@@ -4,6 +4,7 @@ import { Button } from '../../src/components/Button';
 import { PlatesLine } from '../../src/components/PlatesLine';
 import { Screen } from '../../src/components/Screen';
 import { Stepper } from '../../src/components/Stepper';
+import { TechniqueLinks } from '../../src/components/TechniqueLinks';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { DEFAULT_RULES, incrementFor, smallestStep, toUnit, trim } from '../../src/domain';
 import { formatDate, nameOf } from '../../src/format';
@@ -58,6 +59,7 @@ export default function LiftEditor() {
       <Text style={type.title} accessibilityRole="header">
         {nameOf(exercises, id)}
       </Text>
+      <TechniqueLinks exercise={exercise} />
 
       <WeightStepper
         label="Working weight"

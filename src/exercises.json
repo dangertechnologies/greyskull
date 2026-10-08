@@ -1,7 +1,7 @@
 {
   "BARBELL_SQUAT": {
     "id": "BARBELL_SQUAT",
-    "name": "Barbell Squat",
+    "name": "Squat",
     "shortName": "Squat",
     "icon": "squat",
     "kind": "barbell",
@@ -10,9 +10,22 @@
       "lb": 5
     },
     "description": "The Squat is the king of all exercises. Squats work the whole body: Your legs bend and straighten to move the weight; your abs and lower back muscles stabilize your trunk while your legs move; your upper back, shoulders and arms balance the bar on your back",
-    "goodForm": ["Squat all the way down", "Align knees and toes", "Keep back straight"],
-    "badForm": ["Arc your back", "Lift heels off the ground"],
-    "video": "https://youtu.be/EP2g3Sj3qSw",
+    "goodForm": [
+      "Feet shoulder-width apart, toes turned out about 30°",
+      "Big breath and brace your abs before every rep",
+      "Push your knees out in line with your toes",
+      "Sit down until your hip crease is below the top of your knees",
+      "Keep the bar over the middle of your foot",
+      "Drive your hips up and keep your chest up"
+    ],
+    "badForm": [
+      "Let your knees cave inward",
+      "Lift your heels off the floor",
+      "Stop above parallel",
+      "Round or over-arch your lower back",
+      "Let the bar drift forward over your toes"
+    ],
+    "video": "https://www.youtube.com/watch?v=nhoikoUEI8U",
     "url": "https://stronglifts.com/squat/#Squat_Technique"
   },
   "DEADLIFT": {
@@ -27,26 +40,28 @@
     },
     "description": "The “dead” in Deadlift stands for dead weight. So every rep must start on the floor, from a dead stop. You don’t Deadlift top-down like on the Squat or Bench Press. You start at the bottom, pull the weight up and then return it to the floor",
     "goodForm": [
-      "Mid-foot under the barbell",
-      "Grip with a shoulder-wide grip",
-      "Bend knees until shins touch the bar",
-      "Chest out, lower back straight"
+      "Bar over the middle of your foot, shins a few centimetres away",
+      "Grip just outside your legs, arms straight",
+      "Bend your knees until your shins touch the bar",
+      "Lift your chest to flatten your back, then breathe and brace",
+      "Drag the bar up your legs",
+      "Finish standing tall with hips and knees locked"
     ],
     "badForm": [
-      "Bounce the bar against the floor",
-      "Arc your lower back",
-      "Start with bar in the air",
-      "Start in a squatted position",
-      "Lean back when standing up",
-      "Shrug when standing up"
+      "Let your hips shoot up before the bar moves",
+      "Round your lower back",
+      "Let the bar drift away from your legs",
+      "Lean back or shrug at the top",
+      "Bounce the bar off the floor between reps",
+      "Jerk the bar off the floor"
     ],
-    "video": "https://youtu.be/WP8lEbeY4LM",
+    "video": "https://www.youtube.com/watch?v=p2OPUi4xGrM",
     "url": "https://stronglifts.com/deadlift/",
     "background": "deadlift"
   },
   "BENCH_PRESS": {
     "id": "BENCH_PRESS",
-    "name": "Bench-press",
+    "name": "Bench press",
     "shortName": "Bench",
     "icon": "bench-press",
     "kind": "barbell",
@@ -56,14 +71,22 @@
     },
     "description": "Bench-press is a full body compound exercise that works your chest, shoulders and triceps. The bench press is the most effective exercise for upper-body strength.",
     "goodForm": [
-      "Start with eyes under bar",
-      "Grab with medium grip-width",
-      "Grip with thumbs around the bar",
-      "Lower bar to mid-chest",
-      "Press up until arms straight"
+      "Lie with your eyes under the bar",
+      "Grip a bit wider than shoulders, thumbs around the bar",
+      "Squeeze your shoulder blades together, feet planted",
+      "Lower to your lower chest with forearms vertical",
+      "Touch your chest on every rep",
+      "Press back up over your shoulders to straight arms"
     ],
-    "badForm": ["Keep elbows straight", "Keep elbows too bent", "Hold the bar with a thumbless grip"],
-    "url": "https://stronglifts.com/bench-press/"
+    "badForm": [
+      "Use a thumbless grip",
+      "Flare your elbows straight out to the sides",
+      "Bounce the bar off your chest",
+      "Lift your hips off the bench",
+      "Let your wrists bend far back"
+    ],
+    "url": "https://stronglifts.com/bench-press/",
+    "video": "https://www.youtube.com/watch?v=rxD321l2svE"
   },
   "MILITARY_PRESS": {
     "id": "MILITARY_PRESS",
@@ -77,20 +100,21 @@
     },
     "description": "The Overhead Press is a full body, compound exercise. Your shoulders and arms press the weight over your head while your legs, lower back and abs balance you. The Overhead Press is one of the best exercises to build strong, muscular and healthy shoulders with bigger arms.",
     "goodForm": [
-      "Stand with heels hip-width apart",
-      "Keep feet flat on the floor",
-      "Hold bar low in your hand",
-      "Grip with hands just outside shoulders",
-      "Grip with palms facing yourself"
+      "Grip just outside your shoulders, bar in the heel of your palm",
+      "Elbows slightly in front of the bar",
+      "Squeeze your glutes and brace your abs",
+      "Move your face back and press the bar straight up",
+      "Lock your elbows with the bar over your mid-foot",
+      "Shrug up into the bar at the top"
     ],
     "badForm": [
-      "Keep your elbows behind the bar",
-      "Bend your knees",
-      "Arch your back",
-      "Lean back",
-      "Bend your wrists"
+      "Bend your knees to drive the bar (that is a push press)",
+      "Lean back excessively",
+      "Let your wrists fold backwards",
+      "Press the bar forward around your face",
+      "Start with your elbows behind the bar"
     ],
-    "video": "https://youtu.be/ro3Mh9o7JPU",
+    "video": "https://www.youtube.com/watch?v=8dacy5hjaE8",
     "url": "https://stronglifts.com/overhead-press/",
     "background": "overhead-press"
   },
@@ -106,19 +130,25 @@
     },
     "description": "Pullups (and chin-ups) are hard because you have to lift your entire body weight on day one. If you can't do one chin-up, do negatives: Climb up to the top position, and lift yourself down. Everybody is stronger on the way down, so you can do this. When you can do 10 good form negatives, you can do one chin-up.",
     "goodForm": [
-      "Grab pullup bar with palms down",
-      "Grip with hands shoulder-width apart",
-      "Pull up by pulling elbows towards the floor",
-      "Go all the way up until chin passes bar"
+      "Grip with palms facing you, about shoulder-width",
+      "Start each rep from a dead hang, arms straight",
+      "Pull your elbows down toward your ribs",
+      "Get your chin over the bar",
+      "Lower under control back to straight arms"
     ],
-    "badForm": ["Do half reps"],
-    "video": "https://www.youtube.com/watch?v=T78xCiw_R6g",
+    "badForm": [
+      "Kip or swing your legs",
+      "Do half reps",
+      "Drop into the bottom uncontrolled",
+      "Crane your neck to reach the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=qV7vOUcUfD4",
     "url": "https://stronglifts.com/pullups/",
     "background": "pullups"
   },
   "CURLS": {
     "id": "CURLS",
-    "name": "Curls",
+    "name": "Barbell curl",
     "shortName": "Curls",
     "icon": "curls",
     "kind": "barbell",
@@ -128,14 +158,20 @@
     },
     "description": "",
     "goodForm": [
-      "Stand with torso upright",
-      "Shoulder-wide grip",
-      "Palms facing away from you",
-      "Only forearms should move"
+      "Stand tall, underhand grip at shoulder width",
+      "Keep your elbows pinned at your sides",
+      "Curl until your forearms are vertical",
+      "Lower under control to straight arms"
     ],
-    "badForm": ["Swing back and forth", "Lean back", "Use your knees"],
-    "url": "https://www.bodybuilding.com/exercises/barbell-curl",
-    "background": "curls"
+    "badForm": [
+      "Swing the bar with your hips or back",
+      "Let your elbows drift forward",
+      "Lean back to finish the rep",
+      "Cut the bottom of the movement short"
+    ],
+    "url": "https://startingstrength.com/",
+    "background": "curls",
+    "video": "https://www.youtube.com/watch?v=bAWLx7PPK10"
   },
   "CRUNCHES": {
     "id": "CRUNCHES",
@@ -149,19 +185,24 @@
     },
     "description": "",
     "goodForm": [
-      "Hold weight to your chest",
-      "Knees bent at 90 degrees",
-      "Exhale when rising",
-      "Hold abs briefly at top of movement"
+      "Lie with knees bent and feet flat",
+      "Hold the weight against your chest",
+      "Curl your ribs toward your pelvis, lifting your shoulder blades",
+      "Breathe out on the way up",
+      "Lower slowly"
     ],
-    "badForm": [],
-    "video": "https://www.youtube.com/watch?v=cbwLMF7oJGI",
+    "badForm": [
+      "Pull on your neck",
+      "Sit all the way up using your hip flexors",
+      "Use momentum",
+      "Hold your breath"
+    ],
     "background": "crunches"
   },
   "BENT_OVER_ROW": {
     "id": "BENT_OVER_ROW",
-    "name": "Bent-over row",
-    "shortName": "Incline row",
+    "name": "Barbell row",
+    "shortName": "Row",
     "icon": "row",
     "kind": "barbell",
     "increment": {
@@ -170,17 +211,23 @@
     },
     "description": "Barbell Rows are a full body, compound exercise. They work your upper-back, lower back, hips and arms. They build a stronger, muscular back and bigger biceps. Barbell Rows are one of the most effective assistance exercises you can do to increase your Squat, Bench Press and Deadlift.",
     "goodForm": [
-      "Stand with mid-foot under the bar",
-      "Lift chest and straighten back",
-      "Pull bar against your lower chest"
+      "Stand with the bar over your mid-foot, deadlift-width grip",
+      "Hinge forward with a flat back, torso near parallel to the floor",
+      "Pull the bar to your upper belly, elbows leading",
+      "Lower the bar under control each rep"
     ],
-    "badForm": ["Use your hips"],
-    "video": "https://youtu.be/gQBSRBgRLVI",
+    "badForm": [
+      "Stand up as you pull",
+      "Round your back",
+      "Jerk the weight with your legs",
+      "Shorten the range of motion"
+    ],
+    "video": "https://www.youtube.com/watch?v=I0uhDZ06hrQ",
     "url": "https://stronglifts.com/barbell-row/"
   },
   "DIPS": {
     "id": "DIPS",
-    "name": "Tricep dips",
+    "name": "Dips",
     "shortName": "Dips",
     "icon": "triceps",
     "kind": "bodyweight",
@@ -189,9 +236,22 @@
       "lb": 0
     },
     "description": "Dips are a compound, body-weight exercise. You do Dips by first raising yourself on two dip bars with straight arms. Lower your body until your shoulders are below your elbows. Push yourself up until your arms are straight again. Dips work your chest, shoulders, back and arm muscles.",
-    "goodForm": ["Start from top", "Dip until shoulders below elbows", "Lock elbows at the top"],
-    "badForm": ["Perform too quickly", "Go too high", "Go too low"],
-    "video": "https://www.youtube.com/watch?v=049wbhkKCtM",
-    "url": "https://stronglifts.com/dips/"
+    "goodForm": [
+      "Start at the top with elbows locked",
+      "Lean slightly forward, shoulders down and back",
+      "Lower until your shoulders are just below your elbows",
+      "Keep your elbows tracking back",
+      "Press back up to full lockout"
+    ],
+    "badForm": [
+      "Shrug your shoulders toward your ears",
+      "Flare your elbows wide",
+      "Bounce at the bottom",
+      "Go deeper than your shoulders tolerate",
+      "Swing your legs"
+    ],
+    "video": "https://www.youtube.com/watch?v=yN6Q1UI_xkE",
+    "url": "https://stronglifts.com/dips/",
+    "background": "dips"
   }
 }

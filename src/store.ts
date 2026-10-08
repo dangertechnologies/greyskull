@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { builtInExercises } from './catalog';
+import { builtInExercises, CATALOG_VERSION, refreshCatalog } from './catalog';
 import type {
   AppState,
   Exercise,
@@ -48,6 +48,7 @@ export function initialState(): AppState {
     needsWeightConfirm: false,
     needsWeightConfirmSuspects: [],
     legacyChecked: false,
+    catalogVersion: CATALOG_VERSION,
   };
 }
 
@@ -309,6 +310,9 @@ export async function initStore(): Promise<void> {
   try {
     await useStore.persist.rehydrate();
     const s = useStore.getState();
+    if ((s.catalogVersion ?? 0) < CATALOG_VERSION) {
+      useStore.setState({ exercises: refreshCatalog(s.exercises), catalogVersion: CATALOG_VERSION });
+    }
     if (!s.legacyChecked && s.program === null && s.sessions.length === 0) {
       await s.importLegacy();
     }

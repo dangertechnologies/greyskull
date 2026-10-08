@@ -90,7 +90,7 @@ test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async (
   for (let i = 0; i < 7; i++) fireEvent.press(screen.getByLabelText('Increase')); // 5 → 12
   fireEvent.press(screen.getByText('Done'));
 
-  expect(screen.getByText('Barbell Squat')).toBeTruthy();
+  expect(screen.getByText('Squat')).toBeTruthy();
   for (const label of ['Warm-up 1 of 4', 'Warm-up 2 of 4', 'Warm-up 3 of 4', 'Warm-up 4 of 4']) {
     expect(screen.getByText(label)).toBeTruthy();
     fireEvent.press(screen.getByText('Done'));
@@ -101,7 +101,7 @@ test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async (
 
   fireEvent.press(await screen.findByText('Finish workout'));
   expect(await screen.findByText('Overhead press 20 → 22.5 kg ↑↑')).toBeTruthy();
-  expect(screen.getByText('Barbell Squat 100 → 100 kg (1 fail)')).toBeTruthy();
+  expect(screen.getByText('Squat 100 → 100 kg (1 fail)')).toBeTruthy();
   const { lifts, nextSession, draft } = useStore.getState();
   expect(lifts.MILITARY_PRESS.weightKg).toBe(22.5);
   expect(nextSession).toBe(1);
@@ -109,7 +109,7 @@ test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async (
 
   fireEvent.press(screen.getByText('Back to home'));
   expect(await screen.findByText('Day 2 · Week 1')).toBeTruthy();
-  expect(screen.getByText('Bench-press')).toBeTruthy();
+  expect(screen.getByText('Bench press')).toBeTruthy();
   expect(screen.getByText('Deadlift')).toBeTruthy();
 });
 

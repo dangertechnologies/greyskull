@@ -93,10 +93,10 @@ test('Edit program: add dips to day 2, history and weights stay', async () => {
   renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
   expect(await screen.findByText('Edit program')).toBeTruthy();
   fireEvent.press(screen.getAllByText('Add exercise')[1]);
-  fireEvent.press(await screen.findByLabelText('Tricep dips'));
+  fireEvent.press(await screen.findByLabelText('Dips'));
   fireEvent.press(screen.getByText('Save'));
   expect(await screen.findByText('Day 2 · Week 1')).toBeTruthy();
-  expect(screen.getByText('Tricep dips')).toBeTruthy();
+  expect(screen.getByText('Dips')).toBeTruthy();
   const s = useStore.getState();
   expect(s.sessions).toHaveLength(1);
   expect(s.lifts.BARBELL_SQUAT.weightKg).toBe(100);
