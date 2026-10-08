@@ -10,6 +10,7 @@ interface Props {
   exercise?: Exercise;
   label?: string;
   large?: boolean;
+  inline?: boolean;
   /** Override the store's unit/inventory (used by Setup, which edits a draft). */
   unit?: Unit;
   inventory?: PlateInventory;
@@ -22,6 +23,7 @@ export function WeightStepper({
   exercise,
   label,
   large,
+  inline,
   unit: unitProp,
   inventory: inventoryProp,
 }: Props) {
@@ -44,6 +46,7 @@ export function WeightStepper({
     <NumberStepper
       label={label}
       size={large ? 'lg' : 'md'}
+      inline={inline}
       value={display}
       values={values}
       step={step}

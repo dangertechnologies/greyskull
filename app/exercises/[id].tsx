@@ -13,7 +13,6 @@ import { EmptyState } from '../../src/ui/EmptyState';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
-import { Text } from '../../src/ui/Text';
 import { TextField } from '../../src/ui/TextField';
 
 const KINDS: { kind: Kind; label: string }[] = [
@@ -104,27 +103,27 @@ export default function ExerciseEditor() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: isNew ? 'New exercise' : existing?.shortName }} />
+      <Stack.Screen options={{ title: isNew ? 'New exercise' : 'Edit exercise' }} />
       <ScreenScroll withBottomBar gap={8}>
-        <Text variant="title" accessibilityRole="header">
-          {isNew ? 'New exercise' : 'Edit exercise'}
-        </Text>
-
-        <Section label="Name">
-          <TextField label="Name" value={name} onChangeText={setName} placeholder="Front squat" />
-          <TextField label="Short name" value={shortName} onChangeText={setShortName} placeholder="Front" />
-          <TextField
-            label="Abbreviation"
-            value={abbr}
-            onChangeText={(v) => setAbbr(v.toUpperCase().slice(0, 3))}
-            placeholder="FS"
-            autoCapitalize="characters"
-            maxLength={3}
-          />
+        <Section card>
+          <View style={{ gap: t.space[4], paddingVertical: t.space[4] }}>
+            <TextField label="Name" value={name} onChangeText={setName} placeholder="Front squat" />
+            <TextField label="Short name" value={shortName} onChangeText={setShortName} placeholder="Front" />
+            <TextField
+              label="Abbreviation"
+              value={abbr}
+              onChangeText={(v) => setAbbr(v.toUpperCase().slice(0, 3))}
+              placeholder="FS"
+              autoCapitalize="characters"
+              maxLength={3}
+            />
+          </View>
         </Section>
 
-        <Section label="Type">
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+        <Section label="Type" card>
+          <View
+            style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], paddingVertical: t.space[4] }}
+          >
             {KINDS.map((k) => (
               <Chip
                 key={k.kind}
@@ -137,80 +136,84 @@ export default function ExerciseEditor() {
         </Section>
 
         {kind !== 'bodyweight' ? (
-          <Section label="Progression">
-            <View style={{ gap: t.space[8] }}>
-              <NumberStepper
-                label="Increase per session (kg)"
-                value={incKg}
-                step={0.25}
-                min={0}
-                format={(v) => `${trim(v)} kg`}
-                onChange={setIncKg}
-              />
-              <NumberStepper
-                label="Increase per session (lb)"
-                value={incLb}
-                step={0.25}
-                min={0}
-                format={(v) => `${trim(v)} lb`}
-                onChange={setIncLb}
-              />
-              {kind === 'dumbbell' || kind === 'machine' ? (
-                <>
-                  <NumberStepper
-                    label="Weight step (kg)"
-                    value={stepKg}
-                    step={0.5}
-                    min={0.5}
-                    format={(v) => `${trim(v)} kg`}
-                    onChange={setStepKg}
-                  />
-                  <NumberStepper
-                    label="Weight step (lb)"
-                    value={stepLb}
-                    step={0.5}
-                    min={0.5}
-                    format={(v) => `${trim(v)} lb`}
-                    onChange={setStepLb}
-                  />
-                </>
-              ) : null}
-            </View>
+          <Section label="Progression" card>
+            <NumberStepper
+              inline
+              label="Increase per session (kg)"
+              value={incKg}
+              step={0.25}
+              min={0}
+              format={(v) => `${trim(v)} kg`}
+              onChange={setIncKg}
+            />
+            <NumberStepper
+              inline
+              label="Increase per session (lb)"
+              value={incLb}
+              step={0.25}
+              min={0}
+              format={(v) => `${trim(v)} lb`}
+              onChange={setIncLb}
+            />
+            {kind === 'dumbbell' || kind === 'machine' ? (
+              <>
+                <NumberStepper
+                  inline
+                  label="Weight step (kg)"
+                  value={stepKg}
+                  step={0.5}
+                  min={0.5}
+                  format={(v) => `${trim(v)} kg`}
+                  onChange={setStepKg}
+                />
+                <NumberStepper
+                  inline
+                  label="Weight step (lb)"
+                  value={stepLb}
+                  step={0.5}
+                  min={0.5}
+                  format={(v) => `${trim(v)} lb`}
+                  onChange={setStepLb}
+                />
+              </>
+            ) : null}
           </Section>
         ) : null}
 
-        <Section label="Technique">
-          <TextField label="Description" value={description} onChangeText={setDescription} multiline />
-          <TextField
-            label="Good form"
-            value={good}
-            onChangeText={setGood}
-            multiline
-            placeholder="One tip per line"
-          />
-          <TextField
-            label="Bad form"
-            value={bad}
-            onChangeText={setBad}
-            multiline
-            placeholder="One tip per line"
-          />
-          <TextField
-            label="Technique video"
-            value={video}
-            onChangeText={setVideo}
-            autoCapitalize="none"
-            keyboardType="url"
-            placeholder="https://www.youtube.com/watch?v=…"
-          />
-          <TextField
-            label="Link"
-            value={url}
-            onChangeText={setUrl}
-            autoCapitalize="none"
-            keyboardType="url"
-            placeholder="https://"
-          />
+        <Section label="Technique" card>
+          <View style={{ gap: t.space[4], paddingVertical: t.space[4] }}>
+            <TextField label="Description" value={description} onChangeText={setDescription} multiline />
+            <TextField
+              label="Good form"
+              value={good}
+              onChangeText={setGood}
+              multiline
+              placeholder="One tip per line"
+            />
+            <TextField
+              label="Bad form"
+              value={bad}
+              onChangeText={setBad}
+              multiline
+              placeholder="One tip per line"
+            />
+            <TextField
+              label="Technique video"
+              value={video}
+              onChangeText={setVideo}
+              autoCapitalize="none"
+              keyboardType="url"
+              placeholder="https://www.youtube.com/watch?v=…"
+            />
+            <TextField
+              label="Link"
+              value={url}
+              onChangeText={setUrl}
+              autoCapitalize="none"
+              keyboardType="url"
+              placeholder="https://"
+            />
+          </View>
         </Section>
 
         {existing?.custom ? <Button title="Delete exercise" variant="destructive" onPress={remove} /> : null}

@@ -55,13 +55,8 @@ export default function LiftDetail() {
 
   return (
     <ScreenScroll gap={10}>
-      <Stack.Screen options={{ title: exercise.shortName }} />
-      <View style={{ gap: t.space[3] }}>
-        <Text variant="title" accessibilityRole="header">
-          {nameOf(exercises, id)}
-        </Text>
-        <TechniqueLinks exercise={exercise} />
-      </View>
+      <Stack.Screen options={{ title: nameOf(exercises, id) }} />
+      <TechniqueLinks exercise={exercise} />
 
       <LiftChart
         label={exercise.name}
@@ -119,15 +114,17 @@ function LiftControls({ id }: { id: string }) {
     setLift(id, { incrementOverride: { ...(current.incrementOverride ?? planIncrement), [unit]: v } });
   return (
     <>
-      <Section label="Working weight">
-        <WeightStepper
-          label="Working weight"
-          large
-          exercise={exercise}
-          kg={current.weightKg}
-          onChange={(kg) => setLift(id, { weightKg: kg })}
-        />
-        {exercise.kind === 'barbell' ? <PlateStack kg={current.weightKg} /> : null}
+      <Section card>
+        <View style={{ gap: t.space[4], paddingVertical: t.space[5], alignItems: 'center' }}>
+          <WeightStepper
+            label="Working weight"
+            large
+            exercise={exercise}
+            kg={current.weightKg}
+            onChange={(kg) => setLift(id, { weightKg: kg })}
+          />
+          {exercise.kind === 'barbell' ? <PlateStack kg={current.weightKg} /> : null}
+        </View>
       </Section>
 
       <Section
@@ -137,35 +134,36 @@ function LiftControls({ id }: { id: string }) {
             ? `Not a multiple of your smallest jump (${trim(jump)} ${unit}); weights round up to the next plate.`
             : undefined
         }
+        card
       >
-        <View style={{ gap: t.space[8] }}>
-          <WeightStepper
-            label="Start weight"
-            exercise={exercise}
-            kg={current.startKg}
-            onChange={(kg) => setLift(id, { startKg: kg })}
-          />
-          <NumberStepper
-            label="Increment per session"
-            value={increment}
-            step={0.25}
-            min={0}
-            format={(v) => `${trim(v)} ${unit}`}
-            onChange={setIncrement}
-          />
-          <View style={{ alignItems: 'center', gap: t.space[2] }}>
-            <Text variant="label" color="textMuted">
-              Failed sets in a row
-            </Text>
-            <Text variant="headline">{current.fails}</Text>
+        <WeightStepper
+          inline
+          label="Start weight"
+          exercise={exercise}
+          kg={current.startKg}
+          onChange={(kg) => setLift(id, { startKg: kg })}
+        />
+        <NumberStepper
+          inline
+          label="Increment per session"
+          value={increment}
+          step={0.25}
+          min={0}
+          format={(v) => `${trim(v)} ${unit}`}
+          onChange={setIncrement}
+        />
+        <ListRow
+          title="Failed sets in a row"
+          value={String(current.fails)}
+          accessory={
             <Button
-              title="Reset fails"
+              title="Reset"
               variant="plain"
               disabled={current.fails === 0}
               onPress={() => setLift(id, { fails: 0 })}
             />
-          </View>
-        </View>
+          }
+        />
       </Section>
     </>
   );

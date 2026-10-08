@@ -26,22 +26,29 @@ export function GymSettings({ unit, inventory, onUnitChange, onInventoryChange }
   const toggle = (p: number) =>
     setPlates(owned.includes(p) ? owned.filter((x) => x !== p) : [...owned, p].sort((a, b) => b - a));
   const jump = smallestStep(inventory, unit);
-  const wrap = { flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] } as const;
+  const wrap = {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: t.space[2],
+    paddingVertical: t.space[4],
+  } as const;
 
   return (
     <View style={{ gap: t.space[8] }}>
-      <Section label="Unit">
-        <SegmentedControl
-          accessibilityLabel="Unit"
-          options={[
-            { value: 'kg', label: 'kg' },
-            { value: 'lb', label: 'lb' },
-          ]}
-          value={unit}
-          onChange={(v) => onUnitChange(v as Unit)}
-        />
+      <Section label="Unit" card>
+        <View style={{ paddingVertical: t.space[4] }}>
+          <SegmentedControl
+            accessibilityLabel="Unit"
+            options={[
+              { value: 'kg', label: 'kg' },
+              { value: 'lb', label: 'lb' },
+            ]}
+            value={unit}
+            onChange={(v) => onUnitChange(v as Unit)}
+          />
+        </View>
       </Section>
-      <Section label="Barbell">
+      <Section label="Barbell" card>
         <View style={wrap}>
           {BAR_OPTIONS[unit].map((b) => (
             <Chip
@@ -58,6 +65,7 @@ export function GymSettings({ unit, inventory, onUnitChange, onInventoryChange }
         footer={
           jump > 0 ? `Smallest jump: ${trim(jump)} ${unit}` : 'No plates selected: you can only lift the bar'
         }
+        card
       >
         <View style={wrap}>
           {options.map((p) => (
