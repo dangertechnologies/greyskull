@@ -1,4 +1,27 @@
 {
-  "displayName": "GSLP: 8 Weeks",
-  "name": "Greyskull"
+  "expo": {
+    "name": "Greyskull LP",
+    "slug": "greyskull",
+    "scheme": "gslp",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "bundleIdentifier": "com.dangertechnologies.gslp",
+      "buildNumber": "2",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.greyskull",
+      "versionCode": 2
+    },
+    "plugins": ["expo-router", "expo-splash-screen", "expo-web-browser"]
+  }
 }

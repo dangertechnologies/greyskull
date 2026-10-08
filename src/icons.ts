@@ -1,0 +1,27 @@
+import type { ImageSourcePropType } from 'react-native';
+
+export const ICONS: Record<string, ImageSourcePropType> = {
+  'back-extensors': require('../assets/icons/icons8-back-extensors-filled-50.png'),
+  'barbell-push': require('../assets/icons/barbell-push.png'),
+  'bench-press': require('../assets/icons/icons8-bench-press-50.png'),
+  'body-builder': require('../assets/icons/icons8-bodybuilder-filled-50.png'),
+  calves: require('../assets/icons/icons8-calves-50.png'),
+  chest: require('../assets/icons/icons8-chest-filled-50.png'),
+  crunches: require('../assets/icons/crunches.png'),
+  'curl-bar': require('../assets/icons/icons8-ez-curl-bar-50.png'),
+  curls: require('../assets/icons/curls.png'),
+  deadlift: require('../assets/icons/deadlift.png'),
+  'incline-push': require('../assets/icons/incline-push.png'),
+  leg: require('../assets/icons/leg.png'),
+  'military-press': require('../assets/icons/incline-push.png'),
+  muscle: require('../assets/icons/icons8-muscle-50.png'),
+  prelum: require('../assets/icons/icons8-prelum-filled-50.png'),
+  pullups: require('../assets/icons/pullups.png'),
+  quadriceps: require('../assets/icons/icons8-quadriceps-filled-50.png'),
+  row: require('../assets/icons/row.png'),
+  'rowing-machine': require('../assets/icons/icons8-rowing-machine-50.png'),
+  shoulders: require('../assets/icons/icons8-shoulders-filled-50.png'),
+  squat: require('../assets/icons/squats.png'),
+  triceps: require('../assets/icons/icons8-triceps-50.png'),
+  warmup: require('../assets/icons/icons8-warm-up-50.png'),
+};
