@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
-import { exerciseIdsOf, formatWeight, project, toUnit, trim } from '../../src/domain';
+import { exerciseIdsOf, formatWeight, project, trim } from '../../src/domain';
 import { nameOf } from '../../src/format';
 import { seriesFor } from '../../src/series';
 import { useStore } from '../../src/store';
@@ -22,6 +22,14 @@ export default function Progress() {
   const ids = useMemo(() => (program ? exerciseIdsOf(program) : []), [program]);
   const upcoming = useMemo(() => project(state, 6), [state]);
   const finished = sessions.filter((s) => !s.skipped).length;
+  const series = useMemo(
+    () =>
+      Object.fromEntries(
+        ids.map((id) => [id, exercises[id] ? seriesFor(sessions, exercises[id], unit) : []]),
+      ),
+    [ids, sessions, exercises, unit],
+  );
+  const anyTrend = ids.some((id) => series[id].length > 1);
 
   return (
     <ScreenScroll headerless gap={10}>
@@ -37,12 +45,15 @@ export default function Progress() {
         />
       ) : null}
 
-      <Section label="Lifts">
+      <Section
+        label="Lifts"
+        footer={finished > 0 && !anyTrend ? 'Trends show once a lift has 2 workouts.' : undefined}
+      >
         <View>
           {ids.map((id) => {
             const exercise = exercises[id];
             if (!exercise) return null;
-            const values = seriesFor(sessions, exercise, unit);
+            const values = series[id];
             const bodyweight = exercise.kind === 'bodyweight';
             const first = values[0];
             const last = values[values.length - 1];
@@ -54,13 +65,13 @@ export default function Progress() {
               : formatWeight(lifts[id]?.weightKg ?? 0, unit);
             const trend =
               values.length > 1
-                ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta))} ${bodyweight ? 'reps' : unit} since the start`
-                : 'Not enough sessions yet';
+                ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta), bodyweight || unit === 'kg' ? 2 : 1)} ${bodyweight ? 'reps' : unit} since the start`
+                : null;
             return (
               <Pressable
                 key={id}
                 accessibilityRole="button"
-                accessibilityLabel={`${exercise.name}, ${current}. ${trend}`}
+                accessibilityLabel={`${exercise.name}, ${current}.${trend ? ` ${trend}` : ''}`}
                 onPress={() => router.push(`/lift/${id}`)}
                 style={({ pressed }) => ({
                   flexDirection: 'row',
@@ -74,9 +85,14 @@ export default function Progress() {
                 <Monogram exercise={exercise} size={40} />
                 <View style={{ flex: 1, gap: t.space[1] }}>
                   <Text variant="bodyStrong">{exercise.name}</Text>
-                  <Text variant="caption" color={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'textMuted'}>
-                    {trend}
-                  </Text>
+                  {trend ? (
+                    <Text
+                      variant="caption"
+                      color={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'textMuted'}
+                    >
+                      {trend}
+                    </Text>
+                  ) : null}
                 </View>
                 <Sparkline values={values} />
                 <View style={{ alignItems: 'flex-end', minWidth: 72 }}>
@@ -90,14 +106,17 @@ export default function Progress() {
       </Section>
 
       <Section label="Projection" footer="If you hit your reps every time.">
-        <View style={{ gap: t.space[3] }}>
+        <View style={{ gap: t.space[4] }}>
           {upcoming.map((s) => (
-            <Text key={s.n} variant="callout" color="textMuted">
-              {`#${s.n + 1} ${s.dayName} · ${s.lifts
-                .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
-                .map((l) => `${nameOf(exercises, l.exercise, true)} ${trim(toUnit(l.weightKg, unit))}`)
-                .join(' · ')}`}
-            </Text>
+            <View key={s.n} style={{ gap: t.space[1] }}>
+              <Text variant="bodyStrong">{`Workout ${s.n + 1} · ${s.dayName}`}</Text>
+              <Text variant="callout" color="textMuted">
+                {s.lifts
+                  .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
+                  .map((l) => `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit)}`)
+                  .join(' · ')}
+              </Text>
+            </View>
           ))}
         </View>
       </Section>

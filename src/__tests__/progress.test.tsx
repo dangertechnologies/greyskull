@@ -32,9 +32,16 @@ test('the progress tab lists every lift with its current weight and trend', asyn
   expect(screen.getByRole('button', { name: /^Squat, 27.5 kg/ })).toBeTruthy();
   expect(screen.getByRole('button', { name: /^Chin-up, 6 reps/ })).toBeTruthy();
   expect(screen.getByText('Projection')).toBeTruthy();
-  const rows = screen.getAllByText(/^#\d+ Day \d/);
+  const rows = screen.getAllByText(/^Workout \d+ · Day \d/);
   expect(rows).toHaveLength(6);
-  expect(rows[0].props.children).toMatch(/^#5 Day 2/);
+  expect(rows[0].props.children).toBe('Workout 5 · Day 2');
+});
+
+test('lifts without a trend get one shared note, not a line each', async () => {
+  playSessions(1, 6);
+  renderRouter(routes(), { initialUrl: '/progress' });
+  expect(await screen.findByText('Trends show once a lift has 2 workouts.')).toBeTruthy();
+  expect(screen.queryByText('Not enough sessions yet')).toBeNull();
 });
 
 test('an empty progress tab explains what to do', async () => {
