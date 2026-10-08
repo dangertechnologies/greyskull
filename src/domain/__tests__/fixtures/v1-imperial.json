@@ -1,0 +1,117 @@
+{
+  "configuration": {
+    "initialSetupComplete": true,
+    "unit": "IMPERIAL",
+    "exercises": {
+      "BARBELL_SQUAT": {
+        "include": "REQUIRED"
+      },
+      "DEADLIFT": {
+        "include": "REQUIRED"
+      },
+      "BENCH_PRESS": {
+        "include": "REQUIRED"
+      },
+      "MILITARY_PRESS": {
+        "include": "REQUIRED"
+      },
+      "CHINUPS": {
+        "include": "REQUIRED",
+        "bodyweight": true
+      },
+      "CURLS": {
+        "include": "REQUIRED"
+      },
+      "CRUNCHES": {
+        "include": "EXCLUDED",
+        "bodyweight": true
+      },
+      "BENT_OVER_ROW": {
+        "include": "INCLUDED"
+      },
+      "DIPS": {
+        "include": "EXCLUDED",
+        "bodyweight": true
+      }
+    },
+    "weights": {
+      "BARBELL_SQUAT": {
+        "initial": 61.23,
+        "current": 68.04
+      },
+      "BENCH_PRESS": {
+        "initial": 43.09,
+        "current": 45.36
+      },
+      "MILITARY_PRESS": {
+        "initial": 29.48,
+        "current": 31.75
+      },
+      "DEADLIFT": {
+        "initial": 83.91,
+        "current": 88.45
+      },
+      "BENT_OVER_ROW": {
+        "initial": 20.41,
+        "current": 21457934.2
+      },
+      "CURLS": {
+        "initial": 15.88,
+        "current": 15.88
+      }
+    }
+  },
+  "workoutPlan": [
+    {
+      "id": 0,
+      "completed": 1556000000000,
+      "exercises": [
+        {
+          "definition": "BARBELL_SQUAT",
+          "weight": 61.23,
+          "amrap": 8,
+          "completed": 1556000000000
+        },
+        {
+          "definition": "BENCH_PRESS",
+          "weight": 43.09,
+          "amrap": 6,
+          "completed": 1556000000000
+        },
+        {
+          "definition": "BENT_OVER_ROW",
+          "weight": 20.41,
+          "amrap": 15,
+          "completed": 1556000000000
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "completed": 1556200000000,
+      "exercises": [
+        {
+          "definition": "DEADLIFT",
+          "weight": 83.91,
+          "amrap": 7,
+          "completed": 1556200000000
+        },
+        {
+          "definition": "BENT_OVER_ROW",
+          "weight": 21457934.2,
+          "amrap": 12,
+          "completed": 1556200000000
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "completed": null,
+      "exercises": [
+        {
+          "definition": "BARBELL_SQUAT"
+        }
+      ]
+    }
+  ]
+}

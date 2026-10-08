@@ -42,3 +42,22 @@ Decisions, deviations and manual-check items, appended per Session.
   (ceil would otherwise skip 137.5 lb after `135 lb + 2.5`).
 - `src/catalog.ts` `builtInExercises()` returns a fresh deep copy of `src/exercises.json`.
 - `AppState.needsWeightConfirmSuspects` added in Session 2 (PLAN adds it in Session 3) since projection tests build an AppState.
+
+## 2026-10-08 — Session 3 (store + v1 migration)
+- Hydration: `skipHydration: true` plus an exported `initStore()` (rehydrate → import v1 once → `hydrated = true`)
+  instead of `onRehydrateStorage`. Reason: the callback cannot be awaited, so the migration could not be tested
+  deterministically, and a throw inside it would leave the splash screen up forever. `initStore` catches errors and
+  always sets `hydrated`.
+- Added `legacyChecked: boolean` to `AppState`. Without it, **Reset** followed by an app restart would re-import the
+  untouched `GSLP_STATE_18` blob (program is null again). `reset()` sets it to true; the dev seed uses
+  `importLegacy()` which ignores the flag. `GSLP_STATE_18` is only ever read.
+- `migrateV1`: `order` of an imported session contains only exercises that kept a result (PLAN said all
+  definitions); this lets the UI trust `order`. Barbell lifts used by the migrated program that v1 had no weight
+  for (e.g. never-saved press) start at the bar. Returns null when `initialSetupComplete` is not true.
+  `migrateV1`'s patch type is `MigrationPatch`.
+- `deleteExercise` throws for built-ins, returns the day names when referenced, removes the exercise and its lift
+  otherwise. History keeps ids of deleted custom exercises; UI must fall back to the id for the name.
+- `setProgram` starting weights: barbell → bar, dumbbell/machine → one rounding step; bodyweight → none.
+- `finishSession` leaves bodyweight lifts untouched (outcome `none`) and uses the weight actually lifted.
+- `startSession(n)` with a draft for a different `n` replaces the draft (Home only ever starts `nextSession`).
+- Store tests simulate "kill and reopen" by snapshotting the persisted payload and rehydrating a blank store.

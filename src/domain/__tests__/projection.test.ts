@@ -13,7 +13,7 @@ function state(patch: Partial<AppState> = {}): AppState {
       BENCH_PRESS: { weightKg: 20, startKg: 20, fails: 0 },
       MILITARY_PRESS: { weightKg: 20, startKg: 20, fails: 0 },
     },
-    sessions: [], nextSession: 0, draft: null, needsWeightConfirm: false, needsWeightConfirmSuspects: [], ...patch,
+    sessions: [], nextSession: 0, draft: null, needsWeightConfirm: false, needsWeightConfirmSuspects: [], legacyChecked: true, ...patch,
   };
 }
 

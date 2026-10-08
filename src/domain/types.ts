@@ -90,6 +90,7 @@ export interface AppState {
   draft: SessionLog | null;
   needsWeightConfirm: boolean; // true after migrating v1 data
   needsWeightConfirmSuspects: string[]; // lift ids whose migrated weight looked wrong
+  legacyChecked: boolean; // v1 data was looked for once; stops a Reset from re-importing it
 }
 
 export const DEFAULT_INVENTORY: PlateInventory = {
