@@ -27,7 +27,8 @@
       "expo-splash-screen",
       "expo-web-browser",
       "expo-asset",
-      "expo-font"
+      "expo-font",
+      "expo-notifications"
     ]
   }
 }

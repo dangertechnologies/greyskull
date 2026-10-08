@@ -1,6 +1,6 @@
 import type { Exercise, SessionLog } from './domain';
-import { formatWeight } from './domain';
-import type { Unit } from './domain';
+import { formatWeight, toUnit, trim } from './domain';
+import type { Outcome, Unit } from './domain';
 
 export const weekOf = (n: number, sessionsPerWeek: number): number => Math.floor(n / sessionsPerWeek) + 1;
 
@@ -28,4 +28,22 @@ export function summarize(log: SessionLog, exercises: Record<string, Exercise>, 
     })
     .filter((s): s is string => s !== null)
     .join(' · ');
+}
+
+/** "Overhead press 20 → 22.5 kg ↑", "Squat 100 → 100 kg (1 fail)"; null for lifts that do not change. */
+export function outcomeLine(name: string, fromKg: number, outcome: Outcome, unit: Unit): string | null {
+  if (outcome.change === 'none') return null;
+  const from = trim(toUnit(fromKg, unit));
+  const to = trim(toUnit(outcome.next.weightKg, unit));
+  const head = `${name} ${from} → ${to} ${unit}`;
+  switch (outcome.change) {
+    case 'up':
+      return `${head} ↑`;
+    case 'double':
+      return `${head} ↑↑`;
+    case 'deload':
+      return `${head} ↓ (deload)`;
+    case 'same':
+      return `${head} (${outcome.next.fails} ${outcome.next.fails === 1 ? 'fail' : 'fails'})`;
+  }
 }

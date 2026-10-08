@@ -5,6 +5,7 @@ Decisions, deviations and manual-check items, appended per Session.
 ## Needs manual check on device
 - Session 4: look and feel of Home/Settings/Lift editor/Confirm; header icons tappable; Stepper long-press feel on a real finger
 - Session 4: splash screen hides once the store is hydrated (no 2 s delay); no flash of the Setup stub on launch with saved data
+- Session 5: immersive session look; rest ring; haptic at rest end; rest-over notification while backgrounded (permission prompt, delivery); kill app mid-session then reopen → Resume at same set; back arrow keeps sets
 
 ## 2026-10-08 — Session 1 (scaffold)
 - Branch `v2` created from the working checkout of master (2ba6d3e).
@@ -80,3 +81,22 @@ Decisions, deviations and manual-check items, appended per Session.
   `src/__tests__/screens.test.tsx` mounts the real route modules in expo-router's in-memory test router.
 - Confirm screen snaps migrated weights to the nearest loadable weight before showing them.
 - Needs manual check on device (added): header icons and layout on Home, thin-font look, Stepper feel.
+
+## 2026-10-08 — Session 5 (session engine + immersive view)
+- `useSession(n)` returns `null` until the draft exists (and after `finish()`); it guards against re-creating a
+  draft after finishing (`finished` flag). The route owns the celebration summary, so the hook can drop the draft.
+- A set counts as *logged* when `reps > 0` (that is how the persisted draft marks it); AMRAP stepper minimum is 1.
+- Warm-ups are not persisted. On resume they count as done when any set of that lift, or of any *later* lift, is
+  logged; otherwise the lift's warm-ups are shown again. Documented trade-off.
+- Rest timer: one 250 ms interval while resting (`restEndsAt` timestamp, robust to JS throttling), cleared on
+  unmount; haptic success at 0. Last item of the session never starts a rest; `restSeconds = 0` disables it.
+- Celebration lines: `outcomeLine()` in `src/format.ts` — `↑` up, `↑↑` double, `↓ (deload)`, `(N fail[s])` for a
+  repeated weight. Bodyweight and unchanged lifts produce no line.
+- Back arrow on the session screen is an overlay (header hidden); it pops, or replaces with Home when there is no history.
+- Rest-over notification (optional step) implemented with `expo-notifications` (added to app.json plugins):
+  scheduled on `AppState → background` for the remaining rest, cancelled on return. Permission is requested when
+  the first rest starts. Everything is wrapped in try/catch and returns null when unavailable.
+  **Untested on device.**
+- Test env quirk: store-driven re-renders inside a bare `act()` are not flushed in `renderHook`; use `await act(async …)`.
+- Needs manual check on device: warm-up/set flow feel, AMRAP stepper, rest ring animation + haptic, background
+  notification, real kill-and-resume.

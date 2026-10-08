@@ -18,6 +18,7 @@ const routes = () => ({
   'setup/index': require('../../app/setup/index'),
   'setup/confirm': require('../../app/setup/confirm'),
   'lift/[id]': require('../../app/lift/[id]'),
+  'session/[n]': require('../../app/session/[n]'),
 });
 
 beforeEach(() => {
@@ -81,4 +82,53 @@ test('Reset in settings confirms, wipes the program and sends you to setup', asy
   expect(useStore.getState().program).toBeNull();
   expect(await screen.findByText(/Setup coming/)).toBeTruthy();
   alert.mockRestore();
+});
+
+test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async () => {
+  const store = useStore.getState();
+  store.setProgram(TEMPLATES.base);
+  store.setLift('BARBELL_SQUAT', { weightKg: 100 });
+  store.setSettings({ restSeconds: 0 });
+  renderRouter(routes(), { initialUrl: '/session/0' });
+
+  expect(await screen.findByText('Warm-up 1 of 1')).toBeTruthy();
+  expect(screen.getByText('Overhead press')).toBeTruthy();
+  fireEvent.press(screen.getByText('Done'));
+  expect(screen.getByText('Set 1 of 2')).toBeTruthy();
+  fireEvent.press(screen.getByText('Done'));
+  expect(screen.getByText('AMRAP')).toBeTruthy();
+  for (let i = 0; i < 7; i++) fireEvent.press(screen.getByLabelText('Increase')); // 5 → 12
+  fireEvent.press(screen.getByText('Done'));
+
+  expect(screen.getByText('Barbell Squat')).toBeTruthy();
+  for (const label of ['Warm-up 1 of 4', 'Warm-up 2 of 4', 'Warm-up 3 of 4', 'Warm-up 4 of 4']) {
+    expect(screen.getByText(label)).toBeTruthy();
+    fireEvent.press(screen.getByText('Done'));
+  }
+  fireEvent.press(screen.getByText('Done')); // set 1
+  fireEvent.press(screen.getByLabelText('Decrease')); // AMRAP 5 → 4
+  fireEvent.press(screen.getByText('Done'));
+
+  fireEvent.press(await screen.findByText('Finish workout'));
+  expect(await screen.findByText('Overhead press 20 → 22.5 kg ↑↑')).toBeTruthy();
+  expect(screen.getByText('Barbell Squat 100 → 100 kg (1 fail)')).toBeTruthy();
+  const { lifts, nextSession, draft } = useStore.getState();
+  expect(lifts.MILITARY_PRESS.weightKg).toBe(22.5);
+  expect(nextSession).toBe(1);
+  expect(draft).toBeNull();
+
+  fireEvent.press(screen.getByText('Back to home'));
+  expect(await screen.findByText('Day 2 · Week 1')).toBeTruthy();
+  expect(screen.getByText('Bench-press')).toBeTruthy();
+  expect(screen.getByText('Deadlift')).toBeTruthy();
+});
+
+test('a half-finished session shows Resume on Home and keeps its sets', async () => {
+  const store = useStore.getState();
+  store.setProgram(TEMPLATES.base);
+  store.startSession(0);
+  store.logSet('MILITARY_PRESS', 0, 5);
+  renderRouter(routes(), { initialUrl: '/' });
+  fireEvent.press(await screen.findByText('Resume'));
+  expect(await screen.findByText('AMRAP')).toBeTruthy();
 });
