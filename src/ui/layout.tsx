@@ -56,19 +56,22 @@ export function ScreenScroll({
   const gutter = useGutter();
   const insets = useSafeAreaInsets();
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.color.background }}
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{
-        paddingHorizontal: gutter,
-        paddingTop: theme.space[6] + (headerless && Platform.OS !== 'ios' ? insets.top : 0),
-        paddingBottom: theme.space[12] + insets.bottom + (withBottomBar ? BOTTOM_BAR_CLEARANCE : 0),
-        gap: theme.space[gap],
-      }}
-    >
-      {children}
-    </ScrollView>
+    // A plain View root: with the ScrollView itself as the screen root, iOS left the large title blank.
+    <View style={{ flex: 1, backgroundColor: theme.color.background }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: theme.color.background }}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{
+          paddingHorizontal: gutter,
+          paddingTop: theme.space[6] + (headerless && Platform.OS !== 'ios' ? insets.top : 0),
+          paddingBottom: theme.space[12] + insets.bottom + (withBottomBar ? BOTTOM_BAR_CLEARANCE : 0),
+          gap: theme.space[gap],
+        }}
+      >
+        {children}
+      </ScrollView>
+    </View>
   );
 }
 

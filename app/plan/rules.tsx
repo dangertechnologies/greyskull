@@ -15,9 +15,6 @@ export default function RulesScreen() {
   return (
     <ScreenScroll gap={8}>
       <Stack.Screen options={{ title: 'Progression rules' }} />
-      <Text variant="title" accessibilityRole="header">
-        Progression rules
-      </Text>
       <Text color="textMuted">Changes apply from your next workout. Your history stays as it is.</Text>
       <RulesEditor card rules={rules} onChange={setRules} />
       <Button

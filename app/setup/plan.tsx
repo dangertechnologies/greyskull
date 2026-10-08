@@ -53,11 +53,13 @@ export default function PlanStep() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: change === '1' ? 'Change plan' : 'Step 2 of 3' }} />
+      <Stack.Screen options={{ title: change === '1' ? 'Change plan' : 'Pick a program' }} />
       <ScreenScroll withBottomBar gap={4}>
-        <Text variant="title" accessibilityRole="header">
-          Pick a program
-        </Text>
+        {change === '1' ? null : (
+          <Text variant="label" color="textMuted">
+            Step 2 of 3
+          </Text>
+        )}
         <Text color="textMuted">You can change this later. Your history is kept.</Text>
         <View style={{ height: t.space[4] }} />
         <View style={{ gap: t.space[4] }}>

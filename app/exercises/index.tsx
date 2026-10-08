@@ -54,9 +54,6 @@ export default function Exercises() {
   return (
     <ScreenScroll gap={10}>
       <Stack.Screen options={{ title: 'Exercises' }} />
-      <Text variant="title" accessibilityRole="header">
-        Exercises
-      </Text>
       <Button title="New exercise" icon="add" onPress={() => router.push('/exercises/new')} />
       <Section label="Custom" card>
         {custom.length === 0 ? (

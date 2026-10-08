@@ -1,13 +1,21 @@
 import { router } from 'expo-router';
 import { useTheme } from './design/theme';
+import { fontFamily } from './design/tokens';
 
-/** Stack header and content styling from the active theme (root and nested stacks). */
+/**
+ * Stack header and content styling from the active theme (root and nested stacks). Screens set their `title`
+ * and get the native large title on iOS, which collapses into the bar as the screen's scroll view scrolls.
+ */
 export function useStackOptions() {
   const t = useTheme();
   return {
     headerStyle: { backgroundColor: t.color.background },
     headerTintColor: t.color.text,
-    headerTitle: '',
+    headerTitleStyle: { fontFamily: fontFamily.semibold, color: t.color.text },
+    headerLargeTitle: true,
+    headerLargeStyle: { backgroundColor: t.color.background },
+    headerLargeTitleStyle: { fontFamily: fontFamily.bold, color: t.color.text },
+    headerLargeTitleShadowVisible: false,
     headerShadowVisible: false,
     headerBackButtonDisplayMode: 'minimal',
     contentStyle: { backgroundColor: t.color.background },

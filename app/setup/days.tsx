@@ -98,11 +98,8 @@ export default function Days() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: editing ? 'Edit days' : 'Customise days' }} />
+      <Stack.Screen options={{ title: editing ? 'Edit program' : 'Your days' }} />
       <ScreenScroll withBottomBar gap={6}>
-        <Text variant="title" accessibilityRole="header">
-          {editing ? 'Edit program' : 'Your days'}
-        </Text>
         {editing ? <Text color="textMuted">Your history and current weights are kept.</Text> : null}
         <View style={{ height: t.space[4] }} />
 

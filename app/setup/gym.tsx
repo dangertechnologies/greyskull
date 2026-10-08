@@ -16,10 +16,10 @@ export default function Gym() {
   const example = toKg(draft.unit === 'kg' ? 100 : 225, draft.unit);
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: 'Step 1 of 3' }} />
+      <Stack.Screen options={{ title: 'Your gym' }} />
       <ScreenScroll withBottomBar gap={10}>
-        <Text variant="title" accessibilityRole="header">
-          Your gym
+        <Text variant="label" color="textMuted">
+          Step 1 of 3
         </Text>
         <Text color="textMuted">
           Tell us what you lift with. Every weight you are offered can be loaded on your bar.

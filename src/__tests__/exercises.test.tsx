@@ -74,6 +74,6 @@ test('the exercise list separates custom from built-in and flags those in the pr
 
 test('built-in exercises cannot be deleted from the editor', async () => {
   renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS' });
-  await screen.findByText('Edit exercise');
+  await screen.findByText('Short name');
   expect(screen.queryByLabelText('Delete exercise')).toBeNull();
 });

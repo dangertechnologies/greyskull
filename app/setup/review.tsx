@@ -68,11 +68,13 @@ export default function Review() {
   const editingExercise = editing ? exercises[editing] : undefined;
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: changing ? 'Review' : 'Step 3 of 3' }} />
+      <Stack.Screen options={{ title: 'Week 1' }} />
       <ScreenScroll withBottomBar gap={10}>
-        <Text variant="title" accessibilityRole="header">
-          Week 1
-        </Text>
+        {changing ? null : (
+          <Text variant="label" color="textMuted">
+            Step 3 of 3
+          </Text>
+        )}
         <Text color="textMuted">
           Tap a lift to change where it starts. Start light: you add weight every session.
         </Text>

@@ -35,15 +35,11 @@ export default function EditSession() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: `Session ${log.n + 1}` }} />
+      <Stack.Screen options={{ title: `Workout ${log.n + 1}` }} />
       <ScreenScroll withBottomBar gap={6}>
-        <Text
-          variant="title"
-          accessibilityRole="header"
-        >{`Session ${log.n + 1}${log.dayName ? ` · ${log.dayName}` : ''}`}</Text>
-        {log.finishedAt ? (
+        {log.finishedAt || log.dayName ? (
           <Text variant="callout" color="textMuted">
-            {formatDate(log.finishedAt)}
+            {[log.dayName, log.finishedAt ? formatDate(log.finishedAt) : null].filter(Boolean).join(' · ')}
           </Text>
         ) : null}
         <Text color="textMuted">
