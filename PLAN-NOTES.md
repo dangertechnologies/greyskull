@@ -9,6 +9,7 @@ Decisions, deviations and manual-check items, appended per Session.
 - Session 6: onboarding flow end to end; exercise picker modal and search; renaming a day with the keyboard open
 - Session 7: custom exercise editor with keyboard; icon grid; delete alert wording
 - Session 8: minimal view tap/long-press feel; rest bar; same result as immersive on a real workout
+- Session 9: charts (kg and lb) and paging; edit past session layout
 
 ## 2026-10-08 — Session 1 (scaffold)
 - Branch `v2` created from the working checkout of master (2ba6d3e).
@@ -142,3 +143,19 @@ Decisions, deviations and manual-check items, appended per Session.
   no rest). Warm-ups are one collapsed line, weights in the user's unit without the unit suffix.
 - Rest bar at the bottom: `Rest m:ss` + Skip; Finish workout appears when every work set is logged.
 - Needs manual check on device: circle sizes/tap feel, long-press timing, scroll with many exercises, safe areas.
+
+## 2026-10-08 — Session 9 (progress, projection, edit past session)
+- Chart is plain `react-native-svg` (Polyline + Circles, min/max y labels), maths in `src/chartMath.ts` (tested);
+  `src/series.ts` builds the per-lift series (weights in the display unit; last-set reps for bodyweight; skipped
+  sessions ignored). No charting library added.
+- History is stored in kg, so after switching to lb the chart labels show converted raw values (e.g. 44.09 lb),
+  while current/start weights are snapped to lb plates. Accepted: history is a record of what was lifted.
+- The progress pager has one page per exercise in the current program plus a final "Projection" page
+  (`project(state, 9)`, bodyweight lifts omitted); each page scrolls.
+- Edit past session: weight (loadable stepper) and per-set reps; Save calls `editSession`, which never touches `lifts`.
+- Global acceptance (§9) additions: `src/acceptance.test.ts` runs 150 mixed-result sessions in kg, kg+0.5 plate, lb
+  and lb+1.25 plate, asserting after every finish that all lift weights and all projected weights are loadable, the
+  plates line sums back to the weight, weights never exceed a linear bound (no compounding), and 20× kg↔lb toggling
+  leaves weights unchanged.
+- Cleanup: store selector helpers (`useUnit`, `useInventory`, `useLift`) are now actually used.
+- Needs manual check on device: chart rendering/legibility, horizontal paging feel, edit-session screen layout.

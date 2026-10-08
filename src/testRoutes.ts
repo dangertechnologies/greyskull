@@ -14,6 +14,8 @@ export const routes = () => ({
   'setup/confirm': require('../app/setup/confirm'),
   'exercises/index': require('../app/exercises/index'),
   'exercises/[id]': require('../app/exercises/[id]'),
+  progress: require('../app/progress'),
+  'session/edit/[n]': require('../app/session/edit/[n]'),
   'lift/[id]': require('../app/lift/[id]'),
   'session/[n]': require('../app/session/[n]'),
 });

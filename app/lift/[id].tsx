@@ -7,16 +7,16 @@ import { Stepper } from '../../src/components/Stepper';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { smallestStep, toKg, toUnit, trim } from '../../src/domain';
 import { formatDate, nameOf } from '../../src/format';
-import { useStore } from '../../src/store';
+import { useInventory, useLift, useStore, useUnit } from '../../src/store';
 import { colors, type } from '../../src/theme';
 
 export default function LiftEditor() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const exercise = useStore((s) => s.exercises[id]);
-  const lift = useStore((s) => s.lifts[id]);
+  const lift = useLift(id);
   const sessions = useStore((s) => s.sessions);
-  const unit = useStore((s) => s.unit);
-  const inventory = useStore((s) => s.inventory);
+  const unit = useUnit();
+  const inventory = useInventory();
   const exercises = useStore((s) => s.exercises);
   const setLift = useStore((s) => s.setLift);
 

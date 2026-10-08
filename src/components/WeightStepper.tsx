@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { formatWeight, loadable, roundForExercise, toKg, toUnit } from '../domain';
 import type { Exercise, PlateInventory, Unit } from '../domain';
-import { useStore } from '../store';
+import { useInventory, useUnit } from '../store';
 import { Stepper } from './Stepper';
 
 interface Props {
@@ -17,8 +17,8 @@ interface Props {
 
 /** Steps through the weights the user can actually load (barbell) or the exercise's rounding step. */
 export function WeightStepper({ kg, onChange, exercise, label, large, unit: unitProp, inventory: inventoryProp }: Props) {
-  const storeUnit = useStore((s) => s.unit);
-  const storeInventory = useStore((s) => s.inventory);
+  const storeUnit = useUnit();
+  const storeInventory = useInventory();
   const unit = unitProp ?? storeUnit;
   const inventory = inventoryProp ?? storeInventory;
   const barbell = !exercise || exercise.kind === 'barbell';
