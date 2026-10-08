@@ -16,10 +16,20 @@ interface Props extends StepConfig {
   label?: string;
   /** Large controls (64) and the 40 pt numeral, for reps and weights in a session. */
   size?: 'md' | 'lg';
+  /** A settings row: label on the left, smaller controls on the right. */
+  inline?: boolean;
 }
 
 /** Tap = exactly one step. Holding for 400 ms repeats every 150 ms until release. Screen readers get actions. */
-export function NumberStepper({ value, onChange, format, label, size = 'md', ...config }: Props) {
+export function NumberStepper({
+  value,
+  onChange,
+  format,
+  label,
+  size = 'md',
+  inline = false,
+  ...config
+}: Props) {
   const t = useTheme();
   const latest = useRef({ value, onChange, config });
   latest.current = { value, onChange, config };
@@ -51,7 +61,7 @@ export function NumberStepper({ value, onChange, format, label, size = 'md', ...
     timer.current = setInterval(() => step(dir), REPEAT_MS);
   };
 
-  const box = size === 'lg' ? 64 : 56;
+  const box = inline ? 44 : size === 'lg' ? 64 : 56;
   const button = (dir: 1 | -1) => (
     <Pressable
       accessibilityRole="button"
@@ -71,18 +81,22 @@ export function NumberStepper({ value, onChange, format, label, size = 'md', ...
         borderColor: t.color.borderStrong,
       })}
     >
-      <Icon name={dir === 1 ? 'add' : 'remove'} size={size === 'lg' ? 28 : 24} />
+      <Icon name={dir === 1 ? 'add' : 'remove'} size={inline ? 20 : size === 'lg' ? 28 : 24} />
     </Pressable>
   );
 
   return (
-    <View style={[styles.wrap, { gap: t.space[2] }]}>
+    <View style={inline ? [styles.inline, { gap: t.space[3] }] : [styles.wrap, { gap: t.space[2] }]}>
       {label ? (
-        <Text variant="label" color="textMuted">
+        <Text
+          variant={inline ? 'bodyStrong' : 'label'}
+          color={inline ? 'text' : 'textMuted'}
+          style={inline ? { flex: 1 } : undefined}
+        >
           {label}
         </Text>
       ) : null}
-      <View style={[styles.row, { gap: t.space[4] }]}>
+      <View style={[styles.row, { gap: t.space[inline ? 2 : 4] }]}>
         {button(-1)}
         <Text
           variant={size === 'lg' ? 'numberLarge' : 'headline'}
@@ -93,7 +107,7 @@ export function NumberStepper({ value, onChange, format, label, size = 'md', ...
           // Screen readers adjust with swipe up/down instead of hunting for the +/− buttons.
           accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
           onAccessibilityAction={(e) => step(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
-          style={{ minWidth: 112, textAlign: 'center' }}
+          style={{ minWidth: inline ? 72 : 112, textAlign: 'center' }}
         >
           {format(value)}
         </Text>
@@ -105,5 +119,6 @@ export function NumberStepper({ value, onChange, format, label, size = 'md', ...
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center' },
+  inline: { flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingVertical: 6 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
 });

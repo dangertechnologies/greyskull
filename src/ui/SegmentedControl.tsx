@@ -15,13 +15,17 @@ export function SegmentedControl({
   accessibilityLabel: string;
 }) {
   const t = useTheme();
+  // The selected segment sits a step lighter than the track in both schemes (white on grey, grey on near-black).
+  const light = t.scheme === 'light';
+  const track = light ? t.color.border : t.color.surface;
+  const thumb = light ? t.color.surface : t.color.border;
   return (
     <View
       accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
       style={{
         flexDirection: 'row',
-        backgroundColor: t.color.surface,
+        backgroundColor: track,
         borderRadius: t.radius.lg,
         padding: t.space[1],
         gap: t.space[1],
@@ -45,9 +49,7 @@ export function SegmentedControl({
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: t.radius.md,
-              backgroundColor: selected ? t.color.surfaceRaised : 'transparent',
-              borderWidth: selected ? 1 : 0,
-              borderColor: t.color.borderStrong,
+              backgroundColor: selected ? thumb : 'transparent',
             }}
           >
             <Text variant="bodyStrong" color={selected ? 'text' : 'textMuted'}>

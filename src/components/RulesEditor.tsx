@@ -1,15 +1,22 @@
-import { View } from 'react-native';
-import { useTheme } from '../design/theme';
 import type { Rules } from '../domain';
 import { ListRow } from '../ui/ListRow';
 import { NumberStepper } from '../ui/NumberStepper';
+import { Section } from '../ui/Section';
 
-/** Progression rules; the "double the jump" rule only applies to AMRAP plans. */
-export function RulesEditor({ rules, onChange }: { rules: Rules; onChange(rules: Rules): void }) {
-  const t = useTheme();
+/** Progression rules as settings rows; the "double the jump" rule only applies to AMRAP plans. */
+export function RulesEditor({
+  rules,
+  onChange,
+  card = false,
+}: {
+  rules: Rules;
+  onChange(rules: Rules): void;
+  /** On its own screen the rows sit on a card; inside the setup plan card they do not. */
+  card?: boolean;
+}) {
   const amrap = (rules.progression ?? 'amrap') === 'amrap';
   return (
-    <View style={{ gap: t.space[8] }}>
+    <Section card={card}>
       <ListRow
         title="Warm-up sets"
         accessory="switch"
@@ -18,6 +25,7 @@ export function RulesEditor({ rules, onChange }: { rules: Rules; onChange(rules:
       />
       {amrap ? (
         <NumberStepper
+          inline
           label="Double the jump at (reps)"
           value={rules.doubleAt}
           step={1}
@@ -28,6 +36,7 @@ export function RulesEditor({ rules, onChange }: { rules: Rules; onChange(rules:
         />
       ) : null}
       <NumberStepper
+        inline
         label="Deload"
         value={Math.round(rules.deloadPct * 100)}
         step={5}
@@ -37,6 +46,7 @@ export function RulesEditor({ rules, onChange }: { rules: Rules; onChange(rules:
         onChange={(v) => onChange({ ...rules, deloadPct: v / 100 })}
       />
       <NumberStepper
+        inline
         label="Fails before deload"
         value={rules.failsBeforeDeload}
         step={1}
@@ -45,6 +55,6 @@ export function RulesEditor({ rules, onChange }: { rules: Rules; onChange(rules:
         format={String}
         onChange={(failsBeforeDeload) => onChange({ ...rules, failsBeforeDeload })}
       />
-    </View>
+    </Section>
   );
 }

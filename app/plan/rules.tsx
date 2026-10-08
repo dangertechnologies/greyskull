@@ -19,7 +19,7 @@ export default function RulesScreen() {
         Progression rules
       </Text>
       <Text color="textMuted">Changes apply from your next workout. Your history stays as it is.</Text>
-      <RulesEditor rules={rules} onChange={setRules} />
+      <RulesEditor card rules={rules} onChange={setRules} />
       <Button
         title="Save"
         onPress={() => {

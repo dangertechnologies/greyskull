@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { Alert, Share } from 'react-native';
+import { Alert, Share, View } from 'react-native';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
-import { dynamicColorSupported } from '../../src/design/theme';
+import { dynamicColorSupported, useTheme } from '../../src/design/theme';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
@@ -57,6 +57,7 @@ export default function Settings() {
     ]);
   };
 
+  const t = useTheme();
   return (
     <ScreenScroll headerless gap={10}>
       <Text variant="title" accessibilityRole="header">
@@ -70,7 +71,7 @@ export default function Settings() {
         onInventoryChange={setInventory}
       />
 
-      <Section label="Workout">
+      <Section label="Workout" card>
         <ListRow
           title="Minimalist workout view"
           subtitle="All sets on one page"
@@ -79,6 +80,7 @@ export default function Settings() {
           onSwitch={(v) => setSettings({ minimalist: v })}
         />
         <NumberStepper
+          inline
           label="Rest time"
           value={restSeconds}
           step={15}
@@ -89,17 +91,19 @@ export default function Settings() {
         />
       </Section>
 
-      <Section label="Appearance">
-        <SegmentedControl
-          accessibilityLabel="Appearance"
-          options={[
-            { value: 'system', label: 'System' },
-            { value: 'light', label: 'Light' },
-            { value: 'dark', label: 'Dark' },
-          ]}
-          value={appearance}
-          onChange={(v) => setSettings({ appearance: v as 'system' | 'light' | 'dark' })}
-        />
+      <Section label="Appearance" card>
+        <View style={{ paddingVertical: t.space[3] }}>
+          <SegmentedControl
+            accessibilityLabel="Appearance"
+            options={[
+              { value: 'system', label: 'System' },
+              { value: 'light', label: 'Light' },
+              { value: 'dark', label: 'Dark' },
+            ]}
+            value={appearance}
+            onChange={(v) => setSettings({ appearance: v as 'system' | 'light' | 'dark' })}
+          />
+        </View>
         {dynamicColorSupported() ? (
           <ListRow
             title="Match wallpaper colours"
