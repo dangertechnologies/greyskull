@@ -192,3 +192,4 @@ Decisions, deviations and manual-check items, appended per Session.
   marked experimental with "Approximation" in its description.
 - Needs manual check on device (added): plan picker with experimental badges; AllPro light-day weights on Home and
   in the session; StrongLifts 5×5 session length in both views.
+- Push access works again: `v2` is on origin (all commits from Session 1 on).
