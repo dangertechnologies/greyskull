@@ -94,6 +94,7 @@ export const TYPE_VARIANTS = [
 ] as const;
 export type TypeVariant = (typeof TYPE_VARIANTS)[number];
 
+// Number styles only: Inter's tnum also widens the hyphen, so prose would read "Bench - press".
 const tabular: TextStyle = { fontVariant: ['tabular-nums'] };
 
 export const typography: Record<TypeVariant, TextStyle> = {
@@ -101,10 +102,10 @@ export const typography: Record<TypeVariant, TextStyle> = {
   numberLarge: { fontFamily: fontFamily.semibold, fontSize: 40, lineHeight: 44, ...tabular },
   title: { fontFamily: fontFamily.semibold, fontSize: 28, lineHeight: 34 },
   headline: { fontFamily: fontFamily.semibold, fontSize: 20, lineHeight: 26 },
-  body: { fontFamily: fontFamily.regular, fontSize: 17, lineHeight: 24, ...tabular },
-  bodyStrong: { fontFamily: fontFamily.medium, fontSize: 17, lineHeight: 24, ...tabular },
-  callout: { fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 21, ...tabular },
-  caption: { fontFamily: fontFamily.medium, fontSize: 13, lineHeight: 18, ...tabular },
+  body: { fontFamily: fontFamily.regular, fontSize: 17, lineHeight: 24 },
+  bodyStrong: { fontFamily: fontFamily.medium, fontSize: 17, lineHeight: 24 },
+  callout: { fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 21 },
+  caption: { fontFamily: fontFamily.medium, fontSize: 13, lineHeight: 18 },
   label: {
     fontFamily: fontFamily.semibold,
     fontSize: 12,
