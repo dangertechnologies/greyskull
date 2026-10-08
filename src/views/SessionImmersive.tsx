@@ -144,9 +144,9 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
                 ) : null}
               </View>
 
-              <View style={{ alignItems: 'center' }}>
+              <View style={{ alignItems: 'flex-start' }}>
                 {item.kind === 'warmup' ? (
-                  <View style={{ alignItems: 'center', gap: t.space[1] }}>
+                  <View style={{ alignItems: 'center', gap: t.space[1], minWidth: 112 }}>
                     <Text variant="display">{item.targetReps}</Text>
                     <Text variant="label" color="textMuted">
                       reps

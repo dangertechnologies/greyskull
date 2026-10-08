@@ -9,11 +9,11 @@ import { useInventory } from '../src/store';
 import { Button } from '../src/ui/Button';
 import { Chip } from '../src/ui/Chip';
 import { EmptyState } from '../src/ui/EmptyState';
+import { ExerciseBadge } from '../src/ui/ExerciseBadge';
 import { Icon } from '../src/ui/Icon';
 import { IconButton } from '../src/ui/IconButton';
 import { ICON_NAMES, type IconName } from '../src/ui/icons';
 import { ListRow } from '../src/ui/ListRow';
-import { Monogram } from '../src/ui/Monogram';
 import { NumberStepper } from '../src/ui/NumberStepper';
 import { PlateStack } from '../src/ui/PlateStack';
 import { Section } from '../src/ui/Section';
@@ -126,7 +126,7 @@ function PanelBody({ scheme }: { scheme: Scheme }) {
       <Section label="Exercise badges">
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
           {exercises.map((e) => (
-            <Monogram key={e.id} exercise={e} />
+            <ExerciseBadge key={e.id} exercise={e} />
           ))}
         </View>
       </Section>

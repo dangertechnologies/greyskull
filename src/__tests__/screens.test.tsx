@@ -148,6 +148,8 @@ describe('the design gallery (dev only)', () => {
     expect(await screen.findByText('dark theme')).toBeTruthy();
     expect(screen.getByText('light theme')).toBeTruthy();
     expect(screen.getAllByText('Start workout')).toHaveLength(2);
-    expect(screen.getAllByText('OHP', { includeHiddenElements: true })).toHaveLength(2);
+    expect(
+      screen.getAllByTestId('exercise-icon-MILITARY_PRESS', { includeHiddenElements: true }),
+    ).toHaveLength(2);
   });
 });

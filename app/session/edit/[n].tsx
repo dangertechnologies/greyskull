@@ -8,8 +8,8 @@ import { formatDate, nameOf } from '../../../src/format';
 import { goBackOr } from '../../../src/navigation';
 import { useStore } from '../../../src/store';
 import { Button } from '../../../src/ui/Button';
+import { ExerciseBadge } from '../../../src/ui/ExerciseBadge';
 import { BottomBar, ScreenScroll } from '../../../src/ui/layout';
-import { Monogram } from '../../../src/ui/Monogram';
 import { NumberStepper } from '../../../src/ui/NumberStepper';
 import { PlateStack } from '../../../src/ui/PlateStack';
 import { Card } from '../../../src/ui/Surface';
@@ -63,7 +63,7 @@ export default function EditSession() {
                     alignSelf: 'stretch',
                   }}
                 >
-                  {exercise ? <Monogram exercise={exercise} size={40} /> : null}
+                  {exercise ? <ExerciseBadge exercise={exercise} size={40} /> : null}
                   <Text variant="headline">{nameOf(exercises, id)}</Text>
                 </View>
                 {loaded ? (

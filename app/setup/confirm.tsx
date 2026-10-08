@@ -6,8 +6,8 @@ import { exerciseIdsOf, roundForExercise } from '../../src/domain';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
+import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
-import { Monogram } from '../../src/ui/Monogram';
 import { PlateStack } from '../../src/ui/PlateStack';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
@@ -48,7 +48,7 @@ export default function ConfirmWeights() {
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], alignSelf: 'stretch' }}
               >
-                <Monogram exercise={exercises[id]} size={40} />
+                <ExerciseBadge exercise={exercises[id]} size={40} />
                 <Text variant="headline" style={{ flex: 1 }}>
                   {exercises[id].name}
                 </Text>

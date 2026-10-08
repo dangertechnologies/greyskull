@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise, PlateInventory, Unit } from '../domain';
 import { formatWeight } from '../domain';
-import { Monogram } from '../ui/Monogram';
+import { ExerciseBadge } from '../ui/ExerciseBadge';
 import { PlateStack } from '../ui/PlateStack';
 import { Text } from '../ui/Text';
 
@@ -24,7 +24,7 @@ export function LiftRow({
   const bodyweight = exercise.kind === 'bodyweight';
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
-      <Monogram exercise={exercise} />
+      <ExerciseBadge exercise={exercise} />
       <View style={{ flex: 1, gap: t.space[1] }}>
         <Text variant="bodyStrong">{exercise.name}</Text>
         <Text variant="caption" color="textMuted">

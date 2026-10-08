@@ -11,9 +11,9 @@ import { intensityLabel, nameOf } from '../format';
 import type { SessionApi, SessionItem } from '../hooks/useSession';
 import { useStore } from '../store';
 import { Button } from '../ui/Button';
+import { ExerciseBadge } from '../ui/ExerciseBadge';
 import { IconButton } from '../ui/IconButton';
 import { BottomBar, useGutter } from '../ui/layout';
-import { Monogram } from '../ui/Monogram';
 import { NumberStepper } from '../ui/NumberStepper';
 import { PlateStack } from '../ui/PlateStack';
 import { Sheet } from '../ui/Sheet';
@@ -160,7 +160,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
           return (
             <Card key={id} style={{ gap: t.space[5] }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
-                <Monogram exercise={exercise} size={40} />
+                <ExerciseBadge exercise={exercise} size={40} />
                 <Text variant="headline" style={{ flex: 1 }}>
                   {nameOf(exercises, id)}
                 </Text>

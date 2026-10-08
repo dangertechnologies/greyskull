@@ -5,8 +5,8 @@ import type { Exercise, Outcome, Unit } from '../domain';
 import { formatWeight } from '../domain';
 import { shareView } from '../shareImage';
 import { Button } from '../ui/Button';
-import { BottomBar, ScreenScroll } from '../ui/layout';
-import { Monogram } from '../ui/Monogram';
+import { ExerciseBadge } from '../ui/ExerciseBadge';
+import { BottomBar, ScreenScroll, useGutter } from '../ui/layout';
 import { Card } from '../ui/Surface';
 import { Text } from '../ui/Text';
 import { Confetti } from './Confetti';
@@ -44,12 +44,13 @@ export function Celebration({
   onHome(): void;
 }) {
   const t = useTheme();
+  const gutter = useGutter();
   const summaryRef = useRef<View>(null);
   const shown = lines.filter((l) => l.outcome.change !== 'none');
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <ScreenScroll withBottomBar gap={8}>
-        <View style={{ marginHorizontal: -t.space[5], marginTop: -t.space[6] }}>
+      <ScreenScroll withBottomBar edgeToEdge gap={8}>
+        <View style={{ marginHorizontal: -gutter }}>
           <PhotoHeader image="rest" fraction={0.28}>
             <View style={{ flex: 1 }} />
             <Text variant="title" color="onPhoto" accessibilityRole="header">
@@ -76,7 +77,7 @@ export function Celebration({
                     key={l.exercise.id}
                     style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}
                   >
-                    <Monogram exercise={l.exercise} />
+                    <ExerciseBadge exercise={l.exercise} />
                     <View style={{ flex: 1, gap: t.space[1] }}>
                       <Text variant="bodyStrong">{`${l.exercise.name} ${detail}`}</Text>
                       <View style={{ flexDirection: 'row', gap: t.space[3] }}>

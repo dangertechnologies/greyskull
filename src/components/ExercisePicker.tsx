@@ -4,8 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../design/theme';
 import type { Exercise } from '../domain';
 import { Button } from '../ui/Button';
+import { ExerciseBadge } from '../ui/ExerciseBadge';
 import { useGutter } from '../ui/layout';
-import { Monogram } from '../ui/Monogram';
 import { Text } from '../ui/Text';
 import { TextField } from '../ui/TextField';
 
@@ -90,7 +90,7 @@ export function ExercisePicker({
                 backgroundColor: pressed ? t.color.surface : 'transparent',
               })}
             >
-              <Monogram exercise={item} size={40} />
+              <ExerciseBadge exercise={item} size={40} />
               <Text variant="bodyStrong" style={{ flex: 1 }}>
                 {item.name}
               </Text>

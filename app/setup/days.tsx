@@ -23,9 +23,9 @@ import { goBackOr, goHome } from '../../src/navigation';
 import { useSetup } from '../../src/setup/SetupContext';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
+import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { IconButton } from '../../src/ui/IconButton';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
-import { Monogram } from '../../src/ui/Monogram';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 import { TextField } from '../../src/ui/TextField';
@@ -143,7 +143,7 @@ export default function Days() {
                         paddingRight: 36,
                       }}
                     >
-                      {first ? <Monogram exercise={first} size={40} /> : null}
+                      {first ? <ExerciseBadge exercise={first} size={40} /> : null}
                       <Text variant="bodyStrong" style={{ flex: 1 }}>
                         {ids.map((id) => nameOf(exercises, id, ids.length > 1)).join(' / ')}
                       </Text>

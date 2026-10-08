@@ -4,8 +4,8 @@ import { Text as RNText } from 'react-native';
 import { builtInExercises } from '../catalog';
 import { Button } from './Button';
 import { Chip } from './Chip';
+import { ExerciseBadge } from './ExerciseBadge';
 import { ListRow } from './ListRow';
-import { Monogram } from './Monogram';
 import { PlateStack, plateStyle } from './PlateStack';
 import { SegmentedControl } from './SegmentedControl';
 import { Sheet } from './Sheet';
@@ -53,17 +53,21 @@ test('ListRow shows title, subtitle and value, and routes presses', () => {
   expect(onPress).toHaveBeenCalled();
 });
 
-test('Monogram shows the abbreviation, and one derived from the name for custom exercises', () => {
+test('ExerciseBadge: a pictogram for built-ins, letters for custom exercises with an abbreviation', () => {
   const ex = builtInExercises();
+  const custom = { id: 'custom_front_squat', name: 'Front squat', kind: 'barbell', custom: true } as const;
   render(
     <>
-      <Monogram exercise={ex.MILITARY_PRESS} />
-      <Monogram exercise={{ name: 'Front squat' }} size={40} />
+      <ExerciseBadge exercise={ex.MILITARY_PRESS} />
+      <ExerciseBadge exercise={{ ...custom, abbr: 'fs' }} size={40} />
+      <ExerciseBadge exercise={{ ...custom, id: 'custom_sled', kind: 'machine' }} size={40} />
     </>,
   );
   // Badges are decorative (hidden from screen readers), so query hidden elements too.
-  expect(screen.getByText('OHP', { includeHiddenElements: true })).toBeTruthy();
-  expect(screen.getByText('FS', { includeHiddenElements: true })).toBeTruthy();
+  const hidden = { includeHiddenElements: true };
+  expect(screen.getByTestId('exercise-icon-MILITARY_PRESS', hidden)).toBeTruthy();
+  expect(screen.getByText('FS', hidden)).toBeTruthy();
+  expect(screen.getByTestId('exercise-icon-kind:machine', hidden)).toBeTruthy();
 });
 
 test('PlateStack draws one rect per plate and describes them in text', () => {

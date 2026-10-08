@@ -4,10 +4,10 @@ import { useTheme } from '../../src/design/theme';
 import type { Exercise } from '../../src/domain';
 import { exerciseIdsOf } from '../../src/domain';
 import { useStore } from '../../src/store';
-import { Button } from '../../src/ui/Button';
+import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { Icon } from '../../src/ui/Icon';
+import { IconButton } from '../../src/ui/IconButton';
 import { ScreenScroll } from '../../src/ui/layout';
-import { Monogram } from '../../src/ui/Monogram';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
 
@@ -26,7 +26,7 @@ function Row({ exercise, inProgram }: { exercise: Exercise; inProgram: boolean }
         backgroundColor: pressed ? t.color.border : 'transparent',
       })}
     >
-      <Monogram exercise={exercise} size={40} />
+      <ExerciseBadge exercise={exercise} size={40} />
       <View style={{ flex: 1 }}>
         <Text variant="bodyStrong">{exercise.name}</Text>
         {inProgram ? (
@@ -53,8 +53,14 @@ export default function Exercises() {
 
   return (
     <ScreenScroll gap={10}>
-      <Stack.Screen options={{ title: 'Exercises' }} />
-      <Button title="New exercise" icon="add" onPress={() => router.push('/exercises/new')} />
+      <Stack.Screen
+        options={{
+          title: 'Exercises',
+          headerRight: () => (
+            <IconButton icon="add" label="New exercise" onPress={() => router.push('/exercises/new')} />
+          ),
+        }}
+      />
       <Section label="Custom" card>
         {custom.length === 0 ? (
           <Text color="textMuted" style={{ paddingVertical: t.space[4] }}>

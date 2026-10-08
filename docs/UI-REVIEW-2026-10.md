@@ -218,7 +218,9 @@ matches light on every screen. Done in this round:
   top and bottom, which read as broken. `LiftChart` now shows "The chart starts after 2 workouts." under
   the current value, and hides the range control, until there are 2 points.
 
-Still open, small:
+Done in the same round, one commit with the exercise pictograms (`ExerciseBadge` replaces `Monogram`):
+C1 for Celebration, C3 (header `+`), C4 ("Bodyweight"), C6 (reps left-aligned, no diagram for a bare bar).
+C5 and C7 were already in place when checked against the code. Kept below for the record:
 
 - **C3. Exercises: primary button at the top.** "New exercise" is a full-width accent button above the
   large title, the biggest thing on a list screen. Move it to the header (`headerRight` with an `add`

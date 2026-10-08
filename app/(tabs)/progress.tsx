@@ -9,9 +9,9 @@ import { seriesFor } from '../../src/series';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
+import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { Icon } from '../../src/ui/Icon';
 import { ScreenScroll } from '../../src/ui/layout';
-import { Monogram } from '../../src/ui/Monogram';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
 
@@ -61,7 +61,7 @@ export default function Progress() {
           const current = bodyweight
             ? last !== undefined
               ? `${trim(last)} reps`
-              : '–'
+              : 'Bodyweight'
             : formatWeight(lifts[id]?.weightKg ?? 0, unit);
           const trend =
             values.length > 1
@@ -82,7 +82,7 @@ export default function Progress() {
                 backgroundColor: pressed ? t.color.border : 'transparent',
               })}
             >
-              <Monogram exercise={exercise} size={40} />
+              <ExerciseBadge exercise={exercise} size={40} />
               <View style={{ flex: 1, gap: t.space[1] }}>
                 <Text variant="bodyStrong">{exercise.name}</Text>
                 {trend ? (

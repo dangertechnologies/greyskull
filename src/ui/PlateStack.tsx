@@ -75,27 +75,30 @@ export function PlateStack({
       accessibilityLabel={label}
       style={{ gap: t.space[2], alignItems: size === 'lg' ? 'flex-start' : 'flex-end' }}
     >
-      <Svg width={width} height={H}>
-        <Rect x={0} y={H / 2 - 2} width={width} height={4} rx={2} fill={t.color.borderStrong} />
-        {plates.map((p, i) => {
-          const s = plateStyle(p, unit);
-          const h = (H * s.height) / 100;
-          return (
-            <Rect
-              // biome-ignore lint/suspicious/noArrayIndexKey: plates repeat (two 20s); position is the identity
-              key={i}
-              x={stub + i * (plateW + gap)}
-              y={(H - h) / 2}
-              width={plateW}
-              height={h}
-              rx={2}
-              fill={s.color}
-              stroke={t.color.borderStrong}
-              strokeWidth={0.75}
-            />
-          );
-        })}
-      </Svg>
+      {/* Bar only: the caption says so; a lone sleeve stub read as a stray dash. */}
+      {plates.length === 0 ? null : (
+        <Svg width={width} height={H}>
+          <Rect x={0} y={H / 2 - 2} width={width} height={4} rx={2} fill={t.color.borderStrong} />
+          {plates.map((p, i) => {
+            const s = plateStyle(p, unit);
+            const h = (H * s.height) / 100;
+            return (
+              <Rect
+                // biome-ignore lint/suspicious/noArrayIndexKey: plates repeat (two 20s); position is the identity
+                key={i}
+                x={stub + i * (plateW + gap)}
+                y={(H - h) / 2}
+                width={plateW}
+                height={h}
+                rx={2}
+                fill={s.color}
+                stroke={t.color.borderStrong}
+                strokeWidth={0.75}
+              />
+            );
+          })}
+        </Svg>
+      )}
       <Text variant="caption" color="textMuted">
         {label}
       </Text>
