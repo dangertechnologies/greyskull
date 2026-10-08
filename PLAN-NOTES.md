@@ -167,3 +167,28 @@ Decisions, deviations and manual-check items, appended per Session.
   `dangertechnologies/greyskull` in this environment (read through the GitHub MCP works). All work is committed
   locally on `v2` (10 commits after 2ba6d3e). Run `git push -u origin v2` once access is fixed.
 - Final state: 138 jest tests in 21 suites, `tsc --noEmit` clean, `npx expo export --platform ios` succeeds.
+
+## 2026-10-08 — Follow-up: review, pnpm, TypeScript 7, training plans
+- Review written to `docs/REVIEW.md` (gaps, risks, UX/UI, accessibility, tooling, plan status). Bugs found and
+  fixed in the same pass: duplicate Home after `router.replace('/')` (now `goHome()` = `router.dismissTo('/')`),
+  silent draft loss when saving the program mid-workout, rest timer after warm-ups, stepper screen-reader
+  actions, plan increments in the lift editor. Each has a test.
+- **pnpm 10** (isolated layout, `packageManager` pinned). Removed `.npmrc`/`package-lock.json`. Chose isolated
+  over `node-linker=hoisted` because Metro, jest-expo and `expo export` all work, and autolinking then only
+  sees direct dependencies (pnpm auto-installs optional peers like reanimated, which must not be linked).
+  Added `@types/node` (no longer hoisted). Dev-only peer warnings remain for `react-server-dom-webpack`
+  (wants React ≥ 19.2.8; Expo 57 pins 19.2.3). jest `testTimeout` raised to 20 s for cold screen suites.
+- **TypeScript 7.0.2** (native `tsc`): drop-in for `expo/tsconfig.base`; typecheck ≈ 1 s. Expo CLI only checks that
+  `typescript/package.json` exists. Caveats (no tsserver/JS API, typescript-eslint) are in the review.
+- **Plans config** `src/config/plans.ts`: Greyskull LP, Phrak's GSLP (stable), StrongLifts 5×5, Starting Strength,
+  AllPro's Beginner Routine (experimental). Domain additions: `Scheme` is a template-literal type (fixed,
+  `+` AMRAP, `xAMRAP`, `min-max` range) with `tryParseScheme`; `rules.progression` (`amrap` default for old saves,
+  `linear`, `double`); `rules.increments` per exercise; `day.intensity` (light/medium days scale and re-round the
+  weight and never progress); `lift.reps` holds the double-progression target. `PLUGINS` no longer list
+  templates; each plan lists the extras it offers. `Program.template` is now a plan id string.
+- AllPro: the web sources found agree on 3 days/week with light at 80 % and medium at 90 % of heavy, and reps
+  rising weekly 8 → 12 before adding weight. I modelled reps advancing only after the heavy day (once a week),
+  two work sets, exercises squat/bench/row/press/curls. The original write-up was not reachable from the sandbox;
+  marked experimental with "Approximation" in its description.
+- Needs manual check on device (added): plan picker with experimental badges; AllPro light-day weights on Home and
+  in the session; StrongLifts 5×5 session length in both views.

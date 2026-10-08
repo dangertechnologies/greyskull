@@ -7,20 +7,32 @@ React Native app and ships under the same store ids: `com.dangertechnologies.gsl
 ## Run
 
 ```sh
-npm install          # .npmrc sets legacy-peer-deps (jest-expo peer ranges)
-npm start            # Expo dev server; open in Expo Go or a development build
+corepack enable      # once; package.json pins pnpm via "packageManager"
+pnpm install
+pnpm start           # Expo dev server; open in Expo Go or a development build
 ```
 
-`npx expo install <pkg>` picks SDK-compatible versions. Without access to api.expo.dev use
-`EXPO_OFFLINE=1 npx expo install <pkg>`.
+`pnpm expo install <pkg>` picks SDK-compatible versions. Without access to api.expo.dev use
+`EXPO_OFFLINE=1 pnpm expo install <pkg>`. pnpm runs in its default isolated layout, so only direct
+dependencies are autolinked into native builds.
 
 ## Test
 
 ```sh
-npm test             # jest (domain, store, hooks, components, screens)
-npm run typecheck    # tsc --noEmit
-npx expo export --platform ios   # proves the bundle builds
+pnpm test            # jest (domain, store, hooks, components, screens)
+pnpm typecheck       # tsc --noEmit with TypeScript 7 (native compiler)
+pnpm expo export --platform ios   # proves the bundle builds
 ```
+
+TypeScript 7 is used for type checking only; Metro and jest strip types with Babel. The TS 7 package has no
+`tsserver.js`, so editors should use their bundled TypeScript or the native-preview language server.
+
+## Training plans
+
+Plans are data in `src/config/plans.ts`: days, schemes (`2x5+`, `5x5`, `2x8-12`, …), the progression model
+(`amrap`, `linear`, `double`), plan-specific increments, light/medium day intensities, and which extras each
+plan offers. Built in: Greyskull LP and Phrak's GSLP (stable), StrongLifts 5×5, Starting Strength and AllPro's
+Beginner Routine (experimental). Every plan is validated and simulated by the test suite.
 
 Structure: `src/domain` is pure TypeScript (units, plate maths, progression, program templates, projection,
 v1 migration); `src/store.ts` is the persisted zustand store; `app/` holds the expo-router screens.
@@ -28,8 +40,8 @@ v1 migration); `src/store.ts` is the persisted zustand store; `app/` holds the e
 ## Build
 
 ```sh
-npx eas build --profile preview -p ios        # internal test build
-npx eas build --profile production -p ios
+pnpm dlx eas-cli build --profile preview -p ios      # internal test build
+pnpm dlx eas-cli build --profile production -p ios
 ```
 
 Profiles are in `eas.json`. Install the preview build over a device that still has v1 to check the migration.
@@ -38,7 +50,7 @@ Profiles are in `eas.json`. Install the preview build over a device that still h
 
 1. Install the preview iOS build over a device that has v1 installed. The "Check your weights" screen must
    appear with the old data; confirm it and check the history.
-2. `npx eas build --profile production -p ios && npx eas submit -p ios`.
+2. `pnpm dlx eas-cli build --profile production -p ios && pnpm dlx eas-cli submit -p ios`.
 3. Android: if the original upload keystore for `com.greyskull` exists, build and submit with it
    (`-p android`). If it does not, change `android.package` in `app.json` to `com.dangertechnologies.gslp` and
    publish as a new listing.
