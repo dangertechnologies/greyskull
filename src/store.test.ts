@@ -1,12 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CATALOG_VERSION } from './catalog';
 import fixture from './dev/v1-imperial.json';
 import type { Program } from './domain';
 import { isLoadable, PLUGINS, TEMPLATES, toKg } from './domain';
 import { initialState, initStore, LEGACY_KEY, STORAGE_KEY, snapshot, useStore } from './store';
-
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
 
 const get = () => useStore.getState();
 const baseProgram = (): Program => JSON.parse(JSON.stringify(TEMPLATES.base)) as Program;
@@ -290,5 +287,26 @@ test('an install with an older exercise catalog gets the new form tips and video
   await initStore();
   expect(useStore.getState().exercises.BENCH_PRESS.goodForm).not.toEqual(['old']);
   expect(useStore.getState().exercises.BENCH_PRESS.video).toMatch(/youtube/);
-  expect(useStore.getState().catalogVersion).toBe(2);
+  expect(useStore.getState().catalogVersion).toBe(CATALOG_VERSION);
+});
+
+test('undoSkip takes back only the latest skip', () => {
+  useStore.setState({ ...initialState(), hydrated: true });
+  const s = useStore.getState();
+  s.setProgram(TEMPLATES.base);
+  s.skipSession();
+  s.skipSession();
+  expect(useStore.getState().nextSession).toBe(2);
+  useStore.getState().undoSkip();
+  expect(useStore.getState().nextSession).toBe(1);
+  expect(useStore.getState().sessions).toHaveLength(1);
+  useStore.getState().undoSkip();
+  useStore.getState().undoSkip();
+  expect(useStore.getState().sessions).toHaveLength(0);
+  expect(useStore.getState().nextSession).toBe(0);
+  // A finished session is never undone.
+  useStore.getState().startSession(0);
+  useStore.getState().finishSession();
+  useStore.getState().undoSkip();
+  expect(useStore.getState().sessions).toHaveLength(1);
 });

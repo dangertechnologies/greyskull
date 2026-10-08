@@ -1,10 +1,6 @@
 import { getPlan } from './config/plans';
 import { initialState, useStore } from './store';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
-
 const get = () => useStore.getState();
 
 function play(reps: (target: number | null) => number) {

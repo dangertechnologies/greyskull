@@ -5,18 +5,15 @@ import { PLUGINS, TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
-
 function playSessions(count: number, reps: number) {
   for (let i = 0; i < count; i++) {
     const s = useStore.getState();
     const draft = s.startSession(s.nextSession);
-    for (const id of draft.order)
+    for (const id of draft.order) {
       draft.results[id].sets.forEach((_x, j) => {
         useStore.getState().logSet(id, j, reps);
       });
+    }
     useStore.getState().finishSession();
   }
 }
@@ -26,30 +23,47 @@ beforeEach(() => {
   useStore.getState().setProgram(PLUGINS.chins.apply(TEMPLATES.base));
 });
 
-test('charts render per lift in kg and lb', async () => {
+test('the progress tab lists every lift with its current weight and trend', async () => {
   playSessions(4, 6);
   renderRouter(routes(), { initialUrl: '/progress' });
-  expect(await screen.findByText('Overhead press')).toBeTruthy();
-  expect(screen.getByLabelText('Overhead press: 20 kg to 22.5 kg over 2 sessions')).toBeTruthy();
+  expect(
+    await screen.findByRole('button', { name: /^Overhead press, 25 kg\. \+2\.5 kg since the start/ }),
+  ).toBeTruthy();
+  expect(screen.getByRole('button', { name: /^Squat, 27.5 kg/ })).toBeTruthy();
+  expect(screen.getByRole('button', { name: /^Chin-up, 6 reps/ })).toBeTruthy();
+  expect(screen.getByText('Projection')).toBeTruthy();
+  const rows = screen.getAllByText(/^#\d+ Day \d/);
+  expect(rows).toHaveLength(6);
+  expect(rows[0].props.children).toMatch(/^#5 Day 2/);
+});
+
+test('an empty progress tab explains what to do', async () => {
+  renderRouter(routes(), { initialUrl: '/progress' });
+  expect(await screen.findByText('Nothing to chart yet')).toBeTruthy();
+});
+
+test('a lift opens its chart in kg and lb, and a bodyweight lift charts reps', async () => {
+  playSessions(4, 6);
+  renderRouter(routes(), { initialUrl: '/progress' });
+  fireEvent.press(await screen.findByRole('button', { name: /^Overhead press/ }));
+  expect(await screen.findByLabelText('Overhead press: 20 kg to 22.5 kg over 2 sessions')).toBeTruthy();
   expect(screen.getAllByText('20 kg → 25 kg').length).toBeGreaterThan(0);
 
   await act(async () => useStore.getState().setUnit('lb'));
   expect(await screen.findByLabelText('Overhead press: 44.09 lb to 49.6 lb over 2 sessions')).toBeTruthy();
-  expect(screen.getAllByText('45 lb → 55 lb').length).toBeGreaterThan(0); // start/current are snapped to lb plates
+  expect(screen.getAllByText('45 lb → 55 lb').length).toBeGreaterThan(0);
+
+  act(() => router.push('/lift/CHINUPS'));
+  expect(await screen.findByLabelText('Chin-up: 6 reps to 6 reps over 4 sessions')).toBeTruthy();
 });
 
-test('a chip per lift picks what to show: chin-ups chart reps, projection lists nine sessions', async () => {
-  playSessions(3, 7);
-  renderRouter(routes(), { initialUrl: '/progress' });
-  await screen.findByText('Overhead press');
-  expect(screen.getByRole('tab', { name: 'Press' }).props.accessibilityState.selected).toBe(true);
-  expect(screen.queryByLabelText(/^Chin-up:/)).toBeNull();
-  fireEvent.press(screen.getByRole('tab', { name: 'Chin' }));
-  expect(screen.getByLabelText('Chin-up: 7 reps to 7 reps over 3 sessions')).toBeTruthy();
-  fireEvent.press(screen.getByRole('tab', { name: 'Projection' }));
-  const rows = screen.getAllByText(/^#\d+ Day \d/);
-  expect(rows).toHaveLength(9);
-  expect(rows[0].props.children).toMatch(/^#4 Day 1/);
+test('the chart range chips filter sessions and the tooltip defaults to the latest one', async () => {
+  playSessions(3, 6);
+  renderRouter(routes(), { initialUrl: '/lift/BARBELL_SQUAT' });
+  expect(await screen.findByLabelText('Squat: 20 kg to 22.5 kg over 2 sessions')).toBeTruthy();
+  fireEvent.press(screen.getByRole('radio', { name: '3M' }));
+  expect(screen.getByLabelText('Squat: 20 kg to 22.5 kg over 2 sessions')).toBeTruthy();
+  expect(screen.getAllByText(/· 6 reps/).length).toBeGreaterThan(0);
 });
 
 test('editing a past session changes its record, not the current lifts', async () => {
@@ -69,11 +83,13 @@ test('editing a past session changes its record, not the current lifts', async (
   expect(JSON.stringify(useStore.getState().lifts)).toBe(liftsBefore);
 });
 
-test('?lift= preselects a lift and its editor is one tap away', async () => {
+test('the full history lists every workout, newest first', async () => {
   playSessions(3, 6);
-  renderRouter(routes(), { initialUrl: '/progress?lift=DEADLIFT' });
-  expect(await screen.findByRole('tab', { name: 'Deadlift' })).toBeTruthy();
-  expect(screen.getByRole('tab', { name: 'Deadlift' }).props.accessibilityState.selected).toBe(true);
-  fireEvent.press(screen.getByText('Edit weights and increment'));
-  expect(await screen.findByText('Working weight')).toBeTruthy();
+  renderRouter(routes(), { initialUrl: '/history' });
+  const rows = await screen.findAllByRole('button', { name: /^Session \d+, edit$/ });
+  expect(rows.map((r) => r.props.accessibilityLabel)).toEqual([
+    'Session 3, edit',
+    'Session 2, edit',
+    'Session 1, edit',
+  ]);
 });

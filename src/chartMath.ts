@@ -25,3 +25,17 @@ export function scaleSeries(values: number[], width: number, height: number, pad
   }));
   return { points, min, max };
 }
+
+/** Index of the point whose x is closest to `x` (for scrubbing); -1 when there are no points. */
+export function nearestIndex(points: ChartPoint[], x: number): number {
+  let best = -1;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  points.forEach((p, i) => {
+    const d = Math.abs(p.x - x);
+    if (d < bestDistance) {
+      best = i;
+      bestDistance = d;
+    }
+  });
+  return best;
+}

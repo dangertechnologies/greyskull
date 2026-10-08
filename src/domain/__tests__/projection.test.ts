@@ -24,6 +24,8 @@ function state(patch: Partial<AppState> = {}): AppState {
     needsWeightConfirm: false,
     needsWeightConfirmSuspects: [],
     legacyChecked: true,
+    appearance: 'system',
+    hapticsEnabled: true,
     catalogVersion: 2,
     ...patch,
   };

@@ -4,10 +4,6 @@ import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
-
 function seed(minimalist: boolean) {
   useStore.setState({ ...initialState(), hydrated: true });
   const s = useStore.getState();
@@ -46,9 +42,9 @@ test('rest bar counts down after a circle and can be skipped', async () => {
   useStore.getState().setSettings({ restSeconds: 90 });
   renderRouter(routes(), { initialUrl: '/session/0' });
   fireEvent.press((await screen.findAllByLabelText(/^Set 1 of 2, target 5$/))[0]);
-  expect(await screen.findByText('Rest 1:30')).toBeTruthy();
-  fireEvent.press(screen.getByText('Skip'));
-  expect(screen.queryByText(/^Rest /)).toBeNull();
+  expect((await screen.findByTestId('rest-remaining')).props.children).toBe('1:30');
+  fireEvent.press(screen.getByTestId('rest-skip'));
+  expect(screen.queryByTestId('rest-remaining')).toBeNull();
 });
 
 test('minimal and immersive views give identical progression for the same reps', async () => {

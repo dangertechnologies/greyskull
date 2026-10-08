@@ -1,6 +1,6 @@
 import { getPlan } from '../config/plans';
 import type { PluginId } from './program';
-import { PLUGINS } from './program';
+import { PLUGINS, tryParseScheme } from './program';
 import type { Program, Rules, Scheme, Slot } from './types';
 
 /** Schemes the scheme chip cycles through, roughly from GSLP to hypertrophy work. */
@@ -112,7 +112,40 @@ export function removeDay(program: Program, dayIndex: number): Program {
   return next;
 }
 
-/** Next scheme on the chip; a scheme that is not in the list (from a plan) moves to the first one. */
-export function nextScheme(current: Scheme): Scheme {
-  return SCHEMES[(SCHEMES.indexOf(current) + 1) % SCHEMES.length];
+export type SchemeMode = 'fixed' | 'lastAmrap' | 'allAmrap' | 'range';
+
+export interface SchemeParts {
+  sets: number;
+  mode: SchemeMode;
+  reps: number;
+  repsMax: number;
+}
+
+/** Break a scheme into the controls the scheme sheet edits. */
+export function schemeParts(scheme: Scheme): SchemeParts {
+  const parsed = tryParseScheme(scheme);
+  if (!parsed) return { sets: 2, mode: 'lastAmrap', reps: 5, repsMax: 12 };
+  if (parsed.reps === null) return { sets: parsed.sets, mode: 'allAmrap', reps: 5, repsMax: 12 };
+  if (parsed.repsMax !== null)
+    return { sets: parsed.sets, mode: 'range', reps: parsed.reps, repsMax: parsed.repsMax };
+  return {
+    sets: parsed.sets,
+    mode: parsed.amrap ? 'lastAmrap' : 'fixed',
+    reps: parsed.reps,
+    repsMax: Math.max(12, parsed.reps),
+  };
+}
+
+/** The scheme string for the sheet's controls (range max is kept above the minimum). */
+export function buildScheme({ sets, mode, reps, repsMax }: SchemeParts): Scheme {
+  switch (mode) {
+    case 'allAmrap':
+      return `${sets}xAMRAP`;
+    case 'lastAmrap':
+      return `${sets}x${reps}+`;
+    case 'range':
+      return `${sets}x${reps}-${Math.max(reps, repsMax)}`;
+    default:
+      return `${sets}x${reps}`;
+  }
 }

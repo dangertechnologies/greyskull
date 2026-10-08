@@ -3,7 +3,6 @@
     "id": "BARBELL_SQUAT",
     "name": "Squat",
     "shortName": "Squat",
-    "icon": "squat",
     "kind": "barbell",
     "increment": {
       "kg": 2.5,
@@ -26,13 +25,14 @@
       "Let the bar drift forward over your toes"
     ],
     "video": "https://www.youtube.com/watch?v=nhoikoUEI8U",
-    "url": "https://stronglifts.com/squat/#Squat_Technique"
+    "url": "https://stronglifts.com/squat/#Squat_Technique",
+    "abbr": "SQ",
+    "background": "squat"
   },
   "DEADLIFT": {
     "id": "DEADLIFT",
     "name": "Deadlift",
     "shortName": "Deadlift",
-    "icon": "deadlift",
     "kind": "barbell",
     "increment": {
       "kg": 2.5,
@@ -57,13 +57,13 @@
     ],
     "video": "https://www.youtube.com/watch?v=p2OPUi4xGrM",
     "url": "https://stronglifts.com/deadlift/",
-    "background": "deadlift"
+    "background": "deadlift",
+    "abbr": "DL"
   },
   "BENCH_PRESS": {
     "id": "BENCH_PRESS",
     "name": "Bench press",
     "shortName": "Bench",
-    "icon": "bench-press",
     "kind": "barbell",
     "increment": {
       "kg": 1.25,
@@ -86,13 +86,14 @@
       "Let your wrists bend far back"
     ],
     "url": "https://stronglifts.com/bench-press/",
-    "video": "https://www.youtube.com/watch?v=rxD321l2svE"
+    "video": "https://www.youtube.com/watch?v=rxD321l2svE",
+    "abbr": "BP",
+    "background": "dumbbell-female"
   },
   "MILITARY_PRESS": {
     "id": "MILITARY_PRESS",
     "name": "Overhead press",
     "shortName": "Press",
-    "icon": "military-press",
     "kind": "barbell",
     "increment": {
       "kg": 1.25,
@@ -116,13 +117,13 @@
     ],
     "video": "https://www.youtube.com/watch?v=8dacy5hjaE8",
     "url": "https://stronglifts.com/overhead-press/",
-    "background": "overhead-press"
+    "background": "overhead-press",
+    "abbr": "OHP"
   },
   "CHINUPS": {
     "id": "CHINUPS",
     "name": "Chin-up",
     "shortName": "Chin",
-    "icon": "pullups",
     "kind": "bodyweight",
     "increment": {
       "kg": 0,
@@ -144,13 +145,13 @@
     ],
     "video": "https://www.youtube.com/watch?v=qV7vOUcUfD4",
     "url": "https://stronglifts.com/pullups/",
-    "background": "pullups"
+    "background": "pullups",
+    "abbr": "CU"
   },
   "CURLS": {
     "id": "CURLS",
     "name": "Barbell curl",
     "shortName": "Curls",
-    "icon": "curls",
     "kind": "barbell",
     "increment": {
       "kg": 1.25,
@@ -171,13 +172,13 @@
     ],
     "url": "https://startingstrength.com/",
     "background": "curls",
-    "video": "https://www.youtube.com/watch?v=bAWLx7PPK10"
+    "video": "https://www.youtube.com/watch?v=bAWLx7PPK10",
+    "abbr": "CL"
   },
   "CRUNCHES": {
     "id": "CRUNCHES",
     "name": "Weighted crunches",
     "shortName": "Crunches",
-    "icon": "crunches",
     "kind": "bodyweight",
     "increment": {
       "kg": 0,
@@ -197,13 +198,13 @@
       "Use momentum",
       "Hold your breath"
     ],
-    "background": "crunches"
+    "background": "crunches",
+    "abbr": "CR"
   },
   "BENT_OVER_ROW": {
     "id": "BENT_OVER_ROW",
     "name": "Barbell row",
     "shortName": "Row",
-    "icon": "row",
     "kind": "barbell",
     "increment": {
       "kg": 1.25,
@@ -223,13 +224,14 @@
       "Shorten the range of motion"
     ],
     "video": "https://www.youtube.com/watch?v=I0uhDZ06hrQ",
-    "url": "https://stronglifts.com/barbell-row/"
+    "url": "https://stronglifts.com/barbell-row/",
+    "abbr": "ROW",
+    "background": "empty-gym"
   },
   "DIPS": {
     "id": "DIPS",
     "name": "Dips",
     "shortName": "Dips",
-    "icon": "triceps",
     "kind": "bodyweight",
     "increment": {
       "kg": 0,
@@ -252,6 +254,7 @@
     ],
     "video": "https://www.youtube.com/watch?v=yN6Q1UI_xkE",
     "url": "https://stronglifts.com/dips/",
-    "background": "dips"
+    "background": "dips",
+    "abbr": "DIP"
   }
 }

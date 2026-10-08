@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button } from '../../src/components/Button';
-import { PlatesLine } from '../../src/components/PlatesLine';
-import { Screen } from '../../src/components/Screen';
+import { View } from 'react-native';
 import { WeightStepper } from '../../src/components/WeightStepper';
+import { useTheme } from '../../src/design/theme';
 import { exerciseIdsOf, roundForExercise } from '../../src/domain';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
-import { type } from '../../src/theme';
+import { Button } from '../../src/ui/Button';
+import { BottomBar, ScreenScroll } from '../../src/ui/layout';
+import { Monogram } from '../../src/ui/Monogram';
+import { PlateStack } from '../../src/ui/PlateStack';
+import { Card } from '../../src/ui/Surface';
+import { Text } from '../../src/ui/Text';
 
 export default function ConfirmWeights() {
   const exercises = useStore((s) => s.exercises);
@@ -17,6 +20,7 @@ export default function ConfirmWeights() {
   const confirmWeights = useStore((s) => s.confirmWeights);
   const unit = useStore((s) => s.unit);
   const inventory = useStore((s) => s.inventory);
+  const t = useTheme();
 
   const ids = (program ? exerciseIdsOf(program) : []).filter(
     (id) => storedLifts[id] && exercises[id]?.kind !== 'bodyweight',
@@ -31,32 +35,50 @@ export default function ConfirmWeights() {
   );
 
   return (
-    <Screen>
-      <Text style={type.title} accessibilityRole="header">
-        Check your weights
-      </Text>
-      <Text style={type.body}>We moved your data from the old version. Please check these weights.</Text>
-      {ids.map((id) => (
-        <View key={id} style={styles.row}>
-          <Text style={type.heading}>{exercises[id].name}</Text>
-          {suspects.includes(id) ? <Text style={type.error}>looks wrong</Text> : null}
-          <WeightStepper
-            exercise={exercises[id]}
-            kg={weights[id]}
-            onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))}
-          />
-          <PlatesLine kg={weights[id]} />
+    <View style={{ flex: 1, backgroundColor: t.color.background }}>
+      <ScreenScroll withBottomBar headerless gap={6}>
+        <Text variant="title" accessibilityRole="header">
+          Check your weights
+        </Text>
+        <Text color="textMuted">We moved your data from the old version. Please check these weights.</Text>
+        <View style={{ height: t.space[4] }} />
+        <View style={{ gap: t.space[6] }}>
+          {ids.map((id) => (
+            <Card key={id} style={{ gap: t.space[5], alignItems: 'center' }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], alignSelf: 'stretch' }}
+              >
+                <Monogram exercise={exercises[id]} size={40} />
+                <Text variant="headline" style={{ flex: 1 }}>
+                  {exercises[id].name}
+                </Text>
+                {suspects.includes(id) ? (
+                  <Text variant="label" color="danger">
+                    looks wrong
+                  </Text>
+                ) : null}
+              </View>
+              <WeightStepper
+                exercise={exercises[id]}
+                kg={weights[id]}
+                onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))}
+              />
+              {exercises[id].kind === 'barbell' ? <PlateStack kg={weights[id]} /> : null}
+            </Card>
+          ))}
         </View>
-      ))}
-      <Button
-        title="Confirm"
-        onPress={() => {
-          confirmWeights(weights);
-          goHome();
-        }}
-      />
-    </Screen>
+      </ScreenScroll>
+      <BottomBar>
+        <Button
+          title="Confirm"
+          size="lg"
+          testID="confirm-weights"
+          onPress={() => {
+            confirmWeights(weights);
+            goHome();
+          }}
+        />
+      </BottomBar>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({ row: { gap: 6, alignItems: 'center', paddingVertical: 8 } });

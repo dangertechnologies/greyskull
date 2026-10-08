@@ -1,14 +1,21 @@
 import { router } from 'expo-router';
-import { colors } from './theme';
+import { useTheme } from './design/theme';
 
-/** Shared stack styling (root and nested stacks). */
-export const stackScreenOptions = {
-  headerStyle: { backgroundColor: colors.bg },
-  headerTintColor: colors.text,
-  headerTitle: '',
-  headerShadowVisible: false,
-  contentStyle: { backgroundColor: colors.bg },
-} as const;
+/** Stack header and content styling from the active theme (root and nested stacks). */
+export function useStackOptions() {
+  const t = useTheme();
+  return {
+    headerStyle: { backgroundColor: t.color.background },
+    headerTintColor: t.color.text,
+    headerTitle: '',
+    headerShadowVisible: false,
+    headerBackButtonDisplayMode: 'minimal',
+    contentStyle: { backgroundColor: t.color.background },
+  } as const;
+}
+
+/** Tab routes, for programmatic navigation. */
+export const TODAY = '/' as const;
 
 /** Pop the stack, or go to `fallback` when this screen was opened directly (deep link, restored state). */
 export function goBackOr(fallback: '/' | '/exercises'): void {
@@ -16,7 +23,11 @@ export function goBackOr(fallback: '/' | '/exercises'): void {
   else router.replace(fallback);
 }
 
-/** Back to the Home that is already in the stack (or Home as the only screen); never stacks a second Home. */
+/**
+ * Back to the Today tab: pops every screen pushed over the tabs, then selects Today. Never stacks a second
+ * copy of Today and works from any tab.
+ */
 export function goHome(): void {
-  router.dismissTo('/');
+  if (router.canDismiss()) router.dismissAll();
+  router.navigate(TODAY);
 }

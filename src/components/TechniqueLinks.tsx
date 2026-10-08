@@ -1,22 +1,25 @@
-import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { useTheme } from '../design/theme';
 import type { Exercise } from '../domain';
-import { colors } from '../theme';
+import { Icon } from '../ui/Icon';
+import type { IconName } from '../ui/icons';
+import { Text } from '../ui/Text';
 
 /** "Watch technique" / "Read guide" links for an exercise; renders nothing when it has neither. */
 export function TechniqueLinks({ exercise, compact = false }: { exercise: Exercise; compact?: boolean }) {
+  const t = useTheme();
   const links = [
     exercise.video
-      ? { key: 'video', label: 'Watch technique', icon: 'play-circle-outline' as const, href: exercise.video }
+      ? { key: 'video', label: 'Watch technique', icon: 'video' as IconName, href: exercise.video }
       : null,
     !compact && exercise.url
-      ? { key: 'url', label: 'Read guide', icon: 'book-outline' as const, href: exercise.url }
+      ? { key: 'url', label: 'Read guide', icon: 'guide' as IconName, href: exercise.url }
       : null,
   ].filter((l) => l !== null);
   if (links.length === 0) return null;
   return (
-    <View style={styles.row}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
       {links.map((l) => (
         <Pressable
           key={l.key}
@@ -24,28 +27,22 @@ export function TechniqueLinks({ exercise, compact = false }: { exercise: Exerci
           accessibilityLabel={`${l.label}: ${exercise.name}`}
           hitSlop={8}
           onPress={() => void WebBrowser.openBrowserAsync(l.href)}
-          style={({ pressed }) => [styles.link, pressed && styles.pressed]}
+          style={({ pressed }) => ({
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: t.space[2],
+            minHeight: 48,
+            paddingHorizontal: t.space[4],
+            borderRadius: t.radius.pill,
+            borderWidth: 1,
+            borderColor: t.color.borderStrong,
+            backgroundColor: pressed ? t.color.surfaceRaised : 'transparent',
+          })}
         >
-          <Ionicons name={l.icon} size={20} color={colors.text} />
-          <Text style={styles.label}>{l.label}</Text>
+          <Icon name={l.icon} size={20} color="accent" />
+          <Text variant="bodyStrong">{l.label}</Text>
         </Pressable>
       ))}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  link: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    minHeight: 44,
-    paddingHorizontal: 14,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: colors.dim,
-  },
-  pressed: { backgroundColor: colors.faint },
-  label: { color: colors.text, fontSize: 15, fontWeight: '400' },
-});

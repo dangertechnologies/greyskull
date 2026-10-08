@@ -1,12 +1,11 @@
 import { builtInExercises } from '../../catalog';
-import { PLUGINS, sessionFor, TEMPLATES, tryParseScheme, validateProgram } from '../program';
+import { sessionFor, TEMPLATES, validateProgram } from '../program';
 import {
   addAlternatingSlot,
   addDay,
   addSlot,
   buildProgram,
   moveSlot,
-  nextScheme,
   removeDay,
   removeSlot,
   renameDay,
@@ -74,16 +73,11 @@ test('an alternating pair keeps the order already used elsewhere', () => {
   expect(fresh.days[1].slots[0].exercise).toEqual(['DIPS', 'CURLS']);
 });
 
-test('scheme chip cycles through every scheme', () => {
-  let s = '2x5+' as ReturnType<typeof nextScheme>;
-  const seen = new Set<string>();
-  for (let i = 0; i < SCHEMES.length; i++) {
-    seen.add(s);
-    s = nextScheme(s);
-  }
-  expect(seen.size).toBe(SCHEMES.length);
-  expect(SCHEMES.every((x) => tryParseScheme(x) !== null)).toBe(true);
-  expect(nextScheme('7x3')).toBe(SCHEMES[0]);
-  expect(s).toBe('2x5+');
-  expect(PLUGINS.chins.apply(base).days[0].slots.at(-1)?.scheme).toBe('2xAMRAP');
+import { buildScheme, schemeParts } from '../programEdit';
+
+test('scheme sheet controls round-trip every scheme the app ships', () => {
+  for (const s of SCHEMES) expect(buildScheme(schemeParts(s))).toBe(s);
+  expect(buildScheme({ sets: 3, mode: 'range', reps: 10, repsMax: 8 })).toBe('3x10-10');
+  expect(schemeParts('4x6+')).toMatchObject({ sets: 4, mode: 'lastAmrap', reps: 6 });
+  expect(schemeParts('2xAMRAP').mode).toBe('allAmrap');
 });

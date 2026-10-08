@@ -3,10 +3,6 @@ import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { useSession } from './useSession';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
-
 const labels = (items: ReturnType<typeof useSession>) =>
   items!.items.map(
     (i) =>

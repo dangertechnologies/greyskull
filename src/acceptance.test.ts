@@ -3,10 +3,6 @@ import type { AppState, Unit } from './domain';
 import { formatPlates, isLoadable, PLUGINS, platesPerSide, project, TEMPLATES, toKg, toUnit } from './domain';
 import { initialState, useStore } from './store';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
-
 const REPS = [3, 4, 5, 6, 8, 10, 12, 4, 4, 5];
 
 function everyWeightLoadable(unit: Unit) {

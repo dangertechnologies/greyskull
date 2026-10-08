@@ -10,6 +10,7 @@ import type {
   Outcome,
   PlateInventory,
   Program,
+  Rules,
   SessionLog,
   Unit,
 } from './domain';
@@ -48,6 +49,8 @@ export function initialState(): AppState {
     needsWeightConfirm: false,
     needsWeightConfirmSuspects: [],
     legacyChecked: false,
+    appearance: 'system',
+    hapticsEnabled: true,
     catalogVersion: CATALOG_VERSION,
   };
 }
@@ -55,14 +58,23 @@ export function initialState(): AppState {
 interface Actions {
   setUnit(unit: Unit): void;
   setInventory(patch: Partial<PlateInventory>): void;
-  setSettings(patch: { minimalist?: boolean; restSeconds?: number }): void;
+  setSettings(patch: {
+    minimalist?: boolean;
+    restSeconds?: number;
+    appearance?: AppState['appearance'];
+    hapticsEnabled?: boolean;
+  }): void;
   setProgram(program: Program): void;
+  /** Change progression rules in place (keeps the workout in progress, unlike `setProgram`). */
+  updateRules(rules: Rules): void;
   setLift(id: string, patch: Partial<LiftState>): void;
   startSession(n: number): SessionLog;
   logSet(exerciseId: string, setIndex: number, reps: number): void;
   setDraftWeight(exerciseId: string, kg: number): void;
   finishSession(): Record<string, Outcome>;
   skipSession(): void;
+  /** Take back the last skip (only while it is still the latest entry). */
+  undoSkip(): void;
   editSession(n: number, results: Record<string, ExerciseResult>): void;
   upsertExercise(exercise: Exercise): void;
   deleteExercise(id: string): string[];
@@ -124,9 +136,11 @@ export const useStore = create<Store>()(
           return { unit, lifts, draft };
         }),
       setInventory: (patch) => set((s) => ({ inventory: { ...s.inventory, ...patch } })),
-      setSettings: ({ minimalist, restSeconds }) =>
+      setSettings: ({ minimalist, restSeconds, appearance, hapticsEnabled }) =>
         set((s) => ({
           minimalist: minimalist ?? s.minimalist,
+          appearance: appearance ?? s.appearance,
+          hapticsEnabled: hapticsEnabled ?? s.hapticsEnabled,
           restSeconds:
             restSeconds === undefined
               ? s.restSeconds
@@ -146,6 +160,8 @@ export const useStore = create<Store>()(
         }
         set({ program, lifts: next, draft: null });
       },
+
+      updateRules: (rules) => set((s) => (s.program ? { program: { ...s.program, rules } } : {})),
 
       setLift: (id, patch) => {
         if (patch.weightKg !== undefined && !(patch.weightKg > 0)) throw new Error('Weight must be positive');
@@ -247,6 +263,13 @@ export const useStore = create<Store>()(
             skipped: true,
           };
           return { sessions: [...s.sessions, skipped], nextSession: s.nextSession + 1, draft: null };
+        }),
+
+      undoSkip: () =>
+        set((s) => {
+          const last = s.sessions[s.sessions.length - 1];
+          if (!last?.skipped || last.n !== s.nextSession - 1) return {};
+          return { sessions: s.sessions.slice(0, -1), nextSession: last.n };
         }),
 
       editSession: (n, results) =>

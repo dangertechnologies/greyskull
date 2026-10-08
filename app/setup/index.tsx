@@ -1,28 +1,52 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button } from '../../src/components/Button';
-import { Screen } from '../../src/components/Screen';
-import { type } from '../../src/theme';
+import { View } from 'react-native';
+import { PhotoHeader } from '../../src/components/PhotoHeader';
+import { useTheme } from '../../src/design/theme';
+import { Button } from '../../src/ui/Button';
+import { Icon } from '../../src/ui/Icon';
+import { BottomBar, ScreenScroll } from '../../src/ui/layout';
+import { Text } from '../../src/ui/Text';
+
+const POINTS = [
+  { icon: 'lift', text: 'Pick a proven program: Greyskull LP, StrongLifts, Starting Strength and more.' },
+  { icon: 'check', text: 'Your weights always match the plates you actually have.' },
+  { icon: 'progress', text: 'The app adds weight for you and tells you when to back off.' },
+] as const;
 
 export default function Welcome() {
+  const t = useTheme();
   return (
-    <Screen image="empty-gym">
-      <View style={styles.top}>
-        <Text style={type.title} accessibilityRole="header">
-          Greyskull LP
-        </Text>
-        <Text style={type.body}>
-          A simple linear program: three lifts a session, add weight every time you hit your reps.
-        </Text>
-        <Text style={type.body}>
-          The last set of each lift is AMRAP: as many reps as you can. Five or more and the weight goes up;
-          ten or more and it goes up double.
-        </Text>
-        <Text style={type.body}>Fail twice in a row and you drop back 10 % and build up again.</Text>
-      </View>
-      <Button title="Get started" onPress={() => router.push('/setup/units')} />
-    </Screen>
+    <View style={{ flex: 1, backgroundColor: t.color.background }}>
+      <ScreenScroll withBottomBar gap={8}>
+        <View style={{ marginHorizontal: -t.space[5], marginTop: -t.space[6] }}>
+          <PhotoHeader image="woman-with-barbell" fraction={0.42}>
+            <View style={{ flex: 1 }} />
+            <Text variant="display" color="onPhoto" accessibilityRole="header">
+              Greyskull LP
+            </Text>
+            <Text variant="body" color="onPhotoMuted">
+              Get strong, one session at a time.
+            </Text>
+          </PhotoHeader>
+        </View>
+        <View style={{ height: t.space[6] }} />
+        <View style={{ gap: t.space[6] }}>
+          {POINTS.map((p) => (
+            <View key={p.text} style={{ flexDirection: 'row', gap: t.space[4], alignItems: 'flex-start' }}>
+              <Icon name={p.icon} size={24} color="accent" />
+              <Text style={{ flex: 1 }}>{p.text}</Text>
+            </View>
+          ))}
+        </View>
+      </ScreenScroll>
+      <BottomBar>
+        <Button
+          title="Get started"
+          size="lg"
+          testID="get-started"
+          onPress={() => router.push('/setup/gym')}
+        />
+      </BottomBar>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({ top: { gap: 16, paddingTop: 48, paddingBottom: 32 } });

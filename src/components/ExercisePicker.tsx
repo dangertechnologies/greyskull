@@ -1,9 +1,13 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Modal, Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../design/theme';
 import type { Exercise } from '../domain';
-import { colors, type } from '../theme';
-import { Button } from './Button';
-import { ExerciseIcon } from './ExerciseIcon';
+import { Button } from '../ui/Button';
+import { useGutter } from '../ui/layout';
+import { Monogram } from '../ui/Monogram';
+import { Text } from '../ui/Text';
+import { TextField } from '../ui/TextField';
 
 interface Props {
   visible: boolean;
@@ -24,6 +28,9 @@ export function ExercisePicker({
   onPick,
   onClose,
 }: Props) {
+  const t = useTheme();
+  const gutter = useGutter();
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const list = useMemo(
     () =>
@@ -32,26 +39,36 @@ export function ExercisePicker({
         .sort((a, b) => a.name.localeCompare(b.name)),
     [exercises, exclude, query],
   );
+  const close = () => {
+    setQuery('');
+    onClose();
+  };
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={styles.page}>
-        <Text style={type.heading} accessibilityRole="header">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={close}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: t.color.background,
+          paddingTop: t.space[6],
+          paddingHorizontal: gutter,
+          gap: t.space[5],
+        }}
+      >
+        <Text variant="headline" accessibilityRole="header">
           {title}
         </Text>
-        <TextInput
-          accessibilityLabel="Search exercises"
+        <TextField
+          label="Search exercises"
           placeholder="Search"
-          placeholderTextColor={colors.dim}
           value={query}
           onChangeText={setQuery}
-          style={styles.input}
           autoCorrect={false}
         />
         <FlatList
           data={list}
           keyExtractor={(e) => e.id}
           keyboardShouldPersistTaps="handled"
-          ListEmptyComponent={<Text style={type.small}>No exercises match.</Text>}
+          ListEmptyComponent={<Text color="textMuted">No exercises match.</Text>}
           renderItem={({ item }) => (
             <Pressable
               accessibilityRole="button"
@@ -60,44 +77,30 @@ export function ExercisePicker({
                 setQuery('');
                 onPick(item.id);
               }}
-              style={styles.row}
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: t.space[4],
+                minHeight: 64,
+                backgroundColor: pressed ? t.color.surface : 'transparent',
+              })}
             >
-              <ExerciseIcon icon={item.icon} />
-              <Text style={type.body}>{item.name}</Text>
-              {item.custom ? <Text style={type.small}>custom</Text> : null}
+              <Monogram exercise={item} size={40} />
+              <Text variant="bodyStrong" style={{ flex: 1 }}>
+                {item.name}
+              </Text>
+              {item.custom ? (
+                <Text variant="caption" color="textMuted">
+                  custom
+                </Text>
+              ) : null}
             </Pressable>
           )}
         />
-        <Button
-          title="Cancel"
-          variant="link"
-          onPress={() => {
-            setQuery('');
-            onClose();
-          }}
-        />
+        <View style={{ paddingBottom: insets.bottom + t.space[4] }}>
+          <Button title="Cancel" variant="secondary" onPress={close} />
+        </View>
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.bg, padding: 16, paddingTop: 56, gap: 12 },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.dim,
-    borderRadius: 4,
-    color: colors.text,
-    paddingHorizontal: 12,
-    minHeight: 44,
-    fontSize: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    minHeight: 52,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.faint,
-  },
-});

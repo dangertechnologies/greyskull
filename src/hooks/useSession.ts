@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 import type { Outcome, SessionLog } from '../domain';
-import { sessionFor, warmups } from '../domain';
+import { isPersonalRecord, sessionFor, warmups } from '../domain';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
 
@@ -24,6 +24,8 @@ export interface FinishedExercise {
   exerciseId: string;
   fromKg: number;
   outcome: Outcome;
+  /** A new best weight, or more last-set reps at the best weight. */
+  pr: boolean;
 }
 
 export interface SessionApi {
@@ -33,8 +35,16 @@ export interface SessionApi {
   activeIndex: number;
   record(itemIndex: number, reps: number): void;
   setWeight(exerciseId: string, kg: number): void;
+  /** The item the view shows: the one the user picked, else the first open one. */
+  selectedIndex: number;
+  /** Show another item (a logged set to edit, or the open one). */
+  select(itemIndex: number): void;
   restRemaining: number | null;
+  /** Length of the current rest in seconds, including ±30 s adjustments (for the progress bar). */
+  restTotal: number;
   skipRest(): void;
+  /** Make the current rest longer or shorter (never below 0). */
+  addRest(seconds: number): void;
   isComplete: boolean;
   finish(): FinishedExercise[];
 }
@@ -67,6 +77,7 @@ export function useSession(n: number): SessionApi | null {
     if (!ready && !finished && program) startSession(n);
   }, [ready, finished, program, n, startSession]);
 
+  const [picked, setPicked] = useState<number | null>(null);
   const [doneWarmups, setDoneWarmups] = useState<ReadonlySet<string>>(new Set());
 
   const items = useMemo<SessionItem[]>(() => {
@@ -124,6 +135,7 @@ export function useSession(n: number): SessionApi | null {
 
   // Rest timer: a single interval while resting, cleared on unmount or when rest ends.
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
+  const [restTotal, setRestTotal] = useState(restSeconds);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (restEndsAt === null) return undefined;
@@ -159,16 +171,19 @@ export function useSession(n: number): SessionApi | null {
     (itemIndex: number, reps: number) => {
       const item = items[itemIndex];
       if (!item) return;
+      const wasLogged = item.logged && item.kind !== 'warmup';
+      setPicked(null); // after logging, the view follows the next open set again
       if (item.kind === 'warmup') {
         setDoneWarmups((prev) => new Set(prev).add(`${item.exerciseId}:${item.position - 1}`));
       } else if (item.setIndex !== null) {
         logSet(item.exerciseId, item.setIndex, Math.max(1, reps));
       }
-      // Rest only after work sets: warm-ups flow straight into the next set.
-      if (item.kind !== 'warmup' && restSeconds > 0 && itemIndex < items.length - 1) {
+      // Rest only after a *new* work set: warm-ups and edits of an already logged set do not start one.
+      if (item.kind !== 'warmup' && !wasLogged && restSeconds > 0 && itemIndex < items.length - 1) {
         void ensureRestAlertPermission();
         const start = Date.now();
         setNow(start);
+        setRestTotal(restSeconds);
         setRestEndsAt(start + restSeconds * 1000);
       }
     },
@@ -178,23 +193,48 @@ export function useSession(n: number): SessionApi | null {
   const finish = useCallback((): FinishedExercise[] => {
     const before = useStore.getState().draft;
     if (!before) throw new Error('No session in progress');
+    const history = useStore.getState().sessions;
     const outcomes = finishSession();
     setFinished(true);
     setRestEndsAt(null);
     return before.order
       .filter((id) => outcomes[id])
-      .map((id) => ({ exerciseId: id, fromKg: before.results[id].weightKg, outcome: outcomes[id] }));
+      .map((id) => {
+        const result = before.results[id];
+        return {
+          exerciseId: id,
+          fromKg: result.weightKg,
+          outcome: outcomes[id],
+          pr:
+            (before.intensity ?? 1) >= 1 &&
+            isPersonalRecord(history, id, result.weightKg, result.sets.at(-1)?.reps ?? 0),
+        };
+      });
   }, [finishSession]);
 
+  const addRest = useCallback((seconds: number) => {
+    setRestEndsAt((end) => {
+      if (end === null) return end;
+      const next = Math.max(Date.now(), end + seconds * 1000);
+      return next;
+    });
+    setRestTotal((total) => Math.max(1, total + seconds));
+  }, []);
+
   if (!ready || !draft) return null;
+  const selectedIndex = picked !== null && picked < items.length ? picked : activeIndex;
   return {
     draft,
     items,
     activeIndex,
     record,
     setWeight: setDraftWeight,
+    selectedIndex,
+    select: setPicked,
     restRemaining,
+    restTotal,
     skipRest: () => setRestEndsAt(null),
+    addRest,
     isComplete,
     finish,
   };

@@ -1,7 +1,8 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Celebration } from '../../src/components/Celebration';
-import { nameOf, outcomeLine } from '../../src/format';
+import { Celebration, type CelebrationLine } from '../../src/components/Celebration';
+import { formatWeight, sessionFor } from '../../src/domain';
+import { nameOf } from '../../src/format';
 import type { FinishedExercise } from '../../src/hooks/useSession';
 import { useSession } from '../../src/hooks/useSession';
 import { goBackOr, goHome } from '../../src/navigation';
@@ -21,10 +22,23 @@ export default function SessionScreen() {
   const [summary, setSummary] = useState<FinishedExercise[] | null>(null);
 
   if (summary) {
-    const lines = summary
-      .map((f) => outcomeLine(nameOf(exercises, f.exerciseId), f.fromKg, f.outcome, unit))
-      .filter((l): l is string => l !== null);
-    return <Celebration lines={lines} onHome={goHome} />;
+    const lines: CelebrationLine[] = summary.flatMap((f) =>
+      exercises[f.exerciseId]
+        ? [{ exercise: exercises[f.exerciseId], fromKg: f.fromKg, outcome: f.outcome, pr: f.pr }]
+        : [],
+    );
+    const { program, lifts, nextSession: upcoming } = useStore.getState();
+    const next = program ? sessionFor(program, upcoming) : null;
+    const nextUp = next
+      ? `${next.dayName} · ${next.slots
+          .map(({ exercise: id }) =>
+            exercises[id]?.kind === 'bodyweight'
+              ? nameOf(exercises, id, true)
+              : `${nameOf(exercises, id, true)} ${formatWeight(lifts[id]?.weightKg ?? 0, unit)}`,
+          )
+          .join(' · ')}`
+      : undefined;
+    return <Celebration lines={lines} unit={unit} nextUp={nextUp} onHome={goHome} />;
   }
   if (!hasDraft && n !== nextSession) return <Redirect href="/" />;
   if (!session) return null;

@@ -1,17 +1,19 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Button } from '../../src/components/Button';
-import { ExerciseIcon } from '../../src/components/ExerciseIcon';
-import { Screen } from '../../src/components/Screen';
-import { Stepper } from '../../src/components/Stepper';
+import { Alert, View } from 'react-native';
+import { useTheme } from '../../src/design/theme';
 import type { Exercise, Kind } from '../../src/domain';
 import { trim } from '../../src/domain';
 import { customId } from '../../src/exerciseId';
-import { ICONS } from '../../src/icons';
 import { goBackOr } from '../../src/navigation';
 import { useStore } from '../../src/store';
-import { colors, type } from '../../src/theme';
+import { Button } from '../../src/ui/Button';
+import { Chip } from '../../src/ui/Chip';
+import { BottomBar, ScreenScroll } from '../../src/ui/layout';
+import { NumberStepper } from '../../src/ui/NumberStepper';
+import { Section } from '../../src/ui/Section';
+import { Text } from '../../src/ui/Text';
+import { TextField } from '../../src/ui/TextField';
 
 const KINDS: { kind: Kind; label: string }[] = [
   { kind: 'barbell', label: 'Barbell' },
@@ -26,15 +28,6 @@ const lines = (text: string): string[] =>
     .map((l) => l.trim())
     .filter(Boolean);
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={type.label}>{label}</Text>
-      {children}
-    </View>
-  );
-}
-
 export default function ExerciseEditor() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === 'new';
@@ -42,6 +35,7 @@ export default function ExerciseEditor() {
   const upsertExercise = useStore((s) => s.upsertExercise);
   const deleteExercise = useStore((s) => s.deleteExercise);
   const existing = isNew ? undefined : exercises[id];
+  const t = useTheme();
 
   const [name, setName] = useState(existing?.name ?? '');
   const [shortName, setShortName] = useState(existing?.shortName ?? '');
@@ -50,7 +44,7 @@ export default function ExerciseEditor() {
   const [incLb, setIncLb] = useState(existing?.increment.lb ?? 5);
   const [stepKg, setStepKg] = useState(existing?.step?.kg ?? 2);
   const [stepLb, setStepLb] = useState(existing?.step?.lb ?? 5);
-  const [icon, setIcon] = useState(existing?.icon ?? 'muscle');
+  const [abbr, setAbbr] = useState(existing?.abbr ?? '');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [good, setGood] = useState((existing?.goodForm ?? []).join('\n'));
   const [bad, setBad] = useState((existing?.badForm ?? []).join('\n'));
@@ -59,9 +53,9 @@ export default function ExerciseEditor() {
 
   if (!isNew && !existing) {
     return (
-      <Screen>
-        <Text style={type.body}>This exercise no longer exists.</Text>
-      </Screen>
+      <ScreenScroll>
+        <Text>This exercise no longer exists.</Text>
+      </ScreenScroll>
     );
   }
 
@@ -75,7 +69,7 @@ export default function ExerciseEditor() {
       id: existing?.id ?? customId(trimmed, exercises),
       name: trimmed,
       shortName: shortName.trim() || trimmed.split(/\s+/)[0],
-      icon,
+      abbr: abbr.trim().slice(0, 3).toUpperCase() || undefined,
       kind,
       increment: kind === 'bodyweight' ? { kg: 0, lb: 0 } : { kg: incKg, lb: incLb },
       step: kind === 'dumbbell' || kind === 'machine' ? { kg: stepKg, lb: stepLb } : undefined,
@@ -103,201 +97,121 @@ export default function ExerciseEditor() {
   };
 
   return (
-    <Screen>
+    <View style={{ flex: 1, backgroundColor: t.color.background }}>
       <Stack.Screen options={{ title: isNew ? 'New exercise' : existing?.shortName }} />
-      <Text style={type.title} accessibilityRole="header">
-        {isNew ? 'New exercise' : 'Edit exercise'}
-      </Text>
+      <ScreenScroll withBottomBar gap={8}>
+        <Text variant="title" accessibilityRole="header">
+          {isNew ? 'New exercise' : 'Edit exercise'}
+        </Text>
 
-      <Field label="Name">
-        <TextInput
-          accessibilityLabel="Name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-          placeholder="Front squat"
-          placeholderTextColor={colors.dim}
-        />
-      </Field>
-      <Field label="Short name">
-        <TextInput
-          accessibilityLabel="Short name"
-          value={shortName}
-          onChangeText={setShortName}
-          style={styles.input}
-          placeholder="Front"
-          placeholderTextColor={colors.dim}
-        />
-      </Field>
-
-      <Field label="Type">
-        <View style={styles.chips}>
-          {KINDS.map((k) => (
-            <Pressable
-              key={k.kind}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: kind === k.kind, disabled: !!locked }}
-              disabled={!!locked}
-              onPress={() => setKind(k.kind)}
-              style={[
-                styles.chip,
-                kind === k.kind && styles.chipOn,
-                locked && kind !== k.kind && { opacity: 0.3 },
-              ]}
-            >
-              <Text style={[styles.chipText, kind === k.kind && { color: '#000' }]}>{k.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </Field>
-
-      {kind !== 'bodyweight' ? (
-        <>
-          <Stepper
-            label="Increase per session (kg)"
-            value={incKg}
-            step={0.25}
-            min={0}
-            format={(v) => `${trim(v)} kg`}
-            onChange={setIncKg}
+        <Section label="Name">
+          <TextField label="Name" value={name} onChangeText={setName} placeholder="Front squat" />
+          <TextField label="Short name" value={shortName} onChangeText={setShortName} placeholder="Front" />
+          <TextField
+            label="Abbreviation"
+            value={abbr}
+            onChangeText={(v) => setAbbr(v.toUpperCase().slice(0, 3))}
+            placeholder="FS"
+            autoCapitalize="characters"
+            maxLength={3}
           />
-          <Stepper
-            label="Increase per session (lb)"
-            value={incLb}
-            step={0.25}
-            min={0}
-            format={(v) => `${trim(v)} lb`}
-            onChange={setIncLb}
-          />
-        </>
-      ) : null}
-      {kind === 'dumbbell' || kind === 'machine' ? (
-        <>
-          <Stepper
-            label="Weight step (kg)"
-            value={stepKg}
-            step={0.5}
-            min={0.5}
-            format={(v) => `${trim(v)} kg`}
-            onChange={setStepKg}
-          />
-          <Stepper
-            label="Weight step (lb)"
-            value={stepLb}
-            step={0.5}
-            min={0.5}
-            format={(v) => `${trim(v)} lb`}
-            onChange={setStepLb}
-          />
-        </>
-      ) : null}
+        </Section>
 
-      <Field label="Icon">
-        <View style={styles.chips}>
-          {Object.keys(ICONS).map((key) => (
-            <Pressable
-              key={key}
-              accessibilityRole="radio"
-              accessibilityLabel={`Icon ${key}`}
-              accessibilityState={{ selected: icon === key }}
-              onPress={() => setIcon(key)}
-              style={[styles.iconCell, icon === key && styles.iconOn]}
-            >
-              <ExerciseIcon icon={key} size={28} />
-            </Pressable>
-          ))}
-        </View>
-      </Field>
+        <Section label="Type">
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+            {KINDS.map((k) => (
+              <Chip
+                key={k.kind}
+                label={k.label}
+                selected={kind === k.kind}
+                onPress={() => !locked && setKind(k.kind)}
+              />
+            ))}
+          </View>
+        </Section>
 
-      <Field label="Description">
-        <TextInput
-          accessibilityLabel="Description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          style={[styles.input, styles.multi]}
-        />
-      </Field>
-      <Field label="Good form (one per line)">
-        <TextInput
-          accessibilityLabel="Good form"
-          value={good}
-          onChangeText={setGood}
-          multiline
-          style={[styles.input, styles.multi]}
-        />
-      </Field>
-      <Field label="Bad form (one per line)">
-        <TextInput
-          accessibilityLabel="Bad form"
-          value={bad}
-          onChangeText={setBad}
-          multiline
-          style={[styles.input, styles.multi]}
-        />
-      </Field>
-      <Field label="Technique video">
-        <TextInput
-          accessibilityLabel="Technique video"
-          value={video}
-          onChangeText={setVideo}
-          autoCapitalize="none"
-          keyboardType="url"
-          style={styles.input}
-          placeholder="https://www.youtube.com/watch?v=…"
-          placeholderTextColor={colors.dim}
-        />
-      </Field>
-      <Field label="Link">
-        <TextInput
-          accessibilityLabel="Link"
-          value={url}
-          onChangeText={setUrl}
-          autoCapitalize="none"
-          keyboardType="url"
-          style={styles.input}
-          placeholder="https://"
-          placeholderTextColor={colors.dim}
-        />
-      </Field>
+        {kind !== 'bodyweight' ? (
+          <Section label="Progression">
+            <View style={{ gap: t.space[8] }}>
+              <NumberStepper
+                label="Increase per session (kg)"
+                value={incKg}
+                step={0.25}
+                min={0}
+                format={(v) => `${trim(v)} kg`}
+                onChange={setIncKg}
+              />
+              <NumberStepper
+                label="Increase per session (lb)"
+                value={incLb}
+                step={0.25}
+                min={0}
+                format={(v) => `${trim(v)} lb`}
+                onChange={setIncLb}
+              />
+              {kind === 'dumbbell' || kind === 'machine' ? (
+                <>
+                  <NumberStepper
+                    label="Weight step (kg)"
+                    value={stepKg}
+                    step={0.5}
+                    min={0.5}
+                    format={(v) => `${trim(v)} kg`}
+                    onChange={setStepKg}
+                  />
+                  <NumberStepper
+                    label="Weight step (lb)"
+                    value={stepLb}
+                    step={0.5}
+                    min={0.5}
+                    format={(v) => `${trim(v)} lb`}
+                    onChange={setStepLb}
+                  />
+                </>
+              ) : null}
+            </View>
+          </Section>
+        ) : null}
 
-      <Button title="Save" disabled={!valid} onPress={save} />
-      {existing?.custom ? <Button title="Delete" variant="danger" onPress={remove} /> : null}
-    </Screen>
+        <Section label="Technique">
+          <TextField label="Description" value={description} onChangeText={setDescription} multiline />
+          <TextField
+            label="Good form"
+            value={good}
+            onChangeText={setGood}
+            multiline
+            placeholder="One tip per line"
+          />
+          <TextField
+            label="Bad form"
+            value={bad}
+            onChangeText={setBad}
+            multiline
+            placeholder="One tip per line"
+          />
+          <TextField
+            label="Technique video"
+            value={video}
+            onChangeText={setVideo}
+            autoCapitalize="none"
+            keyboardType="url"
+            placeholder="https://www.youtube.com/watch?v=…"
+          />
+          <TextField
+            label="Link"
+            value={url}
+            onChangeText={setUrl}
+            autoCapitalize="none"
+            keyboardType="url"
+            placeholder="https://"
+          />
+        </Section>
+
+        {existing?.custom ? <Button title="Delete exercise" variant="destructive" onPress={remove} /> : null}
+      </ScreenScroll>
+      <BottomBar>
+        <Button title="Save" size="lg" disabled={!valid} onPress={save} />
+      </BottomBar>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    borderColor: colors.dim,
-    borderRadius: 4,
-    color: colors.text,
-    paddingHorizontal: 12,
-    minHeight: 44,
-    fontSize: 16,
-    fontWeight: '300',
-  },
-  multi: { minHeight: 88, paddingTop: 10, textAlignVertical: 'top' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    minHeight: 40,
-    paddingHorizontal: 14,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.dim,
-    borderRadius: 20,
-  },
-  chipOn: { backgroundColor: colors.text, borderColor: colors.text },
-  chipText: { color: colors.text, fontSize: 15, fontWeight: '300' },
-  iconCell: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.faint,
-    borderRadius: 8,
-  },
-  iconOn: { borderColor: colors.text, backgroundColor: colors.faint },
-});

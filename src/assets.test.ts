@@ -2,7 +2,6 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BACKGROUNDS } from './backgrounds';
 import { builtInExercises } from './catalog';
-import { ICONS } from './icons';
 
 const root = join(__dirname, '..');
 const requiredFiles = (source: string) =>
@@ -10,20 +9,20 @@ const requiredFiles = (source: string) =>
     (m) => m[1],
   );
 
-test('every background and icon require points at a file that exists', () => {
-  for (const file of [...requiredFiles('backgrounds.ts'), ...requiredFiles('icons.ts')]) {
-    expect(existsSync(join(root, file))).toBe(true);
-  }
+test('every background require points at a file that exists', () => {
+  for (const file of requiredFiles('backgrounds.ts')) expect(existsSync(join(root, file))).toBe(true);
   expect(Object.values(BACKGROUNDS).every((v) => v !== undefined && v !== null)).toBe(true);
-  expect(Object.values(ICONS).every((v) => v !== undefined && v !== null)).toBe(true);
 });
 
-test('every built-in exercise uses a known icon and background', () => {
+test('every built-in exercise has a photo and a monogram', () => {
   for (const e of Object.values(builtInExercises())) {
-    expect(ICONS[e.icon]).toBeDefined();
-    if (e.background) expect(BACKGROUNDS[e.background]).toBeDefined();
+    expect(e.background).toBeDefined();
+    expect(BACKGROUNDS[e.background ?? '']).toBeDefined();
+    expect(e.abbr?.length).toBeGreaterThanOrEqual(2);
   }
   expect(BACKGROUNDS.default).toBeDefined();
+  expect(BACKGROUNDS.rest).toBeDefined();
+  expect(BACKGROUNDS['woman-with-barbell']).toBeDefined();
 });
 
 test('no orphaned background files (unused images ship in the bundle for nothing)', () => {
@@ -34,8 +33,8 @@ test('no orphaned background files (unused images ship in the bundle for nothing
 
 test('app config points at existing icon and splash images', () => {
   const app = JSON.parse(readFileSync(join(root, 'app.json'), 'utf8')) as {
-    expo: { icon: string; splash: { image: string } };
+    expo: { icon: string; splash?: { image: string } };
   };
   expect(existsSync(join(root, app.expo.icon))).toBe(true);
-  expect(existsSync(join(root, app.expo.splash.image))).toBe(true);
+  if (app.expo.splash) expect(existsSync(join(root, app.expo.splash.image))).toBe(true);
 });

@@ -1,26 +1,46 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { stackScreenOptions } from '../src/navigation';
+import { useAppFonts } from '../src/design/fonts';
+import { ThemeProvider, useTheme } from '../src/design/theme';
+import { useStackOptions } from '../src/navigation';
 import { initStore, useStore } from '../src/store';
+import { SnackbarProvider } from '../src/ui/Snackbar';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+function Shell() {
+  const t = useTheme();
+  const options = useStackOptions();
+  return (
+    <SnackbarProvider>
+      <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
+      <Stack screenOptions={options}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="session/[n]" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="setup" options={{ headerShown: false }} />
+      </Stack>
+    </SnackbarProvider>
+  );
+}
+
 export default function RootLayout() {
   const hydrated = useStore((s) => s.hydrated);
+  const fontsReady = useAppFonts();
 
   useEffect(() => {
     void initStore();
   }, []);
+  const ready = hydrated && fontsReady;
   useEffect(() => {
-    if (hydrated) SplashScreen.hideAsync().catch(() => undefined);
-  }, [hydrated]);
+    if (ready) SplashScreen.hideAsync().catch(() => undefined);
+  }, [ready]);
 
-  if (!hydrated) return null;
+  if (!ready) return null;
   return (
-    <Stack screenOptions={stackScreenOptions}>
-      <Stack.Screen name="session/[n]" options={{ headerShown: false, gestureEnabled: false }} />
-      <Stack.Screen name="setup" options={{ headerShown: false }} />
-    </Stack>
+    <ThemeProvider>
+      <Shell />
+    </ThemeProvider>
   );
 }

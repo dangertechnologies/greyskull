@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { Exercise, PlateInventory, Unit } from '../domain';
 import { formatWeight, loadable, roundForExercise, toKg, toUnit } from '../domain';
 import { useInventory, useUnit } from '../store';
-import { Stepper } from './Stepper';
+import { NumberStepper } from '../ui/NumberStepper';
 
 interface Props {
   kg: number;
@@ -41,9 +41,9 @@ export function WeightStepper({
     return exercise && !barbell ? roundForExercise(out, exercise, 'nearest', inventory, unit) : out;
   };
   return (
-    <Stepper
+    <NumberStepper
       label={label}
-      large={large}
+      size={large ? 'lg' : 'md'}
       value={display}
       values={values}
       step={step}

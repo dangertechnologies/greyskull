@@ -5,7 +5,8 @@ export interface Exercise {
   id: string; // 'BENCH_PRESS' or 'custom_front_squat'
   name: string; // 'Bench press'
   shortName: string; // 'Bench'
-  icon: string; // key into src/icons.ts
+  icon?: string; // legacy: key of the old bitmap icon set (unused; the UI shows a monogram)
+  abbr?: string; // up to 3 letters shown in the exercise monogram
   kind: Kind;
   increment: { kg: number; lb: number }; // added after a successful session
   step?: { kg: number; lb: number }; // dumbbell/machine only: rounding step
@@ -115,6 +116,8 @@ export interface AppState {
   needsWeightConfirm: boolean; // true after migrating v1 data
   needsWeightConfirmSuspects: string[]; // lift ids whose migrated weight looked wrong
   legacyChecked: boolean; // v1 data was looked for once; stops a Reset from re-importing it
+  appearance: 'system' | 'light' | 'dark';
+  hapticsEnabled: boolean;
   catalogVersion: number; // version of the built-in exercise content in `exercises`
 }
 
