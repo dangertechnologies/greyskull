@@ -171,6 +171,37 @@ per small group.
 - Check B1 to B11 again in dark mode. The dark session screen and dark Settings looked correct apart
   from B10.
 
+### B13. Grouped lists have no card behind them
+- **Seen (owner report):** several screens look like they should have a white card behind the text.
+  Instead the grey text sits straight on the grey background.
+- **Cause:** the spec (`docs/UI-MODERNIZATION.md` §5.1) gives `surface` to "Cards, grouped lists".
+  Only Today's lift list and the Plan name card used `Card`.
+- **Fix:** `Section` takes `card`, which puts its children on a `Card` with a hairline between each
+  child. Use it for Plan days and edit rows, Progress lifts and projection, Today's coming up and
+  recent, Exercises, a lift's stats and history, Settings, and Progression rules. History builds the
+  card from its FlatList rows so the list stays virtualised.
+
+## Status (2026-10-08)
+
+All items are done and pushed on `v2`, one commit per item. Notes from doing them:
+
+- **A:** after a cold start in Expo Go, Metro shows no `ExpoWidgets` error. A widget test fails
+  without the guard.
+- **B3:** `trim` gained a `decimals` argument, which broke `side.map(trim)` in `plates.ts`, because
+  `map` passes the index as the second argument. Fixed by writing `side.map((p) => trim(p))`.
+- **B4:** the mismatch came from user data, not a bug. The v1 import kept the user's short name
+  "Incline row" for an exercise named "Bent-over row". The Plan tab now shows full names.
+- **B5:** a catalog `abbr` still wins and can be 3 letters (OHP, ROW, DIP), so the 3-letter spacing
+  in `Monogram.tsx` stays.
+- **B6:** the light status bar has to depend on focus (`useIsFocused`). Without that, a screen
+  pushed over the workout screen inherited a white status bar.
+- **B7:** the counter now counts this lift's pills, warm-ups included. All pills are 48 pt, and
+  open warm-ups have a dashed outline.
+- **B10:** no shadow on the segmented control, because the colour lint test forbids literal
+  colours. The track and the selected segment differ by colour instead.
+- **B11:** no change needed. Content scrolling under the glass bars is normal iOS behaviour, and
+  scroll padding already clears the bars.
+
 ## Out of scope
 - Redesigning Today. Its layout works, and B1, B2 and B5 fix most of what looks wrong there.
 - Charts on Progress beyond a one-line trend. That needs a separate plan; `src/chartMath.ts` exists.
