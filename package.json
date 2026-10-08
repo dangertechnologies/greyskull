@@ -1,6 +1,6 @@
 {
   "name": "greyskull",
-  "version": "2.0.0",
+  "version": "1.1.0",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -54,7 +54,15 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test"
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "build:preview": "eas build --profile preview --platform ios",
+    "build:ios": "eas build --profile production --platform ios",
+    "build:android": "eas build --profile production --platform android",
+    "submit:ios": "eas submit --profile production --platform ios --latest",
+    "submit:android": "eas submit --profile production --platform android --latest",
+    "release:ios": "pnpm check && eas build --profile production --platform ios --auto-submit",
+    "release:android": "pnpm check && eas build --profile production --platform android --auto-submit",
+    "update": "eas update --branch production"
   },
   "private": true,
   "jest": {

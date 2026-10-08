@@ -65,11 +65,19 @@ profiles `preview` and `production` map to the update channels of the same name.
 ## Build
 
 ```sh
-pnpm dlx eas-cli build --profile preview -p ios      # internal test build
-pnpm dlx eas-cli build --profile production -p ios
+pnpm build:preview      # internal iOS build, installable on a registered device (channel `preview`)
+pnpm build:ios          # App Store build (channel `production`, build number auto-incremented by EAS)
+pnpm build:android      # Play build
+pnpm submit:ios         # send the latest iOS build to App Store Connect (app id 1449769260)
+pnpm release:ios        # pnpm check, then build and submit in one go
+pnpm update -- --message "what changed"   # OTA update to `production` for JS-only changes
 ```
 
-Profiles are in `eas.json`. Install the preview build over a device that still has v1 to check the migration.
+Profiles are in `eas.json`. `eas init` must have been run once in this checkout (it writes
+`EAS_PROJECT_ID`; see above). The App Store listing is at 1.0, so this branch ships as 1.1.0
+(`package.json`). iOS build numbers come from EAS: before the first production build, run
+`eas build:version:set -p ios` and give it a number above the one App Store Connect already has for 1.0.
+Install the preview build over a device that still has v1 to check the migration.
 
 ## Release
 
