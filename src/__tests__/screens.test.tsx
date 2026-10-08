@@ -57,7 +57,7 @@ test('seeded v1 data goes through the confirm screen into history', async () => 
   expect(screen.getAllByText('45 lb').length).toBeGreaterThan(0);
   fireEvent.press(screen.getByTestId('confirm-weights'));
   expect(await screen.findByText('Recent')).toBeTruthy();
-  expect(screen.getAllByText(/Imported workout/).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/Imported/).length).toBeGreaterThan(0);
   expect(useStore.getState().needsWeightConfirm).toBe(false);
 });
 

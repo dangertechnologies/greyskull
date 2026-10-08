@@ -1,10 +1,11 @@
 import { Redirect, router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { LiftRow } from '../../src/components/LiftRow';
+import { WorkoutRow } from '../../src/components/WorkoutRow';
 import { useTheme } from '../../src/design/theme';
 import { formatWeight, project, sessionFor, sessionWeightKg } from '../../src/domain';
-import { formatDate, intensityLabel, nameOf, schemeLabel, summarize, weekOf } from '../../src/format';
+import { intensityLabel, nameOf, schemeLabel, weekOf } from '../../src/format';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Icon } from '../../src/ui/Icon';
@@ -148,21 +149,7 @@ export default function Today() {
           <Section label="Recent">
             <View>
               {recent.map((log) => (
-                <Pressable
-                  key={log.n}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Session ${log.n + 1}, ${log.skipped ? 'skipped' : 'edit'}`}
-                  onPress={() => !log.skipped && router.push(`/session/edit/${log.n}`)}
-                  style={{ paddingVertical: t.space[3], gap: t.space[1] }}
-                >
-                  <Text variant="bodyStrong">{`#${log.n + 1}${log.dayName ? ` · ${log.dayName}` : ' · Imported workout'}`}</Text>
-                  <Text variant="caption" color="textMuted">
-                    {log.finishedAt ? formatDate(log.finishedAt) : ''}
-                  </Text>
-                  <Text variant="callout" color="textMuted">
-                    {summarize(log, exercises, unit)}
-                  </Text>
-                </Pressable>
+                <WorkoutRow key={log.n} log={log} />
               ))}
             </View>
             <Button title="See all history" variant="plain" onPress={() => router.push('/history')} />

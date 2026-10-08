@@ -32,9 +32,10 @@ test('the progress tab lists every lift with its current weight and trend', asyn
   expect(screen.getByRole('button', { name: /^Squat, 27.5 kg/ })).toBeTruthy();
   expect(screen.getByRole('button', { name: /^Chin-up, 6 reps/ })).toBeTruthy();
   expect(screen.getByText('Projection')).toBeTruthy();
-  const rows = screen.getAllByText(/^Workout \d+ · Day \d/);
-  expect(rows).toHaveLength(6);
-  expect(rows[0].props.children).toBe('Workout 5 · Day 2');
+  // Six projected workouts after the four played (Today's recent rows share the format, so check by number).
+  expect(screen.getByText('Workout 5 · Day 2')).toBeTruthy();
+  expect(screen.getByText('Workout 10 · Day 1')).toBeTruthy();
+  expect(screen.queryByText(/^Workout 11 /)).toBeNull();
 });
 
 test('lifts without a trend get one shared note, not a line each', async () => {
@@ -93,10 +94,10 @@ test('editing a past session changes its record, not the current lifts', async (
 test('the full history lists every workout, newest first', async () => {
   playSessions(3, 6);
   renderRouter(routes(), { initialUrl: '/history' });
-  const rows = await screen.findAllByRole('button', { name: /^Session \d+, edit$/ });
+  const rows = await screen.findAllByRole('button', { name: /^Workout \d+, edit$/ });
   expect(rows.map((r) => r.props.accessibilityLabel)).toEqual([
-    'Session 3, edit',
-    'Session 2, edit',
-    'Session 1, edit',
+    'Workout 3, edit',
+    'Workout 2, edit',
+    'Workout 1, edit',
   ]);
 });
