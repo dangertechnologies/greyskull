@@ -9,7 +9,7 @@ import { RestRing } from '../components/RestRing';
 import { Stepper } from '../components/Stepper';
 import { WeightModal } from '../components/WeightModal';
 import { formatWeight } from '../domain';
-import { nameOf } from '../format';
+import { intensityLabel, nameOf } from '../format';
 import type { SessionApi } from '../hooks/useSession';
 import { useStore } from '../store';
 import { colors, type } from '../theme';
@@ -60,7 +60,9 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
 
       {item && exercise ? (
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={type.label}>{supertitle(item)}</Text>
+          <Text style={type.label}>
+            {[intensityLabel(session.draft.dayName, session.draft.intensity ?? 1), supertitle(item)].filter(Boolean).join(' · ')}
+          </Text>
           <Text style={type.title} accessibilityRole="header">{nameOf(exercises, item.exerciseId)}</Text>
 
           <Pressable

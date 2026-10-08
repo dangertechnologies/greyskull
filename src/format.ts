@@ -1,6 +1,6 @@
 import type { Exercise, SessionLog } from './domain';
-import { formatWeight, toUnit, trim } from './domain';
-import type { Outcome, Unit } from './domain';
+import { formatWeight, setTargets, toUnit, trim, tryParseScheme } from './domain';
+import type { Outcome, Scheme, Unit } from './domain';
 
 export const weekOf = (n: number, sessionsPerWeek: number): number => Math.floor(n / sessionsPerWeek) + 1;
 
@@ -43,7 +43,21 @@ export function outcomeLine(name: string, fromKg: number, outcome: Outcome, unit
       return `${head} ↑↑`;
     case 'deload':
       return `${head} ↓ (deload)`;
+    case 'reps':
+      return `${name} ${from} ${unit}: one more rep next time (${outcome.next.reps})`;
     case 'same':
       return `${head} (${outcome.next.fails} ${outcome.next.fails === 1 ? 'fail' : 'fails'})`;
   }
 }
+
+/** "2x5+", or for a rep range the current target: "2×9 (8–12)". */
+export function schemeLabel(scheme: Scheme, liftReps?: number): string {
+  const parsed = tryParseScheme(scheme);
+  if (!parsed || parsed.repsMax === null || parsed.reps === null) return scheme;
+  const [target] = setTargets(scheme, liftReps);
+  return `${parsed.sets}×${target} (${parsed.reps}–${parsed.repsMax})`;
+}
+
+/** "Light day · 80 %" for reduced-intensity days, else null. */
+export const intensityLabel = (dayName: string, intensity: number): string | null =>
+  intensity < 1 ? `${dayName} day · ${Math.round(intensity * 100)} %` : null;

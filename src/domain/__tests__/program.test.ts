@@ -1,5 +1,6 @@
 import { builtInExercises } from '../../catalog';
-import { PLUGINS, parseScheme, sessionFor, setTargets, TEMPLATES, validateProgram } from '../program';
+import { PLANS } from '../../config/plans';
+import { PLUGINS, parseScheme, tryParseScheme, sessionFor, setTargets, TEMPLATES, validateProgram } from '../program';
 import type { Program } from '../types';
 
 const ex = builtInExercises();
@@ -32,9 +33,17 @@ test('sessionFor is O(1)-correct for large n and works with a single day', () =>
 });
 
 test('parseScheme and setTargets', () => {
-  expect(parseScheme('2x5+')).toEqual({ sets: 2, reps: 5, amrap: true });
-  expect(parseScheme('2xAMRAP')).toEqual({ sets: 2, reps: null, amrap: true });
-  expect(parseScheme('3x8')).toEqual({ sets: 3, reps: 8, amrap: false });
+  expect(parseScheme('2x5+')).toEqual({ sets: 2, reps: 5, repsMax: null, amrap: true });
+  expect(parseScheme('2xAMRAP')).toEqual({ sets: 2, reps: null, repsMax: null, amrap: true });
+  expect(parseScheme('3x8')).toEqual({ sets: 3, reps: 8, repsMax: null, amrap: false });
+  expect(parseScheme('5x5')).toEqual({ sets: 5, reps: 5, repsMax: null, amrap: false });
+  expect(parseScheme('2x8-12')).toEqual({ sets: 2, reps: 8, repsMax: 12, amrap: false });
+  expect(tryParseScheme('2x12-8')).toBeNull();
+  expect(tryParseScheme('0x5')).toBeNull();
+  expect(tryParseScheme('banana')).toBeNull();
+  expect(setTargets('2x8-12')).toEqual([8, 8]);
+  expect(setTargets('2x8-12', 10)).toEqual([10, 10]);
+  expect(setTargets('2x8-12', 99)).toEqual([12, 12]);
   expect(setTargets('2x5+')).toEqual([5, null]);
   expect(setTargets('1x5+')).toEqual([null]);
   expect(setTargets('2xAMRAP')).toEqual([null, null]);
@@ -65,11 +74,12 @@ describe('validateProgram', () => {
 });
 
 describe('plugins', () => {
-  test.each(Object.entries(PLUGINS))('%s is idempotent and does not mutate its input', (_id, plugin) => {
-    const base = plugin.templates[0];
-    const before = JSON.stringify(TEMPLATES[base]);
-    const once = plugin.apply(TEMPLATES[base]);
-    expect(JSON.stringify(TEMPLATES[base])).toBe(before);
+  const offered = PLANS.flatMap((plan) => plan.plugins.map((id) => [`${plan.id}/${id}`, plan.id, id] as const));
+  test.each(offered)('%s is idempotent and does not mutate its input', (_name, planId, id) => {
+    const plugin = PLUGINS[id];
+    const before = JSON.stringify(TEMPLATES[planId]);
+    const once = plugin.apply(TEMPLATES[planId]);
+    expect(JSON.stringify(TEMPLATES[planId])).toBe(before);
     expect(plugin.apply(once)).toEqual(once);
     expect(validateProgram(once, ex)).toEqual([]);
   });

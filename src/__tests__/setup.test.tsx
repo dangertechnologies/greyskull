@@ -1,4 +1,5 @@
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { getPlan } from '../config/plans';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
@@ -108,4 +109,36 @@ test('emptying a day in the editor shows the validation error and disables Save'
   fireEvent.press(screen.getAllByLabelText('Remove exercise')[2]);
   expect(await screen.findByText('Day 2 has no exercises.')).toBeTruthy();
   expect(screen.getByLabelText('Save').props.accessibilityState.disabled).toBe(true);
+});
+
+test('experimental plans are labelled and StrongLifts goes through setup to a 5x5 Home', async () => {
+  renderRouter(routes(), { initialUrl: '/' });
+  fireEvent.press(await screen.findByText('Get started'));
+  next();
+  expect(await screen.findByLabelText('StrongLifts 5×5, experimental')).toBeTruthy();
+  expect(screen.getAllByText('Experimental').length).toBe(3);
+  fireEvent.press(screen.getByText('StrongLifts 5×5'));
+  expect(screen.getByText(/Five sets of five/)).toBeTruthy();
+  next();
+  await screen.findByText('Options');
+  expect(screen.queryByText('Double the jump at (reps)')).toBeNull();
+  next();
+  await screen.findByText('Your days');
+  next();
+  await screen.findByText('Starting weights');
+  next();
+  await screen.findByText('Week 1');
+  fireEvent.press(screen.getByText('Start training'));
+  expect(await screen.findByText('A · Week 1')).toBeTruthy();
+  expect(screen.getAllByText('5x5')).toHaveLength(3);
+  expect(useStore.getState().program?.rules.progression).toBe('linear');
+});
+
+test('AllPro shows the light day and the current rep target on Home', async () => {
+  const plan = getPlan('allpro')!.program;
+  useStore.getState().setProgram(plan);
+  useStore.setState({ nextSession: 1 });
+  renderRouter(routes(), { initialUrl: '/' });
+  expect(await screen.findByText('Light day · 80 % of your working weights')).toBeTruthy();
+  expect(screen.getAllByText('2×8 (8–12)').length).toBe(5);
 });

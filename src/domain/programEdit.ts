@@ -1,8 +1,10 @@
+import { getPlan } from '../config/plans';
 import { PLUGINS } from './program';
 import type { PluginId } from './program';
 import type { Program, Rules, Scheme, Slot } from './types';
 
-export const SCHEMES: Scheme[] = ['2x5+', '1x5+', '3x5+', '2xAMRAP', '3x8', '2x10'];
+/** Schemes the scheme chip cycles through, roughly from GSLP to hypertrophy work. */
+export const SCHEMES: Scheme[] = ['2x5+', '1x5+', '3x5+', '5x5', '3x5', '1x5', '2x8-12', '3x8', '2x10', '2xAMRAP'];
 
 const clone = (p: Program): Program => JSON.parse(JSON.stringify(p)) as Program;
 
@@ -14,7 +16,7 @@ export function buildProgram(
 ): Program {
   let program = clone(base);
   for (const id of plugins) {
-    if (PLUGINS[id].templates.includes(base.template as 'base' | 'phrak')) program = PLUGINS[id].apply(program);
+    if (getPlan(base.template)?.plugins.includes(id)) program = PLUGINS[id].apply(program);
   }
   return { ...program, sessionsPerWeek: options.sessionsPerWeek, rules: { ...options.rules } };
 }
@@ -83,6 +85,7 @@ export function removeDay(program: Program, dayIndex: number): Program {
   return next;
 }
 
+/** Next scheme on the chip; a scheme that is not in the list (from a plan) moves to the first one. */
 export function nextScheme(current: Scheme): Scheme {
   return SCHEMES[(SCHEMES.indexOf(current) + 1) % SCHEMES.length];
 }

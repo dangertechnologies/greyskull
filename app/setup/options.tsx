@@ -3,6 +3,7 @@ import { StyleSheet, Switch, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
 import { Stepper } from '../../src/components/Stepper';
+import { getPlan } from '../../src/config/plans';
 import { PLUGINS } from '../../src/domain';
 import type { PluginId } from '../../src/domain';
 import { useSetup } from '../../src/setup/SetupContext';
@@ -21,7 +22,8 @@ export default function Options() {
   const { draft, rebuild } = useSetup();
   if (!draft.base) return <Redirect href="/setup/template" />;
   const template = draft.base.template;
-  const plugins = (Object.keys(PLUGINS) as PluginId[]).filter((id) => template !== 'custom' && PLUGINS[id].templates.includes(template));
+  const plugins: PluginId[] = getPlan(template)?.plugins ?? [];
+  const model = draft.rules.progression ?? 'amrap';
   const togglePlugin = (id: PluginId, on: boolean) =>
     rebuild({ plugins: on ? [...draft.plugins, id] : draft.plugins.filter((p) => p !== id) });
   const setRules = (patch: Partial<typeof draft.rules>) => rebuild({ rules: { ...draft.rules, ...patch } });
@@ -49,7 +51,9 @@ export default function Options() {
       </View>
 
       <Row label="Warm-up sets" value={draft.rules.warmups} onChange={(warmups) => setRules({ warmups })} />
-      <Stepper label="Double the jump at (reps)" value={draft.rules.doubleAt} step={1} min={6} max={15} format={(v) => `${v}+`} onChange={(doubleAt) => setRules({ doubleAt })} />
+      {model === 'amrap' ? (
+        <Stepper label="Double the jump at (reps)" value={draft.rules.doubleAt} step={1} min={6} max={15} format={(v) => `${v}+`} onChange={(doubleAt) => setRules({ doubleAt })} />
+      ) : null}
       <Stepper label="Deload" value={Math.round(draft.rules.deloadPct * 100)} step={5} min={5} max={20} format={(v) => `${v} %`} onChange={(v) => setRules({ deloadPct: v / 100 })} />
       <Stepper label="Fails before deload" value={draft.rules.failsBeforeDeload} step={1} min={0} max={3} format={String} onChange={(failsBeforeDeload) => setRules({ failsBeforeDeload })} />
 

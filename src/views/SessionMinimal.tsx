@@ -7,7 +7,7 @@ import { PlatesLine } from '../components/PlatesLine';
 import { Stepper } from '../components/Stepper';
 import { WeightModal } from '../components/WeightModal';
 import { formatWeight, toUnit, trim } from '../domain';
-import { nameOf } from '../format';
+import { intensityLabel, nameOf } from '../format';
 import type { SessionApi, SessionItem } from '../hooks/useSession';
 import { useStore } from '../store';
 import { colors, type } from '../theme';
@@ -64,7 +64,9 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
         <Pressable accessibilityRole="button" accessibilityLabel="Back to home" hitSlop={12} onPress={onBack} style={styles.back}>
           <Ionicons name="chevron-back" size={30} color={colors.text} />
         </Pressable>
-        <Text style={type.heading} accessibilityRole="header">{draft.dayName}</Text>
+        <Text style={type.heading} accessibilityRole="header">
+          {intensityLabel(draft.dayName, draft.intensity ?? 1) ?? draft.dayName}
+        </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>

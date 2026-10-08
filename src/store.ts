@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { builtInExercises } from './catalog';
 import {
-  DEFAULT_INVENTORY, DEFAULT_STEP, exerciseIdsOf, migrateV1, nextLift, sessionFor, setTargets,
+  DEFAULT_INVENTORY, DEFAULT_STEP, exerciseIdsOf, migrateV1, nextLift, sessionFor, sessionWeightKg, setTargets,
   roundForExercise, toKg, validateProgram,
 } from './domain';
 import type {
@@ -138,10 +138,11 @@ export const useStore = create<Store>()(
         const session = sessionFor(program, n);
         const results: Record<string, ExerciseResult> = {};
         for (const { exercise: id, scheme } of session.slots) {
-          const kind = exercises[id]?.kind;
+          const exercise = exercises[id];
+          const working = lifts[id]?.weightKg ?? barKg(inventory, unit);
           results[id] = {
-            weightKg: kind === 'bodyweight' ? 0 : (lifts[id]?.weightKg ?? barKg(inventory, unit)),
-            sets: setTargets(scheme).map((target) => ({ target, reps: 0 })),
+            weightKg: exercise ? sessionWeightKg(working, session.intensity, exercise, inventory, unit) : working,
+            sets: setTargets(scheme, lifts[id]?.reps).map((target) => ({ target, reps: 0 })),
           };
         }
         const created: SessionLog = {
@@ -150,6 +151,7 @@ export const useStore = create<Store>()(
           startedAt: new Date().toISOString(),
           results,
           order: session.slots.map((s) => s.exercise),
+          ...(session.intensity < 1 ? { intensity: session.intensity } : {}),
         };
         set({ draft: created });
         return created;
@@ -176,12 +178,16 @@ export const useStore = create<Store>()(
         if (!program) throw new Error('No program');
         const outcomes: Record<string, Outcome> = {};
         const nextLifts = { ...lifts };
+        const schemes = new Map(sessionFor(program, draft.n).slots.map((s) => [s.exercise, s.scheme]));
         for (const id of draft.order) {
           const exercise = exercises[id];
           const result = draft.results[id];
           if (!exercise || !result) continue;
           const lift = lifts[id] ?? { weightKg: result.weightKg, startKg: result.weightKg, fails: 0 };
-          const outcome = nextLift(lift, result, program.rules, exercise, inventory, unit);
+          const outcome = nextLift(lift, result, program.rules, exercise, inventory, unit, {
+            scheme: schemes.get(id),
+            intensity: draft.intensity ?? 1,
+          });
           outcomes[id] = outcome;
           if (outcome.change !== 'none') nextLifts[id] = outcome.next;
         }

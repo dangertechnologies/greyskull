@@ -1,46 +1,11 @@
-import { DEFAULT_RULES } from './types';
+import { PLANS } from '../config/plans';
+import type { PluginId } from '../config/plans';
 import type { Exercise, Program, Scheme, Slot } from './types';
 
-const press = 'MILITARY_PRESS';
-const bench = 'BENCH_PRESS';
+/** Programs of the built-in plans, by plan id (see src/config/plans.ts). */
+export const TEMPLATES: Record<string, Program> = Object.fromEntries(PLANS.map((p) => [p.id, p.program]));
 
-export const TEMPLATES: Record<'base' | 'phrak', Program> = {
-  base: {
-    template: 'base',
-    sessionsPerWeek: 3,
-    rules: DEFAULT_RULES,
-    days: [
-      { name: 'Day 1', slots: [{ exercise: [press, bench], scheme: '2x5+' }, { exercise: 'BARBELL_SQUAT', scheme: '2x5+' }] },
-      { name: 'Day 2', slots: [{ exercise: [press, bench], scheme: '2x5+' }, { exercise: 'DEADLIFT', scheme: '1x5+' }] },
-      { name: 'Day 3', slots: [{ exercise: [press, bench], scheme: '2x5+' }, { exercise: 'BARBELL_SQUAT', scheme: '2x5+' }] },
-    ],
-  },
-  phrak: {
-    template: 'phrak',
-    sessionsPerWeek: 3,
-    rules: DEFAULT_RULES,
-    days: [
-      {
-        name: 'A',
-        slots: [
-          { exercise: 'CHINUPS', scheme: '2x5+' },
-          { exercise: press, scheme: '2x5+' },
-          { exercise: 'BARBELL_SQUAT', scheme: '2x5+' },
-        ],
-      },
-      {
-        name: 'B',
-        slots: [
-          { exercise: 'BENT_OVER_ROW', scheme: '2x5+' },
-          { exercise: bench, scheme: '2x5+' },
-          { exercise: 'DEADLIFT', scheme: '1x5+' },
-        ],
-      },
-    ],
-  },
-};
-
-export type PluginId = 'curls' | 'chins' | 'dips' | 'abs' | 'rows_instead_of_chins';
+export type { PluginId };
 
 const clone = (p: Program): Program => JSON.parse(JSON.stringify(p)) as Program;
 
@@ -68,35 +33,62 @@ function swapRows(p: Program): Program {
   return next;
 }
 
-export const PLUGINS: Record<
-  PluginId,
-  { label: string; templates: ('base' | 'phrak')[]; apply(p: Program): Program }
-> = {
-  curls: { label: 'Curls', templates: ['base', 'phrak'], apply: (p) => appendEverywhere(p, 'CURLS') },
-  chins: { label: 'Chin-ups', templates: ['base'], apply: (p) => appendEverywhere(p, 'CHINUPS') },
-  dips: { label: 'Dips', templates: ['base', 'phrak'], apply: (p) => appendEverywhere(p, 'DIPS') },
-  abs: { label: 'Crunches', templates: ['base', 'phrak'], apply: (p) => appendEverywhere(p, 'CRUNCHES') },
-  rows_instead_of_chins: { label: 'Rows instead of chin-ups', templates: ['phrak'], apply: swapRows },
+/** Optional extras; which ones a plan offers is listed in its config entry. */
+export const PLUGINS: Record<PluginId, { label: string; apply(p: Program): Program }> = {
+  curls: { label: 'Curls', apply: (p) => appendEverywhere(p, 'CURLS') },
+  chins: { label: 'Chin-ups', apply: (p) => appendEverywhere(p, 'CHINUPS') },
+  dips: { label: 'Dips', apply: (p) => appendEverywhere(p, 'DIPS') },
+  abs: { label: 'Crunches', apply: (p) => appendEverywhere(p, 'CRUNCHES') },
+  rows_instead_of_chins: { label: 'Rows instead of chin-ups', apply: swapRows },
 };
 
-export function parseScheme(s: Scheme): { sets: number; reps: number | null; amrap: boolean } {
-  const [setsPart, repsPart] = s.split('x');
-  const sets = Number(setsPart);
-  if (repsPart === 'AMRAP') return { sets, reps: null, amrap: true };
-  if (repsPart.endsWith('+')) return { sets, reps: Number(repsPart.slice(0, -1)), amrap: true };
-  return { sets, reps: Number(repsPart), amrap: false };
+export interface ParsedScheme {
+  sets: number;
+  /** Fixed or minimum reps; null when every set is AMRAP. */
+  reps: number | null;
+  /** Top of a rep range (double progression), else null. */
+  repsMax: number | null;
+  /** True when the last set (or every set, for `xAMRAP`) is as many reps as possible. */
+  amrap: boolean;
 }
 
-/** Rep target for each work set; `null` marks an AMRAP set. */
-export function setTargets(s: Scheme): (number | null)[] {
-  const { sets, reps, amrap } = parseScheme(s);
-  return Array.from({ length: sets }, (_, i) => (reps === null || (amrap && i === sets - 1) ? null : reps));
+const SCHEME_PATTERN = /^(\d+)x(?:(AMRAP)|(\d+)(\+)?|(\d+)-(\d+))$/;
+
+/** Parses a scheme string; null when it is not one the app understands. */
+export function tryParseScheme(s: string): ParsedScheme | null {
+  const m = SCHEME_PATTERN.exec(s);
+  if (!m) return null;
+  const sets = Number(m[1]);
+  if (sets < 1) return null;
+  if (m[2]) return { sets, reps: null, repsMax: null, amrap: true };
+  if (m[3]) return { sets, reps: Number(m[3]), repsMax: null, amrap: m[4] === '+' };
+  const min = Number(m[5]);
+  const max = Number(m[6]);
+  return min >= 1 && max >= min ? { sets, reps: min, repsMax: max, amrap: false } : null;
+}
+
+export function parseScheme(s: Scheme): ParsedScheme {
+  const parsed = tryParseScheme(s);
+  if (!parsed) throw new Error(`Unknown scheme ${s}`);
+  return parsed;
+}
+
+/**
+ * Rep target for each work set; `null` marks an AMRAP set. For a rep range the target is the lift's current
+ * rep goal (`liftReps`), clamped to the range and starting at the bottom.
+ */
+export function setTargets(s: Scheme, liftReps?: number): (number | null)[] {
+  const { sets, reps, repsMax, amrap } = parseScheme(s);
+  const target = reps !== null && repsMax !== null ? Math.min(repsMax, Math.max(reps, liftReps ?? reps)) : reps;
+  return Array.from({ length: sets }, (_, i) => (target === null || (amrap && i === sets - 1) ? null : target));
 }
 
 const pairKey = (a: string, b: string): string => [a, b].sort().join('|');
 
 export interface ResolvedSession {
   dayName: string;
+  /** Fraction of working weight for the day (1 unless the plan marks it light/medium). */
+  intensity: number;
   slots: { exercise: string; scheme: Scheme }[];
 }
 
@@ -117,7 +109,7 @@ export function sessionFor(program: Program, n: number): ResolvedSession {
     const count = Math.floor(n / len) * perCycle + partial;
     return { exercise: count % 2 === 0 ? a : b, scheme: slot.scheme };
   });
-  return { dayName: day.name, slots };
+  return { dayName: day.name, intensity: day.intensity ?? 1, slots };
 }
 
 export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
@@ -126,6 +118,9 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
   const pairOrder = new Map<string, string>();
   for (const day of p.days) {
     if (day.slots.length === 0) errors.push(`${day.name} has no exercises.`);
+    if (day.intensity !== undefined && !(day.intensity > 0 && day.intensity <= 1)) {
+      errors.push(`${day.name}: intensity must be between 0 and 100 %.`);
+    }
     const seen = new Set<string>();
     for (const slot of day.slots) {
       for (const id of slotIds(slot)) {
@@ -133,6 +128,7 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
         if (seen.has(id)) errors.push(`${day.name}: ${catalog?.[id]?.name ?? id} appears twice.`);
         seen.add(id);
       }
+      if (!tryParseScheme(slot.scheme)) errors.push(`${day.name}: unknown scheme ${slot.scheme}.`);
       if (typeof slot.exercise !== 'string') {
         const [a, b] = slot.exercise;
         if (a === b) errors.push(`${day.name}: an alternating pair needs two different exercises.`);

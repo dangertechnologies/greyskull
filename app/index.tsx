@@ -6,8 +6,8 @@ import { Button } from '../src/components/Button';
 import { ExerciseIcon } from '../src/components/ExerciseIcon';
 import { PlatesLine } from '../src/components/PlatesLine';
 import { Screen } from '../src/components/Screen';
-import { formatWeight, project, sessionFor } from '../src/domain';
-import { formatDate, nameOf, summarize, weekOf } from '../src/format';
+import { formatWeight, project, sessionFor, sessionWeightKg } from '../src/domain';
+import { formatDate, intensityLabel, nameOf, schemeLabel, summarize, weekOf } from '../src/format';
 import { useStore } from '../src/store';
 import { colors, type } from '../src/theme';
 
@@ -26,7 +26,7 @@ function HeaderIcons() {
 
 export default function Home() {
   const state = useStore();
-  const { program, lifts, nextSession, draft, sessions, unit, exercises, needsWeightConfirm, skipSession } = state;
+  const { program, lifts, nextSession, draft, sessions, unit, inventory, exercises, needsWeightConfirm, skipSession } = state;
   const upcoming = useMemo(() => project(state, 9), [state]);
 
   if (program === null) return <Redirect href="/setup" />;
@@ -50,12 +50,20 @@ export default function Home() {
       <Stack.Screen options={{ headerRight: () => <HeaderIcons /> }} />
       <Text style={type.label}>Next up</Text>
       <Text style={type.title} accessibilityRole="header">{`${session.dayName} · Week ${week}`}</Text>
+      {intensityLabel(session.dayName, session.intensity) ? (
+        <Text style={type.small}>{`${intensityLabel(session.dayName, session.intensity)} of your working weights`}</Text>
+      ) : null}
 
       <View style={styles.card}>
         {session.slots.map(({ exercise: id, scheme }) => {
           const exercise = exercises[id];
           const bodyweight = exercise?.kind === 'bodyweight';
-          const kg = draft?.n === nextSession ? (draft.results[id]?.weightKg ?? 0) : (lifts[id]?.weightKg ?? 0);
+          const kg =
+            draft?.n === nextSession
+              ? (draft.results[id]?.weightKg ?? 0)
+              : exercise
+                ? sessionWeightKg(lifts[id]?.weightKg ?? 0, session.intensity, exercise, inventory, unit)
+                : 0;
           return (
             <View key={id} style={styles.slot}>
               <ExerciseIcon icon={exercise?.icon ?? 'muscle'} />
@@ -65,7 +73,7 @@ export default function Home() {
               </View>
               <View style={styles.slotRight}>
                 <Text style={type.body}>{bodyweight ? 'Bodyweight' : formatWeight(kg, unit)}</Text>
-                <Text style={type.small}>{scheme}</Text>
+                <Text style={type.small}>{schemeLabel(scheme, lifts[id]?.reps)}</Text>
               </View>
             </View>
           );

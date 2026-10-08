@@ -1,5 +1,5 @@
 import { builtInExercises } from '../../catalog';
-import { nextLift, warmups } from '../progression';
+import { nextLift, sessionWeightKg, warmups } from '../progression';
 import { ceilLoadableKg, floorLoadableKg, isLoadable } from '../plates';
 import { DEFAULT_INVENTORY, DEFAULT_RULES, Exercise, LiftState, PlateInventory, Unit } from '../types';
 import { toKg, toUnit } from '../units';
@@ -119,4 +119,79 @@ describe('warmups', () => {
     expect(toUnit(sets[0].kg, 'lb')).toBeCloseTo(45, 9);
     expect(sets.every((s) => isLoadable(s.kg, inv, 'lb'))).toBe(true);
   });
+});
+
+describe('linear progression (StrongLifts / Starting Strength)', () => {
+  const linear = { ...DEFAULT_RULES, progression: 'linear' as const, failsBeforeDeload: 2 };
+  const lift: LiftState = { weightKg: 60, startKg: 60, fails: 0 };
+  const sets = (...reps: number[]) => reps.map((r) => ({ target: 5, reps: r }));
+
+  test('all five sets of five adds one increment (never doubles)', () => {
+    const o = nextLift(lift, { weightKg: 60, sets: sets(5, 5, 5, 5, 12) }, linear, ex.BARBELL_SQUAT, inv, 'kg');
+    expect(o).toMatchObject({ change: 'up', next: { weightKg: 62.5, fails: 0 } });
+  });
+
+  test('one missed rep is a failed session; the third miss in a row deloads', () => {
+    const miss = { weightKg: 60, sets: sets(5, 5, 5, 5, 4) };
+    let l = lift;
+    l = nextLift(l, miss, linear, ex.BARBELL_SQUAT, inv, 'kg').next;
+    l = nextLift(l, miss, linear, ex.BARBELL_SQUAT, inv, 'kg').next;
+    expect(l).toMatchObject({ weightKg: 60, fails: 2 });
+    const third = nextLift(l, miss, linear, ex.BARBELL_SQUAT, inv, 'kg');
+    expect(third).toMatchObject({ change: 'deload', next: { weightKg: 52.5, fails: 0 } });
+  });
+
+  test('plan increments override the catalog, the user override beats both', () => {
+    const rules = { ...linear, increments: { DEADLIFT: { kg: 5, lb: 10 } } };
+    const r = { weightKg: 100, sets: [{ target: 5, reps: 5 }] };
+    expect(nextLift({ weightKg: 100, startKg: 100, fails: 0 }, r, rules, ex.DEADLIFT, inv, 'kg').next.weightKg).toBe(105);
+    const own = { weightKg: 100, startKg: 100, fails: 0, incrementOverride: { kg: 2.5, lb: 5 } };
+    expect(nextLift(own, r, rules, ex.DEADLIFT, inv, 'kg').next.weightKg).toBe(102.5);
+  });
+});
+
+describe('double progression (AllPro)', () => {
+  const dbl = { ...DEFAULT_RULES, progression: 'double' as const };
+  const ctx = { scheme: '2x8-12' as const };
+  const at = (reps: number | undefined, done: number[]) =>
+    nextLift(
+      { weightKg: 60, startKg: 60, fails: 0, reps },
+      { weightKg: 60, sets: done.map((r) => ({ target: reps ?? 8, reps: r })) },
+      dbl, ex.BARBELL_SQUAT, inv, 'kg', ctx,
+    );
+
+  test('hitting the target adds a rep, keeps the weight', () => {
+    expect(at(undefined, [8, 8])).toMatchObject({ change: 'reps', next: { weightKg: 60, reps: 9 } });
+    expect(at(11, [11, 11])).toMatchObject({ change: 'reps', next: { weightKg: 60, reps: 12 } });
+  });
+
+  test('at the top of the range the weight goes up and reps reset', () => {
+    expect(at(12, [12, 12])).toMatchObject({ change: 'up', next: { weightKg: 62.5, reps: 8 } });
+  });
+
+  test('a miss repeats, a second miss deloads and resets the reps', () => {
+    const first = at(10, [10, 9]);
+    expect(first).toMatchObject({ change: 'same', next: { weightKg: 60, reps: 10, fails: 1 } });
+    const second = nextLift(first.next, { weightKg: 60, sets: [{ target: 10, reps: 7 }, { target: 10, reps: 7 }] }, dbl, ex.BARBELL_SQUAT, inv, 'kg', ctx);
+    expect(second).toMatchObject({ change: 'deload', next: { weightKg: 52.5, reps: 8, fails: 0 } });
+  });
+
+  test('light and medium days never change the lift', () => {
+    const o = nextLift({ weightKg: 60, startKg: 60, fails: 0 }, { weightKg: 47.5, sets: [{ target: 8, reps: 8 }] }, dbl, ex.BARBELL_SQUAT, inv, 'kg', { ...ctx, intensity: 0.8 });
+    expect(o.change).toBe('none');
+  });
+});
+
+test('session weight on a light day is re-rounded to a loadable weight', () => {
+  expect(sessionWeightKg(100, 0.8, ex.BARBELL_SQUAT, inv, 'kg')).toBe(80);
+  expect(sessionWeightKg(62.5, 0.9, ex.BARBELL_SQUAT, inv, 'kg')).toBe(55); // 56.25: ties round down
+  expect(sessionWeightKg(62.5, 1, ex.BARBELL_SQUAT, inv, 'kg')).toBe(62.5);
+  expect(sessionWeightKg(62.5, 0.8, ex.CHINUPS, inv, 'kg')).toBe(0);
+});
+
+test('warm-ups: single-set schemes get two jumps, 5x5 ramps from the bar, rep-range work too', () => {
+  const w = (kg: number, scheme: Parameters<typeof warmups>[1], e: Exercise) => warmups(kg, scheme, e, inv, 'kg').map((x) => x.kg);
+  expect(w(140, '1x5', ex.DEADLIFT)).toEqual([70, 105]);
+  expect(w(100, '5x5', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
+  expect(w(100, '2x8-12', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
 });

@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
-import { DEFAULT_RULES, TEMPLATES } from '../../src/domain';
+import { PLANS } from '../../src/config/plans';
+import { DEFAULT_RULES } from '../../src/domain';
 import type { Program } from '../../src/domain';
 import { useSetup } from '../../src/setup/SetupContext';
 import { colors, type } from '../../src/theme';
@@ -14,10 +15,16 @@ const SCRATCH: Program = {
   days: [{ name: 'Day 1', slots: [] }],
 };
 
-const CHOICES: { key: 'base' | 'phrak' | 'custom'; title: string; text: string; program: Program }[] = [
-  { key: 'base', title: 'Greyskull LP', text: 'Press/Bench alternate · Squat Mon & Fri · Deadlift Wed', program: TEMPLATES.base },
-  { key: 'phrak', title: "Phrak's GSLP", text: 'A: Chins, Press, Squat · B: Rows, Bench, Deadlift', program: TEMPLATES.phrak },
-  { key: 'custom', title: 'From scratch', text: 'Start with one empty day and build your own', program: SCRATCH },
+const CHOICES = [
+  ...PLANS.map((p) => ({ id: p.id, title: p.name, summary: p.summary, description: p.description, experimental: p.status === 'experimental', program: p.program })),
+  {
+    id: 'custom',
+    title: 'From scratch',
+    summary: 'Start with one empty day and build your own',
+    description: 'Uses Greyskull-style AMRAP progression. You can change days, exercises and schemes later in Settings.',
+    experimental: false,
+    program: SCRATCH,
+  },
 ];
 
 export default function Template() {
@@ -26,18 +33,27 @@ export default function Template() {
   return (
     <Screen>
       <Text style={type.title} accessibilityRole="header">Pick a program</Text>
-      {CHOICES.map((c) => (
-        <Pressable
-          key={c.key}
-          accessibilityRole="radio"
-          accessibilityState={{ selected: chosen === c.key }}
-          onPress={() => rebuild({ base: c.program, plugins: [], sessionsPerWeek: c.program.sessionsPerWeek, rules: { ...c.program.rules } })}
-          style={[styles.card, chosen === c.key && styles.selected]}
-        >
-          <Text style={type.heading}>{c.title}</Text>
-          <Text style={type.small}>{c.text}</Text>
-        </Pressable>
-      ))}
+      {CHOICES.map((c) => {
+        const selected = chosen === c.id;
+        return (
+          <Pressable
+            key={c.id}
+            accessibilityRole="radio"
+            accessibilityLabel={`${c.title}${c.experimental ? ', experimental' : ''}`}
+            accessibilityHint={c.summary}
+            accessibilityState={{ selected }}
+            onPress={() => rebuild({ base: c.program, plugins: [], sessionsPerWeek: c.program.sessionsPerWeek, rules: { ...c.program.rules } })}
+            style={[styles.card, selected && styles.selected]}
+          >
+            <View style={styles.titleRow}>
+              <Text style={[type.heading, { flex: 1 }]}>{c.title}</Text>
+              {c.experimental ? <Text style={styles.badge}>Experimental</Text> : null}
+            </View>
+            <Text style={type.small}>{c.summary}</Text>
+            {selected ? <Text style={type.body}>{c.description}</Text> : null}
+          </Pressable>
+        );
+      })}
       <Button title="Next" disabled={!draft.base} onPress={() => router.push('/setup/options')} />
     </Screen>
   );
@@ -46,4 +62,9 @@ export default function Template() {
 const styles = StyleSheet.create({
   card: { padding: 16, gap: 6, borderRadius: 8, borderWidth: 1, borderColor: colors.faint, backgroundColor: colors.card },
   selected: { borderColor: colors.text },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  badge: {
+    color: colors.text, fontSize: 11, fontWeight: '400', letterSpacing: 1, textTransform: 'uppercase',
+    borderWidth: 1, borderColor: colors.dim, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2,
+  },
 });

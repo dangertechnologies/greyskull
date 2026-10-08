@@ -1,5 +1,5 @@
-import { nextLift } from './progression';
-import { sessionFor } from './program';
+import { nextLift, sessionWeightKg, SUCCESS_REPS } from './progression';
+import { sessionFor, setTargets } from './program';
 import type { AppState, LiftState, Scheme } from './types';
 import { toKg } from './units';
 
@@ -9,7 +9,7 @@ export interface ProjectedSession {
   lifts: { exercise: string; scheme: Scheme; weightKg: number }[];
 }
 
-/** Simulate `count` plain-success sessions from `state.nextSession` (the draft is ignored). */
+/** Simulate `count` plain-success sessions (light/medium days at their reduced weight) from `state.nextSession` (the draft is ignored). */
 export function project(state: AppState, count: number): ProjectedSession[] {
   const { program } = state;
   if (!program) return [];
@@ -24,9 +24,14 @@ export function project(state: AppState, count: number): ProjectedSession[] {
       const exercise = state.exercises[id];
       if (!exercise || exercise.kind === 'bodyweight') return { exercise: id, scheme, weightKg: 0 };
       const lift = lifts[id] ?? { weightKg: barKg, startKg: barKg, fails: 0 };
-      const result = { weightKg: lift.weightKg, sets: [{ target: null, reps: 5 }] };
-      lifts[id] = nextLift(lift, result, program.rules, exercise, state.inventory, unit).next;
-      return { exercise: id, scheme, weightKg: lift.weightKg };
+      const weightKg = sessionWeightKg(lift.weightKg, session.intensity, exercise, state.inventory, unit);
+      // A plain success: every set hits its target, AMRAP sets exactly SUCCESS_REPS.
+      const sets = setTargets(scheme, lift.reps).map((target) => ({ target, reps: target ?? SUCCESS_REPS }));
+      lifts[id] = nextLift(lift, { weightKg, sets }, program.rules, exercise, state.inventory, unit, {
+        scheme,
+        intensity: session.intensity,
+      }).next;
+      return { exercise: id, scheme, weightKg };
     });
     out.push({ n, dayName: session.dayName, lifts: projected });
   }

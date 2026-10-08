@@ -1,8 +1,8 @@
 import { builtInExercises } from '../../catalog';
-import { PLUGINS, sessionFor, TEMPLATES, validateProgram } from '../program';
+import { PLUGINS, sessionFor, TEMPLATES, tryParseScheme, validateProgram } from '../program';
 import {
   addAlternatingSlot, addDay, addSlot, buildProgram, moveSlot, nextScheme, removeDay, removeSlot, renameDay,
-  setSlotScheme,
+  setSlotScheme, SCHEMES,
 } from '../programEdit';
 import { DEFAULT_RULES } from '../types';
 
@@ -52,8 +52,10 @@ test('an alternating pair keeps the order already used elsewhere', () => {
 test('scheme chip cycles through every scheme', () => {
   let s = '2x5+' as ReturnType<typeof nextScheme>;
   const seen = new Set<string>();
-  for (let i = 0; i < 6; i++) { seen.add(s); s = nextScheme(s); }
-  expect(seen.size).toBe(6);
+  for (let i = 0; i < SCHEMES.length; i++) { seen.add(s); s = nextScheme(s); }
+  expect(seen.size).toBe(SCHEMES.length);
+  expect(SCHEMES.every((x) => tryParseScheme(x) !== null)).toBe(true);
+  expect(nextScheme('7x3')).toBe(SCHEMES[0]);
   expect(s).toBe('2x5+');
   expect(PLUGINS.chins.apply(base).days[0].slots.at(-1)?.scheme).toBe('2xAMRAP');
 });

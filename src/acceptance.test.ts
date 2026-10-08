@@ -1,5 +1,6 @@
 import { isLoadable, platesPerSide, PLUGINS, project, TEMPLATES, toKg, toUnit, formatPlates } from './domain';
 import type { AppState, Unit } from './domain';
+import { getPlan, PLANS } from './config/plans';
 import { initialState, useStore } from './store';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
@@ -70,4 +71,24 @@ test('toggling kg ↔ lb 20 times leaves every displayed weight unchanged', () =
   for (let i = 0; i < 20; i++) useStore.getState().setUnit(i % 2 === 0 ? 'lb' : 'kg');
   expect(useStore.getState().unit).toBe('kg');
   expect(JSON.stringify(useStore.getState().lifts)).toBe(before);
+});
+
+test.each(PLANS.map((p) => [p.id] as const))('%s: 120 mixed sessions keep every weight loadable and bounded', (planId) => {
+  useStore.setState({ ...initialState(), hydrated: true });
+  const s = useStore.getState();
+  s.setProgram(getPlan(planId)!.program);
+  for (let i = 0; i < 120; i++) {
+    const state = useStore.getState();
+    const draft = state.startSession(state.nextSession);
+    draft.order.forEach((id, k) => {
+      draft.results[id].sets.forEach((set, j) => {
+        const miss = REPS[(i + k * 3 + j) % REPS.length] < 4;
+        useStore.getState().logSet(id, j, miss ? 3 : (set.target ?? REPS[(i + k) % REPS.length]));
+      });
+      expect(isLoadable(draft.results[id].weightKg, state.inventory, 'kg') || state.exercises[id].kind !== 'barbell').toBe(true);
+    });
+    useStore.getState().finishSession();
+    everyWeightLoadable('kg');
+  }
+  for (const lift of Object.values(useStore.getState().lifts)) expect(lift.weightKg).toBeLessThanOrEqual(20 + 120 * 10);
 });

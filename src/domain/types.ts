@@ -18,7 +18,24 @@ export interface Exercise {
   custom?: boolean;
 }
 
-export type Scheme = '2x5+' | '1x5+' | '3x5+' | '2xAMRAP' | '3x8' | '2x10';
+/**
+ * Sets × reps. `5x5` fixed reps, `2x5+` last set AMRAP (at least 5), `2xAMRAP` every set AMRAP,
+ * `2x8-12` a rep range for double progression (reps first, then weight).
+ */
+export type Scheme =
+  | `${number}x${number}`
+  | `${number}x${number}+`
+  | `${number}xAMRAP`
+  | `${number}x${number}-${number}`;
+
+/**
+ * How a lift moves after a session:
+ * - `amrap`: GSLP. Last-set AMRAP ≥ 5 adds the increment, ≥ `doubleAt` adds it twice.
+ * - `linear`: every set hits its target → add the increment (StrongLifts, Starting Strength).
+ * - `double`: every set hits the current rep target → one more rep next time; at the top of the range
+ *   add the increment and drop back to the bottom (AllPro).
+ */
+export type ProgressionModel = 'amrap' | 'linear' | 'double';
 
 export interface Slot {
   exercise: string | [string, string]; // tuple = alternate between the two each session
@@ -27,6 +44,8 @@ export interface Slot {
 export interface Day {
   name: string;
   slots: Slot[];
+  /** Fraction of the working weight used on this day (light/medium days). Below 1 the day never progresses. */
+  intensity?: number;
 }
 
 export interface Rules {
@@ -34,10 +53,13 @@ export interface Rules {
   deloadPct: number; // default 0.10
   failsBeforeDeload: number; // default 1 (fail once → stay; fail again → deload)
   warmups: boolean; // default true
+  progression?: ProgressionModel; // default 'amrap' (programs saved before plans existed have none)
+  /** Per-exercise increments that override the catalog's (e.g. StrongLifts adds 5 kg to the deadlift). */
+  increments?: Record<string, { kg: number; lb: number }>;
 }
 
 export interface Program {
-  template: 'base' | 'phrak' | 'custom';
+  template: string; // plan id from src/config/plans.ts, or 'custom'
   days: Day[];
   sessionsPerWeek: 2 | 3;
   rules: Rules;
@@ -48,6 +70,7 @@ export interface LiftState {
   startKg: number; // weight at program start (for charts)
   fails: number; // consecutive failed AMRAPs
   incrementOverride?: { kg: number; lb: number };
+  reps?: number; // double progression: current rep target inside the scheme's range
 }
 
 export interface SetResult {
@@ -67,6 +90,7 @@ export interface SessionLog {
   results: Record<string, ExerciseResult>; // key = exercise id
   order: string[]; // exercise ids in order (so UI never re-derives)
   skipped?: boolean;
+  intensity?: number; // set when the day is a light/medium day
 }
 
 export interface PlateInventory {
