@@ -50,7 +50,10 @@ describe('backup import', () => {
     ['not json', '{nope'],
     ['v1 data', JSON.stringify(fixture)],
     ['array', '[]'],
-    ['missing sessions', JSON.stringify({ version: 2, exercises: {}, lifts: {}, unit: 'kg', inventory: {}, nextSession: 0 })],
+    [
+      'missing sessions',
+      JSON.stringify({ version: 2, exercises: {}, lifts: {}, unit: 'kg', inventory: {}, nextSession: 0 }),
+    ],
   ])('rejects %s', (_n, raw) => {
     expect(parseBackup(raw).ok).toBe(false);
   });
@@ -63,9 +66,21 @@ describe('backup import', () => {
       mut(c);
       return parseBackup(JSON.stringify(c)).ok;
     };
-    expect(bad((s) => { s.sessions[0].results.BARBELL_SQUAT.sets[0].reps = 'x'; })).toBe(false);
-    expect(bad((s) => { s.lifts.BARBELL_SQUAT.weightKg = 0; })).toBe(false);
-    expect(bad((s) => { s.program.days[0].slots[0].scheme = '9y9'; })).toBe(false);
+    expect(
+      bad((s) => {
+        s.sessions[0].results.BARBELL_SQUAT.sets[0].reps = 'x';
+      }),
+    ).toBe(false);
+    expect(
+      bad((s) => {
+        s.lifts.BARBELL_SQUAT.weightKg = 0;
+      }),
+    ).toBe(false);
+    expect(
+      bad((s) => {
+        s.program.days[0].slots[0].scheme = '9y9';
+      }),
+    ).toBe(false);
     expect(bad(() => {})).toBe(true);
   });
 
@@ -95,15 +110,22 @@ describe('persist migration', () => {
 
   test('garbage input migrates to a usable state', () => {
     expect(migratePersisted(null, 1).unit).toBe('kg');
-    expect(migratePersisted({ unit: 'lb', inventory: { barKg: 15 } }, 2).inventory.platesKg.length).toBeGreaterThan(0);
+    expect(
+      migratePersisted({ unit: 'lb', inventory: { barKg: 15 } }, 2).inventory.platesKg.length,
+    ).toBeGreaterThan(0);
   });
 });
 
 describe('soft delete', () => {
   test('a custom exercise used in history is archived, not removed', () => {
     get().upsertExercise({
-      id: 'custom_curl', name: 'Curl', shortName: 'Curl', kind: 'dumbbell',
-      increment: { kg: 1, lb: 2 }, step: { kg: 1, lb: 2 }, custom: true,
+      id: 'custom_curl',
+      name: 'Curl',
+      shortName: 'Curl',
+      kind: 'dumbbell',
+      increment: { kg: 1, lb: 2 },
+      step: { kg: 1, lb: 2 },
+      custom: true,
     });
     const p = JSON.parse(JSON.stringify(TEMPLATES.base)) as Program;
     p.days[0].slots.push({ exercise: 'custom_curl', scheme: '2x8-12' });

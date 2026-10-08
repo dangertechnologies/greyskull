@@ -10,16 +10,20 @@ export interface BackupSummary {
   lastSession: string | null;
 }
 
-export type BackupResult = { ok: true; state: AppState; summary: BackupSummary } | { ok: false; error: string };
+export type BackupResult =
+  | { ok: true; state: AppState; summary: BackupSummary }
+  | { ok: false; error: string };
 
-const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
 function badSession(s: unknown): string | null {
   if (!isObject(s) || !isNum(s.n) || typeof s.startedAt !== 'string') return 'a session is malformed';
   if (!isObject(s.results) || !Array.isArray(s.order)) return `session ${String(s.n)} is malformed`;
   for (const r of Object.values(s.results)) {
-    if (!isObject(r) || !isNum(r.weightKg) || !Array.isArray(r.sets)) return `session ${String(s.n)} has a bad result`;
+    if (!isObject(r) || !isNum(r.weightKg) || !Array.isArray(r.sets))
+      return `session ${String(s.n)} has a bad result`;
     for (const set of r.sets) {
       if (!isObject(set) || !isNum(set.reps) || !(set.target === null || isNum(set.target))) {
         return `session ${String(s.n)} has a bad set`;
@@ -41,7 +45,8 @@ export function parseBackup(raw: string): BackupResult {
   } catch {
     return { ok: false, error: 'That is not valid JSON.' };
   }
-  if (!isObject(data) || data.version !== 2) return { ok: false, error: 'This is not a Greyskull v2 backup.' };
+  if (!isObject(data) || data.version !== 2)
+    return { ok: false, error: 'This is not a Greyskull v2 backup.' };
   if (!isObject(data.exercises) || !Array.isArray(data.sessions) || !isObject(data.lifts)) {
     return { ok: false, error: 'The backup is missing exercises, lifts or sessions.' };
   }
@@ -53,7 +58,8 @@ export function parseBackup(raw: string): BackupResult {
     if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
   }
   for (const l of Object.values(data.lifts)) {
-    if (!isObject(l) || !isNum(l.weightKg) || !(l.weightKg > 0)) return { ok: false, error: 'A lift weight is invalid.' };
+    if (!isObject(l) || !isNum(l.weightKg) || !(l.weightKg > 0))
+      return { ok: false, error: 'A lift weight is invalid.' };
   }
   for (const e of Object.values(data.exercises)) {
     if (!isObject(e) || typeof e.id !== 'string' || typeof e.name !== 'string') {

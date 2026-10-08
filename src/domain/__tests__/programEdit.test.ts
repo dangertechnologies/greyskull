@@ -5,13 +5,16 @@ import {
   addDay,
   addSlot,
   buildProgram,
+  dragTarget,
   moveSlot,
+  moveSlotTo,
   removeDay,
   removeSlot,
   renameDay,
   SCHEMES,
   setSlotScheme,
 } from '../programEdit';
+import type { Program } from '../types';
 import { DEFAULT_RULES } from '../types';
 
 const ex = builtInExercises();
@@ -80,4 +83,37 @@ test('scheme sheet controls round-trip every scheme the app ships', () => {
   expect(buildScheme({ sets: 3, mode: 'range', reps: 10, repsMax: 8 })).toBe('3x10-10');
   expect(schemeParts('4x6+')).toMatchObject({ sets: 4, mode: 'lastAmrap', reps: 6 });
   expect(schemeParts('2xAMRAP').mode).toBe('allAmrap');
+});
+
+describe('drag reorder', () => {
+  const prog = (): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { doubleAt: 10, deloadPct: 0.1, failsBeforeDeload: 1, warmups: true },
+    days: [
+      {
+        name: 'A',
+        slots: ['BARBELL_SQUAT', 'BENCH_PRESS', 'BARBELL_ROW'].map((exercise) => ({
+          exercise,
+          scheme: '2x5+' as const,
+        })),
+      },
+    ],
+  });
+  const ids = (p: Program) => p.days[0].slots.map((s) => s.exercise);
+
+  test('moveSlotTo moves to any position and clamps', () => {
+    expect(ids(moveSlotTo(prog(), 0, 0, 2))).toEqual(['BENCH_PRESS', 'BARBELL_ROW', 'BARBELL_SQUAT']);
+    expect(ids(moveSlotTo(prog(), 0, 2, 0))).toEqual(['BARBELL_ROW', 'BARBELL_SQUAT', 'BENCH_PRESS']);
+    expect(ids(moveSlotTo(prog(), 0, 1, 99))).toEqual(['BARBELL_SQUAT', 'BARBELL_ROW', 'BENCH_PRESS']);
+    expect(ids(moveSlotTo(prog(), 0, 1, 1))).toEqual(['BARBELL_SQUAT', 'BENCH_PRESS', 'BARBELL_ROW']);
+  });
+
+  test('dragTarget converts a finger offset into a row index', () => {
+    expect(dragTarget(1, 0, 100, 3)).toBe(1);
+    expect(dragTarget(1, 60, 100, 3)).toBe(2);
+    expect(dragTarget(1, -160, 100, 3)).toBe(0);
+    expect(dragTarget(0, 900, 100, 3)).toBe(2);
+    expect(dragTarget(1, 50, 0, 3)).toBe(1);
+  });
 });

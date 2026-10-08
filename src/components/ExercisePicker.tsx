@@ -35,7 +35,12 @@ export function ExercisePicker({
   const list = useMemo(
     () =>
       Object.values(exercises)
-        .filter((e) => !e.archived && !exclude.includes(e.id) && e.name.toLowerCase().includes(query.trim().toLowerCase()))
+        .filter(
+          (e) =>
+            !e.archived &&
+            !exclude.includes(e.id) &&
+            e.name.toLowerCase().includes(query.trim().toLowerCase()),
+        )
         .sort((a, b) => a.name.localeCompare(b.name)),
     [exercises, exclude, query],
   );

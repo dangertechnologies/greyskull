@@ -10,6 +10,7 @@ export const ICON_NAMES = {
   settings: { ios: 'gearshape', android: 'settings' },
   back: { ios: 'chevron.left', android: 'arrow_back' },
   close: { ios: 'xmark', android: 'close' },
+  grip: { ios: 'line.3.horizontal', android: 'drag_indicator' },
   up: { ios: 'chevron.up', android: 'keyboard_arrow_up' },
   down: { ios: 'chevron.down', android: 'keyboard_arrow_down' },
   chevron: { ios: 'chevron.right', android: 'chevron_right' },

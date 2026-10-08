@@ -25,3 +25,5 @@ jest.mock('react-native-safe-area-context', () => {
 jest.mock('expo-clipboard', () => ({ getStringAsync: jest.fn(async () => ''), setStringAsync: jest.fn() }));
 jest.mock('expo-document-picker', () => ({ getDocumentAsync: jest.fn(async () => ({ canceled: true })) }));
 jest.mock('expo-file-system', () => ({ File: class { async text() { return ''; } } }));
+jest.mock('react-native-view-shot', () => ({ captureRef: jest.fn(async () => 'file:///tmp/summary.png') }));
+jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(async () => true), shareAsync: jest.fn(async () => undefined) }));

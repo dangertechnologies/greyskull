@@ -85,6 +85,24 @@ export function moveSlot(program: Program, dayIndex: number, slotIndex: number, 
   });
 }
 
+/** Move a slot to an absolute position (used by drag-to-reorder); out-of-range targets are clamped. */
+export function moveSlotTo(program: Program, dayIndex: number, from: number, to: number): Program {
+  return withDay(program, dayIndex, (slots) => {
+    const target = Math.max(0, Math.min(slots.length - 1, to));
+    if (from === target || !slots[from]) return slots;
+    const copy = [...slots];
+    const [moved] = copy.splice(from, 1);
+    copy.splice(target, 0, moved);
+    return copy;
+  });
+}
+
+/** Where a row dragged `dy` px from `index` lands, given the row pitch (height + gap) and the row count. */
+export function dragTarget(index: number, dy: number, rowPitch: number, count: number): number {
+  if (!(rowPitch > 0)) return index;
+  return Math.max(0, Math.min(count - 1, index + Math.round(dy / rowPitch)));
+}
+
 export function setSlotScheme(
   program: Program,
   dayIndex: number,

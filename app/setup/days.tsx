@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { ExercisePicker } from '../../src/components/ExercisePicker';
 import { SchemeSheet } from '../../src/components/SchemeSheet';
+import { SlotRow } from '../../src/components/SlotRow';
 import { useTheme } from '../../src/design/theme';
 import type { Program } from '../../src/domain';
 import {
@@ -10,6 +11,7 @@ import {
   addDay,
   addSlot,
   moveSlot,
+  moveSlotTo,
   removeDay,
   removeSlot,
   renameDay,
@@ -128,9 +130,22 @@ export default function Days() {
                 const ids = typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise;
                 const first = exercises[ids[0]];
                 return (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: slots are edited by position and have no id
-                  <View key={i} style={{ gap: t.space[3] }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+                  <SlotRow
+                    // biome-ignore lint/suspicious/noArrayIndexKey: slots are edited by position and have no id
+                    key={i}
+                    index={i}
+                    count={day.slots.length}
+                    handleLabel={`Reorder ${ids.map((id) => nameOf(exercises, id, ids.length > 1)).join(' / ')}`}
+                    onDrop={(to) => change(moveSlotTo(program, d, i, to))}
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: t.space[3],
+                        paddingRight: 36,
+                      }}
+                    >
                       {first ? <Monogram exercise={first} size={40} /> : null}
                       <Text variant="bodyStrong" style={{ flex: 1 }}>
                         {ids.map((id) => nameOf(exercises, id, ids.length > 1)).join(' / ')}
@@ -164,7 +179,7 @@ export default function Days() {
                         onPress={() => change(removeSlot(program, d, i))}
                       />
                     </View>
-                  </View>
+                  </SlotRow>
                 );
               })}
 

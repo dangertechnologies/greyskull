@@ -1,12 +1,15 @@
+import { useRef } from 'react';
 import { View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise, Outcome, Unit } from '../domain';
 import { formatWeight } from '../domain';
+import { shareView } from '../shareImage';
 import { Button } from '../ui/Button';
 import { BottomBar, ScreenScroll } from '../ui/layout';
 import { Monogram } from '../ui/Monogram';
 import { Card } from '../ui/Surface';
 import { Text } from '../ui/Text';
+import { Confetti } from './Confetti';
 import { PhotoHeader } from './PhotoHeader';
 
 export interface CelebrationLine {
@@ -41,6 +44,7 @@ export function Celebration({
   onHome(): void;
 }) {
   const t = useTheme();
+  const summaryRef = useRef<View>(null);
   const shown = lines.filter((l) => l.outcome.change !== 'none');
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
@@ -56,39 +60,41 @@ export function Celebration({
         <View style={{ height: t.space[4] }} />
         {shown.length === 0 ? <Text color="textMuted">Nice work. Weights stay as they are.</Text> : null}
         {shown.length > 0 ? (
-          <Card style={{ gap: t.space[6] }}>
-            {shown.map((l) => {
-              const badge = BADGE[l.outcome.change];
-              const fails = l.outcome.next.fails;
-              const detail =
-                l.outcome.change === 'same'
-                  ? `${formatWeight(l.fromKg, unit)} · ${fails} ${fails === 1 ? 'fail' : 'fails'}`
-                  : l.outcome.change === 'reps'
-                    ? `${formatWeight(l.fromKg, unit)} · target ${l.outcome.next.reps} reps`
-                    : `${formatWeight(l.fromKg, unit)} → ${formatWeight(l.outcome.next.weightKg, unit)}`;
-              return (
-                <View
-                  key={l.exercise.id}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}
-                >
-                  <Monogram exercise={l.exercise} />
-                  <View style={{ flex: 1, gap: t.space[1] }}>
-                    <Text variant="bodyStrong">{`${l.exercise.name} ${detail}`}</Text>
-                    <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-                      <Text variant="caption" color={badge.color}>
-                        {badge.text}
-                      </Text>
-                      {l.pr ? (
-                        <Text variant="caption" color="accent">
-                          Personal record
+          <View ref={summaryRef} collapsable={false} style={{ backgroundColor: t.color.background }}>
+            <Card style={{ gap: t.space[6] }}>
+              {shown.map((l) => {
+                const badge = BADGE[l.outcome.change];
+                const fails = l.outcome.next.fails;
+                const detail =
+                  l.outcome.change === 'same'
+                    ? `${formatWeight(l.fromKg, unit)} · ${fails} ${fails === 1 ? 'fail' : 'fails'}`
+                    : l.outcome.change === 'reps'
+                      ? `${formatWeight(l.fromKg, unit)} · target ${l.outcome.next.reps} reps`
+                      : `${formatWeight(l.fromKg, unit)} → ${formatWeight(l.outcome.next.weightKg, unit)}`;
+                return (
+                  <View
+                    key={l.exercise.id}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}
+                  >
+                    <Monogram exercise={l.exercise} />
+                    <View style={{ flex: 1, gap: t.space[1] }}>
+                      <Text variant="bodyStrong">{`${l.exercise.name} ${detail}`}</Text>
+                      <View style={{ flexDirection: 'row', gap: t.space[3] }}>
+                        <Text variant="caption" color={badge.color}>
+                          {badge.text}
                         </Text>
-                      ) : null}
+                        {l.pr ? (
+                          <Text variant="caption" color="accent">
+                            Personal record
+                          </Text>
+                        ) : null}
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
-          </Card>
+                );
+              })}
+            </Card>
+          </View>
         ) : null}
         {nextUp ? (
           <View style={{ gap: t.space[2], paddingTop: t.space[6] }}>
@@ -99,7 +105,17 @@ export function Celebration({
           </View>
         ) : null}
       </ScreenScroll>
+      {shown.some((l) => l.outcome.change !== 'same' && l.outcome.change !== 'deload') ? <Confetti /> : null}
       <BottomBar>
+        {shown.length > 0 ? (
+          <Button
+            title="Share summary"
+            variant="secondary"
+            icon="share"
+            testID="share-summary"
+            onPress={() => void shareView(summaryRef).catch(() => undefined)}
+          />
+        ) : null}
         <Button title="Back to Today" size="lg" testID="back-to-today" onPress={onHome} />
       </BottomBar>
     </View>
