@@ -1,3 +1,4 @@
+import { requireOptionalNativeModule } from 'expo';
 import type { LiveActivity } from 'expo-widgets';
 import { Platform } from 'react-native';
 import type { AppState } from '../domain';
@@ -9,13 +10,17 @@ let definitions: Definitions | null | undefined;
 
 /**
  * The widget definitions need the expo-widgets native module, which only exists in a development or
- * production build on iOS (not Expo Go, Android or tests). Anything that goes wrong loading it means
- * "no widgets", never a crash.
+ * production build on iOS (not Expo Go, Android or tests). Check for it before requiring them: a module
+ * that throws while loading is reported as an error in dev even when the throw is caught. Anything else
+ * that goes wrong loading them means "no widgets", never a crash.
  */
 function load(): Definitions | null {
   if (definitions !== undefined) return definitions;
   try {
-    definitions = Platform.OS === 'ios' ? (require('./definitions') as Definitions) : null;
+    definitions =
+      Platform.OS === 'ios' && requireOptionalNativeModule('ExpoWidgets')
+        ? (require('./definitions') as Definitions)
+        : null;
   } catch {
     definitions = null;
   }

@@ -4,6 +4,13 @@ import { initialState } from '../store';
 import { endRestActivity, startRestActivity, syncNextWorkout } from './index';
 import { EMPTY_NEXT, nextWorkoutProps, restProps } from './summary';
 
+const mockDefinitionsLoaded = jest.fn();
+// Stands in for the real definitions, whose expo-widgets import throws without the native module.
+jest.mock('./definitions', () => {
+  mockDefinitionsLoaded();
+  throw new Error("Cannot find native module 'ExpoWidgets'");
+});
+
 const withProgram = () => {
   const s = initialState();
   s.program = JSON.parse(JSON.stringify(TEMPLATES.base));
@@ -47,5 +54,11 @@ describe('without the native module', () => {
     expect(() => syncNextWorkout(withProgram())).not.toThrow();
     expect(() => startRestActivity('Squat', 90)).not.toThrow();
     expect(() => endRestActivity()).not.toThrow();
+  });
+
+  test('the definitions are never loaded, so dev never reports their load error', () => {
+    syncNextWorkout(withProgram());
+    startRestActivity('Squat', 90);
+    expect(mockDefinitionsLoaded).not.toHaveBeenCalled();
   });
 });
