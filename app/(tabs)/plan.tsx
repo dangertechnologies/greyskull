@@ -51,7 +51,7 @@ export default function Plan() {
                   const ids = typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise;
                   return (
                     <Text key={ids.join('/')} variant="callout" color="textMuted">
-                      {`${ids.map((id) => nameOf(exercises, id, true)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
+                      {`${ids.map((id) => nameOf(exercises, id)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
                     </Text>
                   );
                 })}
