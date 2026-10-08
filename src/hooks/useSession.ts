@@ -1,10 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import type { Outcome, SessionLog } from '../domain';
 import { isPersonalRecord, sessionFor, warmups } from '../domain';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
+import { endRestActivity, startRestActivity } from '../widgets';
 
 export interface SessionItem {
   exerciseId: string;
@@ -165,6 +166,16 @@ export function useSession(n: number): SessionApi | null {
       if (pending) void cancelPending(pending);
     };
   }, [restEndsAt]);
+  // Lock Screen / Dynamic Island countdown (iOS builds with widgets only; a no-op everywhere else).
+  const nextName = items[activeIndex] ? exercises[items[activeIndex].exerciseId]?.name : undefined;
+  const restLabel = nextName ? `Next: ${nextName}` : 'Rest';
+  const restLabelRef = useRef(restLabel);
+  restLabelRef.current = restLabel;
+  useEffect(() => {
+    if (restEndsAt === null) endRestActivity();
+    else startRestActivity(restLabelRef.current, Math.ceil((restEndsAt - Date.now()) / 1000));
+  }, [restEndsAt]);
+  useEffect(() => endRestActivity, []);
   const restRemaining = restEndsAt === null ? null : Math.max(0, Math.ceil((restEndsAt - now) / 1000));
 
   const record = useCallback(

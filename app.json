@@ -43,7 +43,22 @@
       "expo-web-browser",
       "expo-asset",
       "expo-font",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.dangertechnologies.gslp",
+          "widgets": [
+            {
+              "name": "NextWorkout",
+              "displayName": "Next workout",
+              "description": "Today's lifts and weights at a glance.",
+              "supportedFamilies": ["systemSmall", "systemMedium", "accessoryRectangular"],
+              "contentMarginsDisabled": false
+            }
+          ]
+        }
+      ]
     ]
   }
 }

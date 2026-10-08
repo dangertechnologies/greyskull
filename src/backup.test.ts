@@ -16,7 +16,10 @@ beforeEach(async () => {
 function seeded() {
   get().setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
   const d = get().startSession(0);
-  for (const id of d.order) d.results[id].sets.forEach((_s, i) => get().logSet(id, i, 6));
+  for (const id of d.order)
+    d.results[id].sets.forEach((_s, i) => {
+      get().logSet(id, i, 6);
+    });
   get().finishSession();
 }
 
@@ -61,6 +64,7 @@ describe('backup import', () => {
   test('rejects damaged sessions, bad weights and invalid programs', () => {
     seeded();
     const base = JSON.parse(get().exportJson());
+    // biome-ignore lint/suspicious/noExplicitAny: test mutates arbitrary JSON
     const bad = (mut: (s: any) => void) => {
       const c = JSON.parse(JSON.stringify(base));
       mut(c);
@@ -131,7 +135,10 @@ describe('soft delete', () => {
     p.days[0].slots.push({ exercise: 'custom_curl', scheme: '2x8-12' });
     get().setProgram(p);
     const d = get().startSession(0);
-    for (const id of d.order) d.results[id].sets.forEach((_s, i) => get().logSet(id, i, 8));
+    for (const id of d.order)
+      d.results[id].sets.forEach((_s, i) => {
+        get().logSet(id, i, 8);
+      });
     get().finishSession();
     get().setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
     expect(get().deleteExercise('custom_curl')).toEqual([]);

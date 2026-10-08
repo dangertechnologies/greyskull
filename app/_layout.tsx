@@ -7,6 +7,7 @@ import { ThemeProvider, useTheme } from '../src/design/theme';
 import { useStackOptions } from '../src/navigation';
 import { initStore, useStore } from '../src/store';
 import { SnackbarProvider } from '../src/ui/Snackbar';
+import { watchStoreForWidgets } from '../src/widgets';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -32,6 +33,7 @@ export default function RootLayout() {
   useEffect(() => {
     void initStore();
   }, []);
+  useEffect(() => watchStoreForWidgets(useStore), []);
   const ready = hydrated && fontsReady;
   useEffect(() => {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
