@@ -1,8 +1,10 @@
-import * as Notifications from 'expo-notifications';
+// Loaded lazily: importing expo-notifications logs a warning in Expo Go on Android, and most sessions never need it.
+const notifications = () => import('expo-notifications');
 
 /** Ask once (when a rest starts) so the alert can fire while the app is in the background. */
 export async function ensureRestAlertPermission(): Promise<boolean> {
   try {
+    const Notifications = await notifications();
     const current = await Notifications.getPermissionsAsync();
     if (current.granted) return true;
     if (!current.canAskAgain) return false;
@@ -15,6 +17,7 @@ export async function ensureRestAlertPermission(): Promise<boolean> {
 /** Local "Rest over" notification; resolves to its id, or null when notifications are unavailable. */
 export async function scheduleRestAlert(seconds: number): Promise<string | null> {
   try {
+    const Notifications = await notifications();
     if (!(await Notifications.getPermissionsAsync()).granted) return null;
     return await Notifications.scheduleNotificationAsync({
       content: { title: 'Rest over', body: 'Time for your next set.' },
@@ -27,7 +30,7 @@ export async function scheduleRestAlert(seconds: number): Promise<string | null>
 
 export async function cancelRestAlert(id: string): Promise<void> {
   try {
-    await Notifications.cancelScheduledNotificationAsync(id);
+    await (await notifications()).cancelScheduledNotificationAsync(id);
   } catch {
     // Nothing to cancel.
   }

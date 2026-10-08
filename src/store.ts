@@ -68,7 +68,7 @@ export function snapshot(s: AppState): AppState {
 
 const barKg = (inv: PlateInventory, unit: Unit): number => toKg(unit === 'kg' ? inv.barKg : inv.barLb, unit);
 
-function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: Unit): number {
+export function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: Unit): number {
   if (exercise.kind === 'barbell') return barKg(inv, unit);
   return toKg((exercise.step ?? DEFAULT_STEP)[unit], unit);
 }

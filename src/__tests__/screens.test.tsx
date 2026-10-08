@@ -5,21 +5,11 @@ import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import fixture from '../domain/__tests__/fixtures/v1-imperial.json';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
+import { routes } from '../testRoutes';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
-
-/** The real route modules, mounted in an in-memory router. */
-const routes = () => ({
-  _layout: require('../../app/_layout'),
-  index: require('../../app/index'),
-  settings: require('../../app/settings'),
-  'setup/index': require('../../app/setup/index'),
-  'setup/confirm': require('../../app/setup/confirm'),
-  'lift/[id]': require('../../app/lift/[id]'),
-  'session/[n]': require('../../app/session/[n]'),
-});
 
 beforeEach(() => {
   useStore.setState({ ...initialState(), hydrated: true });
@@ -27,7 +17,7 @@ beforeEach(() => {
 
 test('fresh install lands on setup', async () => {
   renderRouter(routes(), { initialUrl: '/' });
-  expect(await screen.findByText(/Setup coming/, {}, { timeout: 4000 })).toBeTruthy();
+  expect(await screen.findByText('Get started', {}, { timeout: 4000 })).toBeTruthy();
 });
 
 test('home lists the first session with bar-only plates', async () => {
@@ -80,7 +70,7 @@ test('Reset in settings confirms, wipes the program and sends you to setup', asy
   fireEvent.press(await screen.findByLabelText('Reset'));
   expect(alert).toHaveBeenCalled();
   expect(useStore.getState().program).toBeNull();
-  expect(await screen.findByText(/Setup coming/)).toBeTruthy();
+  expect(await screen.findByText('Get started')).toBeTruthy();
   alert.mockRestore();
 });
 

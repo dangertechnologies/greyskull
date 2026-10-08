@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { formatWeight, loadable, roundForExercise, toKg, toUnit } from '../domain';
-import type { Exercise } from '../domain';
+import type { Exercise, PlateInventory, Unit } from '../domain';
 import { useStore } from '../store';
 import { Stepper } from './Stepper';
 
@@ -10,12 +10,17 @@ interface Props {
   exercise?: Exercise;
   label?: string;
   large?: boolean;
+  /** Override the store's unit/inventory (used by Setup, which edits a draft). */
+  unit?: Unit;
+  inventory?: PlateInventory;
 }
 
 /** Steps through the weights the user can actually load (barbell) or the exercise's rounding step. */
-export function WeightStepper({ kg, onChange, exercise, label, large }: Props) {
-  const unit = useStore((s) => s.unit);
-  const inventory = useStore((s) => s.inventory);
+export function WeightStepper({ kg, onChange, exercise, label, large, unit: unitProp, inventory: inventoryProp }: Props) {
+  const storeUnit = useStore((s) => s.unit);
+  const storeInventory = useStore((s) => s.inventory);
+  const unit = unitProp ?? storeUnit;
+  const inventory = inventoryProp ?? storeInventory;
   const barbell = !exercise || exercise.kind === 'barbell';
   const values = useMemo(() => (barbell ? loadable(inventory, unit).totals : undefined), [barbell, inventory, unit]);
   const step = barbell ? undefined : ((exercise?.step ?? { kg: 2, lb: 5 })[unit]);

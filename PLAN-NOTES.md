@@ -6,6 +6,7 @@ Decisions, deviations and manual-check items, appended per Session.
 - Session 4: look and feel of Home/Settings/Lift editor/Confirm; header icons tappable; Stepper long-press feel on a real finger
 - Session 4: splash screen hides once the store is hydrated (no 2 s delay); no flash of the Setup stub on launch with saved data
 - Session 5: immersive session look; rest ring; haptic at rest end; rest-over notification while backgrounded (permission prompt, delivery); kill app mid-session then reopen → Resume at same set; back arrow keeps sets
+- Session 6: onboarding flow end to end; exercise picker modal and search; renaming a day with the keyboard open
 
 ## 2026-10-08 — Session 1 (scaffold)
 - Branch `v2` created from the working checkout of master (2ba6d3e).
@@ -100,3 +101,23 @@ Decisions, deviations and manual-check items, appended per Session.
 - Test env quirk: store-driven re-renders inside a bare `act()` are not flushed in `renderHook`; use `await act(async …)`.
 - Needs manual check on device: warm-up/set flow feel, AMRAP stepper, rest ring animation + haptic, background
   notification, real kill-and-resume.
+
+## 2026-10-08 — Session 6 (setup flow + program editor)
+- Onboarding state lives in `SetupProvider` (`src/setup/SetupContext.tsx`, mounted by `app/setup/_layout.tsx`).
+  It stores template + plugins + options and *derives* `program` with `buildProgram()` (new, `programEdit.ts`),
+  because a plugin switch cannot be un-applied from an already-edited program. Consequence: going back to Options
+  and changing something rebuilds the program and discards manual day edits. Accepted.
+- `programEdit.ts` holds the pure editing operations used by the days screen (add/remove/move slot, alternating
+  pair, scheme cycling, add/remove/rename day) with tests. A pair already present in the program keeps its written
+  order (see Session 2 note); a new pair uses pick order.
+- Days editor: scheme chip cycles through all six schemes on tap; "Add alternating pair" is a separate button
+  (pick first, then "Alternate with…"). Edit mode (`?edit=1`) edits a local copy of the stored program and calls
+  `setProgram` (which keeps lifts/history and drops the in-progress draft).
+- `WeightStepper` and `PlatesLine` accept optional `unit`/`inventory` overrides so Setup can preview with the draft gym.
+  Changing unit or plates on the Units screen clears chosen starting weights.
+- Summary applies: `setUnit` → `setInventory` → `setProgram` → `setLift` per non-bodyweight exercise.
+- Setup screens use opaque headers except Welcome/Confirm; Welcome uses the empty-gym photo.
+- `expo-notifications` is now imported lazily (it logs a warning on import in Expo Go/Android).
+- `src/testRoutes.ts` mounts the real route modules for screen tests (kept out of `__tests__` so jest does not treat it as a suite).
+- Needs manual check on device: whole onboarding flow look, picker modal, keyboard behaviour while renaming a day,
+  ▲▼ tap targets.
