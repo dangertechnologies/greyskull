@@ -115,9 +115,11 @@ export function liftKeyOf(slot: Slot, exercise?: string): string {
 /** Which day and exercises session `n` (0-based) is. Pure and derived on demand from the program. */
 export function sessionFor(
   program: Program,
-  n: number,
+  session: number,
   lifts: Record<string, LiftState> = {},
 ): ResolvedSession {
+  // Days, alternating pairs and 5/3/1 weeks count from the session the program started at.
+  const n = Math.max(0, session - (program.startN ?? 0));
   const len = program.days.length;
   const resolve = (at: number) =>
     program.days[at % len].slots.map((slot) => {

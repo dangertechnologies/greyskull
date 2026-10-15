@@ -204,3 +204,31 @@ test('a later slot with a separate lift key does not delay the 531 TM increase',
   const p: Program = { ...five, days: [five.days[0], program.days[1]] };
   expect(sessionFor(p, 4).slots[0]).toMatchObject({ week: 2, lastInWeek: true });
 });
+
+test('a later stage judges its AMRAP set by that stage, not stage 0', () => {
+  const s = useStore.getState();
+  s.setProgram(program);
+  s.setLift('BARBELL_SQUAT', { weightKg: 100, stage: 1 });
+  const draft = useStore.getState().startSession(0);
+  draft.results.BARBELL_SQUAT.sets.forEach((set, i) => {
+    useStore.getState().logSet('BARBELL_SQUAT', i, set.target ?? 3);
+  });
+  useStore.getState().finishSession();
+  expect(useStore.getState().lifts.BARBELL_SQUAT).toMatchObject({ weightKg: 102.5, stage: 1 });
+});
+
+test('a new plan starts on its first day and first 5/3/1 week, whatever the session count', () => {
+  useStore.setState({ nextSession: 7 });
+  const plan: Program = {
+    ...program,
+    template: 'other',
+    days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5+', progression: '531' }] }],
+  };
+  useStore.getState().setProgram(plan);
+  const stored = useStore.getState().program!;
+  expect(stored.startN).toBe(7);
+  expect(sessionFor(stored, 7).slots[0].week).toBe(0);
+  expect(sessionFor(stored, 8).slots[0].week).toBe(1);
+  useStore.getState().setProgram({ ...plan, sessionsPerWeek: 2 });
+  expect(useStore.getState().program!.startN).toBe(7);
+});

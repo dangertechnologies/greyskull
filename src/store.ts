@@ -180,8 +180,12 @@ export const useStore = create<Store>()(
               : Math.min(MAX_REST_SECONDS, Math.max(0, Math.round(restSeconds))),
         })),
 
-      setProgram: (program) => {
-        const { exercises, lifts, inventory, unit } = get();
+      setProgram: (input) => {
+        const { exercises, lifts, inventory, unit, nextSession, program: current } = get();
+        // Editing the same plan keeps its rotation; a different plan starts at its first day.
+        const startN =
+          current && current.template === input.template ? current.startN : nextSession || undefined;
+        const program = { ...input, startN };
         const errors = validateProgram(program, exercises);
         if (errors.length > 0) throw new Error(errors.join('\n'));
         const next = { ...lifts };

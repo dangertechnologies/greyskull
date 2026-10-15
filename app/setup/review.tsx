@@ -4,7 +4,7 @@ import { Alert, Pressable, View } from 'react-native';
 import { LiftRow } from '../../src/components/LiftRow';
 import { WeightSheet } from '../../src/components/WeightSheet';
 import { useTheme } from '../../src/design/theme';
-import { liftKeysOf, validateProgram } from '../../src/domain';
+import { exerciseOfLift, liftKeysOf, validateProgram } from '../../src/domain';
 import { liftLabel } from '../../src/format';
 import { goHome } from '../../src/navigation';
 import { useSetup } from '../../src/setup/SetupContext';
@@ -32,7 +32,7 @@ export default function Review() {
     draft.weights[id] ??
     (changing && storedLifts[id]
       ? storedLifts[id].weightKg
-      : startingWeightKg(exercises[id.split('@')[0]], draft.inventory, draft.unit));
+      : startingWeightKg(exercises[exerciseOfLift(id)], draft.inventory, draft.unit));
   const keys = liftKeysOf(program);
 
   const apply = () => {
@@ -44,7 +44,7 @@ export default function Review() {
       }
       store.setProgram(program);
       for (const id of liftKeysOf(program)) {
-        if (exercises[id.split('@')[0]]?.kind === 'bodyweight') continue;
+        if (exercises[exerciseOfLift(id)]?.kind === 'bodyweight') continue;
         if (changing && draft.weights[id] === undefined) continue;
         const kg = weightOf(id);
         store.setLift(id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
@@ -65,7 +65,7 @@ export default function Review() {
     }
   };
 
-  const editingExercise = editing ? exercises[editing.split('@')[0]] : undefined;
+  const editingExercise = editing ? exercises[exerciseOfLift(editing)] : undefined;
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
       <Stack.Screen options={{ title: 'Starting weights' }} />
@@ -80,10 +80,14 @@ export default function Review() {
         </Text>
         <View style={{ gap: t.space[6] }}>
           {keys.map((key) => {
-            const exercise = exercises[key.split('@')[0]];
+            const exercise = exercises[exerciseOfLift(key)];
             if (!exercise) return null;
             const bodyweight = exercise.kind === 'bodyweight';
             const label = liftLabel(key, exercises);
+            // 5/3/1 lifts store a training max, not the weight of the first set.
+            const trainingMax = program.days.some((d) =>
+              d.slots.some((slot) => slot.progression === '531' && slot.exercise === key),
+            );
             return (
               <Card key={key}>
                 <Pressable
@@ -95,7 +99,7 @@ export default function Review() {
                   <LiftRow
                     exercise={{ ...exercise, name: label }}
                     kg={bodyweight ? 0 : weightOf(key)}
-                    schemeLabel="Starting weight"
+                    schemeLabel={trainingMax ? 'Training max (90 % of your 1RM)' : 'Starting weight'}
                     unit={draft.unit}
                     inventory={draft.inventory}
                   />

@@ -70,6 +70,8 @@ export interface Program {
   days: Day[];
   sessionsPerWeek: number;
   rules: Rules;
+  /** Session number the program started at; a new plan starts on its first day (and 5/3/1 week). */
+  startN?: number;
 }
 
 export interface LiftState {
