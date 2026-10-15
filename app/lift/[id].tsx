@@ -4,8 +4,17 @@ import { LiftChart } from '../../src/components/LiftChart';
 import { TechniqueLinks } from '../../src/components/TechniqueLinks';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
-import { DEFAULT_RULES, formatWeight, incrementFor, smallestStep, toKg, trim } from '../../src/domain';
-import { formatDate, nameOf } from '../../src/format';
+import {
+  DEFAULT_RULES,
+  exerciseOfLift,
+  formatWeight,
+  incrementFor,
+  liftKeyOf,
+  smallestStep,
+  toKg,
+  trim,
+} from '../../src/domain';
+import { formatDate, liftLabel } from '../../src/format';
 import { seriesPoints } from '../../src/series';
 import { useInventory, useLift, useStore, useUnit } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -20,7 +29,7 @@ import { Text } from '../../src/ui/Text';
 /** One lift: chart and stats on top, then the controls to change its weights and increment, then history. */
 export default function LiftDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const exercise = useStore((s) => s.exercises[id]);
+  const exercise = useStore((s) => s.exercises[exerciseOfLift(id)]);
   const lift = useLift(id);
   const sessions = useStore((s) => s.sessions);
   const unit = useUnit();
@@ -44,22 +53,22 @@ export default function LiftDetail() {
   const points = seriesPoints(sessions, exercise, unit);
   const history = [...sessions]
     .reverse()
-    .filter((s) => s.results[id])
+    .filter((s) => s.results[exercise.id])
     .map((s) => ({
       n: s.n,
       date: s.finishedAt ?? s.startedAt,
-      weightKg: s.results[id].weightKg,
-      reps: s.results[id].sets.at(-1)?.reps ?? 0,
+      weightKg: s.results[exercise.id].weightKg,
+      reps: s.results[exercise.id].sets.at(-1)?.reps ?? 0,
     }));
   const bestAmrap = history.reduce((best, h) => Math.max(best, h.reps), 0);
 
   return (
     <ScreenScroll gap={10}>
-      <Stack.Screen options={{ title: nameOf(exercises, id) }} />
+      <Stack.Screen options={{ title: liftLabel(id, exercises) }} />
       <TechniqueLinks exercise={exercise} />
 
       <LiftChart
-        label={exercise.name}
+        label={liftLabel(id, exercises)}
         points={points}
         format={(v) => (bodyweight ? `${trim(v)} reps` : formatWeight(toKg(v, unit), unit))}
       />
@@ -94,7 +103,7 @@ export default function LiftDetail() {
 }
 
 function LiftControls({ id }: { id: string }) {
-  const exercise = useStore((s) => s.exercises[id]);
+  const exercise = useStore((s) => s.exercises[exerciseOfLift(id)]);
   const current = useLift(id);
   const unit = useUnit();
   const inventory = useInventory();
@@ -102,7 +111,12 @@ function LiftControls({ id }: { id: string }) {
   const setLift = useStore((s) => s.setLift);
   const t = useTheme();
   if (!current || !exercise) return null;
-  const planIncrement = program?.rules.increments?.[id] ?? exercise.increment;
+  const trainingMax = program?.days.some((day) =>
+    day.slots.some(
+      (slot) => liftKeyOf(slot) === id && (slot.progression ?? program.rules.progression) === '531',
+    ),
+  );
+  const planIncrement = program?.rules.increments?.[exercise.id] ?? exercise.increment;
   const increment = incrementFor(current, program?.rules ?? DEFAULT_RULES, exercise, unit);
   const jump = smallestStep(inventory, unit);
   const offGrid =
@@ -117,7 +131,7 @@ function LiftControls({ id }: { id: string }) {
       <Section card>
         <View style={{ gap: t.space[4], paddingVertical: t.space[5], alignItems: 'center' }}>
           <WeightStepper
-            label="Working weight"
+            label={trainingMax ? 'Training max' : 'Working weight'}
             large
             exercise={exercise}
             kg={current.weightKg}

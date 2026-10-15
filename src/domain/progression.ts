@@ -1,6 +1,16 @@
 import { nearestLoadableKg, roundForExercise } from './plates';
 import { tryParseScheme } from './program';
-import type { Exercise, ExerciseResult, LiftState, PlateInventory, Rules, Scheme, Unit } from './types';
+import type {
+  Exercise,
+  ExerciseResult,
+  LiftState,
+  PlateInventory,
+  ProgressionModel,
+  Rules,
+  Scheme,
+  SetResult,
+  Unit,
+} from './types';
 import { toKg, toUnit } from './units';
 
 export interface Outcome {
@@ -15,6 +25,11 @@ export const SUCCESS_REPS = 5;
 export interface SessionContext {
   /** The slot's scheme; needed for the rep range of double progression. */
   scheme?: Scheme;
+  stages?: Scheme[];
+  advanceAt?: number;
+  progression?: ProgressionModel;
+  week?: number;
+  lastInWeek?: boolean;
   /** Day intensity (light/medium days below 1 never progress). */
   intensity?: number;
 }
@@ -41,15 +56,21 @@ export function nextLift(
   if (exercise.kind === 'bodyweight' || !last || (context.intensity ?? 1) < 1)
     return { next: lift, change: 'none' };
 
+  const model = context.progression ?? rules.progression ?? 'amrap';
+  if (model === '531' && (context.week !== 2 || !context.lastInWeek)) return { next: lift, change: 'none' };
+
   const inc = incrementFor(lift, rules, exercise, unit);
-  const cur = toUnit(result.weightKg, unit); // the weight actually lifted
+  const workingKg = model === '531' ? lift.weightKg : result.weightKg;
+  const cur = toUnit(workingKg, unit); // the weight actually lifted
   const up = (steps: number) => roundForExercise(toKg(cur + steps * inc, unit), exercise, 'ceil', inv, unit);
-  const model = rules.progression ?? 'amrap';
   const range = context.scheme ? tryParseScheme(context.scheme) : null;
 
   let success: boolean;
   let outcome: Outcome | null = null;
-  if (model === 'amrap') {
+  if (model === '531') {
+    success = (result.sets[2]?.reps ?? 0) >= 1;
+    if (success) outcome = { next: { ...lift, weightKg: up(1), fails: 0 }, change: 'up' };
+  } else if (model === 'amrap' && context.advanceAt === undefined) {
     success = last.reps >= SUCCESS_REPS;
     if (success) {
       const doubled = last.reps >= rules.doubleAt;
@@ -60,7 +81,17 @@ export function nextLift(
     }
   } else {
     // Every set must reach its target (an AMRAP set counts from SUCCESS_REPS).
-    success = result.sets.every((set) => set.reps >= (set.target ?? SUCCESS_REPS));
+    success =
+      result.sets.every((set) => set.reps >= (set.target ?? range?.reps ?? SUCCESS_REPS)) &&
+      (context.advanceAt === undefined || last.reps >= context.advanceAt);
+    if (!success && model === 'stages') {
+      const stage = Math.max(0, Math.min((context.stages?.length ?? 1) - 1, lift.stage ?? 0));
+      if (stage < (context.stages?.length ?? 1) - 1)
+        return { next: { ...lift, weightKg: workingKg, stage: stage + 1, fails: 0 }, change: 'same' };
+      // ponytail: GZCLP retests a 5RM / restarts at the last stage-1 weight + 15–20 lb; use a percentage deload.
+      const weightKg = roundForExercise(workingKg * (1 - rules.deloadPct), exercise, 'floor', inv, unit);
+      return { next: { ...lift, weightKg, stage: 0, fails: 0 }, change: 'deload' };
+    }
     if (success && model === 'double' && range?.reps != null && range.repsMax != null) {
       const target = Math.max(range.reps, Math.min(range.repsMax, lift.reps ?? range.reps));
       outcome =
@@ -79,7 +110,7 @@ export function nextLift(
     const reps = model === 'double' && range?.reps != null ? { reps: range.reps } : {};
     return { next: { ...lift, weightKg, fails: 0, ...reps }, change: 'deload' };
   }
-  return { next: { ...lift, weightKg: result.weightKg, fails }, change: 'same' };
+  return { next: { ...lift, weightKg: workingKg, fails }, change: 'same' };
 }
 
 /** Weight for a session: the working weight, scaled and re-rounded on light/medium days. */
@@ -131,4 +162,25 @@ export function warmups(
     out.push({ reps, kg });
   });
   return out;
+}
+
+const FIVE_THREE_ONE = [
+  { percentages: [0.65, 0.75, 0.85], reps: [5, 5, 5] },
+  { percentages: [0.7, 0.8, 0.9], reps: [3, 3, 3] },
+  { percentages: [0.75, 0.85, 0.95], reps: [5, 3, 1] },
+] as const;
+
+export function fiveThreeOneSets(
+  tmKg: number,
+  week: number,
+  exercise: Exercise,
+  inv: PlateInventory,
+  unit: Unit,
+): SetResult[] {
+  const { percentages, reps } = FIVE_THREE_ONE[week % 3];
+  return Array.from({ length: 8 }, (_, i) => ({
+    target: i === 2 ? null : i < 3 ? reps[i] : 5,
+    reps: 0,
+    kg: roundForExercise(tmKg * percentages[i < 3 ? i : 0], exercise, 'nearest', inv, unit),
+  }));
 }

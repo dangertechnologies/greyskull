@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { LiftRow } from '../../src/components/LiftRow';
 import { WorkoutRow } from '../../src/components/WorkoutRow';
 import { useTheme } from '../../src/design/theme';
-import { formatWeight, project, sessionFor, sessionWeightKg } from '../../src/domain';
+import { fiveThreeOneSets, formatWeight, project, sessionFor, sessionWeightKg } from '../../src/domain';
 import { intensityLabel, nameOf, schemeLabel, weekOf } from '../../src/format';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -33,6 +33,7 @@ function WeekStrip({ first, perWeek, next }: { first: number; perWeek: number; n
             key={n}
             style={{
               width: 40,
+              flexShrink: 1,
               height: 40,
               borderRadius: 20,
               alignItems: 'center',
@@ -73,7 +74,7 @@ export default function Today() {
   if (program === null) return <Redirect href="/setup" />;
   if (needsWeightConfirm) return <Redirect href="/setup/confirm" />;
 
-  const session = sessionFor(program, nextSession);
+  const session = sessionFor(program, nextSession, lifts);
   const perWeek = program.sessionsPerWeek;
   const week = weekOf(nextSession, perWeek);
   const light = intensityLabel(session.dayName, session.intensity);
@@ -103,19 +104,28 @@ export default function Today() {
         <WeekStrip first={(week - 1) * perWeek} perWeek={perWeek} next={nextSession} />
 
         <Card style={{ gap: t.space[5] }}>
-          {session.slots.map(({ exercise: id, scheme }) => {
+          {session.slots.map(({ exercise: id, lift, scheme, progression, week }) => {
             const exercise = exercises[id];
             if (!exercise) return null;
+            const sets =
+              draft?.n === nextSession
+                ? draft.results[id]?.sets
+                : progression === '531'
+                  ? fiveThreeOneSets(lifts[lift]?.weightKg ?? 0, week ?? 0, exercise, inventory, unit)
+                  : undefined;
             const kg =
               draft?.n === nextSession
                 ? (draft.results[id]?.weightKg ?? 0)
-                : sessionWeightKg(lifts[id]?.weightKg ?? 0, session.intensity, exercise, inventory, unit);
+                : progression === '531'
+                  ? Math.max(...(sets ?? []).map((s) => s.kg ?? 0))
+                  : sessionWeightKg(lifts[lift]?.weightKg ?? 0, session.intensity, exercise, inventory, unit);
             return (
               <LiftRow
                 key={id}
                 exercise={exercise}
                 kg={kg}
-                schemeLabel={schemeLabel(scheme, lifts[id]?.reps)}
+                sets={sets}
+                schemeLabel={schemeLabel(scheme, lifts[lift]?.reps)}
                 unit={unit}
                 inventory={inventory}
               />

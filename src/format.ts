@@ -9,6 +9,11 @@ export const nameOf = (exercises: Record<string, Exercise>, id: string, short = 
   return e ? (short ? e.shortName : e.name) : id;
 };
 
+export function liftLabel(key: string, exercises: Record<string, Exercise>): string {
+  const [id, suffix] = key.split('@');
+  return `${nameOf(exercises, id)}${suffix ? ` (${suffix})` : ''}`;
+}
+
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });

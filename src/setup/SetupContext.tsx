@@ -10,7 +10,7 @@ export interface SetupDraft {
   inventory: PlateInventory;
   base: Program | null;
   plugins: PluginId[];
-  sessionsPerWeek: 2 | 3;
+  sessionsPerWeek: number;
   rules: Rules;
   /** The program as the user is editing it (starts as base + plugins + options). */
   program: Program | null;

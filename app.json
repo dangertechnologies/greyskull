@@ -15,6 +15,9 @@
         "light": "./assets/icon.png",
         "dark": "./assets/icon-dark.png",
         "tinted": "./assets/icon-tinted.png"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -59,6 +62,27 @@
           ]
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "ExpoWidgetsTarget",
+                  "bundleIdentifier": "com.dangertechnologies.gslp.ExpoWidgetsTarget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": ["group.com.dangertechnologies.gslp"]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "5733b840-1784-11e9-a5cc-6bcb47440045"
+      }
+    }
   }
 }

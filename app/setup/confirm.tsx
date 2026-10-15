@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
-import { exerciseIdsOf, roundForExercise } from '../../src/domain';
+import { liftKeysOf, roundForExercise } from '../../src/domain';
+import { liftLabel } from '../../src/format';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -22,14 +23,14 @@ export default function ConfirmWeights() {
   const inventory = useStore((s) => s.inventory);
   const t = useTheme();
 
-  const ids = (program ? exerciseIdsOf(program) : []).filter(
-    (id) => storedLifts[id] && exercises[id]?.kind !== 'bodyweight',
+  const ids = (program ? liftKeysOf(program) : []).filter(
+    (id) => storedLifts[id] && exercises[id.split('@')[0]]?.kind !== 'bodyweight',
   );
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(
       ids.map((id) => [
         id,
-        roundForExercise(storedLifts[id].weightKg, exercises[id], 'nearest', inventory, unit),
+        roundForExercise(storedLifts[id].weightKg, exercises[id.split('@')[0]], 'nearest', inventory, unit),
       ]),
     ),
   );
@@ -48,9 +49,9 @@ export default function ConfirmWeights() {
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], alignSelf: 'stretch' }}
               >
-                <ExerciseBadge exercise={exercises[id]} size={40} />
+                <ExerciseBadge exercise={exercises[id.split('@')[0]]} size={40} />
                 <Text variant="headline" style={{ flex: 1 }}>
-                  {exercises[id].name}
+                  {liftLabel(id, exercises)}
                 </Text>
                 {suspects.includes(id) ? (
                   <Text variant="label" color="danger">
@@ -59,11 +60,11 @@ export default function ConfirmWeights() {
                 ) : null}
               </View>
               <WeightStepper
-                exercise={exercises[id]}
+                exercise={exercises[id.split('@')[0]]}
                 kg={weights[id]}
                 onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))}
               />
-              {exercises[id].kind === 'barbell' ? <PlateStack kg={weights[id]} /> : null}
+              {exercises[id.split('@')[0]].kind === 'barbell' ? <PlateStack kg={weights[id]} /> : null}
             </Card>
           ))}
         </View>

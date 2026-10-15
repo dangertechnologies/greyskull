@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
-import { exerciseIdsOf, formatWeight, project, trim } from '../../src/domain';
-import { nameOf } from '../../src/format';
+import { exerciseOfLift, formatWeight, liftKeysOf, project, trim } from '../../src/domain';
+import { liftLabel, nameOf } from '../../src/format';
 import { seriesFor } from '../../src/series';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -19,13 +19,16 @@ export default function Progress() {
   const state = useStore();
   const { sessions, lifts, unit, exercises, program } = state;
   const t = useTheme();
-  const ids = useMemo(() => (program ? exerciseIdsOf(program) : []), [program]);
+  const ids = useMemo(() => (program ? liftKeysOf(program) : []), [program]);
   const upcoming = useMemo(() => project(state, 6), [state]);
   const finished = sessions.filter((s) => !s.skipped).length;
   const series = useMemo(
     () =>
       Object.fromEntries(
-        ids.map((id) => [id, exercises[id] ? seriesFor(sessions, exercises[id], unit) : []]),
+        ids.map((id) => [
+          id,
+          exercises[exerciseOfLift(id)] ? seriesFor(sessions, exercises[exerciseOfLift(id)], unit) : [],
+        ]),
       ),
     [ids, sessions, exercises, unit],
   );
@@ -51,7 +54,7 @@ export default function Progress() {
         card
       >
         {ids.map((id) => {
-          const exercise = exercises[id];
+          const exercise = exercises[exerciseOfLift(id)];
           if (!exercise) return null;
           const values = series[id];
           const bodyweight = exercise.kind === 'bodyweight';
@@ -71,7 +74,7 @@ export default function Progress() {
             <Pressable
               key={id}
               accessibilityRole="button"
-              accessibilityLabel={`${exercise.name}, ${current}.${trend ? ` ${trend}` : ''}`}
+              accessibilityLabel={`${liftLabel(id, exercises)}, ${current}.${trend ? ` ${trend}` : ''}`}
               onPress={() => router.push(`/lift/${id}`)}
               style={({ pressed }) => ({
                 flexDirection: 'row',
@@ -84,7 +87,7 @@ export default function Progress() {
             >
               <ExerciseBadge exercise={exercise} size={40} />
               <View style={{ flex: 1, gap: t.space[1] }}>
-                <Text variant="bodyStrong">{exercise.name}</Text>
+                <Text variant="bodyStrong">{liftLabel(id, exercises)}</Text>
                 {trend ? (
                   <Text variant="caption" color={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'textMuted'}>
                     {trend}

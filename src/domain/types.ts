@@ -38,11 +38,15 @@ export type Scheme =
  * - `double`: every set hits the current rep target → one more rep next time; at the top of the range
  *   add the increment and drop back to the bottom (AllPro).
  */
-export type ProgressionModel = 'amrap' | 'linear' | 'double';
+export type ProgressionModel = 'amrap' | 'linear' | 'double' | 'stages' | '531';
 
 export interface Slot {
   exercise: string | [string, string]; // tuple = alternate between the two each session
   scheme: Scheme;
+  lift?: string;
+  progression?: ProgressionModel;
+  stages?: Scheme[];
+  advanceAt?: number;
 }
 export interface Day {
   name: string;
@@ -64,7 +68,7 @@ export interface Rules {
 export interface Program {
   template: string; // plan id from src/config/plans.ts, or 'custom'
   days: Day[];
-  sessionsPerWeek: 2 | 3;
+  sessionsPerWeek: number;
   rules: Rules;
 }
 
@@ -73,10 +77,12 @@ export interface LiftState {
   startKg: number; // weight at program start (for charts)
   fails: number; // consecutive failed AMRAPs
   incrementOverride?: { kg: number; lb: number };
+  stage?: number;
   reps?: number; // double progression: current rep target inside the scheme's range
 }
 
 export interface SetResult {
+  kg?: number;
   target: number | null; // null = AMRAP
   reps: number;
 }
