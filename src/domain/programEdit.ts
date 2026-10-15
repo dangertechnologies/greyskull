@@ -23,7 +23,7 @@ const clone = (p: Program): Program => JSON.parse(JSON.stringify(p)) as Program;
 export function buildProgram(
   base: Program,
   plugins: PluginId[],
-  options: { sessionsPerWeek: 2 | 3; rules: Rules },
+  options: { sessionsPerWeek: number; rules: Rules },
 ): Program {
   let program = clone(base);
   for (const id of plugins) {
@@ -109,7 +109,11 @@ export function setSlotScheme(
   slotIndex: number,
   scheme: Scheme,
 ): Program {
-  return withDay(program, dayIndex, (slots) => slots.map((s, i) => (i === slotIndex ? { ...s, scheme } : s)));
+  return withDay(program, dayIndex, (slots) =>
+    slots.map((s, i) =>
+      i === slotIndex ? { ...s, scheme, ...(s.stages ? { stages: [scheme, ...s.stages.slice(1)] } : {}) } : s,
+    ),
+  );
 }
 
 export function renameDay(program: Program, dayIndex: number, name: string): Program {

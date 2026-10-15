@@ -4,8 +4,8 @@ import { Alert, Pressable, View } from 'react-native';
 import { LiftRow } from '../../src/components/LiftRow';
 import { WeightSheet } from '../../src/components/WeightSheet';
 import { useTheme } from '../../src/design/theme';
-import { exerciseIdsOf, sessionFor, sessionWeightKg, validateProgram } from '../../src/domain';
-import { intensityLabel, schemeLabel } from '../../src/format';
+import { exerciseOfLift, liftKeysOf, validateProgram } from '../../src/domain';
+import { liftLabel } from '../../src/format';
 import { goHome } from '../../src/navigation';
 import { useSetup } from '../../src/setup/SetupContext';
 import { startingWeightKg, useStore } from '../../src/store';
@@ -15,7 +15,7 @@ import { Section } from '../../src/ui/Section';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 
-/** Step 3: week 1 with weights. Tap a lift to change its starting weight; "Customise days" edits the plan. */
+/** Step 3: starting weights. Tap a lift to change its starting weight; "Customise days" edits the plan. */
 export default function Review() {
   const { change } = useLocalSearchParams<{ change?: string }>();
   const changing = change === '1';
@@ -32,8 +32,8 @@ export default function Review() {
     draft.weights[id] ??
     (changing && storedLifts[id]
       ? storedLifts[id].weightKg
-      : startingWeightKg(exercises[id], draft.inventory, draft.unit));
-  const week = Array.from({ length: program.sessionsPerWeek }, (_, n) => sessionFor(program, n));
+      : startingWeightKg(exercises[exerciseOfLift(id)], draft.inventory, draft.unit));
+  const keys = liftKeysOf(program);
 
   const apply = () => {
     const store = useStore.getState();
@@ -43,8 +43,8 @@ export default function Review() {
         store.setInventory(draft.inventory);
       }
       store.setProgram(program);
-      for (const id of exerciseIdsOf(program)) {
-        if (exercises[id]?.kind === 'bodyweight') continue;
+      for (const id of liftKeysOf(program)) {
+        if (exercises[exerciseOfLift(id)]?.kind === 'bodyweight') continue;
         if (changing && draft.weights[id] === undefined) continue;
         const kg = weightOf(id);
         store.setLift(id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
@@ -65,10 +65,10 @@ export default function Review() {
     }
   };
 
-  const editingExercise = editing ? exercises[editing] : undefined;
+  const editingExercise = editing ? exercises[exerciseOfLift(editing)] : undefined;
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
-      <Stack.Screen options={{ title: 'Week 1' }} />
+      <Stack.Screen options={{ title: 'Starting weights' }} />
       <ScreenScroll withBottomBar gap={10}>
         {changing ? null : (
           <Text variant="label" color="textMuted">
@@ -76,50 +76,37 @@ export default function Review() {
           </Text>
         )}
         <Text color="textMuted">
-          Tap a lift to change where it starts. Start light: you add weight every session.
+          Tap a lift to change where it starts. Start light; progression follows your plan.
         </Text>
         <View style={{ gap: t.space[6] }}>
-          {week.map((session, n) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: the session number is its position in the week
-            <Card key={n} style={{ gap: t.space[5] }}>
-              <View style={{ gap: t.space[1] }}>
-                <Text variant="headline">{session.dayName}</Text>
-                {intensityLabel(session.dayName, session.intensity) ? (
-                  <Text variant="caption" color="textMuted">
-                    {intensityLabel(session.dayName, session.intensity)}
-                  </Text>
-                ) : null}
-              </View>
-              {session.slots.map(({ exercise: id, scheme }) => {
-                const exercise = exercises[id];
-                if (!exercise) return null;
-                const bodyweight = exercise.kind === 'bodyweight';
-                return (
-                  <Pressable
-                    key={id}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${exercise.name}${bodyweight ? '' : ', change starting weight'}`}
-                    disabled={bodyweight}
-                    onPress={() => setEditing(id)}
-                  >
-                    <LiftRow
-                      exercise={exercise}
-                      kg={sessionWeightKg(
-                        weightOf(id),
-                        session.intensity,
-                        exercise,
-                        draft.inventory,
-                        draft.unit,
-                      )}
-                      schemeLabel={schemeLabel(scheme)}
-                      unit={draft.unit}
-                      inventory={draft.inventory}
-                    />
-                  </Pressable>
-                );
-              })}
-            </Card>
-          ))}
+          {keys.map((key) => {
+            const exercise = exercises[exerciseOfLift(key)];
+            if (!exercise) return null;
+            const bodyweight = exercise.kind === 'bodyweight';
+            const label = liftLabel(key, exercises);
+            // 5/3/1 lifts store a training max, not the weight of the first set.
+            const trainingMax = program.days.some((d) =>
+              d.slots.some((slot) => slot.progression === '531' && slot.exercise === key),
+            );
+            return (
+              <Card key={key}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${label}${bodyweight ? '' : ', change starting weight'}`}
+                  disabled={bodyweight}
+                  onPress={() => setEditing(key)}
+                >
+                  <LiftRow
+                    exercise={{ ...exercise, name: label }}
+                    kg={bodyweight ? 0 : weightOf(key)}
+                    schemeLabel={trainingMax ? 'Training max (90 % of your 1RM)' : 'Starting weight'}
+                    unit={draft.unit}
+                    inventory={draft.inventory}
+                  />
+                </Pressable>
+              </Card>
+            );
+          })}
         </View>
         {errors.map((e) => (
           <Text key={e} variant="callout" color="danger">

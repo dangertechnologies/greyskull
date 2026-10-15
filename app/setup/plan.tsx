@@ -10,8 +10,8 @@ import { useSetup } from '../../src/setup/SetupContext';
 import { Button } from '../../src/ui/Button';
 import { ListRow } from '../../src/ui/ListRow';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
+import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
-import { SegmentedControl } from '../../src/ui/SegmentedControl';
 import { Text } from '../../src/ui/Text';
 
 const SCRATCH: Program = {
@@ -134,17 +134,15 @@ export default function PlanStep() {
                         </View>
                       </Section>
                     ) : null}
-                    <Section label="Sessions per week">
-                      <SegmentedControl
-                        accessibilityLabel="Sessions per week"
-                        options={[
-                          { value: '2', label: '2' },
-                          { value: '3', label: '3' },
-                        ]}
-                        value={String(draft.sessionsPerWeek)}
-                        onChange={(v) => rebuild({ sessionsPerWeek: Number(v) as 2 | 3 })}
-                      />
-                    </Section>
+                    <NumberStepper
+                      label="Training days per week"
+                      value={draft.sessionsPerWeek}
+                      min={1}
+                      max={7}
+                      step={1}
+                      format={String}
+                      onChange={(sessionsPerWeek) => rebuild({ sessionsPerWeek })}
+                    />
                     <Button
                       title={advanced ? 'Hide advanced rules' : 'Advanced rules'}
                       variant="plain"

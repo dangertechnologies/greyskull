@@ -38,11 +38,15 @@ export type Scheme =
  * - `double`: every set hits the current rep target → one more rep next time; at the top of the range
  *   add the increment and drop back to the bottom (AllPro).
  */
-export type ProgressionModel = 'amrap' | 'linear' | 'double';
+export type ProgressionModel = 'amrap' | 'linear' | 'double' | 'stages' | '531';
 
 export interface Slot {
   exercise: string | [string, string]; // tuple = alternate between the two each session
   scheme: Scheme;
+  lift?: string;
+  progression?: ProgressionModel;
+  stages?: Scheme[];
+  advanceAt?: number;
 }
 export interface Day {
   name: string;
@@ -64,8 +68,10 @@ export interface Rules {
 export interface Program {
   template: string; // plan id from src/config/plans.ts, or 'custom'
   days: Day[];
-  sessionsPerWeek: 2 | 3;
+  sessionsPerWeek: number;
   rules: Rules;
+  /** Session number the program started at; a new plan starts on its first day (and 5/3/1 week). */
+  startN?: number;
 }
 
 export interface LiftState {
@@ -73,16 +79,22 @@ export interface LiftState {
   startKg: number; // weight at program start (for charts)
   fails: number; // consecutive failed AMRAPs
   incrementOverride?: { kg: number; lb: number };
+  stage?: number;
   reps?: number; // double progression: current rep target inside the scheme's range
 }
 
 export interface SetResult {
+  kg?: number;
   target: number | null; // null = AMRAP
   reps: number;
 }
 export interface ExerciseResult {
   weightKg: number;
   sets: SetResult[];
+  /** Lift key when it differs from the exercise id (GZCLP T2), so charts keep tiers apart. */
+  lift?: string;
+  /** 5/3/1: the training max the sets were built from (`weightKg` is the heaviest set). */
+  tmKg?: number;
 }
 
 export interface SessionLog {
@@ -94,6 +106,8 @@ export interface SessionLog {
   order: string[]; // exercise ids in order (so UI never re-derives)
   skipped?: boolean;
   intensity?: number; // set when the day is a light/medium day
+  /** Skipped 5/3/1 cycle ends: lift states from before the training max went up, so Undo can restore them. */
+  restore?: Record<string, LiftState>;
 }
 
 export interface PlateInventory {

@@ -1,11 +1,18 @@
-import type { Exercise, SessionLog, Unit } from './domain';
-import { toUnit } from './domain';
+import type { Exercise, ExerciseResult, SessionLog, Unit } from './domain';
+import { exerciseOfLift, toUnit } from './domain';
+
+/** A session's result for a lift key; GZCLP T1 and T2 of one exercise are told apart by `result.lift`. */
+export function resultFor(log: SessionLog, key: string): ExerciseResult | undefined {
+  const id = exerciseOfLift(key);
+  const result = log.results[id];
+  return result && (result.lift ?? id) === key ? result : undefined;
+}
 
 export interface SeriesPoint {
   n: number;
   /** ISO timestamp of the session. */
   date: string;
-  /** Weight in the display unit for loaded lifts; last-set reps for bodyweight lifts. */
+  /** Weight in the display unit for loaded lifts (the training max for 5/3/1); last-set reps for bodyweight lifts. */
   value: number;
   reps: number;
   /** True when this is a new best (strictly above every earlier point). */
@@ -16,15 +23,20 @@ export interface SeriesPoint {
  * One point per finished session. Skipped sessions and light/medium days (which are deliberately lighter)
  * are left out so the line shows the working weight.
  */
-export function seriesPoints(sessions: SessionLog[], exercise: Exercise, unit: Unit): SeriesPoint[] {
+export function seriesPoints(
+  sessions: SessionLog[],
+  exercise: Exercise,
+  unit: Unit,
+  key = exercise.id,
+): SeriesPoint[] {
   const points: SeriesPoint[] = [];
   let best = Number.NEGATIVE_INFINITY;
   for (const log of sessions) {
     if (log.skipped || (log.intensity ?? 1) < 1) continue;
-    const result = log.results[exercise.id];
+    const result = resultFor(log, key);
     if (!result) continue;
     const reps = result.sets.at(-1)?.reps ?? 0;
-    const value = exercise.kind === 'bodyweight' ? reps : toUnit(result.weightKg, unit);
+    const value = exercise.kind === 'bodyweight' ? reps : toUnit(result.tmKg ?? result.weightKg, unit);
     points.push({ n: log.n, date: log.finishedAt ?? log.startedAt, value, reps, pr: value > best });
     best = Math.max(best, value);
   }
@@ -32,8 +44,13 @@ export function seriesPoints(sessions: SessionLog[], exercise: Exercise, unit: U
 }
 
 /** One value per finished session (see `seriesPoints`). */
-export function seriesFor(sessions: SessionLog[], exercise: Exercise, unit: Unit): number[] {
-  return seriesPoints(sessions, exercise, unit).map((p) => p.value);
+export function seriesFor(
+  sessions: SessionLog[],
+  exercise: Exercise,
+  unit: Unit,
+  key = exercise.id,
+): number[] {
+  return seriesPoints(sessions, exercise, unit, key).map((p) => p.value);
 }
 
 export type ChartRange = '3M' | '6M' | '1Y' | 'All';

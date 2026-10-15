@@ -161,3 +161,22 @@ describe('editing and rest controls', () => {
     expect(first.every((f) => f.pr === false)).toBe(true); // nothing to beat on the first session
   });
 });
+
+test('531 items use each set weight and warm-ups ramp to the first main set', () => {
+  const s = useStore.getState();
+  s.setProgram({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...TEMPLATES.base.rules, progression: '531' },
+    days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5+' }] }],
+  });
+  s.setLift('BARBELL_SQUAT', { weightKg: 100 });
+  const { result, unmount } = renderHook(() => useSession(2));
+  const work = result.current!.items.filter((i) => i.kind !== 'warmup');
+  expect(work.map((i) => i.weightKg)).toEqual([75, 85, 95, 75, 75, 75, 75, 75]);
+  expect(work[2]).toMatchObject({ kind: 'amrap', minReps: 1, perSetWeight: true });
+  expect(result.current!.items.filter((i) => i.kind === 'warmup').map((i) => i.weightKg)).toEqual([
+    20, 40, 52.5, 62.5,
+  ]);
+  unmount();
+});

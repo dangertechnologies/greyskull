@@ -1,6 +1,6 @@
 import type { PluginId } from '../config/plans';
 import { PLANS } from '../config/plans';
-import type { Exercise, Program, Scheme, Slot } from './types';
+import type { Exercise, LiftState, Program, ProgressionModel, Scheme, Slot } from './types';
 
 /** Programs of the built-in plans, by plan id (see src/config/plans.ts). */
 export const TEMPLATES: Record<string, Program> = Object.fromEntries(PLANS.map((p) => [p.id, p.program]));
@@ -92,32 +92,88 @@ export interface ResolvedSession {
   dayName: string;
   /** Fraction of working weight for the day (1 unless the plan marks it light/medium). */
   intensity: number;
-  slots: { exercise: string; scheme: Scheme }[];
+  slots: {
+    exercise: string;
+    lift: string;
+    scheme: Scheme;
+    progression: ProgressionModel;
+    stages?: Scheme[];
+    advanceAt?: number;
+    week?: number;
+    lastInWeek?: boolean;
+  }[];
+}
+
+/** Exercise id behind a lift key: `'BARBELL_SQUAT@T2'` → `'BARBELL_SQUAT'`. */
+export const exerciseOfLift = (key: string): string => key.split('@')[0];
+
+/** Alternating pairs use the exercise resolved for this session. */
+export function liftKeyOf(slot: Slot, exercise?: string): string {
+  return slot.lift ?? exercise ?? (typeof slot.exercise === 'string' ? slot.exercise : slot.exercise[0]);
 }
 
 /** Which day and exercises session `n` (0-based) is. Pure and derived on demand from the program. */
-export function sessionFor(program: Program, n: number): ResolvedSession {
+export function sessionFor(
+  program: Program,
+  session: number,
+  lifts: Record<string, LiftState> = {},
+): ResolvedSession {
+  // Days, alternating pairs and 5/3/1 weeks count from the session the program started at.
+  const n = Math.max(0, session - (program.startN ?? 0));
   const len = program.days.length;
+  const resolve = (at: number) =>
+    program.days[at % len].slots.map((slot) => {
+      let exercise: string;
+      if (typeof slot.exercise === 'string') exercise = slot.exercise;
+      else {
+        const [a, b] = slot.exercise;
+        const key = pairKey(a, b);
+        const dayHasPair = program.days.map((d) =>
+          d.slots.some(
+            (s) => typeof s.exercise !== 'string' && pairKey(s.exercise[0], s.exercise[1]) === key,
+          ),
+        );
+        const perCycle = dayHasPair.filter(Boolean).length;
+        const partial = dayHasPair.slice(0, at % len).filter(Boolean).length;
+        const count = Math.floor(at / len) * perCycle + partial;
+        exercise = count % 2 === 0 ? a : b;
+      }
+      const lift = liftKeyOf(slot, exercise);
+      const stage = Math.max(0, Math.min((slot.stages?.length ?? 1) - 1, lifts[lift]?.stage ?? 0));
+      return {
+        ...slot,
+        exercise,
+        lift,
+        scheme: slot.stages?.[stage] ?? slot.scheme,
+        progression: slot.progression ?? program.rules.progression ?? 'amrap',
+      };
+    });
+  const slots = resolve(n).map((slot) =>
+    slot.progression === '531'
+      ? {
+          ...slot,
+          week: Math.floor(n / len) % 3,
+          lastInWeek: !Array.from({ length: len - (n % len) - 1 }, (_, i) => resolve(n + i + 1)).some(
+            (later) => later.some((s) => s.lift === slot.lift),
+          ),
+        }
+      : slot,
+  );
   const day = program.days[n % len];
-  const slots = day.slots.map((slot) => {
-    if (typeof slot.exercise === 'string') return { exercise: slot.exercise, scheme: slot.scheme };
-    const [a, b] = slot.exercise;
-    const key = pairKey(a, b);
-    // Sessions m < n whose day holds this pair: each full cycle contributes once per such day.
-    const dayHasPair = program.days.map((d) =>
-      d.slots.some((s) => typeof s.exercise !== 'string' && pairKey(s.exercise[0], s.exercise[1]) === key),
-    );
-    const perCycle = dayHasPair.filter(Boolean).length;
-    const partial = dayHasPair.slice(0, n % len).filter(Boolean).length;
-    const count = Math.floor(n / len) * perCycle + partial;
-    return { exercise: count % 2 === 0 ? a : b, scheme: slot.scheme };
-  });
   return { dayName: day.name, intensity: day.intensity ?? 1, slots };
 }
 
 export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
   const errors: string[] = [];
   if (p.days.length === 0) errors.push('Add at least one day.');
+  if (!Number.isInteger(p.sessionsPerWeek) || p.sessionsPerWeek < 1 || p.sessionsPerWeek > 7)
+    errors.push('Training days per week must be between 1 and 7.');
+  if (p.startN !== undefined && !(Number.isInteger(p.startN) && p.startN >= 0))
+    errors.push('Invalid program start.');
+  const models = ['amrap', 'linear', 'double', 'stages', '531'];
+  if (p.rules.progression !== undefined && !models.includes(p.rules.progression))
+    errors.push('Unknown progression model.');
+  const liftExercises = new Map<string, string>();
   const pairOrder = new Map<string, string>();
   for (const day of p.days) {
     if (day.slots.length === 0) errors.push(`${day.name} has no exercises.`);
@@ -130,8 +186,30 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
         if (catalog && !(id in catalog)) errors.push(`${day.name}: unknown exercise ${id}.`);
         if (seen.has(id)) errors.push(`${day.name}: ${catalog?.[id]?.name ?? id} appears twice.`);
         seen.add(id);
+        const key = liftKeyOf(slot, id);
+        const known = liftExercises.get(key);
+        if (known !== undefined && known !== id)
+          errors.push(`${day.name}: lift ${key} must use the same exercise everywhere.`);
+        liftExercises.set(key, id);
       }
       if (!tryParseScheme(slot.scheme)) errors.push(`${day.name}: unknown scheme ${slot.scheme}.`);
+      if (slot.progression !== undefined && !models.includes(slot.progression))
+        errors.push(`${day.name}: unknown progression model.`);
+      if (slot.advanceAt !== undefined && (!Number.isInteger(slot.advanceAt) || slot.advanceAt < 1))
+        errors.push(`${day.name}: invalid advanceAt.`);
+      if (
+        slot.lift !== undefined &&
+        (typeof slot.lift !== 'string' || !slot.lift || typeof slot.exercise !== 'string')
+      )
+        errors.push(`${day.name}: lift keys require a single exercise, not an alternating pair.`);
+      if (
+        slot.stages !== undefined &&
+        (!Array.isArray(slot.stages) ||
+          slot.stages.length === 0 ||
+          slot.stages.some((s) => typeof s !== 'string' || !tryParseScheme(s)) ||
+          slot.stages[0] !== slot.scheme)
+      )
+        errors.push(`${day.name}: invalid stages (scheme must match stage 0).`);
       if (typeof slot.exercise !== 'string') {
         const [a, b] = slot.exercise;
         if (a === b) errors.push(`${day.name}: an alternating pair needs two different exercises.`);
@@ -155,4 +233,14 @@ export function exerciseIdsOf(program: Program): string[] {
         ids.add(id);
       });
   return [...ids];
+}
+
+export function liftKeysOf(program: Program): string[] {
+  return [
+    ...new Set(
+      program.days.flatMap((day) =>
+        day.slots.flatMap((slot) => slotIds(slot).map((id) => liftKeyOf(slot, id))),
+      ),
+    ),
+  ];
 }
