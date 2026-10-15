@@ -91,6 +91,8 @@ export interface SetResult {
 export interface ExerciseResult {
   weightKg: number;
   sets: SetResult[];
+  /** Lift key when it differs from the exercise id (GZCLP T2), so charts keep tiers apart. */
+  lift?: string;
 }
 
 export interface SessionLog {

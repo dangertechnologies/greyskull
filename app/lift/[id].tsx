@@ -15,7 +15,7 @@ import {
   trim,
 } from '../../src/domain';
 import { formatDate, liftLabel } from '../../src/format';
-import { seriesPoints } from '../../src/series';
+import { resultFor, seriesPoints } from '../../src/series';
 import { useInventory, useLift, useStore, useUnit } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
@@ -50,16 +50,20 @@ export default function LiftDetail() {
   }
 
   const bodyweight = exercise.kind === 'bodyweight';
-  const points = seriesPoints(sessions, exercise, unit);
-  const history = [...sessions]
-    .reverse()
-    .filter((s) => s.results[exercise.id])
-    .map((s) => ({
-      n: s.n,
-      date: s.finishedAt ?? s.startedAt,
-      weightKg: s.results[exercise.id].weightKg,
-      reps: s.results[exercise.id].sets.at(-1)?.reps ?? 0,
-    }));
+  const points = seriesPoints(sessions, exercise, unit, id);
+  const history = [...sessions].reverse().flatMap((s) => {
+    const result = resultFor(s, id);
+    return result
+      ? [
+          {
+            n: s.n,
+            date: s.finishedAt ?? s.startedAt,
+            weightKg: result.weightKg,
+            reps: result.sets.at(-1)?.reps ?? 0,
+          },
+        ]
+      : [];
+  });
   const bestAmrap = history.reduce((best, h) => Math.max(best, h.reps), 0);
 
   return (

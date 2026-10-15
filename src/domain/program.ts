@@ -168,6 +168,8 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
   if (p.days.length === 0) errors.push('Add at least one day.');
   if (!Number.isInteger(p.sessionsPerWeek) || p.sessionsPerWeek < 1 || p.sessionsPerWeek > 7)
     errors.push('Training days per week must be between 1 and 7.');
+  if (p.startN !== undefined && !(Number.isInteger(p.startN) && p.startN >= 0))
+    errors.push('Invalid program start.');
   const models = ['amrap', 'linear', 'double', 'stages', '531'];
   if (p.rules.progression !== undefined && !models.includes(p.rules.progression))
     errors.push('Unknown progression model.');

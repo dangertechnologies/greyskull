@@ -27,7 +27,7 @@ export default function Progress() {
       Object.fromEntries(
         ids.map((id) => [
           id,
-          exercises[exerciseOfLift(id)] ? seriesFor(sessions, exercises[exerciseOfLift(id)], unit) : [],
+          exercises[exerciseOfLift(id)] ? seriesFor(sessions, exercises[exerciseOfLift(id)], unit, id) : [],
         ]),
       ),
     [ids, sessions, exercises, unit],

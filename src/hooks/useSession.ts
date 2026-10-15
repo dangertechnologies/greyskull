@@ -86,7 +86,7 @@ export function useSession(n: number): SessionApi | null {
 
   const items = useMemo<SessionItem[]>(() => {
     if (!ready || !program) return [];
-    const schemes = new Map(sessionFor(program, n, lifts).slots.map((s) => [s.exercise, s.scheme]));
+    const slots = new Map(sessionFor(program, n, lifts).slots.map((s) => [s.exercise, s]));
     const out: SessionItem[] = [];
     // Warm-ups are not persisted: they count as done once real work exists for the lift or any later lift.
     const laterLogged = new Set<string>();
@@ -98,7 +98,7 @@ export function useSession(n: number): SessionApi | null {
     for (const id of draft.order) {
       const result = draft.results[id];
       const exercise = exercises[id];
-      const scheme = schemes.get(id);
+      const scheme = slots.get(id)?.scheme;
       if (!result || !exercise || !scheme) continue;
       const anyLogged = result.sets.some((s) => s.reps > 0);
       const warm = program.rules.warmups
@@ -118,7 +118,7 @@ export function useSession(n: number): SessionApi | null {
           reps: logged ? w.reps : 0,
         });
       });
-      const week = Math.floor(n / program.days.length) % 3;
+      const week = slots.get(id)?.week ?? 0;
       result.sets.forEach((set, i) => {
         out.push({
           exerciseId: id,

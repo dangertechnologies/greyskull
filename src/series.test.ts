@@ -79,3 +79,19 @@ test('range filters keep the points inside the window', () => {
   expect(inRange(pts, '1Y', now)).toHaveLength(3);
   expect(inRange(pts, 'All', now)).toHaveLength(3);
 });
+
+test('GZCLP T1 and T2 of the same exercise get separate series', () => {
+  const at = '2026-01-01T00:00:00.000Z';
+  const log = (n: number, weightKg: number, lift?: string): SessionLog => ({
+    n,
+    dayName: '',
+    startedAt: at,
+    finishedAt: at,
+    order: ['BARBELL_SQUAT'],
+    results: { BARBELL_SQUAT: { weightKg, sets: [{ target: 3, reps: 3 }], ...(lift ? { lift } : {}) } },
+  });
+  const logs = [log(0, 100), log(1, 60, 'BARBELL_SQUAT@T2'), log(2, 105)];
+  const squat = builtInExercises().BARBELL_SQUAT;
+  expect(seriesFor(logs, squat, 'kg')).toEqual([100, 105]);
+  expect(seriesFor(logs, squat, 'kg', 'BARBELL_SQUAT@T2')).toEqual([60]);
+});

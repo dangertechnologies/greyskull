@@ -237,6 +237,7 @@ export const useStore = create<Store>()(
                   ? sessionWeightKg(working, session.intensity, exercise, inventory, unit)
                   : working,
             sets,
+            ...(lift !== id ? { lift } : {}),
           };
         }
         const created: SessionLog = {
@@ -341,7 +342,10 @@ export const useStore = create<Store>()(
         );
         if (using.length > 0) return using.map((d) => d.name);
         set((s) => {
-          const { [id]: _lift, ...lifts } = s.lifts;
+          // Also drops tier keys such as `<id>@T2`.
+          const lifts = Object.fromEntries(
+            Object.entries(s.lifts).filter(([key]) => exerciseOfLift(key) !== id),
+          );
           // History keeps the exercise's name: archive instead of deleting once a session used it.
           if (s.sessions.some((log) => id in log.results)) {
             return { exercises: { ...s.exercises, [id]: { ...exercise, archived: true } }, lifts };

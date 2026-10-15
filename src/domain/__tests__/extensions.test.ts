@@ -232,3 +232,8 @@ test('a new plan starts on its first day and first 5/3/1 week, whatever the sess
   useStore.getState().setProgram({ ...plan, sessionsPerWeek: 2 });
   expect(useStore.getState().program!.startN).toBe(7);
 });
+
+test('a program start must be a non-negative whole number', () => {
+  expect(validateProgram({ ...program, startN: -1 })).toContain('Invalid program start.');
+  expect(validateProgram({ ...program, startN: 4 })).not.toContain('Invalid program start.');
+});
