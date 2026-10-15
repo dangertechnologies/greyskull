@@ -80,10 +80,12 @@ export function nextLift(
       };
     }
   } else {
-    // Every set must reach its target (an AMRAP set counts from SUCCESS_REPS).
-    success =
-      result.sets.every((set) => set.reps >= (set.target ?? range?.reps ?? SUCCESS_REPS)) &&
-      (context.advanceAt === undefined || last.reps >= context.advanceAt);
+    // Every set must reach its target (an AMRAP set counts from its scheme's minimum, else SUCCESS_REPS).
+    const met = result.sets.every((set) => set.reps >= (set.target ?? range?.reps ?? SUCCESS_REPS));
+    // Below `advanceAt` (GZCLP T3: 25) a completed session holds the weight; it is not a miss.
+    if (met && context.advanceAt !== undefined && last.reps < context.advanceAt)
+      return { next: { ...lift, weightKg: workingKg, fails: 0 }, change: 'same' };
+    success = met;
     if (!success && model === 'stages') {
       const stage = Math.max(0, Math.min((context.stages?.length ?? 1) - 1, lift.stage ?? 0));
       if (stage < (context.stages?.length ?? 1) - 1)

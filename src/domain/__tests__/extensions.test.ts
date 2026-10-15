@@ -237,3 +237,15 @@ test('a program start must be a non-negative whole number', () => {
   expect(validateProgram({ ...program, startN: -1 })).toContain('Invalid program start.');
   expect(validateProgram({ ...program, startN: 4 })).not.toContain('Invalid program start.');
 });
+
+test('GZCLP T3 holds the weight below 25 reps instead of deloading', () => {
+  const t3 = { progression: 'linear' as const, scheme: '3x15+' as Scheme, advanceAt: 25 };
+  const result = { weightKg: 50, sets: [15, 15, 20].map((reps, i) => ({ target: i < 2 ? 15 : null, reps })) };
+  let state = { ...lift, weightKg: 50 };
+  for (let i = 0; i < 3; i++) {
+    const outcome = nextLift(state, result, DEFAULT_RULES, ex.LAT_PULLDOWN, inv, 'kg', t3);
+    expect(outcome.change).toBe('same');
+    state = outcome.next;
+  }
+  expect(state).toMatchObject({ weightKg: 50, fails: 0 });
+});
