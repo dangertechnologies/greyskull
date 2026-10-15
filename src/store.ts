@@ -238,6 +238,7 @@ export const useStore = create<Store>()(
                   : working,
             sets,
             ...(lift !== id ? { lift } : {}),
+            ...(progression === '531' ? { tmKg: working } : {}),
           };
         }
         const created: SessionLog = {
@@ -306,6 +307,29 @@ export const useStore = create<Store>()(
       skipSession: () =>
         set((s) => {
           const now = new Date().toISOString();
+          // Skipping the last week-3 session of a lift still ends its 5/3/1 cycle: the template raises the
+          // training max whatever happens in that session, so do it here and keep the old state for Undo.
+          const lifts = { ...s.lifts };
+          const restore: Record<string, LiftState> = {};
+          if (s.program) {
+            for (const slot of sessionFor(s.program, s.nextSession, s.lifts).slots) {
+              const lift = s.lifts[slot.lift];
+              const exercise = s.exercises[slot.exercise];
+              if (slot.progression !== '531' || !slot.lastInWeek || slot.week !== 2 || !lift || !exercise)
+                continue;
+              const sets = [5, 3, 1].map((reps, i) => ({ target: i === 2 ? null : reps, reps }));
+              lifts[slot.lift] = nextLift(
+                lift,
+                { weightKg: lift.weightKg, sets },
+                s.program.rules,
+                exercise,
+                s.inventory,
+                s.unit,
+                slot,
+              ).next;
+              restore[slot.lift] = lift;
+            }
+          }
           const skipped: SessionLog = {
             n: s.nextSession,
             dayName: '',
@@ -314,15 +338,20 @@ export const useStore = create<Store>()(
             results: {},
             order: [],
             skipped: true,
+            ...(Object.keys(restore).length > 0 ? { restore } : {}),
           };
-          return { sessions: [...s.sessions, skipped], nextSession: s.nextSession + 1, draft: null };
+          return { sessions: [...s.sessions, skipped], lifts, nextSession: s.nextSession + 1, draft: null };
         }),
 
       undoSkip: () =>
         set((s) => {
           const last = s.sessions[s.sessions.length - 1];
           if (!last?.skipped || last.n !== s.nextSession - 1) return {};
-          return { sessions: s.sessions.slice(0, -1), nextSession: last.n };
+          return {
+            sessions: s.sessions.slice(0, -1),
+            lifts: { ...s.lifts, ...last.restore },
+            nextSession: last.n,
+          };
         }),
 
       editSession: (n, results) =>

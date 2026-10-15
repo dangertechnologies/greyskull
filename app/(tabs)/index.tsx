@@ -5,7 +5,7 @@ import { LiftRow } from '../../src/components/LiftRow';
 import { WorkoutRow } from '../../src/components/WorkoutRow';
 import { useTheme } from '../../src/design/theme';
 import { fiveThreeOneSets, formatWeight, project, sessionFor, sessionWeightKg } from '../../src/domain';
-import { intensityLabel, nameOf, schemeLabel, weekOf } from '../../src/format';
+import { intensityLabel, nameOf, schemeLabel, weekLabel, weekOf } from '../../src/format';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Icon } from '../../src/ui/Icon';
@@ -92,7 +92,9 @@ export default function Today() {
     <>
       <ScreenScroll headerless withBottomBar gap={10}>
         <View style={{ gap: t.space[2] }}>
-          <Text variant="label" color="textMuted">{`Week ${week}`}</Text>
+          <Text variant="label" color="textMuted">
+            {weekLabel(program, nextSession)}
+          </Text>
           <Text variant="title" accessibilityRole="header">
             {session.dayName}
           </Text>

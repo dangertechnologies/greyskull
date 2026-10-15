@@ -1,6 +1,6 @@
 import type { AppState } from '../domain';
 import { fiveThreeOneSets, formatWeight, sessionFor, sessionWeightKg } from '../domain';
-import { nameOf, weekOf } from '../format';
+import { nameOf, weekLabel } from '../format';
 
 /** What the "Next workout" widget shows. Plain JSON: it is handed to the widget extension as-is. */
 export interface NextWorkoutProps {
@@ -44,7 +44,7 @@ export function nextWorkoutProps(
   });
   return {
     title: session.dayName,
-    subtitle: `Week ${weekOf(s.nextSession, s.program.sessionsPerWeek)}`,
+    subtitle: weekLabel(s.program, s.nextSession),
     lines,
     inProgress: s.draft?.n === s.nextSession,
     ready: true,

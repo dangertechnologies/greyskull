@@ -1,5 +1,5 @@
 import { builtInExercises } from '../../catalog';
-import { liftLabel } from '../../format';
+import { liftLabel, weekLabel } from '../../format';
 import { initialState, useStore } from '../../store';
 import { liftKeyOf, liftKeysOf, sessionFor, validateProgram } from '../program';
 import { buildProgram } from '../programEdit';
@@ -248,4 +248,44 @@ test('GZCLP T3 holds the weight below 25 reps instead of deloading', () => {
     state = outcome.next;
   }
   expect(state).toMatchObject({ weightKg: 50, fails: 0 });
+});
+
+describe('5/3/1 cycle end', () => {
+  const plan: Program = {
+    ...program,
+    template: '531-test',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES, increments: { BARBELL_SQUAT: { kg: 5, lb: 10 } } },
+    days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5+', progression: '531' }] }],
+  };
+
+  test('skipping the last week-3 session still raises the training max; Undo restores it', () => {
+    useStore.getState().setProgram(plan);
+    useStore.getState().setLift('BARBELL_SQUAT', { weightKg: 100 });
+    useStore.setState({ nextSession: 2 }); // week 3 of the cycle
+    useStore.getState().skipSession();
+    expect(useStore.getState().lifts.BARBELL_SQUAT.weightKg).toBe(105);
+    useStore.getState().undoSkip();
+    expect(useStore.getState().lifts.BARBELL_SQUAT.weightKg).toBe(100);
+    expect(useStore.getState().nextSession).toBe(2);
+  });
+
+  test('skipping an earlier week leaves the training max alone', () => {
+    useStore.getState().setProgram(plan);
+    useStore.getState().setLift('BARBELL_SQUAT', { weightKg: 100 });
+    useStore.getState().skipSession();
+    expect(useStore.getState().lifts.BARBELL_SQUAT.weightKg).toBe(100);
+  });
+
+  test('the label counts cycles and weeks, and results keep the training max for charts', () => {
+    expect(weekLabel(plan, 0)).toBe('Cycle 1 · Week 1');
+    expect(weekLabel(plan, 4)).toBe('Cycle 2 · Week 2');
+    expect(weekLabel({ ...plan, startN: 3 }, 3)).toBe('Cycle 1 · Week 1');
+    expect(weekLabel(program, 7)).toBe('Week 3');
+    useStore.getState().setProgram(plan);
+    useStore.getState().setLift('BARBELL_SQUAT', { weightKg: 100 });
+    const draft = useStore.getState().startSession(0);
+    expect(draft.results.BARBELL_SQUAT.tmKg).toBe(100);
+    expect(draft.results.BARBELL_SQUAT.weightKg).toBeLessThan(100);
+  });
 });

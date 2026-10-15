@@ -93,6 +93,8 @@ export interface ExerciseResult {
   sets: SetResult[];
   /** Lift key when it differs from the exercise id (GZCLP T2), so charts keep tiers apart. */
   lift?: string;
+  /** 5/3/1: the training max the sets were built from (`weightKg` is the heaviest set). */
+  tmKg?: number;
 }
 
 export interface SessionLog {
@@ -104,6 +106,8 @@ export interface SessionLog {
   order: string[]; // exercise ids in order (so UI never re-derives)
   skipped?: boolean;
   intensity?: number; // set when the day is a light/medium day
+  /** Skipped 5/3/1 cycle ends: lift states from before the training max went up, so Undo can restore them. */
+  restore?: Record<string, LiftState>;
 }
 
 export interface PlateInventory {

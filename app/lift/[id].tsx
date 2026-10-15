@@ -64,6 +64,7 @@ export default function LiftDetail() {
         ]
       : [];
   });
+  const trainingMax = sessions.some((s) => resultFor(s, id)?.tmKg !== undefined);
   const bestAmrap = history.reduce((best, h) => Math.max(best, h.reps), 0);
 
   return (
@@ -83,7 +84,7 @@ export default function LiftDetail() {
             <Text>{`${formatWeight(lift.startKg, unit)} → ${formatWeight(lift.weightKg, unit)}`}</Text>
           ) : null}
           <Text>{bestAmrap > 0 ? `Best last set: ${bestAmrap} reps` : 'No sets logged yet'}</Text>
-          {lift && !bodyweight && bestAmrap > 0 ? (
+          {lift && !bodyweight && bestAmrap > 0 && !trainingMax ? (
             <Text>{`Estimated 1RM ${formatWeight(lift.weightKg * (1 + bestAmrap / 30), unit)}`}</Text>
           ) : null}
         </View>

@@ -95,3 +95,18 @@ test('GZCLP T1 and T2 of the same exercise get separate series', () => {
   expect(seriesFor(logs, squat, 'kg')).toEqual([100, 105]);
   expect(seriesFor(logs, squat, 'kg', 'BARBELL_SQUAT@T2')).toEqual([60]);
 });
+
+test('a 5/3/1 lift charts its training max, not the heaviest set', () => {
+  const at = '2026-01-01T00:00:00.000Z';
+  const logs: SessionLog[] = [
+    {
+      n: 0,
+      dayName: '',
+      startedAt: at,
+      finishedAt: at,
+      order: ['BARBELL_SQUAT'],
+      results: { BARBELL_SQUAT: { weightKg: 85, tmKg: 100, sets: [{ target: null, reps: 6 }] } },
+    },
+  ];
+  expect(seriesFor(logs, builtInExercises().BARBELL_SQUAT, 'kg')).toEqual([100]);
+});

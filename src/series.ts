@@ -12,7 +12,7 @@ export interface SeriesPoint {
   n: number;
   /** ISO timestamp of the session. */
   date: string;
-  /** Weight in the display unit for loaded lifts; last-set reps for bodyweight lifts. */
+  /** Weight in the display unit for loaded lifts (the training max for 5/3/1); last-set reps for bodyweight lifts. */
   value: number;
   reps: number;
   /** True when this is a new best (strictly above every earlier point). */
@@ -36,7 +36,7 @@ export function seriesPoints(
     const result = resultFor(log, key);
     if (!result) continue;
     const reps = result.sets.at(-1)?.reps ?? 0;
-    const value = exercise.kind === 'bodyweight' ? reps : toUnit(result.weightKg, unit);
+    const value = exercise.kind === 'bodyweight' ? reps : toUnit(result.tmKg ?? result.weightKg, unit);
     points.push({ n: log.n, date: log.finishedAt ?? log.startedAt, value, reps, pr: value > best });
     best = Math.max(best, value);
   }
