@@ -1,7 +1,8 @@
 {
   "cli": {
     "version": ">= 16.0.0",
-    "appVersionSource": "remote"
+    "appVersionSource": "remote",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "preview": {
@@ -16,7 +17,8 @@
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "1449769260"
+        "ascAppId": "1449769260",
+        "metadataPath": "./store/store.config.json"
       },
       "android": {
         "track": "internal"

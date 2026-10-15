@@ -1,0 +1,1 @@
+Fixed weights jumping to huge numbers. Edit any weight at any time. Correct Greyskull LP days and exercise order. New: custom rest timer, projections, custom exercises, minimalist mode, back and Finish buttons, home-screen widget. kg and lb both work with your real plates.
