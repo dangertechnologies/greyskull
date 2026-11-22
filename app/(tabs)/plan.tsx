@@ -2,10 +2,11 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
-import { nameOf, schemeLabel } from '../../src/format';
+import { liftLabel, nameOf, schemeLabel } from '../../src/format';
 import { useStore } from '../../src/store';
 import { ListRow } from '../../src/ui/ListRow';
 import { ScreenScroll } from '../../src/ui/layout';
+import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
@@ -30,6 +31,17 @@ export default function Plan() {
             ? `${program.days.length} days · ${program.sessionsPerWeek} sessions a week`
             : 'No plan yet'}
         </Text>
+        {program ? (
+          <NumberStepper
+            label="Training days per week"
+            value={program.sessionsPerWeek}
+            min={1}
+            max={7}
+            step={1}
+            format={String}
+            onChange={(days) => useStore.getState().setSessionsPerWeek(days)}
+          />
+        ) : null}
         {plan?.status === 'experimental' ? (
           <Text variant="caption" color="warning">
             Experimental plan
@@ -50,7 +62,7 @@ export default function Plan() {
                 const ids = typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise;
                 return (
                   <Text key={ids.join('/')} variant="callout" color="textMuted">
-                    {`${ids.map((id) => nameOf(exercises, id)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
+                    {`${slot.lift ? liftLabel(slot.lift, exercises) : ids.map((id) => nameOf(exercises, id)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
                   </Text>
                 );
               })}

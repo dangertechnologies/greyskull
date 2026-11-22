@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import type { Outcome, SessionLog } from '../domain';
-import { isPersonalRecord, sessionFor, warmups } from '../domain';
+import { isPersonalRecord, parseScheme, sessionFor, warmups } from '../domain';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
 import { endRestActivity, startRestActivity } from '../widgets';
@@ -16,6 +16,8 @@ export interface SessionItem {
   position: number;
   total: number;
   targetReps: number | null;
+  minReps?: number;
+  perSetWeight?: boolean;
   weightKg: number;
   logged: boolean;
   reps: number;
@@ -63,6 +65,7 @@ export function useSession(n: number): SessionApi | null {
   const draft = useStore((s) => s.draft);
   const program = useStore((s) => s.program);
   const exercises = useStore((s) => s.exercises);
+  const lifts = useStore((s) => s.lifts);
   const inventory = useStore((s) => s.inventory);
   const unit = useStore((s) => s.unit);
   const restSeconds = useStore((s) => s.restSeconds);
@@ -83,7 +86,7 @@ export function useSession(n: number): SessionApi | null {
 
   const items = useMemo<SessionItem[]>(() => {
     if (!ready || !program) return [];
-    const schemes = new Map(sessionFor(program, n).slots.map((s) => [s.exercise, s.scheme]));
+    const slots = new Map(sessionFor(program, n, lifts).slots.map((s) => [s.exercise, s]));
     const out: SessionItem[] = [];
     // Warm-ups are not persisted: they count as done once real work exists for the lift or any later lift.
     const laterLogged = new Set<string>();
@@ -95,10 +98,12 @@ export function useSession(n: number): SessionApi | null {
     for (const id of draft.order) {
       const result = draft.results[id];
       const exercise = exercises[id];
-      const scheme = schemes.get(id);
+      const scheme = slots.get(id)?.scheme;
       if (!result || !exercise || !scheme) continue;
       const anyLogged = result.sets.some((s) => s.reps > 0);
-      const warm = program.rules.warmups ? warmups(result.weightKg, scheme, exercise, inventory, unit) : [];
+      const warm = program.rules.warmups
+        ? warmups(result.sets[0]?.kg ?? result.weightKg, scheme, exercise, inventory, unit)
+        : [];
       warm.forEach((w, i) => {
         const logged = anyLogged || laterLogged.has(id) || doneWarmups.has(`${id}:${i}`);
         out.push({
@@ -113,6 +118,7 @@ export function useSession(n: number): SessionApi | null {
           reps: logged ? w.reps : 0,
         });
       });
+      const week = slots.get(id)?.week ?? 0;
       result.sets.forEach((set, i) => {
         out.push({
           exerciseId: id,
@@ -121,14 +127,17 @@ export function useSession(n: number): SessionApi | null {
           position: i + 1,
           total: result.sets.length,
           targetReps: set.target,
-          weightKg: result.weightKg,
+          weightKg: set.kg ?? result.weightKg,
+          minReps:
+            set.kg !== undefined ? (week === 2 ? 1 : week === 1 ? 3 : 5) : (parseScheme(scheme).reps ?? 5),
+          ...(set.kg === undefined ? {} : { perSetWeight: true }),
           logged: set.reps > 0,
           reps: set.reps,
         });
       });
     }
     return out;
-  }, [ready, draft, program, exercises, inventory, unit, doneWarmups, n]);
+  }, [ready, draft, program, exercises, inventory, unit, doneWarmups, n, lifts]);
 
   const firstOpen = items.findIndex((i) => !i.logged);
   const activeIndex = firstOpen === -1 ? items.length : firstOpen;
@@ -202,9 +211,11 @@ export function useSession(n: number): SessionApi | null {
   );
 
   const finish = useCallback((): FinishedExercise[] => {
-    const before = useStore.getState().draft;
+    const state = useStore.getState();
+    const before = state.draft;
     if (!before) throw new Error('No session in progress');
-    const history = useStore.getState().sessions;
+    const history = state.sessions;
+    const slots = state.program ? sessionFor(state.program, n, state.lifts).slots : [];
     const outcomes = finishSession();
     setFinished(true);
     setRestEndsAt(null);
@@ -214,14 +225,16 @@ export function useSession(n: number): SessionApi | null {
         const result = before.results[id];
         return {
           exerciseId: id,
-          fromKg: result.weightKg,
+          fromKg: result.sets.some((s) => s.kg !== undefined)
+            ? (state.lifts[slots.find((s) => s.exercise === id)?.lift ?? id]?.weightKg ?? result.weightKg)
+            : result.weightKg,
           outcome: outcomes[id],
           pr:
             (before.intensity ?? 1) >= 1 &&
             isPersonalRecord(history, id, result.weightKg, result.sets.at(-1)?.reps ?? 0),
         };
       });
-  }, [finishSession]);
+  }, [finishSession, n]);
 
   const addRest = useCallback((seconds: number) => {
     setRestEndsAt((end) => {

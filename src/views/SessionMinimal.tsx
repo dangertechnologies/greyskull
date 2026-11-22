@@ -49,25 +49,33 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
         key={setIndex}
         testID={`set-pill-${exerciseId}-${item.position}`}
         accessibilityRole="button"
-        accessibilityLabel={label}
+        accessibilityLabel={`${label}${item.perSetWeight ? `, ${formatWeight(item.weightKg, unit)}` : ''}`}
         accessibilityActions={[{ name: 'edit', label: 'Edit reps' }]}
         onAccessibilityAction={() =>
-          setRepsFor({ exerciseId, setIndex, reps: item.logged ? item.reps : (item.targetReps ?? 5) })
+          setRepsFor({
+            exerciseId,
+            setIndex,
+            reps: item.logged ? item.reps : (item.targetReps ?? item.minReps ?? 5),
+          })
         }
         delayLongPress={400}
         onPress={() => {
-          if (!item.logged) record(index, item.targetReps ?? 5);
+          if (!item.logged) record(index, item.targetReps ?? item.minReps ?? 5);
           else {
             haptics.tick();
             logSet(exerciseId, setIndex, item.reps - 1); // 0 turns the pill back to empty
           }
         }}
         onLongPress={() =>
-          setRepsFor({ exerciseId, setIndex, reps: item.logged ? item.reps : (item.targetReps ?? 5) })
+          setRepsFor({
+            exerciseId,
+            setIndex,
+            reps: item.logged ? item.reps : (item.targetReps ?? item.minReps ?? 5),
+          })
         }
         style={{
           minWidth: 56,
-          height: 56,
+          minHeight: 56,
           paddingHorizontal: t.space[3],
           borderRadius: t.radius.pill,
           alignItems: 'center',
@@ -78,8 +86,20 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
         }}
       >
         <Text variant="bodyStrong" color={item.logged ? 'background' : 'text'}>
-          {item.logged ? item.reps : item.targetReps === null ? '5+' : (item.targetReps ?? 5)}
+          {item.logged
+            ? item.reps
+            : item.targetReps === null
+              ? `${item.minReps ?? 5}+`
+              : (item.targetReps ?? item.minReps ?? 5)}
         </Text>
+        {item.perSetWeight ? (
+          <>
+            <Text variant="caption" color={item.logged ? 'background' : 'textMuted'}>
+              {formatWeight(item.weightKg, unit)}
+            </Text>
+            {exercises[exerciseId]?.kind === 'barbell' ? <PlateStack kg={item.weightKg} size="sm" /> : null}
+          </>
+        ) : null}
       </Pressable>
     );
   };
@@ -152,6 +172,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
           const exercise = exercises[id];
           const result = draft.results[id];
           if (!exercise || !result) return null;
+          const perSetWeight = result.sets.some((s) => s.kg !== undefined);
           const bodyweight = exercise.kind === 'bodyweight';
           const own = items
             .map((item, index) => ({ item, index }))
@@ -167,7 +188,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`Change weight, now ${bodyweight ? 'bodyweight' : formatWeight(result.weightKg, unit)}`}
-                  disabled={bodyweight}
+                  disabled={bodyweight || perSetWeight}
                   onPress={() => setWeightFor(id)}
                   style={{ minHeight: 48, justifyContent: 'center', alignItems: 'flex-end', gap: t.space[1] }}
                 >
@@ -176,7 +197,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
                   </Text>
                 </Pressable>
               </View>
-              {bodyweight || exercise.kind !== 'barbell' ? null : (
+              {bodyweight || perSetWeight || exercise.kind !== 'barbell' ? null : (
                 <PlateStack kg={result.weightKg} size="sm" />
               )}
               {warm.length > 0 ? (

@@ -1,6 +1,16 @@
 import { getPlan, PLANS } from './config/plans';
 import type { AppState, Unit } from './domain';
-import { formatPlates, isLoadable, PLUGINS, platesPerSide, project, TEMPLATES, toKg, toUnit } from './domain';
+import {
+  exerciseOfLift,
+  formatPlates,
+  isLoadable,
+  PLUGINS,
+  platesPerSide,
+  project,
+  TEMPLATES,
+  toKg,
+  toUnit,
+} from './domain';
 import { initialState, useStore } from './store';
 
 const REPS = [3, 4, 5, 6, 8, 10, 12, 4, 4, 5];
@@ -14,13 +24,13 @@ function everyWeightLoadable(unit: Unit) {
     expect(bar + 2 * side.reduce((a, b) => a + b, 0)).toBeCloseTo(toUnit(kg, unit), 6);
     expect(formatPlates(kg, s.inventory, unit)).toMatch(/^(bar only|per side: )/);
   };
-  for (const [id, lift] of Object.entries(s.lifts)) {
-    if (s.exercises[id].kind === 'bodyweight') continue;
-    check(lift.weightKg);
+  for (const [key, lift] of Object.entries(s.lifts)) {
     expect(lift.weightKg).toBeLessThan(1000);
+    // Dumbbells and machines round to their own step, not to bar + plates.
+    if (s.exercises[exerciseOfLift(key)].kind === 'barbell') check(lift.weightKg);
   }
   for (const p of project(s as AppState, 9)) {
-    for (const l of p.lifts) if (s.exercises[l.exercise].kind !== 'bodyweight') check(l.weightKg);
+    for (const l of p.lifts) if (s.exercises[l.exercise].kind === 'barbell') check(l.weightKg);
   }
 }
 

@@ -1,7 +1,7 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Celebration, type CelebrationLine } from '../../src/components/Celebration';
-import { formatWeight, sessionFor } from '../../src/domain';
+import { formatWeight, project, sessionFor } from '../../src/domain';
 import { nameOf } from '../../src/format';
 import type { FinishedExercise } from '../../src/hooks/useSession';
 import { useSession } from '../../src/hooks/useSession';
@@ -28,13 +28,14 @@ export default function SessionScreen() {
         : [],
     );
     const { program, lifts, nextSession: upcoming } = useStore.getState();
-    const next = program ? sessionFor(program, upcoming) : null;
+    const next = program ? sessionFor(program, upcoming, lifts) : null;
+    const projected = project(useStore.getState(), 1)[0];
     const nextUp = next
       ? `${next.dayName} · ${next.slots
           .map(({ exercise: id }) =>
             exercises[id]?.kind === 'bodyweight'
               ? nameOf(exercises, id, true)
-              : `${nameOf(exercises, id, true)} ${formatWeight(lifts[id]?.weightKg ?? 0, unit)}`,
+              : `${nameOf(exercises, id, true)} ${formatWeight(projected?.lifts.find((l) => l.exercise === id)?.weightKg ?? 0, unit)}`,
           )
           .join(' · ')}`
       : undefined;

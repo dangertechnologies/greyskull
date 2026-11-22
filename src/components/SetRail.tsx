@@ -1,6 +1,8 @@
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../design/theme';
+import { formatWeight } from '../domain';
 import type { SessionItem } from '../hooks/useSession';
+import { useStore } from '../store';
 import { Text } from '../ui/Text';
 
 /**
@@ -21,6 +23,7 @@ export function SetRail({
   onSelect(index: number): void;
 }) {
   const t = useTheme();
+  const unit = useStore((s) => s.unit);
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], alignItems: 'center' }}>
       {indices.map((index) => {
@@ -36,7 +39,7 @@ export function SetRail({
             key={`${item.kind}-${item.position}`}
             testID={warmup ? undefined : `set-pill-${item.exerciseId}-${item.position}`}
             accessibilityRole="button"
-            accessibilityLabel={label}
+            accessibilityLabel={`${label}${item.perSetWeight ? `, ${formatWeight(item.weightKg, unit)}` : ''}`}
             accessibilityState={{ selected }}
             onPress={() => onSelect(index)}
             hitSlop={4}
@@ -63,9 +66,14 @@ export function SetRail({
                 : logged
                   ? String(item.reps)
                   : item.targetReps === null
-                    ? '5+'
+                    ? `${item.minReps ?? 5}+`
                     : String(item.targetReps)}
             </Text>
+            {item.perSetWeight ? (
+              <Text variant="caption" color={logged ? 'background' : 'textMuted'}>
+                {formatWeight(item.weightKg, unit)}
+              </Text>
+            ) : null}
           </Pressable>
         );
       })}

@@ -559,7 +559,7 @@ countdown text + Skip while resting; **Finish workout** when `isComplete`.
    `orientation` "portrait", `userInterfaceStyle` "dark", `newArchEnabled` true,
    `icon` "./assets/icon.png", `splash` `{ image: "./assets/splash.png", resizeMode: "cover",
    backgroundColor: "#000000" }`, `ios: { bundleIdentifier: "com.dangertechnologies.gslp",
-   buildNumber: "2", supportsTablet: false }`, `android: { package: "com.greyskull", versionCode: 2 }`.
+   buildNumber: "2", supportsTablet: true (iPad stays supported: the 1.x app was universal, ITMS-90101) }`, `android: { package: "com.greyskull", versionCode: 2 }`.
    Pick the largest PNG in `assets/Icons/` as `assets/icon.png`; keep `assets/splash.png`.
 6. Port assets: `mkdir -p assets/backgrounds assets/icons src`;
    `git mv App/Images/Backgrounds/*-blur.jpg assets/backgrounds/`;

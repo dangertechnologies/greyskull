@@ -74,7 +74,8 @@ pnpm update -- --message "what changed"   # OTA update to `production` for JS-on
 ```
 
 Profiles are in `eas.json`. `eas init` must have been run once in this checkout (it writes
-`EAS_PROJECT_ID`; see above). The App Store listing is at 1.0, so this branch ships as 1.1.0
+`extra.eas.projectId` to `app.json`; `EAS_PROJECT_ID` overrides it). An EAS build without a project id fails
+on purpose, because the binary would have no OTA updates URL. The App Store listing is at 1.0, so this branch ships as 1.1.0
 (`package.json`). iOS build numbers come from EAS: before the first production build, run
 `eas build:version:set -p ios` and give it a number above the one App Store Connect already has for 1.0.
 Install the preview build over a device that still has v1 to check the migration.

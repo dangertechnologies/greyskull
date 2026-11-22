@@ -15,6 +15,13 @@ import { Section } from '../../src/ui/Section';
 import { SegmentedControl } from '../../src/ui/SegmentedControl';
 import { Text } from '../../src/ui/Text';
 
+/** Attribution for exercise photos under licences that require it; full list in assets/CREDITS.md. */
+const PHOTO_CREDITS = [
+  '"Close-up Hand holding dumbbell in gym" and "Young man using a leg press machine at the gym" by Nenad Stojkovic, CC BY 2.0, via Wikimedia Commons.',
+  'Cable machine and bench photos by Rashed Hossain and lat pulldown photo by Teddyhtsai, CC0.',
+  'Photos are cropped, blurred and recoloured.',
+].join('\n\n');
+
 function devSeed() {
   const fixture: unknown = require('../../src/dev/v1-imperial.json');
   const { reset, importLegacy } = useStore.getState();
@@ -162,6 +169,14 @@ export default function Settings() {
           }
         />
         <Button title="Reset" variant="destructive" onPress={confirmReset} />
+      </Section>
+
+      <Section label="About" card>
+        <ListRow
+          title="Photo credits"
+          accessory="chevron"
+          onPress={() => Alert.alert('Photo credits', PHOTO_CREDITS)}
+        />
       </Section>
 
       {__DEV__ ? (

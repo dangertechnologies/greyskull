@@ -12,12 +12,15 @@ import type {
   Program,
   Rules,
   SessionLog,
+  SetResult,
   Unit,
 } from './domain';
 import {
   DEFAULT_INVENTORY,
   DEFAULT_STEP,
-  exerciseIdsOf,
+  exerciseOfLift,
+  fiveThreeOneSets,
+  liftKeysOf,
   migrateV1,
   nextLift,
   roundForExercise,
@@ -69,6 +72,7 @@ interface Actions {
   setProgram(program: Program): void;
   /** Change progression rules in place (keeps the workout in progress, unlike `setProgram`). */
   updateRules(rules: Rules): void;
+  setSessionsPerWeek(days: number): void;
   setLift(id: string, patch: Partial<LiftState>): void;
   startSession(n: number): SessionLog;
   logSet(exerciseId: string, setIndex: number, reps: number): void;
@@ -139,7 +143,7 @@ export const useStore = create<Store>()(
           // Weights are stored in kg, but a bar loaded in lb is not a whole number of kg: move every
           // working weight to the nearest weight that is loadable in the new unit.
           const snap = (id: string, kg: number): number => {
-            const exercise = s.exercises[id];
+            const exercise = s.exercises[exerciseOfLift(id)];
             return exercise && kg > 0 ? roundForExercise(kg, exercise, 'nearest', s.inventory, unit) : kg;
           };
           const lifts = Object.fromEntries(
@@ -153,7 +157,11 @@ export const useStore = create<Store>()(
             results: Object.fromEntries(
               Object.entries(s.draft.results).map(([id, r]) => [
                 id,
-                { ...r, weightKg: snap(id, r.weightKg) },
+                {
+                  ...r,
+                  weightKg: snap(id, r.weightKg),
+                  sets: r.sets.map((set) => (set.kg === undefined ? set : { ...set, kg: snap(id, set.kg) })),
+                },
               ]),
             ),
           };
@@ -172,13 +180,17 @@ export const useStore = create<Store>()(
               : Math.min(MAX_REST_SECONDS, Math.max(0, Math.round(restSeconds))),
         })),
 
-      setProgram: (program) => {
-        const { exercises, lifts, inventory, unit } = get();
+      setProgram: (input) => {
+        const { exercises, lifts, inventory, unit, nextSession, program: current } = get();
+        // Editing the same plan keeps its rotation; a different plan starts at its first day.
+        const startN =
+          current && current.template === input.template ? current.startN : nextSession || undefined;
+        const program = { ...input, startN };
         const errors = validateProgram(program, exercises);
         if (errors.length > 0) throw new Error(errors.join('\n'));
         const next = { ...lifts };
-        for (const id of exerciseIdsOf(program)) {
-          const exercise = exercises[id];
+        for (const id of liftKeysOf(program)) {
+          const exercise = exercises[exerciseOfLift(id)];
           if (exercise.kind === 'bodyweight' || next[id]) continue;
           const kg = startingWeightKg(exercise, inventory, unit);
           next[id] = { weightKg: kg, startKg: kg, fails: 0 };
@@ -187,6 +199,12 @@ export const useStore = create<Store>()(
       },
 
       updateRules: (rules) => set((s) => (s.program ? { program: { ...s.program, rules } } : {})),
+
+      setSessionsPerWeek: (days) => {
+        if (!Number.isInteger(days) || days < 1 || days > 7)
+          throw new Error('Training days must be between 1 and 7');
+        set((s) => (s.program ? { program: { ...s.program, sessionsPerWeek: days } } : {}));
+      },
 
       setLift: (id, patch) => {
         if (patch.weightKg !== undefined && !(patch.weightKg > 0)) throw new Error('Weight must be positive');
@@ -202,16 +220,25 @@ export const useStore = create<Store>()(
         const { draft, program, lifts, exercises, inventory, unit } = get();
         if (draft?.n === n) return draft;
         if (!program) throw new Error('No program');
-        const session = sessionFor(program, n);
+        const session = sessionFor(program, n, lifts);
         const results: Record<string, ExerciseResult> = {};
-        for (const { exercise: id, scheme } of session.slots) {
+        for (const { exercise: id, lift, scheme, progression, week } of session.slots) {
           const exercise = exercises[id];
-          const working = lifts[id]?.weightKg ?? barKg(inventory, unit);
+          const working = lifts[lift]?.weightKg ?? barKg(inventory, unit);
+          const sets: SetResult[] =
+            progression === '531' && exercise
+              ? fiveThreeOneSets(working, week ?? 0, exercise, inventory, unit)
+              : setTargets(scheme, lifts[lift]?.reps).map((target) => ({ target, reps: 0 }));
           results[id] = {
-            weightKg: exercise
-              ? sessionWeightKg(working, session.intensity, exercise, inventory, unit)
-              : working,
-            sets: setTargets(scheme, lifts[id]?.reps).map((target) => ({ target, reps: 0 })),
+            weightKg:
+              progression === '531'
+                ? Math.max(...sets.map((s) => s.kg ?? 0))
+                : exercise
+                  ? sessionWeightKg(working, session.intensity, exercise, inventory, unit)
+                  : working,
+            sets,
+            ...(lift !== id ? { lift } : {}),
+            ...(progression === '531' ? { tmKg: working } : {}),
           };
         }
         const created: SessionLog = {
@@ -241,7 +268,7 @@ export const useStore = create<Store>()(
       setDraftWeight: (exerciseId, kg) =>
         set((s) => {
           const result = s.draft?.results[exerciseId];
-          if (!s.draft || !result || !(kg > 0)) return {};
+          if (!s.draft || !result || result.sets.some((set) => set.kg !== undefined) || !(kg > 0)) return {};
           return {
             draft: { ...s.draft, results: { ...s.draft.results, [exerciseId]: { ...result, weightKg: kg } } },
           };
@@ -253,18 +280,20 @@ export const useStore = create<Store>()(
         if (!program) throw new Error('No program');
         const outcomes: Record<string, Outcome> = {};
         const nextLifts = { ...lifts };
-        const schemes = new Map(sessionFor(program, draft.n).slots.map((s) => [s.exercise, s.scheme]));
+        const slots = new Map(sessionFor(program, draft.n, lifts).slots.map((s) => [s.exercise, s]));
         for (const id of draft.order) {
           const exercise = exercises[id];
           const result = draft.results[id];
           if (!exercise || !result) continue;
-          const lift = lifts[id] ?? { weightKg: result.weightKg, startKg: result.weightKg, fails: 0 };
+          const slot = slots.get(id);
+          const key = slot?.lift ?? id;
+          const lift = lifts[key] ?? { weightKg: result.weightKg, startKg: result.weightKg, fails: 0 };
           const outcome = nextLift(lift, result, program.rules, exercise, inventory, unit, {
-            scheme: schemes.get(id),
+            ...slot,
             intensity: draft.intensity ?? 1,
           });
           outcomes[id] = outcome;
-          if (outcome.change !== 'none') nextLifts[id] = outcome.next;
+          if (outcome.change !== 'none') nextLifts[key] = outcome.next;
         }
         set((s) => ({
           sessions: [...s.sessions, { ...draft, finishedAt: new Date().toISOString() }],
@@ -278,6 +307,29 @@ export const useStore = create<Store>()(
       skipSession: () =>
         set((s) => {
           const now = new Date().toISOString();
+          // Skipping the last week-3 session of a lift still ends its 5/3/1 cycle: the template raises the
+          // training max whatever happens in that session, so do it here and keep the old state for Undo.
+          const lifts = { ...s.lifts };
+          const restore: Record<string, LiftState> = {};
+          if (s.program) {
+            for (const slot of sessionFor(s.program, s.nextSession, s.lifts).slots) {
+              const lift = s.lifts[slot.lift];
+              const exercise = s.exercises[slot.exercise];
+              if (slot.progression !== '531' || !slot.lastInWeek || slot.week !== 2 || !lift || !exercise)
+                continue;
+              const sets = [5, 3, 1].map((reps, i) => ({ target: i === 2 ? null : reps, reps }));
+              lifts[slot.lift] = nextLift(
+                lift,
+                { weightKg: lift.weightKg, sets },
+                s.program.rules,
+                exercise,
+                s.inventory,
+                s.unit,
+                slot,
+              ).next;
+              restore[slot.lift] = lift;
+            }
+          }
           const skipped: SessionLog = {
             n: s.nextSession,
             dayName: '',
@@ -286,15 +338,20 @@ export const useStore = create<Store>()(
             results: {},
             order: [],
             skipped: true,
+            ...(Object.keys(restore).length > 0 ? { restore } : {}),
           };
-          return { sessions: [...s.sessions, skipped], nextSession: s.nextSession + 1, draft: null };
+          return { sessions: [...s.sessions, skipped], lifts, nextSession: s.nextSession + 1, draft: null };
         }),
 
       undoSkip: () =>
         set((s) => {
           const last = s.sessions[s.sessions.length - 1];
           if (!last?.skipped || last.n !== s.nextSession - 1) return {};
-          return { sessions: s.sessions.slice(0, -1), nextSession: last.n };
+          return {
+            sessions: s.sessions.slice(0, -1),
+            lifts: { ...s.lifts, ...last.restore },
+            nextSession: last.n,
+          };
         }),
 
       editSession: (n, results) =>
@@ -314,7 +371,10 @@ export const useStore = create<Store>()(
         );
         if (using.length > 0) return using.map((d) => d.name);
         set((s) => {
-          const { [id]: _lift, ...lifts } = s.lifts;
+          // Also drops tier keys such as `<id>@T2`.
+          const lifts = Object.fromEntries(
+            Object.entries(s.lifts).filter(([key]) => exerciseOfLift(key) !== id),
+          );
           // History keeps the exercise's name: archive instead of deleting once a session used it.
           if (s.sessions.some((log) => id in log.results)) {
             return { exercises: { ...s.exercises, [id]: { ...exercise, archived: true } }, lifts };

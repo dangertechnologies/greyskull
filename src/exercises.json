@@ -256,5 +256,461 @@
     "url": "https://stronglifts.com/dips/",
     "background": "dips",
     "abbr": "DIP"
+  },
+  "INCLINE_BENCH_PRESS": {
+    "id": "INCLINE_BENCH_PRESS",
+    "name": "Incline bench press",
+    "shortName": "Incline",
+    "kind": "barbell",
+    "increment": {
+      "kg": 1.25,
+      "lb": 2.5
+    },
+    "abbr": "IB",
+    "description": "",
+    "goodForm": [
+      "Set the bench to a low incline, about 30°",
+      "Plant your feet and keep your shoulder blades against the bench",
+      "Lower the bar to your upper chest with wrists over elbows",
+      "Press smoothly with your hips on the bench"
+    ],
+    "badForm": [
+      "Flare your elbows straight out",
+      "Bounce the bar off your chest",
+      "Lift your hips off the bench",
+      "Bend your wrists back under the bar"
+    ],
+    "background": "incline-bench"
+  },
+  "ROMANIAN_DEADLIFT": {
+    "id": "ROMANIAN_DEADLIFT",
+    "name": "Romanian deadlift",
+    "shortName": "RDL",
+    "kind": "barbell",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "abbr": "RDL",
+    "description": "",
+    "goodForm": [
+      "Start standing with the bar close to your thighs",
+      "Soften your knees and push your hips back",
+      "Lower the bar along your legs with your back neutral",
+      "Stand by driving your hips forward"
+    ],
+    "badForm": [
+      "Round your lower back",
+      "Squat down instead of hinging at the hips",
+      "Reach for the floor after your hips stop moving",
+      "Let the bar drift away from your legs"
+    ],
+    "background": "deadlift"
+  },
+  "LEG_PRESS": {
+    "id": "LEG_PRESS",
+    "name": "Leg press",
+    "shortName": "Leg press",
+    "kind": "machine",
+    "increment": {
+      "kg": 5,
+      "lb": 10
+    },
+    "step": {
+      "kg": 5,
+      "lb": 10
+    },
+    "abbr": "LP",
+    "description": "",
+    "goodForm": [
+      "Keep your back and hips against the pad",
+      "Place your feet about shoulder-width apart",
+      "Lower only as far as your pelvis stays against the pad",
+      "Press through your whole foot with knees tracking over toes"
+    ],
+    "badForm": [
+      "Lift your hips off the pad",
+      "Let your knees collapse inward",
+      "Bounce out of the bottom",
+      "Snap your knees back at the top"
+    ],
+    "background": "leg-press"
+  },
+  "LEG_CURL": {
+    "id": "LEG_CURL",
+    "name": "Leg curl",
+    "shortName": "Leg curl",
+    "kind": "machine",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "step": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "abbr": "LC",
+    "description": "",
+    "goodForm": [
+      "Line your knees up with the machine pivot",
+      "Set the roller just above your heels",
+      "Curl smoothly with your hips against the pad",
+      "Lower slowly through a comfortable range"
+    ],
+    "badForm": [
+      "Lift your hips to move the weight",
+      "Jerk the weight up",
+      "Drop the weight on the way down",
+      "Force a range that causes knee pain"
+    ],
+    "background": "leg-press"
+  },
+  "CALF_RAISE": {
+    "id": "CALF_RAISE",
+    "name": "Calf raise",
+    "shortName": "Calves",
+    "kind": "machine",
+    "increment": {
+      "kg": 5,
+      "lb": 10
+    },
+    "step": {
+      "kg": 5,
+      "lb": 10
+    },
+    "abbr": "CA",
+    "description": "",
+    "goodForm": [
+      "Place the balls of your feet securely on the platform",
+      "Keep your knees steady throughout the rep",
+      "Raise your heels as high as you comfortably can",
+      "Lower slowly into a comfortable calf stretch"
+    ],
+    "badForm": [
+      "Bounce at the bottom",
+      "Roll your ankles outward",
+      "Bend and straighten your knees to lift",
+      "Rush through short reps"
+    ],
+    "background": "leg-press"
+  },
+  "LAT_PULLDOWN": {
+    "id": "LAT_PULLDOWN",
+    "name": "Lat pulldown",
+    "shortName": "Pulldown",
+    "kind": "machine",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "step": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "abbr": "PD",
+    "description": "",
+    "goodForm": [
+      "Secure your thighs under the pad",
+      "Sit tall with a small backward lean",
+      "Pull your elbows down as the bar approaches your upper chest",
+      "Return slowly until your arms extend comfortably"
+    ],
+    "badForm": [
+      "Pull the bar behind your neck",
+      "Swing your torso to move the weight",
+      "Shrug throughout the pull",
+      "Release the weight suddenly"
+    ],
+    "background": "pulldown"
+  },
+  "SEATED_CABLE_ROW": {
+    "id": "SEATED_CABLE_ROW",
+    "name": "Seated cable row",
+    "shortName": "Cable row",
+    "kind": "machine",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "step": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "abbr": "SR",
+    "description": "",
+    "goodForm": [
+      "Sit tall with your feet braced and knees slightly bent",
+      "Pull the handle toward your lower ribs",
+      "Move your shoulder blades smoothly as your elbows travel back",
+      "Return slowly with your torso steady"
+    ],
+    "badForm": [
+      "Rock your torso back and forth",
+      "Round your lower back",
+      "Shrug your shoulders toward your ears",
+      "Jerk the handle to start the pull"
+    ],
+    "background": "cable"
+  },
+  "TRICEP_PUSHDOWN": {
+    "id": "TRICEP_PUSHDOWN",
+    "name": "Triceps pushdown",
+    "shortName": "Pushdown",
+    "kind": "machine",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "step": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "abbr": "TP",
+    "description": "",
+    "goodForm": [
+      "Stand tall with your elbows close to your sides",
+      "Keep your upper arms still",
+      "Straighten your elbows smoothly",
+      "Return slowly without letting your elbows drift forward"
+    ],
+    "badForm": [
+      "Swing your shoulders to move the weight",
+      "Lean your whole body onto the handle",
+      "Flare your elbows out",
+      "Let the weight stack slam down"
+    ],
+    "background": "cable"
+  },
+  "DUMBBELL_ROW": {
+    "id": "DUMBBELL_ROW",
+    "name": "One-arm dumbbell row",
+    "shortName": "DB row",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 2,
+      "lb": 5
+    },
+    "step": {
+      "kg": 2,
+      "lb": 5
+    },
+    "abbr": "DR",
+    "description": "",
+    "goodForm": [
+      "Brace your free hand on a stable bench",
+      "Keep your back neutral and hips level",
+      "Pull your elbow toward your hip",
+      "Lower slowly until your arm extends comfortably"
+    ],
+    "badForm": [
+      "Twist your torso to lift",
+      "Round your lower back",
+      "Shrug the weight toward your ear",
+      "Drop the dumbbell between reps"
+    ],
+    "background": "dumbbell-female"
+  },
+  "DB_SHOULDER_PRESS": {
+    "id": "DB_SHOULDER_PRESS",
+    "name": "Dumbbell shoulder press",
+    "shortName": "DB press",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 2,
+      "lb": 5
+    },
+    "step": {
+      "kg": 2,
+      "lb": 5
+    },
+    "abbr": "DSP",
+    "description": "",
+    "goodForm": [
+      "Sit with your back supported and feet planted",
+      "Start with the dumbbells near shoulder height",
+      "Press up with wrists over elbows",
+      "Lower slowly through a comfortable range"
+    ],
+    "badForm": [
+      "Over-arch your lower back",
+      "Bang the dumbbells together overhead",
+      "Bend your wrists back",
+      "Force your shoulders through a painful range"
+    ],
+    "background": "dumbbell-female"
+  },
+  "DB_LATERAL_RAISE": {
+    "id": "DB_LATERAL_RAISE",
+    "name": "Dumbbell lateral raise",
+    "shortName": "Lateral",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 1,
+      "lb": 2.5
+    },
+    "step": {
+      "kg": 1,
+      "lb": 2.5
+    },
+    "abbr": "LR",
+    "description": "",
+    "goodForm": [
+      "Stand tall with a slight bend in your elbows",
+      "Raise your arms out to the sides to a comfortable height",
+      "Keep your wrists neutral and shoulders relaxed",
+      "Lower the dumbbells slowly"
+    ],
+    "badForm": [
+      "Swing your torso for momentum",
+      "Shrug your shoulders toward your ears",
+      "Turn your thumbs sharply down",
+      "Drop the weights on the way down"
+    ],
+    "background": "dumbbell-hand"
+  },
+  "SIDELYING_EXTERNAL_ROTATION": {
+    "id": "SIDELYING_EXTERNAL_ROTATION",
+    "name": "Side-lying external rotation",
+    "shortName": "Side-lying ER",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "step": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "abbr": "ER",
+    "description": "",
+    "goodForm": [
+      "Lie on your side with your top elbow bent 90° against your ribs",
+      "Keep your shoulder blade steady as you rotate your forearm upward",
+      "Lift and lower slowly with your elbow staying at your side",
+      "Use your full pain-free range"
+    ],
+    "badForm": [
+      "Roll your torso backward to lift",
+      "Let your elbow drift away from your ribs",
+      "Shrug or lose shoulder blade control",
+      "Rush the rep or push through pain"
+    ],
+    "background": "dumbbell-hand"
+  },
+  "PRONE_HORIZONTAL_ABDUCTION": {
+    "id": "PRONE_HORIZONTAL_ABDUCTION",
+    "name": "Prone horizontal abduction",
+    "shortName": "Prone abduction",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "step": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "abbr": "HA",
+    "description": "",
+    "goodForm": [
+      "Lie face down with your arm hanging from a stable bench",
+      "Raise your arm out to the side with a slight elbow bend",
+      "Guide your shoulder blade smoothly as you lift and lower slowly",
+      "Use your full pain-free range with your neck relaxed"
+    ],
+    "badForm": [
+      "Twist your torso to lift",
+      "Shrug toward your ear",
+      "Drop your arm on the way down",
+      "Force the arm beyond a pain-free range"
+    ],
+    "background": "dumbbell-hand"
+  },
+  "PRONE_EXTERNAL_ROTATION": {
+    "id": "PRONE_EXTERNAL_ROTATION",
+    "name": "Prone external rotation at 90°",
+    "shortName": "Prone ER",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "step": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "abbr": "PER",
+    "description": "",
+    "goodForm": [
+      "Lie face down with your upper arm supported out to the side at 90°",
+      "Bend your elbow 90° and let your forearm hang down",
+      "Keep your shoulder blade steady as you rotate up and lower slowly",
+      "Use your full pain-free range without lifting your elbow"
+    ],
+    "badForm": [
+      "Lift your elbow off its support",
+      "Arch your back to move the weight",
+      "Shrug or lose shoulder blade control",
+      "Rush the movement or push through pain"
+    ],
+    "background": "dumbbell-hand"
+  },
+  "SUPINE_PROTRACTION": {
+    "id": "SUPINE_PROTRACTION",
+    "name": "Supine scapular protraction",
+    "shortName": "Protraction",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "step": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "abbr": "PRO",
+    "description": "",
+    "goodForm": [
+      "Lie on your back with the dumbbell above your shoulder",
+      "Keep your elbow straight without forcing it backward",
+      "Reach slowly toward the ceiling, then lower your shoulder blade with control",
+      "Use your full pain-free range with your torso still"
+    ],
+    "badForm": [
+      "Bend your elbow to move the weight",
+      "Roll your whole torso off the bench",
+      "Shrug your shoulder toward your ear",
+      "Drop your shoulder back or push through pain"
+    ],
+    "background": "dumbbell-hand"
+  },
+  "SCAPTION": {
+    "id": "SCAPTION",
+    "name": "Seated elevation in the scapular plane",
+    "shortName": "Scaption",
+    "kind": "dumbbell",
+    "increment": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "step": {
+      "kg": 0.5,
+      "lb": 1
+    },
+    "abbr": "SC",
+    "description": "",
+    "goodForm": [
+      "Sit tall with your arms slightly forward of your sides",
+      "Keep your thumbs pointing up as you raise your arms",
+      "Let your shoulder blades move smoothly as you lift and lower slowly",
+      "Use your full pain-free range without leaning back"
+    ],
+    "badForm": [
+      "Swing your torso for momentum",
+      "Shrug your shoulders toward your ears",
+      "Turn your thumbs down as you lift",
+      "Rush the lowering or force a painful range"
+    ],
+    "background": "dumbbell-hand"
   }
 }

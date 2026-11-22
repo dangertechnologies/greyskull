@@ -25,7 +25,12 @@ function badSession(s: unknown): string | null {
     if (!isObject(r) || !isNum(r.weightKg) || !Array.isArray(r.sets))
       return `session ${String(s.n)} has a bad result`;
     for (const set of r.sets) {
-      if (!isObject(set) || !isNum(set.reps) || !(set.target === null || isNum(set.target))) {
+      if (
+        !isObject(set) ||
+        !isNum(set.reps) ||
+        !(set.target === null || isNum(set.target)) ||
+        (set.kg !== undefined && (!isNum(set.kg) || set.kg < 0))
+      ) {
         return `session ${String(s.n)} has a bad set`;
       }
     }
@@ -58,7 +63,12 @@ export function parseBackup(raw: string): BackupResult {
     if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
   }
   for (const l of Object.values(data.lifts)) {
-    if (!isObject(l) || !isNum(l.weightKg) || !(l.weightKg > 0))
+    if (
+      !isObject(l) ||
+      !isNum(l.weightKg) ||
+      !(l.weightKg > 0) ||
+      (l.stage !== undefined && (!Number.isInteger(l.stage) || (l.stage as number) < 0))
+    )
       return { ok: false, error: 'A lift weight is invalid.' };
   }
   for (const e of Object.values(data.exercises)) {

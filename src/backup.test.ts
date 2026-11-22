@@ -146,3 +146,47 @@ describe('soft delete', () => {
     expect(get().lifts.custom_curl).toBeUndefined();
   });
 });
+
+test('optional engine fields and seven training days survive a backup round-trip', () => {
+  const program: Program = {
+    template: 'custom',
+    sessionsPerWeek: 7,
+    rules: { ...TEMPLATES.base.rules, progression: '531' },
+    days: [
+      {
+        name: 'A',
+        slots: [
+          {
+            exercise: 'BARBELL_SQUAT',
+            lift: 'BARBELL_SQUAT@T2',
+            scheme: '3x5+',
+            stages: ['3x5+', '3x3+'],
+            progression: 'stages',
+            advanceAt: 25,
+          },
+        ],
+      },
+    ],
+  };
+  get().setProgram(program);
+  get().setLift('BARBELL_SQUAT@T2', { stage: 1 });
+  get().startSession(0);
+  get().finishSession();
+  const state = JSON.parse(get().exportJson());
+  state.sessions[0].results.BARBELL_SQUAT.sets[0].kg = 20;
+  const r = parseBackup(JSON.stringify(state));
+  expect(r.ok).toBe(true);
+  if (r.ok) {
+    expect(r.state.program).toEqual(program);
+    expect(r.state.lifts['BARBELL_SQUAT@T2'].stage).toBe(0);
+    expect(r.state.sessions[0].results.BARBELL_SQUAT.sets[0].kg).toBe(20);
+  }
+  state.sessions[0].results.BARBELL_SQUAT.sets[0].kg = 'bad';
+  expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
+  delete state.sessions[0].results.BARBELL_SQUAT.sets[0].kg;
+  state.lifts['BARBELL_SQUAT@T2'].stage = -1;
+  expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
+  state.lifts['BARBELL_SQUAT@T2'].stage = 0;
+  state.program.sessionsPerWeek = 8;
+  expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
+});

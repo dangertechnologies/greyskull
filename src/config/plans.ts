@@ -212,6 +212,273 @@ export const PLANS: PlanDefinition[] = [
       })),
     },
   },
+  {
+    id: 'lyle-gbr',
+    name: "Lyle McDonald's Generic Bulking Routine",
+    summary: '4 days · Upper/lower split · Compound lifts and isolation work',
+    description:
+      'A four-day upper/lower split for muscle growth, training each muscle twice a week with heavier compounds at 6–8 reps and lighter work at 10–15. Build reps to the top of each range, then add weight and start at the bottom again. Lyle recommends about two weeks of submaximal ramp-up before pushing to add weight each workout; manage those starting loads yourself. Approximation of the published routine.',
+    status: 'experimental',
+    plugins: [],
+    program: {
+      template: 'lyle-gbr',
+      sessionsPerWeek: 4,
+      rules: rules({ progression: 'double', failsBeforeDeload: 1 }),
+      days: [
+        {
+          name: 'Upper 1',
+          slots: [
+            { exercise: bench, scheme: '3x6-8' },
+            { exercise: 'SEATED_CABLE_ROW', scheme: '3x6-8' },
+            { exercise: 'DB_SHOULDER_PRESS', scheme: '2x10-12' },
+            { exercise: 'LAT_PULLDOWN', scheme: '2x10-12' },
+            { exercise: 'TRICEP_PUSHDOWN', scheme: '2x12-15' },
+            { exercise: 'CURLS', scheme: '2x12-15' },
+          ],
+        },
+        {
+          name: 'Lower 1',
+          slots: [
+            { exercise: squat, scheme: '3x6-8' },
+            { exercise: 'ROMANIAN_DEADLIFT', scheme: '3x6-8' },
+            { exercise: 'LEG_PRESS', scheme: '2x10-12' },
+            { exercise: 'LEG_CURL', scheme: '2x10-12' },
+            { exercise: 'CALF_RAISE', scheme: '3x6-8' },
+          ],
+        },
+        {
+          name: 'Upper 2',
+          slots: [
+            { exercise: 'INCLINE_BENCH_PRESS', scheme: '3x6-8' },
+            { exercise: row, scheme: '3x6-8' },
+            { exercise: press, scheme: '2x10-12' },
+            { exercise: 'DUMBBELL_ROW', scheme: '2x10-12' },
+            { exercise: 'TRICEP_PUSHDOWN', scheme: '2x12-15' },
+            { exercise: 'CURLS', scheme: '2x12-15' },
+          ],
+        },
+        {
+          name: 'Lower 2',
+          slots: [
+            { exercise: squat, scheme: '3x6-8' },
+            { exercise: 'ROMANIAN_DEADLIFT', scheme: '3x6-8' },
+            { exercise: 'LEG_PRESS', scheme: '2x10-12' },
+            { exercise: 'LEG_CURL', scheme: '2x10-12' },
+            { exercise: 'CALF_RAISE', scheme: '3x6-8' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 'full-body-hypertrophy',
+    name: 'Full Body Hypertrophy',
+    summary: '3 days · Squat, presses, rows and accessories · 8–15 reps',
+    description:
+      'Three full-body days rotate squats, presses, hinges and pulls, with smaller exercises at the end. Complete every set at the current rep target to add a rep next time; reach the top of the range to add weight and return to the bottom. Suits lifters who want muscle-building work across three sessions a week.',
+    status: 'experimental',
+    plugins: [],
+    program: {
+      template: 'full-body-hypertrophy',
+      sessionsPerWeek: 3,
+      rules: rules({ progression: 'double', failsBeforeDeload: 1 }),
+      days: [
+        {
+          name: 'A',
+          slots: [
+            { exercise: squat, scheme: '3x8-12' },
+            { exercise: bench, scheme: '3x8-12' },
+            { exercise: 'SEATED_CABLE_ROW', scheme: '3x8-12' },
+            { exercise: 'DB_LATERAL_RAISE', scheme: '2x12-15' },
+          ],
+        },
+        {
+          name: 'B',
+          slots: [
+            { exercise: 'ROMANIAN_DEADLIFT', scheme: '3x8-12' },
+            { exercise: press, scheme: '3x8-12' },
+            { exercise: 'LAT_PULLDOWN', scheme: '3x8-12' },
+            { exercise: 'LEG_CURL', scheme: '2x12-15' },
+            { exercise: 'CURLS', scheme: '2x12-15' },
+          ],
+        },
+        {
+          name: 'C',
+          slots: [
+            { exercise: 'LEG_PRESS', scheme: '3x8-12' },
+            { exercise: 'INCLINE_BENCH_PRESS', scheme: '3x8-12' },
+            { exercise: 'DUMBBELL_ROW', scheme: '3x8-12' },
+            { exercise: 'CALF_RAISE', scheme: '2x12-15' },
+            { exercise: 'TRICEP_PUSHDOWN', scheme: '2x12-15' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 'shoulder-mobilex',
+    name: 'Shoulder-MOBILEX',
+    summary: '3 days · Five dumbbell exercises for shoulders and shoulder blades',
+    description:
+      'Developed for people with hypermobile shoulders (HSD/hEDS), the 16-week study used five dumbbell exercises for the rotator cuff and shoulder-blade muscles three times a week, with two sessions supervised by a physiotherapist. Weeks 1–3 built from about 50 % to 90 % of a 10-rep max, weeks 4–9 used 3×10 and weeks 10–15 used 4×8; adjust loads and change the scheme in Plan to follow those phases. This version uses 3×10–12, adding weight at the top of the range; only log completed reps with good movement quality. Approximation of the published routine.',
+    status: 'experimental',
+    plugins: [],
+    program: {
+      template: 'shoulder-mobilex',
+      sessionsPerWeek: 3,
+      rules: rules({ progression: 'double', failsBeforeDeload: 2, warmups: false }),
+      days: [
+        {
+          name: 'Shoulder',
+          slots: [
+            { exercise: 'SIDELYING_EXTERNAL_ROTATION', scheme: '3x10-12' },
+            { exercise: 'PRONE_HORIZONTAL_ABDUCTION', scheme: '3x10-12' },
+            { exercise: 'PRONE_EXTERNAL_ROTATION', scheme: '3x10-12' },
+            { exercise: 'SUPINE_PROTRACTION', scheme: '3x10-12' },
+            { exercise: 'SCAPTION', scheme: '3x10-12' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 'gzclp',
+    name: 'GZCLP',
+    summary: '4 days · Squat, bench, deadlift and press · Three tiers',
+    description:
+      'Four days combine heavy low-rep T1 work, lighter T2 work and high-rep T3 pulls, suiting beginners who want several rep ranges. Successful T1 and T2 sessions add weight; a failed session moves T1 through 5×3+ → 6×2+ → 10×1+ and T2 through 3×10 → 3×8 → 3×6, while T3 adds weight when all sets meet 15 reps and the last reaches 25. After failing the final stage, the app drops the weight 15 % and restarts stage 1 instead of the published retest. Approximation of the published routine.',
+    status: 'experimental',
+    plugins: [],
+    program: {
+      template: 'gzclp',
+      sessionsPerWeek: 4,
+      rules: rules({
+        progression: 'stages',
+        deloadPct: 0.15,
+        increments: {
+          [bench]: { kg: 2.5, lb: 5 },
+          [press]: { kg: 2.5, lb: 5 },
+          [squat]: { kg: 5, lb: 10 },
+          [deadlift]: { kg: 5, lb: 10 },
+          LAT_PULLDOWN: { kg: 2.5, lb: 5 },
+          DUMBBELL_ROW: { kg: 2.5, lb: 5 },
+        },
+      }),
+      days: [
+        {
+          name: 'Day 1',
+          slots: [
+            { exercise: squat, scheme: '5x3+', stages: ['5x3+', '6x2+', '10x1+'] },
+            { exercise: bench, lift: 'BENCH_PRESS@T2', scheme: '3x10', stages: ['3x10', '3x8', '3x6'] },
+            {
+              exercise: 'LAT_PULLDOWN',
+              progression: 'linear',
+              scheme: '3x15+',
+              stages: ['3x15+'],
+              advanceAt: 25,
+            },
+          ],
+        },
+        {
+          name: 'Day 2',
+          slots: [
+            { exercise: press, scheme: '5x3+', stages: ['5x3+', '6x2+', '10x1+'] },
+            { exercise: deadlift, lift: 'DEADLIFT@T2', scheme: '3x10', stages: ['3x10', '3x8', '3x6'] },
+            {
+              exercise: 'DUMBBELL_ROW',
+              progression: 'linear',
+              scheme: '3x15+',
+              stages: ['3x15+'],
+              advanceAt: 25,
+            },
+          ],
+        },
+        {
+          name: 'Day 3',
+          slots: [
+            { exercise: bench, scheme: '5x3+', stages: ['5x3+', '6x2+', '10x1+'] },
+            { exercise: squat, lift: 'BARBELL_SQUAT@T2', scheme: '3x10', stages: ['3x10', '3x8', '3x6'] },
+            {
+              exercise: 'LAT_PULLDOWN',
+              progression: 'linear',
+              scheme: '3x15+',
+              stages: ['3x15+'],
+              advanceAt: 25,
+            },
+          ],
+        },
+        {
+          name: 'Day 4',
+          slots: [
+            { exercise: deadlift, scheme: '5x3+', stages: ['5x3+', '6x2+', '10x1+'] },
+            { exercise: press, lift: 'MILITARY_PRESS@T2', scheme: '3x10', stages: ['3x10', '3x8', '3x6'] },
+            {
+              exercise: 'DUMBBELL_ROW',
+              progression: 'linear',
+              scheme: '3x15+',
+              stages: ['3x15+'],
+              advanceAt: 25,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: '531-beginners',
+    name: '5/3/1 for Beginners',
+    summary: '3 days · Two main barbell lifts plus push, pull and core assistance',
+    description:
+      'For beginners who want steady barbell progression, three-week waves use 65/75/85 % ×5, 70/80/90 % ×3 and 75/85/95 % ×5/3/1 of a training max, with the last set AMRAP, then 5×5 First Set Last at the first set’s weight. Enter a training max starting at 90 % of your estimated one-rep max; each three-week cycle adds 2.5 kg (5 lb) for bench and press or 5 kg (10 lb) for squat and deadlift. Each day includes push, pull and single-leg/core assistance aiming for 50–100 total reps each, represented here by five AMRAP sets of dips, chin-ups and crunches. The periodic training-max test week is not built in; approximation of the published routine.',
+    status: 'experimental',
+    plugins: [],
+    program: {
+      template: '531-beginners',
+      sessionsPerWeek: 3,
+      rules: rules({
+        progression: 'double',
+        failsBeforeDeload: 2,
+        increments: {
+          [bench]: { kg: 2.5, lb: 5 },
+          [press]: { kg: 2.5, lb: 5 },
+          [squat]: { kg: 5, lb: 10 },
+          [deadlift]: { kg: 5, lb: 10 },
+        },
+      }),
+      days: [
+        {
+          name: 'Day 1',
+          slots: [
+            { exercise: squat, progression: '531', scheme: '3x5+' },
+            { exercise: bench, progression: '531', scheme: '3x5+' },
+            { exercise: 'DIPS', scheme: '5xAMRAP' },
+            { exercise: 'CHINUPS', scheme: '5xAMRAP' },
+            { exercise: 'CRUNCHES', scheme: '5xAMRAP' },
+          ],
+        },
+        {
+          name: 'Day 2',
+          slots: [
+            { exercise: deadlift, progression: '531', scheme: '3x5+' },
+            { exercise: press, progression: '531', scheme: '3x5+' },
+            { exercise: 'DIPS', scheme: '5xAMRAP' },
+            { exercise: 'CHINUPS', scheme: '5xAMRAP' },
+            { exercise: 'CRUNCHES', scheme: '5xAMRAP' },
+          ],
+        },
+        {
+          name: 'Day 3',
+          slots: [
+            { exercise: bench, progression: '531', scheme: '3x5+' },
+            { exercise: squat, progression: '531', scheme: '3x5+' },
+            { exercise: 'DIPS', scheme: '5xAMRAP' },
+            { exercise: 'CHINUPS', scheme: '5xAMRAP' },
+            { exercise: 'CRUNCHES', scheme: '5xAMRAP' },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export function getPlan(id: string): PlanDefinition | undefined {

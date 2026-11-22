@@ -5,7 +5,7 @@ import catalog from './exercises.json';
  * Bump when the built-in content in `exercises.json` changes (form tips, videos, links, photos). Installs with
  * an older version get the new content on next launch (see `refreshCatalog`).
  */
-export const CATALOG_VERSION = 3;
+export const CATALOG_VERSION = 4;
 
 /** Fields of a built-in exercise that ship with the app and are refreshed on catalog updates. */
 const CONTENT_FIELDS = ['description', 'goodForm', 'badForm', 'video', 'url', 'background', 'abbr'] as const;

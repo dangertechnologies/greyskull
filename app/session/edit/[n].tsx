@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { WeightStepper } from '../../../src/components/WeightStepper';
 import { useTheme } from '../../../src/design/theme';
 import type { ExerciseResult } from '../../../src/domain';
+import { formatWeight } from '../../../src/domain';
 import { formatDate, nameOf } from '../../../src/format';
 import { goBackOr } from '../../../src/navigation';
 import { useStore } from '../../../src/store';
@@ -18,6 +19,7 @@ import { Text } from '../../../src/ui/Text';
 export default function EditSession() {
   const { n } = useLocalSearchParams<{ n: string }>();
   const log = useStore((s) => s.sessions.find((x) => x.n === Number(n)));
+  const unit = useStore((s) => s.unit);
   const exercises = useStore((s) => s.exercises);
   const editSession = useStore((s) => s.editSession);
   const t = useTheme();
@@ -66,7 +68,7 @@ export default function EditSession() {
                   {exercise ? <ExerciseBadge exercise={exercise} size={40} /> : null}
                   <Text variant="headline">{nameOf(exercises, id)}</Text>
                 </View>
-                {loaded ? (
+                {loaded && !result.sets.some((s) => s.kg !== undefined) ? (
                   <>
                     <WeightStepper
                       label="Weight"
@@ -81,7 +83,7 @@ export default function EditSession() {
                   <NumberStepper
                     // biome-ignore lint/suspicious/noArrayIndexKey: sets have no id; their position is their identity
                     key={i}
-                    label={`Set ${i + 1}${set.target === null ? ' (AMRAP)' : ''}`}
+                    label={`Set ${i + 1}${set.target === null ? ' (AMRAP)' : ''}${set.kg === undefined ? '' : ` · ${formatWeight(set.kg, unit)}`}`}
                     value={set.reps}
                     min={0}
                     step={1}

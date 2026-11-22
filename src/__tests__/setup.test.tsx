@@ -2,7 +2,7 @@ import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
-import { getPlan } from '../config/plans';
+import { getPlan, PLANS } from '../config/plans';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
@@ -90,7 +90,9 @@ test('experimental plans are labelled and StrongLifts goes through setup to a 5x
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   expect(await screen.findByLabelText('StrongLifts 5×5, experimental')).toBeTruthy();
-  expect(screen.getAllByText('Experimental').length).toBe(3);
+  expect(screen.getAllByText('Experimental').length).toBe(
+    PLANS.filter((p) => p.status === 'experimental').length,
+  );
   fireEvent.press(screen.getByRole('radio', { name: /^StrongLifts/ }));
   expect(screen.getByText(/Five sets of five/)).toBeTruthy();
   fireEvent.press(screen.getByText('Advanced rules'));
@@ -189,4 +191,33 @@ test('Change plan keeps lifts and history and replaces the program', async () =>
   expect(s.sessions).toHaveLength(1);
   expect(s.lifts.BARBELL_SQUAT.weightKg).toBeGreaterThanOrEqual(100);
   expect(s.nextSession).toBe(1);
+});
+
+test('training days can be set to five in setup and changed while a workout is in progress', async () => {
+  renderRouter(routes(), { initialUrl: '/' });
+  fireEvent.press(await screen.findByTestId('get-started'));
+  press('setup-next');
+  fireEvent.press(await screen.findByRole('radio', { name: /^Greyskull LP/ }));
+  fireEvent(screen.getByLabelText('Training days per week'), 'accessibilityAction', {
+    nativeEvent: { actionName: 'increment' },
+  });
+  fireEvent(screen.getByLabelText('Training days per week'), 'accessibilityAction', {
+    nativeEvent: { actionName: 'increment' },
+  });
+  press('setup-next');
+  await screen.findByTestId('start-training');
+  expect(screen.getAllByRole('button', { name: /^Squat, change starting weight/ })).toHaveLength(1);
+  press('start-training');
+  await screen.findAllByText('Week 1');
+  expect(useStore.getState().program?.sessionsPerWeek).toBe(5);
+  act(() => {
+    useStore.getState().startSession(0);
+    router.push('/plan');
+  });
+  const draft = useStore.getState().draft;
+  fireEvent(await screen.findByLabelText('Training days per week'), 'accessibilityAction', {
+    nativeEvent: { actionName: 'decrement' },
+  });
+  expect(useStore.getState().program?.sessionsPerWeek).toBe(4);
+  expect(useStore.getState().draft).toBe(draft);
 });

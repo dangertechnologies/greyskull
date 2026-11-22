@@ -68,7 +68,7 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
   const fallbackReps = item?.logged
     ? item.reps
     : item?.kind === 'amrap'
-      ? Math.max(1, last?.reps.at(-1) ?? DEFAULT_AMRAP)
+      ? Math.max(1, last?.reps.at(-1) ?? item.minReps ?? DEFAULT_AMRAP)
       : (item?.targetReps ?? DEFAULT_AMRAP);
   const [reps, setReps] = useState(fallbackReps);
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset the reps control whenever another set is shown
@@ -122,8 +122,8 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`Change weight, now ${bodyweight ? 'bodyweight' : formatWeight(item.weightKg, unit)}`}
-                  accessibilityState={{ disabled: bodyweight || item.kind === 'warmup' }}
-                  disabled={bodyweight || item.kind === 'warmup'}
+                  accessibilityState={{ disabled: bodyweight || item.kind === 'warmup' || item.perSetWeight }}
+                  disabled={bodyweight || item.kind === 'warmup' || item.perSetWeight}
                   onPress={() => setEditingWeight(true)}
                   style={{ gap: t.space[3] }}
                 >
@@ -131,7 +131,7 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
                     <Text variant="display">
                       {bodyweight ? 'Bodyweight' : formatWeight(item.weightKg, unit)}
                     </Text>
-                    {bodyweight || item.kind === 'warmup' ? null : (
+                    {bodyweight || item.kind === 'warmup' || item.perSetWeight ? null : (
                       <Icon name="edit" size={20} color="textMuted" />
                     )}
                   </View>
