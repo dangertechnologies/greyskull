@@ -10,7 +10,7 @@
     "ios": {
       "bundleIdentifier": "com.dangertechnologies.gslp",
       "buildNumber": "2",
-      "supportsTablet": false,
+      "supportsTablet": true,
       "icon": {
         "light": "./assets/icon.png",
         "dark": "./assets/icon-dark.png",
