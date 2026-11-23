@@ -6,6 +6,7 @@ import { nameOf, weightLabel } from '../../src/format';
 import type { FinishedExercise } from '../../src/hooks/useSession';
 import { useSession } from '../../src/hooks/useSession';
 import { goBackOr, goHome } from '../../src/navigation';
+import { startRoute } from '../../src/programStart';
 import { useStore } from '../../src/store';
 import { ladderMove } from '../../src/views/ladder';
 import { SessionImmersive } from '../../src/views/SessionImmersive';
@@ -31,6 +32,7 @@ export default function SessionScreen() {
   const unit = useStore((s) => s.unit);
   const minimalist = useStore((s) => s.minimalist);
   const session = useSession(n, params.program);
+  const mustConfirm = useStore((s) => s.draft === null && startRoute(s, params.program).kind === 'confirm');
   const [summary, setSummary] = useState<{ finished: FinishedExercise[]; programId?: string } | null>(null);
 
   if (summary) {
@@ -61,6 +63,7 @@ export default function SessionScreen() {
       : undefined;
     return <Celebration lines={lines} unit={unit} nextUp={nextUp} onHome={goHome} />;
   }
+  if (mustConfirm) return <Redirect href={startRoute(useStore.getState(), params.program).route as never} />;
   // One workout at a time: another open workout is shown instead; without one only the next id can start.
   if (draftN !== null && draftN !== n) return <Redirect href={`/session/${draftN}`} />;
   if (draftN === null && (n !== nextSession || !params.program)) return <Redirect href="/" />;

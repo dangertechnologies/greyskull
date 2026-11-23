@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import type { LiftState, Outcome, ResolvedSlot, SessionLog } from '../domain';
 import { isPersonalRecord, parseScheme, sessionFor, warmups } from '../domain';
+import { startRoute } from '../programStart';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
 import { endRestActivity, startRestActivity } from '../widgets';
@@ -96,9 +97,11 @@ export function useSession(n: number, programId?: string): SessionApi | null {
   const startId = program?.id;
   // Only the next session id starts a workout: a stale route (its workout finished or dropped) never does.
   const isNext = useStore((s) => s.nextSession === n);
+  // Weights moved from the old version are checked first, as Today and Siri do: a link starts nothing before.
+  const mustConfirm = useStore((s) => startRoute(s, startId).kind === 'confirm');
   useEffect(() => {
-    if (!ready && !finished && !hasDraft && isNext && startId) startSession(startId);
-  }, [ready, finished, hasDraft, isNext, startId, startSession]);
+    if (!ready && !finished && !hasDraft && isNext && startId && !mustConfirm) startSession(startId);
+  }, [ready, finished, hasDraft, isNext, startId, mustConfirm, startSession]);
 
   const [picked, setPicked] = useState<number | null>(null);
   const [doneWarmups, setDoneWarmups] = useState<ReadonlySet<string>>(new Set());

@@ -54,3 +54,12 @@ test('a lift screen for a real exercise but a hostile program id says the progra
   await renderRouter(all(), { initialUrl: '/lift/BENCH_PRESS?program=toString' });
   expect(await screen.findByText('Program not found')).toBeTruthy();
 });
+
+test('a session link does not start a workout while weights are unconfirmed; it opens the confirm screen', async () => {
+  useStore.setState({ needsWeightConfirm: true });
+  const { nextSession, programs } = useStore.getState();
+  await renderRouter(all(), { initialUrl: `/session/${nextSession}?program=${programs[0].id}` });
+  expect(await screen.findByText(/confirm/i)).toBeTruthy();
+  expect(useStore.getState().draft).toBeNull();
+  expect(useStore.getState().nextSession).toBe(nextSession);
+});
