@@ -1,4 +1,4 @@
-import { getLadder, stepIn } from './ladders';
+import { getLadder, stepIn, stepTransition } from './ladders';
 import { roundForExercise } from './plates';
 import { exerciseOfLift } from './program';
 import type {
@@ -75,12 +75,8 @@ export function easeBack(lift: LiftState, gap: number, ctx: EaseContext): LiftSt
     next.weightKg = roundForExercise(lift.weightKg * (1 - pct), ctx.exercise, 'floor', ctx.inv, ctx.unit);
   const ladder = ctx.progression === 'ladder' && ctx.ladder ? getLadder(ctx.ladder) : undefined;
   const step = ladder ? stepIn(ladder, lift.step) : 0;
-  if (ladder && gap >= 28 && lift.weightKg <= 0 && step > 0) {
-    next.step = step - 1;
-    delete next.bandId;
-    const heaviest = ctx.bands?.[0];
-    if (ladder.steps[next.step]?.band && heaviest) next.bandId = heaviest.id;
-  }
+  if (ladder && gap >= 28 && lift.weightKg <= 0 && step > 0)
+    return stepTransition(next, step - 1, ladder, ctx.bands ?? []);
   // Resetting misses alone is no ease: nothing the user would lift or see changes.
   return JSON.stringify({ ...next, fails: lift.fails }) === JSON.stringify(lift) ? null : next;
 }
