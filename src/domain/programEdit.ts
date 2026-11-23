@@ -83,20 +83,35 @@ export function addAlternatingSlot(
   return withDay(program, dayIndex, (slots) => [...slots, { exercise: pair, scheme }]);
 }
 
-/** Drop groups that lost every exercise, and supersets and circuits left with fewer than two. */
+/** The multiple of `count` nearest to `minutes` (at least `count`): an EMOM does one set per exercise a minute. */
+export const snapMinutes = (minutes: number, count: number): number =>
+  count > 0 ? Math.max(count, Math.round(minutes / count) * count) : minutes;
+
+/**
+ * Drop groups that lost every exercise, and supersets and circuits left with fewer than two. The groups that
+ * stay keep their rounds or minutes (an EMOM's minutes snap to a multiple of the new count) and the exercises
+ * take the sets those need.
+ */
 function tidyGroups(day: Day): Day {
   if (!day.groups) return day;
   const size = (id: string) => day.slots.filter((s) => s.group === id).length;
   const dead = new Set(day.groups.filter((g) => size(g.id) < GROUP_MIN[g.kind]).map((g) => g.id));
-  if (dead.size === 0) return day;
-  const groups = day.groups.filter((g) => !dead.has(g.id));
   const slots = day.slots.map((s) => {
     if (s.group === undefined || !dead.has(s.group)) return s;
     const { group: _group, ...rest } = s;
     return rest;
   });
+  const groups = day.groups
+    .filter((g) => !dead.has(g.id))
+    .map((g) =>
+      g.kind === 'emom' && g.minutes !== undefined
+        ? { ...g, minutes: snapMinutes(g.minutes, size(g.id)) }
+        : g,
+    );
   const { groups: _groups, ...rest } = day;
-  return groups.length > 0 ? { ...rest, slots, groups } : { ...rest, slots };
+  let tidy: Day = groups.length > 0 ? { ...rest, slots, groups } : { ...rest, slots };
+  for (const g of groups) tidy = conformSets(tidy, g);
+  return tidy;
 }
 
 export function removeSlot(program: Program, dayIndex: number, slotIndex: number): Program {

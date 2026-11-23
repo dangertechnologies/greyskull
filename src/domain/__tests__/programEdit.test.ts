@@ -25,6 +25,7 @@ import {
   setSlotLadder,
   setSlotProgression,
   setSlotScheme,
+  snapMinutes,
   switchMode,
   ungroup,
   updateGroup,
@@ -466,4 +467,53 @@ test('a copy is a custom program that shares nothing with its source', () => {
   copy.days[0].name = 'Changed';
   expect(base.days[0].name).not.toBe('Changed');
   expect(validateProgram(copy, ex)).toEqual([]);
+});
+
+describe('removing an exercise from a group keeps the group valid', () => {
+  const four = (): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES, progression: 'linear' },
+    days: [
+      {
+        name: 'A',
+        slots: ['BARBELL_SQUAT', 'BENCH_PRESS', 'BENT_OVER_ROW', 'DEADLIFT'].map((exercise) => ({
+          exercise,
+          scheme: '3x8' as const,
+        })),
+      },
+    ],
+  });
+  const sets = (p: Program) => p.days[0].slots.map((s) => s.scheme);
+
+  test('an EMOM keeps its minutes and the remaining exercises take the extra sets', () => {
+    const emom = groupSlots(four(), 0, [0, 1, 2], 'emom', { minutes: 12 });
+    expect(sets(emom)).toEqual(['4x8', '4x8', '4x8', '3x8']);
+    const fewer = removeSlot(emom, 0, 1);
+    expect(fewer.days[0].groups?.[0]).toMatchObject({ kind: 'emom', minutes: 12 });
+    expect(sets(fewer)).toEqual(['6x8', '6x8', '3x8']);
+    expect(validateProgram(fewer, ex)).toEqual([]);
+  });
+
+  test('minutes the remaining exercises do not divide snap to the nearest multiple', () => {
+    const emom = groupSlots(four(), 0, [0, 1, 2], 'emom', { minutes: 9 });
+    const fewer = removeSlot(emom, 0, 2);
+    expect(fewer.days[0].groups?.[0].minutes).toBe(10);
+    expect(sets(fewer).slice(0, 2)).toEqual(['5x8', '5x8']);
+    expect(validateProgram(fewer, ex)).toEqual([]);
+    expect(snapMinutes(7, 3)).toBe(6);
+    expect(snapMinutes(8, 3)).toBe(9);
+    expect(snapMinutes(1, 4)).toBe(4);
+    expect(snapMinutes(10, 2)).toBe(10);
+    expect(snapMinutes(10, 0)).toBe(10);
+  });
+
+  test('a circuit and an interval keep one set per round', () => {
+    const circuit = groupSlots(four(), 0, [0, 1, 2], 'circuit', { rounds: 4, restS: 60 });
+    expect(sets(removeSlot(circuit, 0, 1))).toEqual(['4x8', '4x8', '3x8']);
+    const interval = groupSlots(four(), 0, [0, 1, 2], 'interval', { rounds: 5, workS: 30, restS: 10 });
+    const fewer = removeSlot(interval, 0, 0);
+    expect(sets(fewer)).toEqual(['5x8', '5x8', '3x8']);
+    expect(validateProgram(fewer, ex)).toEqual([]);
+  });
 });
