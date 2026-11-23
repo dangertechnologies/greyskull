@@ -6,7 +6,7 @@ import type { ActiveProgram, SessionLog } from '../../src/domain';
 import { sessionFor } from '../../src/domain';
 import { nameOf, weekLabel } from '../../src/format';
 import { useNow } from '../../src/hooks/useNow';
-import { setCounts, startWorkout } from '../../src/programStart';
+import { setCounts, startWorkout, WEIGHT_CONFIRM_ROUTE } from '../../src/programStart';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
@@ -161,7 +161,7 @@ export default function Today() {
   const t = useTheme();
 
   if (programs.length === 0 && sessions.length === 0) return <Redirect href="/setup" />;
-  if (needsWeightConfirm) return <Redirect href="/setup/confirm" />;
+  if (needsWeightConfirm) return <Redirect href={WEIGHT_CONFIRM_ROUTE} />;
 
   // The program with the open workout is shown by its draft card, not twice.
   const active = programs.filter((p) => !p.paused && p.id !== draft?.programId);
