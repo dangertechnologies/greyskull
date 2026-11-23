@@ -313,3 +313,42 @@ describe('setup with calisthenics programs', () => {
     expect(await screen.findByText(/^Next:/)).toBeTruthy();
   });
 });
+
+describe('holds, fix round', () => {
+  test('Stop at 0:00 logs nothing; a running hold shows Stop even while a rest counts down', async () => {
+    jest.useFakeTimers();
+    get().setSettings({ restSeconds: 90 });
+    setStale('rr_pullup', { step: 0 });
+    get().startSession(programId());
+    for (let i = 0; i < 3; i++) get().logSet('CAL_SCAPULAR_PULL', i, 8);
+    await renderRouter(allRoutes(), { initialUrl: '/session/0' });
+    fireEvent.press(await screen.findByTestId('hold-toggle'));
+    expect(screen.getByTestId('stop-hold')).toBeDisabled();
+    act(() => void jest.advanceTimersByTime(11_000));
+    fireEvent.press(screen.getByTestId('stop-hold'));
+    expect(get().draft?.results.CAL_SUPPORT_HOLD.sets[0].reps).toBe(11);
+    expect(screen.getByTestId('rest-remaining')).toBeTruthy();
+    fireEvent.press(screen.getByTestId('hold-toggle'));
+    act(() => void jest.advanceTimersByTime(3_000));
+    expect(screen.getByTestId('stop-hold')).toBeTruthy();
+    expect(screen.queryByTestId('rest-remaining')).toBeNull();
+  });
+
+  test('the one-page view keeps a hold running when its sheet closes, and a logged hold can be cleared', async () => {
+    jest.useFakeTimers();
+    get().setSettings({ minimalist: true });
+    await renderRouter(allRoutes(), { initialUrl: `/session/0?program=${programId()}` });
+    expect(await screen.findByText(/or a hold to time it/)).toBeTruthy();
+    fireEvent.press(screen.getByTestId('set-pill-CAL_SUPPORT_HOLD-1'));
+    fireEvent.press(screen.getByTestId('hold-toggle'));
+    act(() => void jest.advanceTimersByTime(5_000));
+    fireEvent.press(screen.getAllByLabelText('Close', { includeHiddenElements: true }).at(-1)!);
+    act(() => void jest.advanceTimersByTime(4_000));
+    fireEvent.press(screen.getByTestId('reopen-hold'));
+    fireEvent.press(screen.getByTestId('log-hold'));
+    expect(get().draft?.results.CAL_SUPPORT_HOLD.sets[0].reps).toBe(9);
+    fireEvent.press(screen.getByTestId('set-pill-CAL_SUPPORT_HOLD-1'));
+    fireEvent.press(screen.getByTestId('clear-hold'));
+    expect(get().draft?.results.CAL_SUPPORT_HOLD.sets[0].reps).toBe(0);
+  });
+});

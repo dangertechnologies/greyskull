@@ -20,7 +20,7 @@ import { Sheet } from '../ui/Sheet';
 import { Card } from '../ui/Surface';
 import { Text } from '../ui/Text';
 import { EaseBanner } from './EaseBanner';
-import { HoldDial } from './HoldDial';
+import { clockLabel, HoldDial } from './HoldDial';
 import { LadderPanel } from './LadderPanel';
 import { supertitle } from './SessionImmersive';
 import { useStopwatch } from './useStopwatch';
@@ -48,13 +48,23 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
     reps: number;
     timed?: boolean;
   } | null>(null);
-  // The timed set whose hold sheet is open: its index in `items` and target seconds.
+  // The timed set the stopwatch belongs to (its index in `items` and target seconds), and whether its sheet is
+  // open. Closing the sheet keeps the stopwatch running; the bottom bar then offers to reopen it.
   const [holdFor, setHoldFor] = useState<{ index: number; target: number | null } | null>(null);
+  const [holdOpen, setHoldOpen] = useState(false);
   const watch = useStopwatch(holdFor?.target ?? null);
-  const closeHold = () => {
+  const openHold = (index: number, target: number | null) => {
+    if (holdFor?.index !== index) watch.reset();
+    setHoldFor({ index, target });
+    setHoldOpen(true);
+  };
+  const finishHold = () => {
     watch.reset();
+    setHoldOpen(false);
     setHoldFor(null);
   };
+  const holdItem = holdFor ? items[holdFor.index] : undefined;
+  const anyTimed = items.some((i) => i.timed);
 
   const pill = (item: SessionItem, index: number) => {
     const { exerciseId, setIndex } = item;
@@ -80,7 +90,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
         delayLongPress={400}
         onPress={() => {
           // A hold is timed with the stopwatch; a logged one can be held again.
-          if (item.timed) setHoldFor({ index, target: item.targetReps });
+          if (item.timed) openHold(index, item.targetReps);
           else if (!item.logged) record(index, item.targetReps ?? item.minReps ?? 5);
           else {
             haptics.tick();
@@ -241,7 +251,15 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
       </ScrollView>
 
       <BottomBar>
-        {restRemaining !== null ? (
+        {holdFor && !holdOpen && (watch.running || watch.seconds > 0) ? (
+          <Button
+            title={`Hold ${clockLabel(watch.seconds)} · open`}
+            size="lg"
+            icon="timer"
+            testID="reopen-hold"
+            onPress={() => setHoldOpen(true)}
+          />
+        ) : restRemaining !== null ? (
           <RestPanel
             remaining={restRemaining}
             total={restTotal}
@@ -253,7 +271,9 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
           <Button title="Finish workout" size="lg" testID="finish-workout" onPress={onFinish} />
         ) : (
           <Text variant="callout" color="textMuted" align="center">
-            Tap a set when you finish it. Hold to change the reps.
+            {anyTimed
+              ? 'Tap a set when you finish it, or a hold to time it. Press and hold to change it.'
+              : 'Tap a set when you finish it. Hold to change the reps.'}
           </Text>
         )}
       </BottomBar>
@@ -268,7 +288,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
         />
       ) : null}
 
-      <Sheet visible={holdFor !== null} onClose={closeHold} title="Hold">
+      <Sheet visible={holdOpen && holdFor !== null} onClose={() => setHoldOpen(false)} title="Hold">
         <HoldDial watch={watch} targetS={holdFor?.target ?? null} />
         <Button
           title={`Log ${watch.seconds} s`}
@@ -276,9 +296,20 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
           disabled={watch.seconds === 0}
           onPress={() => {
             if (holdFor) record(holdFor.index, watch.seconds);
-            closeHold();
+            finishHold();
           }}
         />
+        {holdItem?.logged && holdItem.setIndex !== null ? (
+          <Button
+            title={`Clear the logged ${holdItem.reps} s`}
+            variant="plain"
+            testID="clear-hold"
+            onPress={() => {
+              if (holdItem.setIndex !== null) logSet(holdItem.exerciseId, holdItem.setIndex, 0);
+              finishHold();
+            }}
+          />
+        ) : null}
       </Sheet>
 
       <Sheet

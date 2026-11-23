@@ -1,11 +1,11 @@
-import { View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../design/theme';
 import { Button } from '../ui/Button';
 import { Text } from '../ui/Text';
 import type { Stopwatch } from './useStopwatch';
 
-const SIZE = 200;
+const BASE_SIZE = 200;
 const STROKE = 10;
 
 /** "0:18" */
@@ -15,6 +15,9 @@ export const clockLabel = (seconds: number): string =>
 /** Ring filling towards the target, the time held, and Start / Pause / Resume / Reset. */
 export function HoldDial({ watch, targetS }: { watch: Stopwatch; targetS: number | null }) {
   const t = useTheme();
+  // The ring grows with large text (up to 1.6×), and the time shrinks to fit inside it (a 10-minute hold).
+  const { fontScale } = useWindowDimensions();
+  const SIZE = Math.round(BASE_SIZE * Math.min(1.6, Math.max(1, fontScale)));
   const r = (SIZE - STROKE) / 2;
   const length = 2 * Math.PI * r;
   const done = targetS ? Math.min(1, watch.seconds / targetS) : 0;
@@ -50,7 +53,13 @@ export function HoldDial({ watch, targetS }: { watch: Stopwatch; targetS: number
             />
           ) : null}
         </Svg>
-        <Text variant="display" testID="hold-time">
+        <Text
+          variant="display"
+          testID="hold-time"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{ maxWidth: SIZE - 2 * STROKE - t.space[6], textAlign: 'center' }}
+        >
           {clockLabel(watch.seconds)}
         </Text>
         {targetS ? (

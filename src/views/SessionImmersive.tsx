@@ -240,22 +240,14 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
       </ScrollView>
 
       <BottomBar>
-        {resting ? (
-          <RestPanel
-            remaining={restRemaining}
-            total={restTotal}
-            next={nextText}
-            onAdd={addRest}
-            onSkip={skipRest}
-          />
-        ) : isComplete && selectedIndex >= items.length ? (
-          <Button title="Finish workout" size="lg" testID="finish-workout" onPress={onFinish} />
-        ) : item && watch.running ? (
+        {/* A running hold has the bar first, even while a rest counts down. */}
+        {item && watch.running ? (
           <>
             <Button
               title={`Stop at ${clockLabel(watch.seconds)}`}
               size="lg"
               testID="stop-hold"
+              disabled={watch.seconds === 0}
               onPress={() => {
                 record(selectedIndex, watch.seconds);
                 resetWatch();
@@ -265,6 +257,16 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
               {`Stopwatch running${item.targetReps ? ` · buzz at ${item.targetReps} s` : ''}`}
             </Text>
           </>
+        ) : resting ? (
+          <RestPanel
+            remaining={restRemaining}
+            total={restTotal}
+            next={nextText}
+            onAdd={addRest}
+            onSkip={skipRest}
+          />
+        ) : isComplete && selectedIndex >= items.length ? (
+          <Button title="Finish workout" size="lg" testID="finish-workout" onPress={onFinish} />
         ) : item ? (
           <>
             <Button
