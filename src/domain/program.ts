@@ -205,10 +205,32 @@ export function sessionFor(
 const nameIn = (catalog: Record<string, Exercise> | undefined, id: string): string =>
   catalog && Object.hasOwn(catalog, id) ? catalog[id].name : id;
 
+/** The most days, exercises in a day and letters in a name or id a program may have (what `parseProgram` accepts). */
+export const MAX_DAYS = 14;
+export const MAX_SLOTS = 20;
+export const MAX_TEXT = 100;
+
 export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
+  return validateProgramByDay(p, catalog).errors;
+}
+
+/**
+ * `validateProgram` with the day each message belongs to (`days[i]` is the index of the day for `errors[i]`, or
+ * null for a message about the program as a whole), so a screen can show it under the right day whatever the
+ * day is called.
+ */
+export function validateProgramByDay(
+  p: Program,
+  catalog?: Record<string, Exercise>,
+): { errors: string[]; days: (number | null)[] } {
   const errors: string[] = [];
+  const days: (number | null)[] = [];
+  const owner = (day: number | null) => {
+    while (days.length < errors.length) days.push(day);
+  };
   if (isReservedKey(p.template)) errors.push('Invalid program template.');
   if (p.days.length === 0) errors.push('Add at least one day.');
+  if (p.days.length > MAX_DAYS) errors.push(`A program has at most ${MAX_DAYS} days.`);
   if (!Number.isInteger(p.sessionsPerWeek) || p.sessionsPerWeek < 1 || p.sessionsPerWeek > 7)
     errors.push('Training days per week must be between 1 and 7.');
   if (p.startN !== undefined && !(Number.isInteger(p.startN) && p.startN >= 0))
@@ -227,7 +249,11 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
       errors.push(`The increment for ${nameIn(catalog, id)} must be 0 to 100.`);
   const liftExercises = new Map<string, string>();
   const pairOrder = new Map<string, string>();
-  for (const day of p.days) {
+  owner(null);
+  for (const [dayIndex, day] of p.days.entries()) {
+    if (typeof day.name !== 'string' || day.name.trim() === '' || day.name.length > MAX_TEXT)
+      errors.push(`Day ${dayIndex + 1} needs a name of 1 to ${MAX_TEXT} letters.`);
+    if (day.slots.length > MAX_SLOTS) errors.push(`${day.name}: at most ${MAX_SLOTS} exercises a day.`);
     if (day.slots.length === 0) errors.push(`${day.name} has no exercises.`);
     if (day.intensity !== undefined && !(day.intensity > 0 && day.intensity <= 1)) {
       errors.push(`${day.name}: intensity must be between 0 and 100 %.`);
@@ -260,6 +286,8 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
       // A ladder can reach any of its steps, and a session keeps one result per exercise.
       for (const id of ladder ? ladder.steps.map((s) => s.exercise) : slotIds(slot)) {
         const name = nameIn(catalog, id);
+        if (id.length > MAX_TEXT)
+          errors.push(`${day.name}: the exercise id ${id.slice(0, 20)}… is too long.`);
         if (catalog && !Object.hasOwn(catalog, id)) errors.push(`${day.name}: unknown exercise ${id}.`);
         if (seen.has(id))
           errors.push(
@@ -305,8 +333,9 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
       }
     }
     errors.push(...groupErrors(day, setCounts));
+    owner(dayIndex);
   }
-  return errors;
+  return { errors, days };
 }
 
 /** Every set count a slot can have: one per ladder step, or its scheme and stages. */
@@ -342,9 +371,6 @@ export function liftKeysOf(program: Program): string[] {
 class InvalidProgram extends Error {}
 
 type Json = Record<string, unknown>;
-const MAX_DAYS = 14;
-const MAX_SLOTS = 20;
-const MAX_TEXT = 100;
 const GROUP_KINDS: GroupKind[] = ['superset', 'circuit', 'emom', 'interval'];
 
 const isObject = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);

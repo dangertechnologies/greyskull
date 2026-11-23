@@ -10,8 +10,9 @@ import {
   TEMPLATES,
   tryParseScheme,
   validateProgram,
+  validateProgramByDay,
 } from '../program';
-import { DEFAULT_RULES, type Program, type Slot } from '../types';
+import { type Day, DEFAULT_RULES, type Program, type Slot } from '../types';
 
 const ex = builtInExercises();
 const ids = (p: Program, n: number) => sessionFor(active(p, n)).slots.map((s) => s.exercise);
@@ -324,5 +325,61 @@ describe('validateProgram: names every object has are not exercises, ladders or 
     expect(
       validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', lift: 'BENCH_PRESS@T2' }), catalog),
     ).toEqual([]);
+  });
+});
+
+describe('validateProgram: the same limits the importer has', () => {
+  const catalog = builtInExercises();
+  const day = (name: string, n = 1): Day => ({
+    name,
+    slots: Array.from({ length: n }, (_, i) => ({
+      exercise: ['BENCH_PRESS', 'DEADLIFT', 'DIPS', 'CHINUPS', 'CURLS'][i % 5],
+      scheme: '3x5' as const,
+    })),
+  });
+  const prog = (days: Day[]): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES },
+    days,
+  });
+
+  test('at most 14 days', () => {
+    const fine = prog(Array.from({ length: 14 }, (_, i) => day(`D${i}`)));
+    expect(validateProgram(fine, catalog)).toEqual([]);
+    expect(validateProgram(prog([...fine.days, day('D15')]), catalog).join()).toMatch(/at most 14 days/);
+  });
+
+  test('a day name of 1 to 100 letters', () => {
+    expect(validateProgram(prog([day('x'.repeat(100))]), catalog)).toEqual([]);
+    expect(validateProgram(prog([day('x'.repeat(101))]), catalog).join()).toMatch(/Day 1 needs a name/);
+    expect(validateProgram(prog([day('')]), catalog).join()).toMatch(/Day 1 needs a name/);
+    expect(validateProgram(prog([day('   ')]), catalog).join()).toMatch(/Day 1 needs a name/);
+  });
+
+  test('at most 20 exercises a day, and ids of at most 100 letters', () => {
+    const many = day('A', 21);
+    many.slots = many.slots.map((s, i) => ({ ...s, exercise: `custom_e${i}` }));
+    const cat = {
+      ...catalog,
+      ...Object.fromEntries(many.slots.map((s) => [s.exercise, { ...catalog.BENCH_PRESS, id: s.exercise }])),
+    };
+    expect(validateProgram(prog([many]), cat).join()).toMatch(/at most 20 exercises/);
+    const long = `custom_${'a'.repeat(100)}`;
+    const withLong = { ...catalog, [long]: { ...catalog.BENCH_PRESS, id: long } };
+    expect(
+      validateProgram(prog([{ name: 'A', slots: [{ exercise: long, scheme: '3x5' }] }]), withLong).join(),
+    ).toMatch(/too long/);
+  });
+
+  test('each message says which day it belongs to, by position', () => {
+    const p = prog([day('Same'), { name: 'Same', slots: [] }]);
+    const { errors, days } = validateProgramByDay(p, catalog);
+    expect(errors).toEqual(['Same has no exercises.']);
+    expect(days).toEqual([1]);
+    const g = prog([day(''), day('B')]);
+    expect(validateProgramByDay(g, catalog).days).toEqual([0]);
+    const general = { ...prog([day('A')]), sessionsPerWeek: 9 };
+    expect(validateProgramByDay(general, catalog).days).toEqual([null]);
   });
 });
