@@ -28,10 +28,12 @@ import {
   inventoryProblem,
   isReservedKey,
   liftKeysOf,
+  MAX_TEXT,
   migrateV1,
   nextLift,
   own,
   roundForExercise,
+  STORED_LIMITS,
   sessionFor,
   sessionWeightKg,
   setTargets,
@@ -203,7 +205,10 @@ export function restoreExercises(stored: Record<string, Exercise> | undefined): 
   for (const [id, e] of Object.entries(stored ?? {})) {
     const problem = customExerciseProblem(id, e);
     if (problem) throw new Error(`The saved data is damaged: ${problem}`);
-    const r = isRecord(e) && e.custom === true && !Object.hasOwn(SHIPPED, id) ? sanitizeExercise(e) : null;
+    const r =
+      isRecord(e) && e.custom === true && !Object.hasOwn(SHIPPED, id)
+        ? sanitizeExercise(e, undefined, { stored: true })
+        : null;
     if (r?.ok) out[id] = { ...r.exercise, ...(e.archived === true ? { archived: true } : {}) };
   }
   for (const [id, shipped] of Object.entries(builtInExercises())) {
@@ -391,18 +396,48 @@ const isRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !A
 
 /**
  * What is wrong with a stored custom exercise (one that is not a shipped built-in), or null. Same rebuild as a
- * shared plan's exercises: text within the editor's limits, weights in range, known equipment and muscles.
+ * shared plan's exercises, with the limits for stored data (an older version's editor had fewer).
  */
 function customExerciseProblem(id: string, e: unknown): string | null {
   if (!isRecord(e) || e.custom !== true || Object.hasOwn(SHIPPED, id)) return null;
   if (isReservedKey(id)) return `the exercise ${id} has a reserved name`;
-  const r = sanitizeExercise(e, `The exercise ${id}`);
+  const r = sanitizeExercise(e, `The exercise ${id}`, { stored: true });
   if (!r.ok) return `the exercise ${id} is damaged: ${r.error}`;
   return r.exercise.id === id ? null : `the exercise ${id} has another id inside`;
 }
 
-/** A name every screen can render: a non-empty string of at most 100 characters. */
-const saneName = (v: unknown): boolean => typeof v === 'string' && v.trim().length > 0 && v.length <= 100;
+/** A stored name (see `repairStored`): a non-empty string no longer than stored text may be. */
+const saneName = (v: unknown): boolean =>
+  typeof v === 'string' && v.trim().length > 0 && v.length <= STORED_LIMITS.text;
+
+/**
+ * Stored data (the file, or the user's own backup) with what older versions let the user save and this version
+ * needs filled in: a day, program or saved plan without a name gets a default one (`Day 2`, the plan's name), and
+ * a name longer than any screen shows is cut to the longest stored text. Anything not of the expected shape is
+ * left for `stateProblem`. Logs and lift states are never touched.
+ */
+export function repairStored(s: Record<string, unknown>): Record<string, unknown> {
+  const named = (v: unknown, fallback: string): string =>
+    typeof v === 'string' && v.trim() ? v.slice(0, STORED_LIMITS.text) : fallback;
+  const withDayNames = (p: unknown): unknown =>
+    isRecord(p) && Array.isArray(p.days)
+      ? {
+          ...p,
+          days: p.days.map((d, i) => (isRecord(d) ? { ...d, name: named(d.name, `Day ${i + 1}`) } : d)),
+        }
+      : p;
+  const out = { ...s };
+  if (isRecord(s.program)) out.program = withDayNames(s.program);
+  if (Array.isArray(s.programs))
+    out.programs = s.programs.map((p) =>
+      isRecord(p) ? { ...(withDayNames(p) as object), name: named(p.name, planName(String(p.template))) } : p,
+    );
+  if (Array.isArray(s.customPlans))
+    out.customPlans = s.customPlans.map((c) =>
+      isRecord(c) ? { ...c, name: named(c.name, 'My program'), program: withDayNames(c.program) } : c,
+    );
+  return out;
+}
 
 /** What is wrong with a list of assistance bands (each an own-named id with a label), or null. */
 export function bandsProblem(bands: unknown): string | null {
@@ -429,11 +464,12 @@ function programProblem(p: unknown, label: string): string | null {
     p.days.some((d) => !isRecord(d) || !Array.isArray(d.slots) || d.slots.some((slot) => !isRecord(slot)))
   )
     return `${label} has damaged days`;
-  // The same check the builder and imports run, so a program stored before a limit existed cannot reach the
-  // maths with a scheme or group of any size. It needs no catalog: an exercise missing from it is shown by name.
+  // The check the builder and imports run, with the limits for stored data: a program an older version saved
+  // with more days or longer names loads, while a scheme or group of any size cannot reach the maths. It needs
+  // no catalog: an exercise missing from it is shown by name.
   let errors: string[];
   try {
-    errors = validateProgram(p as unknown as Program);
+    errors = validateProgram(p as unknown as Program, undefined, STORED_LIMITS);
   } catch {
     return `${label} has damaged days`;
   }
@@ -442,8 +478,9 @@ function programProblem(p: unknown, label: string): string | null {
 }
 
 /**
- * What is structurally wrong with stored or backed-up state (one-program or several-program shape), or null.
- * Loading refuses such data instead of replacing the broken parts with defaults.
+ * What is structurally wrong with stored or backed-up state (one-program or several-program shape, after
+ * `repairStored`), or null. Loading refuses such data instead of replacing the broken parts with defaults. Only
+ * data that cannot be read or would stall the app is refused: never data within what an older version could save.
  */
 export function stateProblem(s: Record<string, unknown>): string | null {
   if (s.sessions !== undefined && (!Array.isArray(s.sessions) || s.sessions.some((l) => !isRecord(l))))
@@ -482,8 +519,10 @@ export function stateProblem(s: Record<string, unknown>): string | null {
     const keys = s.draft.skippedExercises;
     if (
       !Array.isArray(keys) ||
-      keys.length > 100 ||
-      keys.some((k) => typeof k !== 'string' || k.length > 100 || k.split('@').some(isReservedKey))
+      keys.length > 1000 ||
+      keys.some(
+        (k) => typeof k !== 'string' || k.length > STORED_LIMITS.text || k.split('@').some(isReservedKey),
+      )
     )
       return 'the skipped exercises are damaged';
   }
@@ -531,7 +570,7 @@ const assertState = (s: Record<string, unknown>): void => {
  */
 export function migratePersisted(persistedState: unknown, fromVersion: number): AppState {
   if (!isRecord(persistedState)) throw new Error('The saved data is damaged: it is not app data');
-  const old = persistedState;
+  const old = repairStored(persistedState);
   assertState(old);
   if (fromVersion < 4) return withNextSession(upgradeOneProgramState(old as Partial<OneProgramState>));
   if (!Array.isArray(old.programs)) throw new Error('The saved data is damaged: the programs are missing');
@@ -693,7 +732,7 @@ export const useStore = create<Store>()(
         const program: ActiveProgram = {
           ...input,
           id,
-          name: name.trim() || planName(input.template),
+          name: name.trim().slice(0, MAX_TEXT) || planName(input.template),
           position: 0,
           lifts: startingLifts(input, exercises, inventory, unit),
         };
@@ -734,7 +773,7 @@ export const useStore = create<Store>()(
         set((s) => ({ programs: mapProgram(s.programs, id, (p) => ({ ...p, paused })) })),
 
       renameProgram: (id, name) => {
-        const trimmed = name.trim();
+        const trimmed = name.trim().slice(0, MAX_TEXT);
         if (!trimmed) throw new Error('Name the program');
         set((s) => ({ programs: mapProgram(s.programs, id, (p) => ({ ...p, name: trimmed })) }));
       },
@@ -1000,7 +1039,7 @@ export const useStore = create<Store>()(
         set((s) => ({ sessions: s.sessions.map((log) => (log.n === n ? { ...log, results } : log)) })),
 
       saveCustomPlan: (plan) => {
-        const name = plan.name.trim();
+        const name = plan.name.trim().slice(0, MAX_TEXT);
         if (!plan.id || !name) throw new Error('A plan needs an id and a name');
         const errors = validateProgram(plan.program, get().exercises);
         if (errors.length > 0) throw new Error(errors.join('\n'));
@@ -1138,8 +1177,9 @@ export const useStore = create<Store>()(
       },
       merge: (stored, current) => {
         // Damaged data fails the load (storageError, nothing written) instead of being filled with defaults.
-        if (stored !== undefined) assertState(isRecord(stored) ? stored : { programs: null });
-        const state = (stored ?? {}) as Partial<AppState>;
+        const repaired = isRecord(stored) ? repairStored(stored) : stored;
+        if (repaired !== undefined) assertState(isRecord(repaired) ? repaired : { programs: null });
+        const state = (repaired ?? {}) as Partial<AppState>;
         // Nothing stored (a first launch): keep the exercises already in memory.
         return withNextSession({
           ...current,

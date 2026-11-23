@@ -138,30 +138,6 @@ describe('hostile backups are refused where the app would crash on them', () => 
       },
     ],
     [
-      'program name 5',
-      (s: Doc) => {
-        s.programs[0].name = 5;
-      },
-    ],
-    [
-      'program name object',
-      (s: Doc) => {
-        s.programs[0].name = { a: 1 };
-      },
-    ],
-    [
-      'program name empty',
-      (s: Doc) => {
-        s.programs[0].name = '';
-      },
-    ],
-    [
-      'program name too long',
-      (s: Doc) => {
-        s.programs[0].name = 'x'.repeat(101);
-      },
-    ],
-    [
       'kettlebells ["x"]',
       (s: Doc) => {
         s.inventory.kettlebellsKg = ['x'];
@@ -191,17 +167,26 @@ describe('hostile backups are refused where the app would crash on them', () => 
         s.inventory.kettlebellsKg = 8;
       },
     ],
-    [
-      'saved plan name 5',
-      (s: Doc) => {
-        s.customPlans = [{ id: 'p', name: 5, program: s.programs[0] }];
-      },
-    ],
   ])('%s', (_n, mut) => {
     const data = withEdit(mut);
     expect(parseBackup(JSON.stringify(data)).ok).toBe(false);
     // Loading the stored file goes through the same check.
     expect(() => migratePersisted(data, 4)).toThrow(/damaged/);
+  });
+
+  test('a missing or long program or saved plan name is repaired, never refused', () => {
+    const data = withEdit((s) => {
+      s.customPlans = [{ id: 'p', name: 5, program: s.programs[0] }];
+      s.programs.push({ ...s.programs[0], id: 'second', name: '' });
+      s.programs[0].name = 'x'.repeat(20_000);
+    });
+    for (const state of [
+      migratePersisted(data, 4),
+      (parseBackup(JSON.stringify(data)) as { state: Doc }).state,
+    ]) {
+      expect(state.programs.map((p: Doc) => p.name)).toEqual(['x'.repeat(10_000), 'Greyskull LP']);
+      expect(state.customPlans[0].name).toBe('My program');
+    }
   });
 
   test('good bands, names and kettlebells still load', () => {
@@ -507,20 +492,20 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
       (s: Doc) => (s.exercises.custom_x = custom('custom_x', { barKg: { kg: 500, lb: 1 } })),
     ],
     [
-      'a custom exercise with a name of 5,000 letters',
-      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { name: 'x'.repeat(5000) })),
+      'a custom exercise with a name of 10,001 letters',
+      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { name: 'x'.repeat(10_001) })),
     ],
     ['a custom exercise stored under another id', (s: Doc) => (s.exercises.custom_x = custom('custom_y'))],
     [
-      'a custom exercise with unknown muscles',
-      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { muscles: ['wings'] })),
+      'a custom exercise with muscles that are not a list',
+      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { muscles: 'wings' })),
     ],
     ['a plate of 1,000,000 kg', (s: Doc) => (s.inventory.platesKg = [1e6])],
     ['a bar of 500 kg', (s: Doc) => (s.inventory.barKg = 500)],
     ['a thousand plate sizes', (s: Doc) => (s.inventory.platesLb = Array.from({ length: 1000 }, () => 5))],
     [
-      'a stored program with 100 sets in a slot',
-      (s: Doc) => (s.programs[0].days[0].slots[0].scheme = '100x5'),
+      'a stored program with 201 sets in a slot',
+      (s: Doc) => (s.programs[0].days[0].slots[0].scheme = '201x5'),
     ],
     [
       'a saved plan with an EMOM of 500 minutes',

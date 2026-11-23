@@ -95,11 +95,14 @@ export function tryParseScheme(s: string): ParsedScheme | null {
  */
 export const SCHEME_LIMITS = { sets: 20, reps: 30, repsMax: 40, seconds: 300, secondsMax: 600 } as const;
 
-/** Why a scheme cannot be saved (not one the app understands, or more than `SCHEME_LIMITS`), or null. */
-export function schemeProblem(s: string): string | null {
+/** Why a scheme cannot be saved (not one the app understands, or more than `limits`), or null. */
+export function schemeProblem(
+  s: string,
+  limits: { [K in keyof typeof SCHEME_LIMITS]: number } = SCHEME_LIMITS,
+): string | null {
   const p = tryParseScheme(s);
   if (!p) return `unknown scheme ${String(s).slice(0, 20)}`;
-  const L = SCHEME_LIMITS;
+  const L = limits;
   const [low, high] = p.timed ? [L.seconds, L.secondsMax] : [L.reps, L.repsMax];
   if (p.sets > L.sets || (p.reps ?? 0) > low || (p.repsMax ?? 0) > high)
     return p.timed
@@ -229,8 +232,37 @@ export const MAX_DAYS = 14;
 export const MAX_SLOTS = 20;
 export const MAX_TEXT = 100;
 
-export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
-  return validateProgramByDay(p, catalog).errors;
+/** The sizes `validateProgram` allows. */
+export interface ProgramLimits {
+  days: number;
+  slots: number;
+  text: number;
+  scheme: { [K in keyof typeof SCHEME_LIMITS]: number };
+}
+/** What the editors, imports and the generator may create. */
+export const EDITOR_LIMITS: ProgramLimits = {
+  days: MAX_DAYS,
+  slots: MAX_SLOTS,
+  text: MAX_TEXT,
+  scheme: SCHEME_LIMITS,
+};
+/**
+ * What stored data and the user's own backups may hold. Older versions saved programs without the editor limits
+ * (more days, longer names and ids), and such data must still load: these only stop sizes that would stall the app.
+ */
+export const STORED_LIMITS: ProgramLimits = {
+  days: 100,
+  slots: 100,
+  text: 10_000,
+  scheme: { sets: 200, reps: 1000, repsMax: 1000, seconds: 36_000, secondsMax: 36_000 },
+};
+
+export function validateProgram(
+  p: Program,
+  catalog?: Record<string, Exercise>,
+  limits: ProgramLimits = EDITOR_LIMITS,
+): string[] {
+  return validateProgramByDay(p, catalog, limits).errors;
 }
 
 /**
@@ -241,7 +273,9 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
 export function validateProgramByDay(
   p: Program,
   catalog?: Record<string, Exercise>,
+  limits: ProgramLimits = EDITOR_LIMITS,
 ): { errors: string[]; days: (number | null)[] } {
+  const { days: maxDays, slots: maxSlots, text: maxText } = limits;
   const errors: string[] = [];
   const days: (number | null)[] = [];
   const owner = (day: number | null) => {
@@ -249,7 +283,7 @@ export function validateProgramByDay(
   };
   if (isReservedKey(p.template)) errors.push('Invalid program template.');
   if (p.days.length === 0) errors.push('Add at least one day.');
-  if (p.days.length > MAX_DAYS) errors.push(`A program has at most ${MAX_DAYS} days.`);
+  if (p.days.length > maxDays) errors.push(`A program has at most ${maxDays} days.`);
   if (!Number.isInteger(p.sessionsPerWeek) || p.sessionsPerWeek < 1 || p.sessionsPerWeek > 7)
     errors.push('Training days per week must be between 1 and 7.');
   if (p.startN !== undefined && !(Number.isInteger(p.startN) && p.startN >= 0))
@@ -270,9 +304,9 @@ export function validateProgramByDay(
   const pairOrder = new Map<string, string>();
   owner(null);
   for (const [dayIndex, day] of p.days.entries()) {
-    if (typeof day.name !== 'string' || day.name.trim() === '' || day.name.length > MAX_TEXT)
-      errors.push(`Day ${dayIndex + 1} needs a name of 1 to ${MAX_TEXT} letters.`);
-    if (day.slots.length > MAX_SLOTS) errors.push(`${day.name}: at most ${MAX_SLOTS} exercises a day.`);
+    if (typeof day.name !== 'string' || day.name.trim() === '' || day.name.length > maxText)
+      errors.push(`Day ${dayIndex + 1} needs a name of 1 to ${maxText} letters.`);
+    if (day.slots.length > maxSlots) errors.push(`${day.name}: at most ${maxSlots} exercises a day.`);
     if (day.slots.length === 0) errors.push(`${day.name} has no exercises.`);
     if (day.intensity !== undefined && !(day.intensity > 0 && day.intensity <= 1)) {
       errors.push(`${day.name}: intensity must be between 0 and 100 %.`);
@@ -305,8 +339,7 @@ export function validateProgramByDay(
       // A ladder can reach any of its steps, and a session keeps one result per exercise.
       for (const id of ladder ? ladder.steps.map((s) => s.exercise) : slotIds(slot)) {
         const name = nameIn(catalog, id);
-        if (id.length > MAX_TEXT)
-          errors.push(`${day.name}: the exercise id ${id.slice(0, 20)}… is too long.`);
+        if (id.length > maxText) errors.push(`${day.name}: the exercise id ${id.slice(0, 20)}… is too long.`);
         if (catalog && !Object.hasOwn(catalog, id)) errors.push(`${day.name}: unknown exercise ${id}.`);
         if (seen.has(id))
           errors.push(
@@ -325,7 +358,7 @@ export function validateProgramByDay(
       for (const scheme of new Set([slot.scheme, ...(Array.isArray(slot.stages) ? slot.stages : [])])) {
         // A stage that does not parse is reported with the stages below; here it only meets the scheme's limits.
         if (scheme !== slot.scheme && !tryParseScheme(scheme)) continue;
-        const problem = typeof scheme === 'string' ? schemeProblem(scheme) : 'invalid scheme';
+        const problem = typeof scheme === 'string' ? schemeProblem(scheme, limits.scheme) : 'invalid scheme';
         if (problem) errors.push(`${day.name}: ${problem}.`);
       }
       if (slot.progression !== undefined && !models.includes(slot.progression))
@@ -335,7 +368,7 @@ export function validateProgramByDay(
         !(
           Number.isInteger(slot.advanceAt) &&
           slot.advanceAt >= 1 &&
-          slot.advanceAt <= SCHEME_LIMITS.secondsMax
+          slot.advanceAt <= limits.scheme.secondsMax
         )
       )
         errors.push(`${day.name}: invalid advanceAt.`);

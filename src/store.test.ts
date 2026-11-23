@@ -952,7 +952,7 @@ describe('easing back after a break', () => {
       });
       expect(() => migratePersisted(state({}), 4)).not.toThrow();
       expect(() => migratePersisted(state({ skippedExercises: ['BARBELL_SQUAT'] }), 4)).not.toThrow();
-      for (const bad of [{}, 'BARBELL_SQUAT', [5], ['__proto__'], ['constructor@T2'], ['x'.repeat(101)]])
+      for (const bad of [{}, 'BARBELL_SQUAT', [5], ['__proto__'], ['constructor@T2'], ['x'.repeat(10_001)]])
         expect(() => migratePersisted(state({ skippedExercises: bad }), 4)).toThrow(/damaged/);
     });
   });

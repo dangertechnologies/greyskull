@@ -1,11 +1,12 @@
 import type { AppState, Exercise, Program, SessionLog } from './domain';
-import { validateProgram } from './domain';
+import { STORED_LIMITS, validateProgram } from './domain';
 import { NULLABLE_USER_FIELDS, USER_FIELDS } from './domain/exerciseFields';
 import { isReservedKey } from './domain/own';
 import type { OneProgramState } from './store';
 import {
   isEquipment,
   migratePersisted,
+  repairStored,
   restoreExercises,
   stateProblem,
   upgradeOneProgramState,
@@ -99,14 +100,16 @@ export function parseBackup(raw: string): BackupResult {
 
 function parse(raw: string): BackupResult {
   if (raw.length > MAX_BACKUP_BYTES) return { ok: false, error: BACKUP_TOO_LARGE };
-  let data: unknown;
+  let parsed: unknown;
   try {
-    data = JSON.parse(raw.trim());
+    parsed = JSON.parse(raw.trim());
   } catch {
     return { ok: false, error: 'That is not valid JSON.' };
   }
-  if (!isObject(data) || (data.version !== 2 && data.version !== 3))
+  if (!isObject(parsed) || (parsed.version !== 2 && parsed.version !== 3))
     return { ok: false, error: 'This is not a Greyskull v2 backup.' };
+  // The user's own data: what an older version let them save is filled in or loaded as it is (see `repairStored`).
+  const data = repairStored(parsed);
   const onePlan = data.version === 2;
   if (
     !isObject(data.exercises) ||
@@ -186,7 +189,7 @@ function parse(raw: string): BackupResult {
     if (!isObject(program) || !Array.isArray(program.days)) {
       return { ok: false, error: 'The program in the backup is invalid: it has no days' };
     }
-    const errors = validateProgram(program, state.exercises);
+    const errors = validateProgram(program, state.exercises, STORED_LIMITS);
     if (errors.length > 0) return { ok: false, error: `The program in the backup is invalid: ${errors[0]}` };
   }
 
