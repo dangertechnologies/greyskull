@@ -1,11 +1,11 @@
 import type { Exercise, ExerciseResult, SessionLog, Unit } from './domain';
-import { exerciseOfLift, toUnit, tryParseScheme } from './domain';
+import { exerciseOfLift, own, toUnit, tryParseScheme } from './domain';
 import { getLadder } from './domain/ladders';
 
 /** Exercise id and result for a lift key (see `resultFor`). */
 function entryFor(log: SessionLog, key: string): [string, ExerciseResult] | undefined {
   const id = exerciseOfLift(key);
-  const result = log.results[id];
+  const result = own(log.results, id);
   if (result && (result.lift ?? id) === key) return [id, result];
   return Object.entries(log.results).find(([, r]) => r.lift === key);
 }
@@ -89,7 +89,7 @@ export function seriesPoints(
         ? last
         : toUnit(result.tmKg ?? result.weightKg, unit);
     const label = ladder
-      ? `${exercises?.[id]?.name ?? id} · ${amount(top, timed)}`
+      ? `${own(exercises, id)?.name ?? id} · ${amount(top, timed)}`
       : timed
         ? amount(last, true)
         : undefined;
