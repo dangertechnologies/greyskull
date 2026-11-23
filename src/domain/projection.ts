@@ -9,17 +9,20 @@ export interface ProjectedSession {
   lifts: { exercise: string; scheme: Scheme; weightKg: number }[];
 }
 
-/** Simulate `count` plain-success sessions (light/medium days at their reduced weight) from `state.nextSession` (the draft is ignored). */
-export function project(state: AppState, count: number): ProjectedSession[] {
-  const { program } = state;
+/**
+ * Simulate `count` plain-success sessions of one program (light/medium days at their reduced weight) from its
+ * position; the draft is ignored. `n` numbers the projected sessions from `state.nextSession` (a list key only).
+ */
+export function project(state: AppState, programId: string, count: number): ProjectedSession[] {
+  const program = state.programs.find((p) => p.id === programId);
   if (!program) return [];
   const unit = state.unit;
   const barKg = toKg(unit === 'kg' ? state.inventory.barKg : state.inventory.barLb, unit);
-  const lifts: Record<string, LiftState> = { ...state.lifts };
+  const lifts: Record<string, LiftState> = { ...program.lifts };
   const out: ProjectedSession[] = [];
   for (let i = 0; i < count; i++) {
     const n = state.nextSession + i;
-    const session = sessionFor(program, n, lifts);
+    const session = sessionFor({ ...program, position: program.position + i }, lifts);
     const projected = session.slots.map((slot) => {
       const { exercise: id, lift: key, scheme, progression, week, advanceAt } = slot;
       const exercise = state.exercises[id];

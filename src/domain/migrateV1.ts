@@ -17,16 +17,11 @@ interface V1 {
   workoutPlan: V1Workout[];
 }
 
+/** The first version's data in the one-program shape; the store turns it into programs. */
 export type MigrationPatch = Pick<
   AppState,
-  | 'unit'
-  | 'program'
-  | 'lifts'
-  | 'sessions'
-  | 'nextSession'
-  | 'needsWeightConfirm'
-  | 'needsWeightConfirmSuspects'
->;
+  'unit' | 'sessions' | 'nextSession' | 'needsWeightConfirm' | 'needsWeightConfirmSuspects'
+> & { program: Program; lifts: Record<string, LiftState> };
 
 /** v1 weights exploded to millions; anything above 3× the start weight (or 400 kg) is not trusted. */
 const looksWrong = (current: number, initial: number): boolean =>
@@ -46,7 +41,7 @@ function isV1(value: unknown): value is V1 {
 }
 
 /**
- * Turns the v1 AsyncStorage blob (`GSLP_STATE_18`) into a v2 state patch. Pure: it never touches storage,
+ * Turns the v1 AsyncStorage blob (`GSLP_STATE_18`) into a one-program state patch. Pure: it never touches storage,
  * so the legacy key stays intact. Returns null when `raw` is not a completed v1 setup.
  */
 export function migrateV1(

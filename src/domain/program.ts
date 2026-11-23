@@ -1,6 +1,6 @@
 import type { PluginId } from '../config/plans';
 import { PLANS } from '../config/plans';
-import type { Exercise, LiftState, Program, ProgressionModel, Scheme, Slot } from './types';
+import type { ActiveProgram, Exercise, Group, LiftState, Program, ResolvedSlot, Scheme, Slot } from './types';
 
 /** Programs of the built-in plans, by plan id (see src/config/plans.ts). */
 export const TEMPLATES: Record<string, Program> = Object.fromEntries(PLANS.map((p) => [p.id, p.program]));
@@ -92,16 +92,8 @@ export interface ResolvedSession {
   dayName: string;
   /** Fraction of working weight for the day (1 unless the plan marks it light/medium). */
   intensity: number;
-  slots: {
-    exercise: string;
-    lift: string;
-    scheme: Scheme;
-    progression: ProgressionModel;
-    stages?: Scheme[];
-    advanceAt?: number;
-    week?: number;
-    lastInWeek?: boolean;
-  }[];
+  slots: ResolvedSlot[];
+  groups?: Group[];
 }
 
 /** Exercise id behind a lift key: `'BARBELL_SQUAT@T2'` → `'BARBELL_SQUAT'`. */
@@ -112,16 +104,17 @@ export function liftKeyOf(slot: Slot, exercise?: string): string {
   return slot.lift ?? exercise ?? (typeof slot.exercise === 'string' ? slot.exercise : slot.exercise[0]);
 }
 
-/** Which day and exercises session `n` (0-based) is. Pure and derived on demand from the program. */
+/**
+ * The program's next session (day and exercises at `program.position`). Pure and derived on demand.
+ * Days, alternating pairs and 5/3/1 weeks all count from the program's own position.
+ */
 export function sessionFor(
-  program: Program,
-  session: number,
-  lifts: Record<string, LiftState> = {},
+  program: ActiveProgram,
+  lifts: Record<string, LiftState> = program.lifts,
 ): ResolvedSession {
-  // Days, alternating pairs and 5/3/1 weeks count from the session the program started at.
-  const n = Math.max(0, session - (program.startN ?? 0));
+  const n = Math.max(0, program.position);
   const len = program.days.length;
-  const resolve = (at: number) =>
+  const resolve = (at: number): ResolvedSlot[] =>
     program.days[at % len].slots.map((slot) => {
       let exercise: string;
       if (typeof slot.exercise === 'string') exercise = slot.exercise;
@@ -160,7 +153,12 @@ export function sessionFor(
       : slot,
   );
   const day = program.days[n % len];
-  return { dayName: day.name, intensity: day.intensity ?? 1, slots };
+  return {
+    dayName: day.name,
+    intensity: day.intensity ?? 1,
+    slots,
+    ...(day.groups ? { groups: day.groups } : {}),
+  };
 }
 
 export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {

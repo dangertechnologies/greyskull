@@ -2,8 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { builtInExercises, CATALOG_VERSION, refreshCatalog } from './catalog';
+import { getPlan } from './config/plans';
 import type {
+  ActiveProgram,
   AppState,
+  CustomPlan,
+  Equipment,
   Exercise,
   ExerciseResult,
   LiftState,
@@ -30,22 +34,38 @@ import {
   toKg,
   validateProgram,
 } from './domain';
+import { USER_FIELDS } from './domain/exerciseFields';
+import { createFileStorage } from './storage';
 
+/** AsyncStorage entry the state lived in before it moved to a file (read once, then kept untouched). */
 export const STORAGE_KEY = 'gslp-v2';
 export const LEGACY_KEY = 'GSLP_STATE_18';
 
 export const MAX_REST_SECONDS = 300;
 
+/** Bump when the persisted shape changes and teach `migratePersisted` the step. */
+export const STORE_VERSION = 4;
+
+export const storage = createFileStorage({ version: STORE_VERSION });
+/** zustand reports a failed hydration to `onRehydrateStorage` instead of rejecting. */
+let hydrationError: unknown = null;
+/** Counts `initStore` calls, so only the latest one reports how loading went. */
+let loads = 0;
+
 export function initialState(): AppState {
   return {
-    version: 2,
+    version: 3,
     unit: 'kg',
     inventory: JSON.parse(JSON.stringify(DEFAULT_INVENTORY)) as PlateInventory,
     minimalist: false,
     restSeconds: 90,
     exercises: builtInExercises(),
-    program: null,
-    lifts: {},
+    programs: [],
+    customPlans: [],
+    equipment: [],
+    bands: [],
+    breakDeload: true,
+    healthSync: false,
     sessions: [],
     nextSession: 0,
     draft: null,
@@ -69,22 +89,40 @@ interface Actions {
     hapticsEnabled?: boolean;
     dynamicColor?: boolean;
   }): void;
-  setProgram(program: Program): void;
-  /** Change progression rules in place (keeps the workout in progress, unlike `setProgram`). */
-  updateRules(rules: Rules): void;
-  setSessionsPerWeek(days: number): void;
-  setLift(id: string, patch: Partial<LiftState>): void;
-  startSession(n: number): SessionLog;
+  /** Start running a program; returns its id. */
+  addProgram(input: Program & { name: string }): string;
+  /** Replace a program's days and rules. The same plan keeps its position and lifts; ends its workout. */
+  updateProgram(id: string, program: Program): void;
+  removeProgram(id: string): void;
+  pauseProgram(id: string, paused: boolean): void;
+  renameProgram(id: string, name: string): void;
+  /** Change progression rules in place (keeps the workout in progress, unlike `updateProgram`). */
+  updateRules(id: string, rules: Rules): void;
+  setSessionsPerWeek(id: string, days: number): void;
+  setLift(programId: string, key: string, patch: Partial<LiftState>): void;
+  setLiftStep(programId: string, key: string, step: number): void;
+  /** The program's workout: the open one when it belongs to this program, else a new one. */
+  startSession(programId: string): SessionLog;
+  /** Drop the workout in progress without logging it (its session id stays used). */
+  discardDraft(): void;
   logSet(exerciseId: string, setIndex: number, reps: number): void;
   setDraftWeight(exerciseId: string, kg: number): void;
   finishSession(): Record<string, Outcome>;
-  skipSession(): void;
-  /** Take back the last skip (only while it is still the latest entry). */
-  undoSkip(): void;
+  skipSession(programId: string): void;
+  /** Take back the program's last skip (only while it is still the latest entry of the history). */
+  undoSkip(programId: string): void;
   editSession(n: number, results: Record<string, ExerciseResult>): void;
+  saveCustomPlan(plan: CustomPlan): void;
+  deleteCustomPlan(id: string): void;
+  setEquipment(list: Equipment[]): void;
+  setBands(list: { id: string; label: string }[]): void;
+  setBreakDeload(on: boolean): void;
+  setHealthSync(on: boolean): void;
+  setHealthId(n: number, id: string): void;
   upsertExercise(exercise: Exercise): void;
   deleteExercise(id: string): string[];
-  confirmWeights(weights: Record<string, number>): void;
+  /** Weights checked after importing the first version's data (first program unless `programId`). */
+  confirmWeights(weights: Record<string, number>, programId?: string): void;
   exportJson(): string;
   /** Replace everything with a validated backup (see `parseBackup`). */
   importBackup(state: AppState): void;
@@ -93,7 +131,11 @@ interface Actions {
   importLegacy(raw?: string): Promise<boolean>;
 }
 
-export type Store = AppState & { hydrated: boolean } & Actions;
+export type Store = AppState & {
+  hydrated: boolean;
+  /** Set when stored data could not be read; nothing is written until the user recovers. */
+  storageError: string | null;
+} & Actions;
 
 const STATE_KEYS = Object.keys(initialState()) as (keyof AppState)[];
 
@@ -104,38 +146,201 @@ export function snapshot(s: AppState): AppState {
   return out as unknown as AppState;
 }
 
+const SHIPPED = builtInExercises();
+const editedCache = new WeakMap<Exercise, boolean>();
+const sameField = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * What is stored of the exercises: custom ones whole, built-ins only when the user changed one of their user
+ * fields, and then only those fields. The shipped catalog fills in the rest on launch.
+ */
+export function persistedExercises(exercises: Record<string, Exercise>): Record<string, Exercise> {
+  const out: Record<string, Exercise> = {};
+  for (const [id, e] of Object.entries(exercises)) {
+    const shipped = SHIPPED[id];
+    if (!shipped) {
+      out[id] = e;
+      continue;
+    }
+    let edited = editedCache.get(e);
+    if (edited === undefined) {
+      edited = USER_FIELDS.some((f) => !sameField(e[f], shipped[f]));
+      editedCache.set(e, edited);
+    }
+    if (edited) out[id] = userFieldsOf(e);
+  }
+  return out;
+}
+
+const userFieldsOf = (e: Exercise): Exercise => {
+  const out: Record<string, unknown> = { id: e.id };
+  for (const f of USER_FIELDS) if (e[f] !== undefined) out[f] = e[f];
+  return out as unknown as Exercise;
+};
+
+/** The full exercise map from stored entries: shipped built-ins with the user's fields on top, plus custom ones. */
+export function restoreExercises(stored: Record<string, Exercise> | undefined): Record<string, Exercise> {
+  const out = refreshCatalog(stored ?? {});
+  const shipped = builtInExercises();
+  for (const [id, e] of Object.entries(stored ?? {})) {
+    if (!shipped[id]) continue;
+    out[id] = { ...shipped[id], ...userFieldsOf(e) };
+  }
+  return out;
+}
+
+/** Persisted snapshot: the state with exercises cut down to what the catalog cannot rebuild. */
+export const persisted = (s: AppState): AppState => ({
+  ...snapshot(s),
+  exercises: persistedExercises(s.exercises),
+});
+
 const barKg = (inv: PlateInventory, unit: Unit): number => toKg(unit === 'kg' ? inv.barKg : inv.barLb, unit);
 
 export function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: Unit): number {
+  if (exercise.kind === 'bodyweight') return 0;
   if (exercise.kind === 'barbell') return barKg(inv, unit);
   return toKg((exercise.step ?? DEFAULT_STEP)[unit], unit);
 }
 
-/** Bump when the persisted shape changes and teach `migratePersisted` the step. */
-export const STORE_VERSION = 3;
+/** Lift keys of ladder slots: they track a step, not a weight, and start at 0 kg. */
+const ladderKeys = (p: Program): Set<string> =>
+  new Set(p.days.flatMap((d) => d.slots.filter((s) => s.ladder).map((s) => s.lift ?? String(s.exercise))));
+
+/** Lifts a program needs that `existing` lacks, at their starting weights. */
+function startingLifts(
+  program: Program,
+  exercises: Record<string, Exercise>,
+  inv: PlateInventory,
+  unit: Unit,
+  existing: Record<string, LiftState> = {},
+): Record<string, LiftState> {
+  const out = { ...existing };
+  const ladders = ladderKeys(program);
+  for (const key of liftKeysOf(program)) {
+    if (out[key]) continue;
+    const exercise = exercises[exerciseOfLift(key)];
+    const kg = ladders.has(key) || !exercise ? 0 : startingWeightKg(exercise, inv, unit);
+    out[key] = { weightKg: kg, startKg: kg, fails: 0 };
+  }
+  return out;
+}
+
+/** Bodyweight and ladder lifts are unweighted: 0 kg is a valid weight for them. */
+function unweighted(program: ActiveProgram | undefined, key: string, exercises: Record<string, Exercise>) {
+  return exercises[exerciseOfLift(key)]?.kind === 'bodyweight' || (!!program && ladderKeys(program).has(key));
+}
+
+const planName = (template: string): string => getPlan(template)?.name ?? 'Custom program';
+
+function newProgramId(template: string, programs: ActiveProgram[]): string {
+  const base = `${template}-${Date.now().toString(36)}`;
+  let id = base;
+  for (let i = 2; programs.some((p) => p.id === id); i++) id = `${base}-${i}`;
+  return id;
+}
+
+/** State as stored before several programs could run at once (one program, one set of lifts). */
+export type OneProgramState = Omit<AppState, 'version' | 'programs'> & {
+  version: 2;
+  program: Program | null;
+  lifts: Record<string, LiftState>;
+};
 
 /**
- * Bring a persisted snapshot from any earlier store version up to date. v2 → v3 added `archived` on
- * exercises (optional, nothing to rewrite), so every step is "fill in what is missing"; the last-writer
- * fields (`appearance`, `hapticsEnabled`, `catalogVersion`, `legacyChecked`) default via `initialState`.
+ * One-program state → several programs. The program becomes the first (and only) active program with the old
+ * lifts; its position is the number of sessions since it started. Old logs keep no program id (the user could
+ * switch plans, so they may belong to an earlier one). An open draft is tied to the program with its exercises
+ * resolved now, and its session id stays reserved. Everything missing gets its default.
  */
-export function migratePersisted(persisted: unknown, _fromVersion: number): Store {
+export function upgradeOneProgramState(old: Partial<OneProgramState>): AppState {
   const base = initialState();
-  const old = (typeof persisted === 'object' && persisted !== null ? persisted : {}) as Partial<AppState>;
+  const { program, lifts, version: _version, ...rest } = old;
+  const nextSession = rest.nextSession ?? 0;
+  const programs: ActiveProgram[] = [];
+  let draft = rest.draft ?? null;
+  let next = nextSession;
+  if (program) {
+    const startN = program.startN ?? 0;
+    // `startN` is kept so history from before this version can be matched to the program.
+    const active: ActiveProgram = {
+      ...program,
+      startN,
+      id: newProgramId(program.template, []),
+      name: planName(program.template),
+      position: Math.max(0, nextSession - startN),
+      lifts: { ...lifts },
+    };
+    programs.push(active);
+    if (draft) {
+      const position = Math.max(0, draft.n - startN);
+      draft = {
+        ...draft,
+        programId: active.id,
+        programName: active.name,
+        position,
+        slots: sessionFor({ ...active, position }).slots,
+      };
+      next = Math.max(next, draft.n + 1);
+    }
+  } else {
+    // A workout without a program can never be finished.
+    draft = null;
+  }
   return {
     ...base,
-    ...old,
-    version: 2,
-    inventory: { ...base.inventory, ...old.inventory },
-    exercises: old.exercises ?? base.exercises,
-  } as Store;
+    ...rest,
+    version: 3,
+    inventory: { ...base.inventory, ...rest.inventory },
+    exercises: rest.exercises ?? base.exercises,
+    programs,
+    customPlans: rest.customPlans ?? [],
+    nextSession: next,
+    draft,
+  };
 }
+
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+
+/**
+ * Bring a persisted snapshot from any earlier store version up to date. Up to version 3 the state held one
+ * program (see `upgradeOneProgramState`); version 4 holds several. Fields added later default via
+ * `initialState`.
+ */
+export function migratePersisted(persistedState: unknown, fromVersion: number): AppState {
+  const old = isObject(persistedState) ? persistedState : {};
+  if (fromVersion < 4 || !Array.isArray(old.programs)) {
+    return upgradeOneProgramState(old as Partial<OneProgramState>);
+  }
+  const base = initialState();
+  const state = old as Partial<AppState>;
+  return {
+    ...base,
+    ...state,
+    version: 3,
+    inventory: { ...base.inventory, ...state.inventory },
+    exercises: state.exercises ?? {},
+  };
+}
+
+const mapProgram = (
+  programs: ActiveProgram[],
+  id: string,
+  change: (p: ActiveProgram) => ActiveProgram,
+): ActiveProgram[] => programs.map((p) => (p.id === id ? change(p) : p));
+
+/** Keeps `sessions` in ascending id order (a draft's id is reserved earlier than later skips'). */
+const insertLog = (sessions: SessionLog[], log: SessionLog): SessionLog[] => {
+  const at = sessions.findIndex((s) => s.n > log.n);
+  return at === -1 ? [...sessions, log] : [...sessions.slice(0, at), log, ...sessions.slice(at)];
+};
 
 export const useStore = create<Store>()(
   persist(
     (set, get) => ({
       ...initialState(),
       hydrated: false,
+      storageError: null,
 
       setUnit: (unit) =>
         set((s) => {
@@ -146,12 +351,15 @@ export const useStore = create<Store>()(
             const exercise = s.exercises[exerciseOfLift(id)];
             return exercise && kg > 0 ? roundForExercise(kg, exercise, 'nearest', s.inventory, unit) : kg;
           };
-          const lifts = Object.fromEntries(
-            Object.entries(s.lifts).map(([id, l]) => [
-              id,
-              { ...l, weightKg: snap(id, l.weightKg), startKg: snap(id, l.startKg) },
-            ]),
-          );
+          const programs = s.programs.map((p) => ({
+            ...p,
+            lifts: Object.fromEntries(
+              Object.entries(p.lifts).map(([id, l]) => [
+                id,
+                { ...l, weightKg: snap(id, l.weightKg), startKg: snap(id, l.startKg) },
+              ]),
+            ),
+          }));
           const draft = s.draft && {
             ...s.draft,
             results: Object.fromEntries(
@@ -165,7 +373,7 @@ export const useStore = create<Store>()(
               ]),
             ),
           };
-          return { unit, lifts, draft };
+          return { unit, programs, draft };
         }),
       setInventory: (patch) => set((s) => ({ inventory: { ...s.inventory, ...patch } })),
       setSettings: ({ minimalist, restSeconds, appearance, hapticsEnabled, dynamicColor }) =>
@@ -180,51 +388,118 @@ export const useStore = create<Store>()(
               : Math.min(MAX_REST_SECONDS, Math.max(0, Math.round(restSeconds))),
         })),
 
-      setProgram: (input) => {
-        const { exercises, lifts, inventory, unit, nextSession, program: current } = get();
-        // Editing the same plan keeps its rotation; a different plan starts at its first day.
-        const startN =
-          current && current.template === input.template ? current.startN : nextSession || undefined;
-        const program = { ...input, startN };
-        const errors = validateProgram(program, exercises);
+      addProgram: ({ name, startN: _startN, ...input }) => {
+        const { exercises, inventory, unit, programs } = get();
+        const errors = validateProgram(input, exercises);
         if (errors.length > 0) throw new Error(errors.join('\n'));
-        const next = { ...lifts };
-        for (const id of liftKeysOf(program)) {
-          const exercise = exercises[exerciseOfLift(id)];
-          if (exercise.kind === 'bodyweight' || next[id]) continue;
-          const kg = startingWeightKg(exercise, inventory, unit);
-          next[id] = { weightKg: kg, startKg: kg, fails: 0 };
-        }
-        set({ program, lifts: next, draft: null });
+        const id = newProgramId(input.template, programs);
+        const program: ActiveProgram = {
+          ...input,
+          id,
+          name: name.trim() || planName(input.template),
+          position: 0,
+          lifts: startingLifts(input, exercises, inventory, unit),
+        };
+        set({ programs: [...programs, program] });
+        return id;
       },
 
-      updateRules: (rules) => set((s) => (s.program ? { program: { ...s.program, rules } } : {})),
-
-      setSessionsPerWeek: (days) => {
-        if (!Number.isInteger(days) || days < 1 || days > 7)
-          throw new Error('Training days must be between 1 and 7');
-        set((s) => (s.program ? { program: { ...s.program, sessionsPerWeek: days } } : {}));
-      },
-
-      setLift: (id, patch) => {
-        if (patch.weightKg !== undefined && !(patch.weightKg > 0)) throw new Error('Weight must be positive');
-        set((s) => {
-          const existing = s.lifts[id];
-          if (existing) return { lifts: { ...s.lifts, [id]: { ...existing, ...patch } } };
-          const weightKg = patch.weightKg ?? barKg(s.inventory, s.unit);
-          return { lifts: { ...s.lifts, [id]: { weightKg, startKg: weightKg, fails: 0, ...patch } } };
+      updateProgram: (id, { template, days, sessionsPerWeek, rules }) => {
+        const input: Program = { template, days, sessionsPerWeek, rules };
+        const { exercises, inventory, unit, programs, draft } = get();
+        const current = programs.find((p) => p.id === id);
+        if (!current) throw new Error('No program');
+        const errors = validateProgram(input, exercises);
+        if (errors.length > 0) throw new Error(errors.join('\n'));
+        const same = current.template === input.template;
+        // Another plan starts at its first day; lifts it shares with the old plan keep their weights.
+        const program: ActiveProgram = {
+          ...current,
+          ...input,
+          startN: same ? current.startN : undefined,
+          name: same ? current.name : planName(input.template),
+          position: same ? current.position : 0,
+          lifts: startingLifts(input, exercises, inventory, unit, current.lifts),
+        };
+        set({
+          programs: mapProgram(programs, id, () => program),
+          draft: draft?.programId === id ? null : draft,
         });
       },
 
-      startSession: (n) => {
-        const { draft, program, lifts, exercises, inventory, unit } = get();
-        if (draft?.n === n) return draft;
+      removeProgram: (id) =>
+        set((s) => ({
+          programs: s.programs.filter((p) => p.id !== id),
+          draft: s.draft?.programId === id ? null : s.draft,
+        })),
+
+      pauseProgram: (id, paused) =>
+        set((s) => ({ programs: mapProgram(s.programs, id, (p) => ({ ...p, paused })) })),
+
+      renameProgram: (id, name) => {
+        const trimmed = name.trim();
+        if (!trimmed) throw new Error('Name the program');
+        set((s) => ({ programs: mapProgram(s.programs, id, (p) => ({ ...p, name: trimmed })) }));
+      },
+
+      updateRules: (id, rules) =>
+        set((s) => ({ programs: mapProgram(s.programs, id, (p) => ({ ...p, rules })) })),
+
+      setSessionsPerWeek: (id, days) => {
+        if (!Number.isInteger(days) || days < 1 || days > 7)
+          throw new Error('Training days must be between 1 and 7');
+        set((s) => ({ programs: mapProgram(s.programs, id, (p) => ({ ...p, sessionsPerWeek: days })) }));
+      },
+
+      setLift: (programId, key, patch) => {
+        const { programs, exercises } = get();
+        const program = programs.find((p) => p.id === programId);
         if (!program) throw new Error('No program');
-        const session = sessionFor(program, n, lifts);
+        const zeroOk = unweighted(program, key, exercises);
+        const kg = patch.weightKg;
+        if (kg !== undefined && !(kg > 0) && !(kg === 0 && zeroOk))
+          throw new Error('Weight must be positive');
+        set((s) => ({
+          programs: mapProgram(s.programs, programId, (p) => {
+            const existing = p.lifts[key];
+            if (existing) return { ...p, lifts: { ...p.lifts, [key]: { ...existing, ...patch } } };
+            const weightKg = patch.weightKg ?? (zeroOk ? 0 : barKg(s.inventory, s.unit));
+            return {
+              ...p,
+              lifts: { ...p.lifts, [key]: { weightKg, startKg: weightKg, fails: 0, ...patch } },
+            };
+          }),
+        }));
+      },
+
+      setLiftStep: (programId, key, step) => {
+        if (!Number.isInteger(step) || step < 0) throw new Error('Invalid step');
+        set((s) => ({
+          programs: mapProgram(s.programs, programId, (p) => ({
+            ...p,
+            lifts: {
+              ...p.lifts,
+              [key]: { ...(p.lifts[key] ?? { weightKg: 0, startKg: 0, fails: 0 }), step },
+            },
+          })),
+        }));
+      },
+
+      startSession: (programId) => {
+        const { draft, programs, exercises, inventory, unit, nextSession } = get();
+        if (draft) {
+          if (draft.programId === programId) return draft;
+          throw new Error('Another workout is in progress');
+        }
+        const program = programs.find((p) => p.id === programId);
+        if (!program) throw new Error('No program');
+        const { lifts } = program;
+        const session = sessionFor(program);
         const results: Record<string, ExerciseResult> = {};
         for (const { exercise: id, lift, scheme, progression, week } of session.slots) {
           const exercise = exercises[id];
-          const working = lifts[lift]?.weightKg ?? barKg(inventory, unit);
+          const working =
+            lifts[lift]?.weightKg ?? (exercise ? startingWeightKg(exercise, inventory, unit) : 0);
           const sets: SetResult[] =
             progression === '531' && exercise
               ? fiveThreeOneSets(working, week ?? 0, exercise, inventory, unit)
@@ -242,16 +517,22 @@ export const useStore = create<Store>()(
           };
         }
         const created: SessionLog = {
-          n,
+          n: nextSession,
           dayName: session.dayName,
           startedAt: new Date().toISOString(),
           results,
           order: session.slots.map((s) => s.exercise),
           ...(session.intensity < 1 ? { intensity: session.intensity } : {}),
+          programId,
+          programName: program.name,
+          position: program.position,
+          slots: session.slots,
         };
-        set({ draft: created });
+        set({ draft: created, nextSession: nextSession + 1 });
         return created;
       },
+
+      discardDraft: () => set({ draft: null }),
 
       logSet: (exerciseId, setIndex, reps) =>
         set((s) => {
@@ -268,26 +549,35 @@ export const useStore = create<Store>()(
       setDraftWeight: (exerciseId, kg) =>
         set((s) => {
           const result = s.draft?.results[exerciseId];
-          if (!s.draft || !result || result.sets.some((set) => set.kg !== undefined) || !(kg > 0)) return {};
+          if (!s.draft || !result || result.sets.some((set) => set.kg !== undefined)) return {};
+          const program = s.programs.find((p) => p.id === s.draft?.programId);
+          const zeroOk = unweighted(program, result.lift ?? exerciseId, s.exercises);
+          if (!(kg > 0) && !(kg === 0 && zeroOk)) return {};
           return {
             draft: { ...s.draft, results: { ...s.draft.results, [exerciseId]: { ...result, weightKg: kg } } },
           };
         }),
 
       finishSession: () => {
-        const { draft, program, lifts, exercises, inventory, unit } = get();
+        const { draft, programs, exercises, inventory, unit } = get();
         if (!draft) throw new Error('No session in progress');
+        const program = programs.find((p) => p.id === draft.programId);
         if (!program) throw new Error('No program');
+        const { lifts } = program;
         const outcomes: Record<string, Outcome> = {};
         const nextLifts = { ...lifts };
-        const slots = new Map(sessionFor(program, draft.n, lifts).slots.map((s) => [s.exercise, s]));
-        for (const id of draft.order) {
+        // Drafts carry their resolved exercises; only a draft from before that was stored lacks them.
+        const slots =
+          draft.slots ?? sessionFor({ ...program, position: draft.position ?? program.position }).slots;
+        for (const slot of slots) {
+          const id = slot.exercise;
           const exercise = exercises[id];
           const result = draft.results[id];
           if (!exercise || !result) continue;
-          const slot = slots.get(id);
-          const key = slot?.lift ?? id;
-          const lift = lifts[key] ?? { weightKg: result.weightKg, startKg: result.weightKg, fails: 0 };
+          const key = slot.lift;
+          // The lift state progression starts from (easing back after a long break changes this).
+          const base = lifts[key];
+          const lift = base ?? { weightKg: result.weightKg, startKg: result.weightKg, fails: 0 };
           const outcome = nextLift(lift, result, program.rules, exercise, inventory, unit, {
             ...slot,
             intensity: draft.intensity ?? 1,
@@ -295,40 +585,45 @@ export const useStore = create<Store>()(
           outcomes[id] = outcome;
           if (outcome.change !== 'none') nextLifts[key] = outcome.next;
         }
+        const { slots: _slots, ...log } = draft;
         set((s) => ({
-          sessions: [...s.sessions, { ...draft, finishedAt: new Date().toISOString() }],
-          lifts: nextLifts,
-          nextSession: draft.n + 1,
+          sessions: insertLog(s.sessions, { ...log, finishedAt: new Date().toISOString() }),
+          programs: mapProgram(s.programs, program.id, (p) => ({
+            ...p,
+            lifts: nextLifts,
+            position: (draft.position ?? p.position) + 1,
+          })),
+          nextSession: Math.max(s.nextSession, draft.n + 1),
           draft: null,
         }));
         return outcomes;
       },
 
-      skipSession: () =>
+      skipSession: (programId) =>
         set((s) => {
+          const program = s.programs.find((p) => p.id === programId);
+          if (!program) return {};
           const now = new Date().toISOString();
           // Skipping the last week-3 session of a lift still ends its 5/3/1 cycle: the template raises the
           // training max whatever happens in that session, so do it here and keep the old state for Undo.
-          const lifts = { ...s.lifts };
+          const lifts = { ...program.lifts };
           const restore: Record<string, LiftState> = {};
-          if (s.program) {
-            for (const slot of sessionFor(s.program, s.nextSession, s.lifts).slots) {
-              const lift = s.lifts[slot.lift];
-              const exercise = s.exercises[slot.exercise];
-              if (slot.progression !== '531' || !slot.lastInWeek || slot.week !== 2 || !lift || !exercise)
-                continue;
-              const sets = [5, 3, 1].map((reps, i) => ({ target: i === 2 ? null : reps, reps }));
-              lifts[slot.lift] = nextLift(
-                lift,
-                { weightKg: lift.weightKg, sets },
-                s.program.rules,
-                exercise,
-                s.inventory,
-                s.unit,
-                slot,
-              ).next;
-              restore[slot.lift] = lift;
-            }
+          for (const slot of sessionFor(program).slots) {
+            const lift = program.lifts[slot.lift];
+            const exercise = s.exercises[slot.exercise];
+            if (slot.progression !== '531' || !slot.lastInWeek || slot.week !== 2 || !lift || !exercise)
+              continue;
+            const sets = [5, 3, 1].map((reps, i) => ({ target: i === 2 ? null : reps, reps }));
+            lifts[slot.lift] = nextLift(
+              lift,
+              { weightKg: lift.weightKg, sets },
+              program.rules,
+              exercise,
+              s.inventory,
+              s.unit,
+              slot,
+            ).next;
+            restore[slot.lift] = lift;
           }
           const skipped: SessionLog = {
             n: s.nextSession,
@@ -338,66 +633,124 @@ export const useStore = create<Store>()(
             results: {},
             order: [],
             skipped: true,
+            programId,
+            programName: program.name,
+            position: program.position,
             ...(Object.keys(restore).length > 0 ? { restore } : {}),
           };
-          return { sessions: [...s.sessions, skipped], lifts, nextSession: s.nextSession + 1, draft: null };
+          return {
+            sessions: insertLog(s.sessions, skipped),
+            programs: mapProgram(s.programs, programId, (p) => ({ ...p, lifts, position: p.position + 1 })),
+            nextSession: s.nextSession + 1,
+            draft: s.draft?.programId === programId ? null : s.draft,
+          };
         }),
 
-      undoSkip: () =>
+      undoSkip: (programId) =>
         set((s) => {
           const last = s.sessions[s.sessions.length - 1];
-          if (!last?.skipped || last.n !== s.nextSession - 1) return {};
+          // A workout of this program started after the skip sits on the next day: leave both alone.
+          if (!last?.skipped || last.programId !== programId || s.draft?.programId === programId) return {};
           return {
             sessions: s.sessions.slice(0, -1),
-            lifts: { ...s.lifts, ...last.restore },
-            nextSession: last.n,
+            programs: mapProgram(s.programs, programId, (p) => ({
+              ...p,
+              lifts: { ...p.lifts, ...last.restore },
+              position: Math.max(0, p.position - 1),
+            })),
           };
         }),
 
       editSession: (n, results) =>
         set((s) => ({ sessions: s.sessions.map((log) => (log.n === n ? { ...log, results } : log)) })),
 
+      saveCustomPlan: (plan) => {
+        const name = plan.name.trim();
+        if (!plan.id || !name) throw new Error('A plan needs an id and a name');
+        const errors = validateProgram(plan.program, get().exercises);
+        if (errors.length > 0) throw new Error(errors.join('\n'));
+        set((s) => {
+          const saved = { ...plan, name };
+          const exists = s.customPlans.some((p) => p.id === plan.id);
+          return {
+            customPlans: exists
+              ? s.customPlans.map((p) => (p.id === plan.id ? saved : p))
+              : [...s.customPlans, saved],
+          };
+        });
+      },
+
+      deleteCustomPlan: (id) => set((s) => ({ customPlans: s.customPlans.filter((p) => p.id !== id) })),
+
+      setEquipment: (list) => set({ equipment: [...new Set(list)] }),
+      setBands: (list) => set({ bands: list }),
+      setBreakDeload: (on) => set({ breakDeload: on }),
+      setHealthSync: (on) => set({ healthSync: on }),
+      setHealthId: (n, id) =>
+        set((s) => ({ sessions: s.sessions.map((log) => (log.n === n ? { ...log, healthId: id } : log)) })),
+
       upsertExercise: (exercise) => set((s) => ({ exercises: { ...s.exercises, [exercise.id]: exercise } })),
 
       deleteExercise: (id) => {
-        const { exercises, program } = get();
+        const { exercises, programs, customPlans } = get();
         const exercise = exercises[id];
         if (!exercise) return [];
         if (!exercise.custom) throw new Error('Built-in exercises cannot be deleted');
-        const using = (program?.days ?? []).filter((d) =>
-          d.slots.some((slot) =>
-            (typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise).includes(id),
+        const uses = (p: Program) =>
+          p.days.filter((d) =>
+            d.slots.some((slot) =>
+              (typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise).includes(id),
+            ),
+          );
+        const using = [
+          ...programs.flatMap((p) =>
+            uses(p).map((d) => (programs.length > 1 ? `${p.name}: ${d.name}` : d.name)),
           ),
-        );
-        if (using.length > 0) return using.map((d) => d.name);
+          ...customPlans.flatMap((plan) => uses(plan.program).map((d) => `${plan.name}: ${d.name}`)),
+        ];
+        if (using.length > 0) return using;
         set((s) => {
           // Also drops tier keys such as `<id>@T2`.
-          const lifts = Object.fromEntries(
-            Object.entries(s.lifts).filter(([key]) => exerciseOfLift(key) !== id),
-          );
+          const programs = s.programs.map((p) => ({
+            ...p,
+            lifts: Object.fromEntries(Object.entries(p.lifts).filter(([key]) => exerciseOfLift(key) !== id)),
+          }));
           // History keeps the exercise's name: archive instead of deleting once a session used it.
           if (s.sessions.some((log) => id in log.results)) {
-            return { exercises: { ...s.exercises, [id]: { ...exercise, archived: true } }, lifts };
+            return { exercises: { ...s.exercises, [id]: { ...exercise, archived: true } }, programs };
           }
           const { [id]: _removed, ...rest } = s.exercises;
-          return { exercises: rest, lifts };
+          return { exercises: rest, programs };
         });
         return [];
       },
 
-      confirmWeights: (weights) =>
+      confirmWeights: (weights, programId) =>
         set((s) => {
-          const lifts = { ...s.lifts };
-          for (const [id, kg] of Object.entries(weights)) {
-            if (!(kg > 0)) continue;
-            lifts[id] = { ...(lifts[id] ?? { weightKg: kg, startKg: kg, fails: 0 }), weightKg: kg };
-          }
-          return { lifts, needsWeightConfirm: false, needsWeightConfirmSuspects: [] };
+          const target = programId ?? s.programs[0]?.id;
+          return {
+            programs: target
+              ? mapProgram(s.programs, target, (p) => {
+                  const lifts = { ...p.lifts };
+                  for (const [id, kg] of Object.entries(weights)) {
+                    if (!(kg > 0)) continue;
+                    lifts[id] = { ...(lifts[id] ?? { weightKg: kg, startKg: kg, fails: 0 }), weightKg: kg };
+                  }
+                  return { ...p, lifts };
+                })
+              : s.programs,
+            needsWeightConfirm: false,
+            needsWeightConfirmSuspects: [],
+          };
         }),
 
-      exportJson: () => JSON.stringify(snapshot(get()), null, 2),
+      exportJson: () => JSON.stringify(persisted(get()), null, 2),
 
-      importBackup: (state) => set({ ...snapshot(state), legacyChecked: true }),
+      importBackup: (state) => {
+        // Restoring a backup is how the user recovers from unreadable data: it may replace the file.
+        if (get().storageError) storage.allowWrites();
+        set({ ...snapshot(state), legacyChecked: true, storageError: null });
+      },
 
       reset: () => set({ ...initialState(), legacyChecked: true }),
 
@@ -405,7 +758,16 @@ export const useStore = create<Store>()(
         const data = raw ?? (await AsyncStorage.getItem(LEGACY_KEY));
         const migrated = data === null ? null : migrateV1(data, get().exercises);
         if (!migrated) return false;
-        set(migrated.patch);
+        const current = snapshot(get());
+        set(
+          upgradeOneProgramState({
+            ...current,
+            version: 2,
+            ...migrated.patch,
+            draft: null,
+            exercises: current.exercises,
+          }),
+        );
         return true;
       },
     }),
@@ -413,31 +775,61 @@ export const useStore = create<Store>()(
       name: STORAGE_KEY,
       version: STORE_VERSION,
       migrate: migratePersisted,
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => storage),
       skipHydration: true,
-      partialize: (s) => snapshot(s),
+      // ponytail: the whole state is serialised on every change (the file write itself is debounced); move
+      // serialisation behind the debounce if very long histories make logging a set feel slow.
+      partialize: (s) => persisted(s),
+      onRehydrateStorage: () => (_state, error) => {
+        hydrationError = error ?? null;
+      },
+      merge: (stored, current) => {
+        const state = (stored ?? {}) as Partial<AppState>;
+        // Nothing stored (a first launch): keep the exercises already in memory.
+        return {
+          ...current,
+          ...state,
+          exercises: state.exercises ? restoreExercises(state.exercises) : current.exercises,
+        };
+      },
     },
   ),
 );
 
-/** Load persisted state, import v1 data once if this is a first v2 launch, then mark the store hydrated. */
+/**
+ * Load persisted state, import v1 data once if this is a first launch, then mark the store hydrated. When the
+ * stored data cannot be read, `storageError` is set and nothing is written (the recovery screen takes over).
+ */
 export async function initStore(): Promise<void> {
-  try {
-    await useStore.persist.rehydrate();
-    const s = useStore.getState();
-    if ((s.catalogVersion ?? 0) < CATALOG_VERSION) {
-      useStore.setState({ exercises: refreshCatalog(s.exercises), catalogVersion: CATALOG_VERSION });
-    }
-    if (!s.legacyChecked && s.program === null && s.sessions.length === 0) {
-      await s.importLegacy();
-    }
-  } catch {
-    // Unreadable storage: start fresh rather than hanging on the splash screen.
-  } finally {
-    useStore.setState({ legacyChecked: true, hydrated: true });
+  const load = ++loads;
+  hydrationError = null;
+  useStore.setState({ storageError: null });
+  await useStore.persist.rehydrate();
+  // A later call started over (zustand drops the earlier hydration): that call reports the outcome.
+  if (load !== loads) return;
+  if (!useStore.persist.hasHydrated()) {
+    const error = hydrationError ?? new Error('The saved data could not be loaded');
+    useStore.setState({
+      storageError: error instanceof Error ? error.message : String(error),
+      hydrated: true,
+    });
+    return;
   }
+  try {
+    const s = useStore.getState();
+    if ((s.catalogVersion ?? 0) < CATALOG_VERSION) useStore.setState({ catalogVersion: CATALOG_VERSION });
+    if (!s.legacyChecked && s.programs.length === 0 && s.sessions.length === 0) await s.importLegacy();
+  } catch {
+    // Unreadable v1 data: start without it.
+  }
+  useStore.setState({ legacyChecked: true, hydrated: true });
 }
+
+/** The program with `id`; without an id, the first program that is not paused. */
+export const useProgram = (id?: string): ActiveProgram | undefined =>
+  useStore((s) => (id ? s.programs.find((p) => p.id === id) : s.programs.find((p) => !p.paused)));
 
 export const useUnit = (): Unit => useStore((s) => s.unit);
 export const useInventory = (): PlateInventory => useStore((s) => s.inventory);
-export const useLift = (id: string): LiftState | undefined => useStore((s) => s.lifts[id]);
+export const useLift = (programId: string | undefined, key: string): LiftState | undefined =>
+  useStore((s) => s.programs.find((p) => p.id === programId)?.lifts[key]);

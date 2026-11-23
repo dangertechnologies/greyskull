@@ -1,15 +1,26 @@
-import type { Exercise, Program, Scheme, SessionLog, Unit } from './domain';
+import type { ActiveProgram, Exercise, Scheme, SessionLog, Unit } from './domain';
 import { formatWeight, setTargets, tryParseScheme } from './domain';
 
 export const weekOf = (n: number, sessionsPerWeek: number): number => Math.floor(n / sessionsPerWeek) + 1;
 
 /** "Week 3", or "Cycle 2 · Week 1" for 5/3/1 (its week is a pass through the days, not sessionsPerWeek). */
-export function weekLabel(program: Program, session: number): string {
-  const n = Math.max(0, session - (program.startN ?? 0));
+export function weekLabel(program: Pick<ActiveProgram, 'days' | 'sessionsPerWeek' | 'position'>): string {
+  const n = Math.max(0, program.position);
   if (!program.days.some((d) => d.slots.some((slot) => slot.progression === '531')))
     return `Week ${weekOf(n, program.sessionsPerWeek)}`;
   const week = Math.floor(n / program.days.length);
   return `Cycle ${Math.floor(week / 3) + 1} · Week ${(week % 3) + 1}`;
+}
+
+/**
+ * The program position a history entry was at, or null when it belongs to another program. Entries from before
+ * several programs could run at once carry no program id: they count for the program moved from that time
+ * (which kept its `startN`) at `n - startN`.
+ */
+export function logPosition(log: SessionLog, program: Pick<ActiveProgram, 'id' | 'startN'>): number | null {
+  if (log.programId !== undefined) return log.programId === program.id ? (log.position ?? null) : null;
+  if (program.startN === undefined || log.n < program.startN) return null;
+  return log.n - program.startN;
 }
 
 /** Exercise name that survives a deleted custom exercise (history keeps the id). */

@@ -1,0 +1,1071 @@
+{
+  "persisted": {
+    "state": {
+      "version": 2,
+      "unit": "kg",
+      "inventory": {
+        "barKg": 20,
+        "platesKg": [25, 20, 15, 10, 5, 2.5, 1.25],
+        "barLb": 45,
+        "platesLb": [45, 35, 25, 10, 5, 2.5]
+      },
+      "minimalist": false,
+      "restSeconds": 90,
+      "exercises": {},
+      "program": {
+        "template": "531-beginners",
+        "sessionsPerWeek": 3,
+        "rules": {
+          "doubleAt": 10,
+          "deloadPct": 0.1,
+          "failsBeforeDeload": 2,
+          "warmups": true,
+          "progression": "double",
+          "increments": {
+            "BENCH_PRESS": {
+              "kg": 2.5,
+              "lb": 5
+            },
+            "MILITARY_PRESS": {
+              "kg": 2.5,
+              "lb": 5
+            },
+            "BARBELL_SQUAT": {
+              "kg": 5,
+              "lb": 10
+            },
+            "DEADLIFT": {
+              "kg": 5,
+              "lb": 10
+            }
+          }
+        },
+        "days": [
+          {
+            "name": "Day 1",
+            "slots": [
+              {
+                "exercise": "BARBELL_SQUAT",
+                "progression": "531",
+                "scheme": "3x5+"
+              },
+              {
+                "exercise": "BENCH_PRESS",
+                "progression": "531",
+                "scheme": "3x5+"
+              },
+              {
+                "exercise": "DIPS",
+                "scheme": "5xAMRAP"
+              },
+              {
+                "exercise": "CHINUPS",
+                "scheme": "5xAMRAP"
+              },
+              {
+                "exercise": "CRUNCHES",
+                "scheme": "5xAMRAP"
+              }
+            ]
+          },
+          {
+            "name": "Day 2",
+            "slots": [
+              {
+                "exercise": "DEADLIFT",
+                "progression": "531",
+                "scheme": "3x5+"
+              },
+              {
+                "exercise": "MILITARY_PRESS",
+                "progression": "531",
+                "scheme": "3x5+"
+              },
+              {
+                "exercise": "DIPS",
+                "scheme": "5xAMRAP"
+              },
+              {
+                "exercise": "CHINUPS",
+                "scheme": "5xAMRAP"
+              },
+              {
+                "exercise": "CRUNCHES",
+                "scheme": "5xAMRAP"
+              }
+            ]
+          },
+          {
+            "name": "Day 3",
+            "slots": [
+              {
+                "exercise": "BENCH_PRESS",
+                "progression": "531",
+                "scheme": "3x5+"
+              },
+              {
+                "exercise": "BARBELL_SQUAT",
+                "progression": "531",
+                "scheme": "3x5+"
+              },
+              {
+                "exercise": "DIPS",
+                "scheme": "5xAMRAP"
+              },
+              {
+                "exercise": "CHINUPS",
+                "scheme": "5xAMRAP"
+              },
+              {
+                "exercise": "CRUNCHES",
+                "scheme": "5xAMRAP"
+              }
+            ]
+          }
+        ]
+      },
+      "lifts": {
+        "BARBELL_SQUAT": {
+          "weightKg": 100,
+          "startKg": 20,
+          "fails": 0
+        },
+        "BENCH_PRESS": {
+          "weightKg": 100,
+          "startKg": 20,
+          "fails": 0
+        },
+        "DEADLIFT": {
+          "weightKg": 100,
+          "startKg": 20,
+          "fails": 0
+        },
+        "MILITARY_PRESS": {
+          "weightKg": 100,
+          "startKg": 20,
+          "fails": 0
+        }
+      },
+      "sessions": [
+        {
+          "n": 0,
+          "dayName": "Day 1",
+          "startedAt": "2026-11-23T01:39:43.755Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 85,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 75
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 85
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                }
+              ],
+              "tmKg": 100
+            },
+            "BENCH_PRESS": {
+              "weightKg": 85,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 75
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 85
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                }
+              ],
+              "tmKg": 100
+            },
+            "DIPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CHINUPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CRUNCHES": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "BENCH_PRESS", "DIPS", "CHINUPS", "CRUNCHES"],
+          "finishedAt": "2026-11-23T01:39:43.756Z"
+        },
+        {
+          "n": 1,
+          "dayName": "Day 2",
+          "startedAt": "2026-11-23T01:39:43.756Z",
+          "results": {
+            "DEADLIFT": {
+              "weightKg": 85,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 75
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 85
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                }
+              ],
+              "tmKg": 100
+            },
+            "MILITARY_PRESS": {
+              "weightKg": 85,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 75
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 85
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                }
+              ],
+              "tmKg": 100
+            },
+            "DIPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CHINUPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CRUNCHES": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            }
+          },
+          "order": ["DEADLIFT", "MILITARY_PRESS", "DIPS", "CHINUPS", "CRUNCHES"],
+          "finishedAt": "2026-11-23T01:39:43.760Z"
+        },
+        {
+          "n": 2,
+          "dayName": "Day 3",
+          "startedAt": "2026-11-23T01:39:43.760Z",
+          "results": {
+            "BENCH_PRESS": {
+              "weightKg": 85,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 75
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 85
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                }
+              ],
+              "tmKg": 100
+            },
+            "BARBELL_SQUAT": {
+              "weightKg": 85,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 75
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 85
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 65
+                }
+              ],
+              "tmKg": 100
+            },
+            "DIPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CHINUPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CRUNCHES": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            }
+          },
+          "order": ["BENCH_PRESS", "BARBELL_SQUAT", "DIPS", "CHINUPS", "CRUNCHES"],
+          "finishedAt": "2026-11-23T01:39:43.761Z"
+        },
+        {
+          "n": 3,
+          "dayName": "Day 1",
+          "startedAt": "2026-11-23T01:39:43.761Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 90,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 3,
+                  "kg": 70
+                },
+                {
+                  "target": 3,
+                  "reps": 3,
+                  "kg": 80
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 90
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                }
+              ],
+              "tmKg": 100
+            },
+            "BENCH_PRESS": {
+              "weightKg": 90,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 3,
+                  "kg": 70
+                },
+                {
+                  "target": 3,
+                  "reps": 3,
+                  "kg": 80
+                },
+                {
+                  "target": null,
+                  "reps": 6,
+                  "kg": 90
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                },
+                {
+                  "target": 5,
+                  "reps": 5,
+                  "kg": 70
+                }
+              ],
+              "tmKg": 100
+            },
+            "DIPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CHINUPS": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            },
+            "CRUNCHES": {
+              "weightKg": 0,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                },
+                {
+                  "target": null,
+                  "reps": 6
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "BENCH_PRESS", "DIPS", "CHINUPS", "CRUNCHES"],
+          "finishedAt": "2026-11-23T01:39:43.762Z"
+        }
+      ],
+      "nextSession": 4,
+      "draft": null,
+      "needsWeightConfirm": false,
+      "needsWeightConfirmSuspects": [],
+      "legacyChecked": false,
+      "appearance": "system",
+      "hapticsEnabled": true,
+      "dynamicColor": false,
+      "catalogVersion": 4
+    },
+    "version": 3
+  },
+  "expected": {
+    "dayName": "Day 2",
+    "slots": [
+      {
+        "exercise": "DEADLIFT",
+        "lift": "DEADLIFT",
+        "scheme": "3x5+",
+        "week": 1
+      },
+      {
+        "exercise": "MILITARY_PRESS",
+        "lift": "MILITARY_PRESS",
+        "scheme": "3x5+",
+        "week": 1
+      },
+      {
+        "exercise": "DIPS",
+        "lift": "DIPS",
+        "scheme": "5xAMRAP",
+        "week": null
+      },
+      {
+        "exercise": "CHINUPS",
+        "lift": "CHINUPS",
+        "scheme": "5xAMRAP",
+        "week": null
+      },
+      {
+        "exercise": "CRUNCHES",
+        "lift": "CRUNCHES",
+        "scheme": "5xAMRAP",
+        "week": null
+      }
+    ],
+    "results": {
+      "DEADLIFT": {
+        "weightKg": 90,
+        "sets": [
+          {
+            "target": 3,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 3,
+            "reps": 0,
+            "kg": 80
+          },
+          {
+            "target": null,
+            "reps": 0,
+            "kg": 90
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          }
+        ],
+        "tmKg": 100
+      },
+      "MILITARY_PRESS": {
+        "weightKg": 90,
+        "sets": [
+          {
+            "target": 3,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 3,
+            "reps": 0,
+            "kg": 80
+          },
+          {
+            "target": null,
+            "reps": 0,
+            "kg": 90
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          },
+          {
+            "target": 5,
+            "reps": 0,
+            "kg": 70
+          }
+        ],
+        "tmKg": 100
+      },
+      "DIPS": {
+        "weightKg": 0,
+        "sets": [
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      },
+      "CHINUPS": {
+        "weightKg": 0,
+        "sets": [
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      },
+      "CRUNCHES": {
+        "weightKg": 0,
+        "sets": [
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      }
+    }
+  }
+}
