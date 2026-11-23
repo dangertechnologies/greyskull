@@ -107,6 +107,7 @@ describe('buildPrompt', () => {
     expect(prompt).toContain('Calisthenics skills');
     expect(prompt).toContain('3 days a week');
     expect(prompt).toContain('45 minutes');
+    expect(prompt).toMatch(/at most 20 sets, 30 reps \(a range up to 40\), 300 seconds per hold/);
     expect(prompt).toContain('Pull-up bar');
     expect(prompt).toContain('"Muscle-up \'this year\' please"');
     expect(prompt).not.toContain('\u0000');
@@ -228,6 +229,11 @@ describe('checkGenerated', () => {
   test.each<[string, unknown, RegExp]>([
     ['not a program', 'hello', /Invalid training days per week/],
     ['no days', generated([]), /1 to 14 days/],
+    [
+      'a slot of 21 sets (the most the editor takes is 20)',
+      generated([day('A', [{ exercise: 'BARBELL_SQUAT', scheme: '21x5', progression: 'linear' }])]),
+      /21 sets; use at most 20/,
+    ],
     ['too many days a week', generated(good.days, { sessionsPerWeek: 9 }), /between 1 and 7/],
     [
       'unknown exercise',

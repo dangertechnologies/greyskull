@@ -2,7 +2,13 @@ import type { ModelSchema } from 'expo-ai';
 import { PLANS } from '../config/plans';
 import type { Exercise, Kind, Pattern, Program, Scheme } from '../domain';
 import { getLadder, LADDERS } from '../domain/ladders';
-import { exerciseIdsOf, parseProgram, tryParseScheme, validateProgram } from '../domain/program';
+import {
+  exerciseIdsOf,
+  parseProgram,
+  SCHEME_LIMITS,
+  tryParseScheme,
+  validateProgram,
+} from '../domain/program';
 import { DEFAULT_RULES } from '../domain/types';
 import { canDoWith, EQUIPMENT_LABELS } from '../exerciseFilter';
 import {
@@ -192,6 +198,7 @@ export function buildPrompt(answers: Answers, text: string, allowed: Allowed, er
     '- A scheme ending in s is seconds held; use it only with progression "linear" or "double", or on a ladder.',
     '- "amrap" suits barbell lifts with schemes such as 2x5+. Use "linear" for a fixed scheme such as 5x5.',
     '- To pair two exercises as a superset, give both the same superset letter; they must be next to each other.',
+    `- Keep every scheme inside the limits: at most ${SCHEME_LIMITS.sets} sets, ${SCHEME_LIMITS.reps} reps (a range up to ${SCHEME_LIMITS.repsMax}), ${SCHEME_LIMITS.seconds} seconds per hold.`,
     `- Fit each day into about ${answers.minutes} minutes and use only the equipment listed.`,
     `Goal: ${GOAL_LABELS[answers.goal]}. ${answers.days} days a week, ${answers.minutes} minutes a session.`,
     `Equipment: ${equipment}. Experience: ${EXPERIENCE_LABELS[answers.experience]}.`,
@@ -368,6 +375,12 @@ function fitErrors(program: Program, answers: Answers): string[] {
       `The longest day takes about ${minutes} minutes; the session is ${answers.minutes} minutes (at most ${limit}). Use fewer sets or exercises.`,
     );
   for (const day of program.days) {
+    // validateProgram refuses these too; naming the slot here keeps the model's retry short.
+    for (const slot of day.slots) {
+      const slotSets = tryParseScheme(slot.scheme)?.sets ?? 0;
+      if (slotSets > SCHEME_LIMITS.sets)
+        errors.push(`${day.name}: ${slot.scheme} has ${slotSets} sets; use at most ${SCHEME_LIMITS.sets}.`);
+    }
     const sets = day.slots.reduce((sum, s) => sum + (tryParseScheme(s.scheme)?.sets ?? 0), 0);
     if (sets > MAX_SETS)
       errors.push(`${day.name}: ${sets} sets; use at most ${MAX_SETS} working sets a session.`);
