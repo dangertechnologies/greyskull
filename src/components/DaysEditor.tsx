@@ -211,8 +211,8 @@ export function DaysEditor({
             {title}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[1] }}>
-          <View style={{ flex: 1, alignItems: 'flex-start' }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space[1] }}>
+          <View style={{ flexGrow: 1, flexBasis: 150, alignItems: 'flex-start' }}>
             <Button
               title={schemeLabel(slot.scheme)}
               variant="secondary"
@@ -220,28 +220,30 @@ export function DaysEditor({
               onPress={() => setSchemeFor({ day: d, slot: i })}
             />
           </View>
-          <IconButton
-            icon="up"
-            label="Move up"
-            disabled={i === 0 || (inGroup && prev?.group !== slot.group)}
-            onPress={() => reorder(moveSlot(program, d, i, -1))}
-          />
-          <IconButton
-            icon="down"
-            label="Move down"
-            disabled={i === day.slots.length - 1 || (inGroup && next?.group !== slot.group)}
-            onPress={() => reorder(moveSlot(program, d, i, 1))}
-          />
-          <IconButton
-            icon="close"
-            label="Remove exercise"
-            tone="danger"
-            onPress={() => {
-              setProgOpen(null);
-              setSelecting(null);
-              onChange(removeSlot(program, d, i));
-            }}
-          />
+          <View style={{ flexDirection: 'row' }}>
+            <IconButton
+              icon="up"
+              label="Move up"
+              disabled={i === 0 || (inGroup && prev?.group !== slot.group)}
+              onPress={() => reorder(moveSlot(program, d, i, -1))}
+            />
+            <IconButton
+              icon="down"
+              label="Move down"
+              disabled={i === day.slots.length - 1 || (inGroup && next?.group !== slot.group)}
+              onPress={() => reorder(moveSlot(program, d, i, 1))}
+            />
+            <IconButton
+              icon="close"
+              label="Remove exercise"
+              tone="danger"
+              onPress={() => {
+                setProgOpen(null);
+                setSelecting(null);
+                onChange(removeSlot(program, d, i));
+              }}
+            />
+          </View>
         </View>
         <Pressable
           accessibilityRole="button"
@@ -322,7 +324,7 @@ export function DaysEditor({
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: t.space[2] }}>
-          <Text variant="label" color="accent" style={{ flex: 1 }}>
+          <Text variant="label" color="accent" style={{ flexGrow: 1, flexBasis: 180 }}>
             {groupLabel(block.group).toUpperCase()}
           </Text>
           <Button

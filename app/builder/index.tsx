@@ -31,7 +31,9 @@ export default function BuilderHome() {
             <ListRow
               key={p.id}
               title={p.name}
-              subtitle={p.summary ?? `${p.program.days.length} days`}
+              subtitle={
+                p.summary ?? `${p.program.days.length} ${p.program.days.length === 1 ? 'day' : 'days'}`
+              }
               accessory="chevron"
               onPress={() => router.push(`/builder/${p.id}`)}
             />

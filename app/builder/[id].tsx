@@ -167,13 +167,7 @@ function Builder({ seed, isNew }: { seed: Seed; isNew: boolean }) {
       <ScreenScroll withBottomBar gap={10}>
         <View style={{ gap: t.space[4] }}>
           <TextField label="Program name" value={name} onChangeText={setName} maxLength={100} />
-          <TextField
-            label="Summary (optional)"
-            value={summary}
-            onChangeText={setSummary}
-            maxLength={300}
-            multiline
-          />
+          <TextField label="Summary (optional)" value={summary} onChangeText={setSummary} maxLength={300} />
         </View>
         <Section label="Sessions a week">
           <NumberStepper
