@@ -1,5 +1,5 @@
 import type { ActiveProgram, Exercise, Scheme, SessionLog, Unit } from './domain';
-import { formatWeight, setTargets, tryParseScheme } from './domain';
+import { formatWeight, own, setTargets, tryParseScheme } from './domain';
 
 export const weekOf = (n: number, sessionsPerWeek: number): number => Math.floor(n / sessionsPerWeek) + 1;
 
@@ -29,7 +29,7 @@ export const belongsTo = (log: SessionLog, program: Pick<ActiveProgram, 'id' | '
 
 /** Exercise name that survives a deleted custom exercise (history keeps the id). */
 export const nameOf = (exercises: Record<string, Exercise>, id: string, short = false): string => {
-  const e = exercises[id];
+  const e = own(exercises, id);
   return e ? (short ? e.shortName : e.name) : id;
 };
 
@@ -48,11 +48,11 @@ export function summarize(log: SessionLog, exercises: Record<string, Exercise>, 
   if (log.skipped) return 'Skipped';
   return log.order
     .map((id) => {
-      const r = log.results[id];
+      const r = own(log.results, id);
       if (!r) return null;
       const last = r.sets[r.sets.length - 1];
       const seconds = r.timed ? ' s' : '';
-      return `${nameOf(exercises, id, true)}${weightLabel(r.weightKg, exercises[id], unit)} × ${last?.reps ?? 0}${seconds}`;
+      return `${nameOf(exercises, id, true)}${weightLabel(r.weightKg, own(exercises, id), unit)} × ${last?.reps ?? 0}${seconds}`;
     })
     .filter((s): s is string => s !== null)
     .join(' · ');
