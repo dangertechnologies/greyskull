@@ -129,6 +129,7 @@ export default function Programs() {
           ))}
         </Section>
       ) : null}
+      <Button title="Build or import a program" variant="plain" onPress={() => router.push('/builder')} />
       {customPlans.length > 0 ? (
         <Section label="My programs" footer="Saved programs you can add again." card>
           {customPlans.map((c) => (

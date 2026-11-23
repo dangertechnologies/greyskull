@@ -13,6 +13,7 @@ import type {
   Scheme,
   Slot,
 } from './types';
+import { DEFAULT_RULES } from './types';
 
 /** Schemes the scheme chip cycles through, roughly from GSLP to hypertrophy work. */
 export const SCHEMES: Scheme[] = [
@@ -523,4 +524,30 @@ export function buildScheme({ sets, mode, reps, repsMax }: SchemeParts): Scheme 
     default:
       return `${sets}x${reps}`;
   }
+}
+
+/** "Superset · rest 90 s", "Circuit · 3 rounds · rest 60 s", "EMOM · 10 min", "Interval · 8 rounds · 30 s work · 15 s rest". */
+export function groupLabel(g: Group): string {
+  const parts: string[] = [GROUP_LABELS[g.kind]];
+  if (g.rounds !== undefined) parts.push(`${g.rounds} ${g.rounds === 1 ? 'round' : 'rounds'}`);
+  if (g.minutes !== undefined) parts.push(`${g.minutes} min`);
+  if (g.workS !== undefined) parts.push(`${g.workS} s work`);
+  if (g.restS !== undefined) parts.push(g.kind === 'interval' ? `${g.restS} s rest` : `rest ${g.restS} s`);
+  return parts.join(' · ');
+}
+
+/** A new program: one empty day, three sessions a week and the default rules. */
+export function blankProgram(): Program {
+  return {
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES },
+    days: [{ name: 'Day 1', slots: [] }],
+  };
+}
+
+/** The days and rules of a program or plan as a new custom program (no lifts, position or history). */
+export function copyProgram(source: Pick<Program, 'days' | 'sessionsPerWeek' | 'rules'>): Program {
+  const { days, sessionsPerWeek, rules } = clone(source as Program);
+  return { template: 'custom', days, sessionsPerWeek, rules };
 }

@@ -220,6 +220,12 @@ export default function ProgramScreen() {
             onPress={() => router.push('/exercises')}
           />
           <ListRow
+            title="Duplicate & edit"
+            subtitle="Copy it into My programs to change"
+            accessory="chevron"
+            onPress={() => router.push(`/builder/new?program=${program.id}`)}
+          />
+          <ListRow
             title="Change plan"
             subtitle="Keeps this program's weights and history"
             accessory="chevron"

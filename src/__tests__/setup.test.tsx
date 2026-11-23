@@ -165,7 +165,7 @@ describe('editing the saved program', () => {
     fireEvent.press((await screen.findAllByLabelText(/^Scheme 2x5\+/))[0]);
     fireEvent.press(await screen.findByRole('radio', { name: 'Fixed' }));
     for (let i = 0; i < 3; i++) fireEvent.press(screen.getAllByLabelText('Increase')[0]); // sets 2 → 5
-    fireEvent.press(screen.getAllByRole('button', { name: 'Save' }).at(-1) as never); // the sheet's Save
+    fireEvent.press(screen.getAllByRole('button', { name: 'Save' })[0]); // the sheet's Save (its modal comes before the page's bottom bar)
     expect(await screen.findAllByLabelText(/^Scheme 5x5/)).toHaveLength(1);
     fireEvent.press(screen.getByRole('button', { name: 'Save' })); // the page's Save
     expect(current().days[0].slots[0].scheme).toBe('5x5');

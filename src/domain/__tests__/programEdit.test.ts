@@ -6,11 +6,14 @@ import {
   addDay,
   addExercise,
   addSlot,
+  blankProgram,
   buildProgram,
   canGroup,
+  copyProgram,
   defaultGroupSettings,
   defaultSlot,
   dragTarget,
+  groupLabel,
   groupSlots,
   moveSlot,
   moveSlotTo,
@@ -429,4 +432,38 @@ describe('grouped sets', () => {
       'BARBELL_SQUAT',
     ]);
   });
+});
+
+test('a group is described in one line', () => {
+  expect(groupLabel({ id: 'g1', kind: 'superset', restS: 90 })).toBe('Superset · rest 90 s');
+  expect(groupLabel({ id: 'g1', kind: 'circuit', rounds: 3, restS: 60 })).toBe(
+    'Circuit · 3 rounds · rest 60 s',
+  );
+  expect(groupLabel({ id: 'g1', kind: 'emom', minutes: 10 })).toBe('EMOM · 10 min');
+  expect(groupLabel({ id: 'g1', kind: 'interval', rounds: 8, workS: 30, restS: 15 })).toBe(
+    'Interval · 8 rounds · 30 s work · 15 s rest',
+  );
+});
+
+test('a blank program is one empty day that only needs an exercise', () => {
+  const blank = blankProgram();
+  expect(blank).toMatchObject({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    days: [{ name: 'Day 1', slots: [] }],
+  });
+  expect(validateProgram(blank, ex)).toEqual(['Day 1 has no exercises.']);
+  expect(validateProgram(addExercise(blank, 0, ex.BENCH_PRESS), ex)).toEqual([]);
+  expect(blankProgram().rules).not.toBe(blankProgram().rules);
+});
+
+test('a copy is a custom program that shares nothing with its source', () => {
+  const active = { ...base, id: 'p', name: 'P', position: 4, lifts: {}, startN: 3, paused: true };
+  const copy = copyProgram(active);
+  expect(Object.keys(copy).sort()).toEqual(['days', 'rules', 'sessionsPerWeek', 'template']);
+  expect(copy.template).toBe('custom');
+  expect(copy.days).toEqual(base.days);
+  copy.days[0].name = 'Changed';
+  expect(base.days[0].name).not.toBe('Changed');
+  expect(validateProgram(copy, ex)).toEqual([]);
 });
