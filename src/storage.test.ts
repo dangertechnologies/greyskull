@@ -435,3 +435,75 @@ test('a load that cannot list the folder throws instead of falling back to Async
   });
   await expect(createFileStorage({ version: 4 }).getItem('key')).rejects.toThrow('no access');
 });
+
+describe('the newest data is never written over or left out of a kept copy', () => {
+  test('a restore keeps the change whose save failed, not the older file', async () => {
+    put(STATE_FILE, blob(4, { v: 1 }));
+    const storage = createFileStorage({ version: 4 });
+    await storage.getItem('key');
+    storage.enableWrites();
+    quiet();
+    jest.spyOn(File.prototype, 'write').mockRejectedValueOnce(new Error('disk full'));
+    await storage.setItem('key', blob(4, { v: 2 }));
+    await storage.keepBeforeRestore();
+    expect(kept(listBeforeRestore())).toEqual([blob(4, { v: 2 })]);
+  });
+
+  test('a restore keeps a whole temporary file a failed move left, not the older file', async () => {
+    put(STATE_FILE, blob(4, { v: 1 }));
+    put(TMP_FILE, blob(4, { v: 2 }));
+    quiet();
+    const move = jest.spyOn(File.prototype, 'move').mockRejectedValueOnce(new Error('busy'));
+    const storage = createFileStorage({ version: 4 });
+    expect(await storage.getItem('key')).toBe(blob(4, { v: 2 }));
+    move.mockRestore();
+    await storage.keepBeforeRestore();
+    expect(kept(listBeforeRestore())).toEqual([blob(4, { v: 2 })]);
+  });
+
+  test('a whole temporary file a failed move left goes into place before the next save writes over it', async () => {
+    put(STATE_FILE, blob(4, { v: 1 }));
+    put(TMP_FILE, blob(4, { v: 2 }));
+    quiet();
+    const move = jest.spyOn(File.prototype, 'move').mockRejectedValueOnce(new Error('busy'));
+    const storage = createFileStorage({ version: 4 });
+    await storage.getItem('key');
+    move.mockRestore();
+    storage.enableWrites();
+    // The next save is cut off while writing the temporary file: the newest whole data is still there.
+    jest.spyOn(File.prototype, 'write').mockImplementationOnce(async function (this: File) {
+      files.set(this.uri, '{"half');
+      throw new Error('killed');
+    });
+    await storage.setItem('key', blob(4, { v: 3 }));
+    await storage.flush();
+    expect(fileText()).toBe(blob(4, { v: 2 }));
+    expect(fileText(PREV_FILE)).toBe(blob(4, { v: 1 }));
+  });
+
+  test('a read waits for a save under way, so it never moves files during one', async () => {
+    const storage = createFileStorage({ version: 4 });
+    await storage.getItem('key');
+    storage.enableWrites();
+    let release: (() => void) | undefined;
+    const write = jest.spyOn(File.prototype, 'write').mockImplementationOnce(async function (
+      this: File,
+      text: Parameters<File['write']>[0],
+    ) {
+      await new Promise<void>((r) => {
+        release = r;
+      });
+      files.set(this.uri, String(text));
+    });
+    await storage.setItem('key', blob(4, { v: 1 }));
+    const saving = storage.flush();
+    // The save is under way (its temporary file not yet written) when the read starts.
+    await new Promise((r) => setTimeout(r, 0));
+    const reading = storage.getItem('key');
+    release?.();
+    await saving;
+    expect(await reading).toBe(blob(4, { v: 1 }));
+    write.mockRestore();
+    expect(fileText(TMP_FILE)).toBeUndefined();
+  });
+});

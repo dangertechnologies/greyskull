@@ -34,8 +34,9 @@ export interface FileStorage extends StateStorage {
    */
   allowWrites(): Promise<void>;
   /**
-   * Before a restore or a reset replaces the data: saves any pending change, then copies `state.json` to a new
-   * `state.before-restore.<time>.json`. Rejects when the copy fails; the caller must then not replace anything.
+   * Before a restore or a reset replaces the data: saves any pending change, then copies the newest data to a new
+   * `state.before-restore.<time>.json` (the change itself when its save failed, else a whole `state.json.tmp` a
+   * failed move left, else `state.json`). Rejects when the copy fails; the caller must then not replace anything.
    */
   keepBeforeRestore(): Promise<void>;
 }
@@ -101,8 +102,10 @@ async function keepCopy(prefix: string, source: File | string, label?: string): 
  * A zustand `StateStorage` over a file.
  *
  * Saving: write `state.json.tmp`, move `state.json` to `state.prev.json`, move the temporary file to
- * `state.json`. At every moment one whole copy exists: the temporary file once it is written, else
- * `state.json`, else `state.prev.json`. Writes are debounced and run one at a time.
+ * `state.json`. If the app is killed at any step, one whole copy exists: the temporary file once it is written,
+ * else `state.json`, else `state.prev.json`. Nothing is synced to disk (expo-file-system cannot), so after a
+ * power cut the system may have kept a move but not the data before it, leaving `state.json` empty; the load then
+ * refuses it and the recovery screen offers the previous save. Writes and reads are queued, one at a time.
  *
  * Reading: a whole `state.json.tmp` (the move after it never happened, so it is the newest), else `state.json`,
  * else `state.prev.json`. Only when none of these is whole and no state file was ever written does it fall back
@@ -134,7 +137,11 @@ export function createFileStorage({ version }: { version: number }): FileStorage
   };
 
   const writeAtomically = async (value: string) => {
-    await stateFile(TMP_FILE).write(value);
+    const tmp = stateFile(TMP_FILE);
+    // A whole temporary file left by a move that failed is the newest data: it goes into place before the
+    // temporary file is written over, so a write cut off there cannot lose it.
+    if (tmp.exists && isWhole(await tmp.text())) await promote();
+    await tmp.write(value);
     await promote();
   };
 
@@ -175,6 +182,7 @@ export function createFileStorage({ version }: { version: number }): FileStorage
         check(raw);
         await keepOldVersion(raw);
         try {
+          // Inside the write queue (see `getItem`), so no save is moving files at the same time.
           await promote();
         } catch (e) {
           // The data is whole and stays in the temporary file until the next save moves it.
@@ -228,9 +236,12 @@ export function createFileStorage({ version }: { version: number }): FileStorage
   };
 
   /** Runs `step` after every queued write; the queue continues whether it fails or not. */
-  const queue = (step: () => Promise<void>): Promise<void> => {
+  const queue = <T>(step: () => Promise<T>): Promise<T> => {
     const done = chain.then(step);
-    chain = done.catch(() => undefined);
+    chain = done.then(
+      () => undefined,
+      () => undefined,
+    );
     return done;
   };
 
@@ -248,7 +259,8 @@ export function createFileStorage({ version }: { version: number }): FileStorage
           if (status === 'background' || status === 'inactive') void flush();
         });
       }
-      return read(name);
+      // After any save already under way, so a read never moves a file while a save does.
+      return queue(() => read(name));
     },
     setItem(_name, value) {
       if (!writable) return;
@@ -281,8 +293,12 @@ export function createFileStorage({ version }: { version: number }): FileStorage
     keepBeforeRestore() {
       void flush();
       return queue(async () => {
-        const main = stateFile();
         // ponytail: one full copy per restore or reset, never pruned; the files are small.
+        // The newest data: a change whose save failed, else a whole temporary file a failed move left, else the file.
+        if (pending !== null) return keepCopy(BEFORE_RESTORE_PREFIX, pending);
+        const tmp = stateFile(TMP_FILE);
+        if (tmp.exists && isWhole(await tmp.text())) return keepCopy(BEFORE_RESTORE_PREFIX, tmp);
+        const main = stateFile();
         if (main.exists) await keepCopy(BEFORE_RESTORE_PREFIX, main);
       });
     },
