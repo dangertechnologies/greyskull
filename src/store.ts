@@ -374,6 +374,29 @@ export const knownEquipment = (list: unknown): Equipment[] =>
 /** An object that is not an array. */
 const isRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !Array.isArray(v);
 
+/** A name every screen can render: a non-empty string of at most 100 characters. */
+const saneName = (v: unknown): boolean => typeof v === 'string' && v.trim().length > 0 && v.length <= 100;
+
+/** What is wrong with a list of assistance bands (each an own-named id with a label), or null. */
+export function bandsProblem(bands: unknown): string | null {
+  if (
+    !Array.isArray(bands) ||
+    bands.some(
+      (b) =>
+        !isRecord(b) ||
+        typeof b.id !== 'string' ||
+        !b.id ||
+        isReservedKey(b.id) ||
+        typeof b.label !== 'string',
+    )
+  )
+    return 'the bands are damaged';
+  return null;
+}
+
+const weightList = (v: unknown): boolean =>
+  Array.isArray(v) && v.every((x) => typeof x === 'number' && Number.isFinite(x) && x > 0);
+
 function programProblem(p: unknown, label: string): string | null {
   if (!isRecord(p)) return `${label} is not a program`;
   if (!isRecord(p.rules)) return `${label} has no rules`;
@@ -410,6 +433,7 @@ export function stateProblem(s: Record<string, unknown>): string | null {
       const { id, position, lifts } = p as Record<string, unknown>;
       if (
         typeof id !== 'string' ||
+        !saneName((p as Record<string, unknown>).name) ||
         !Number.isInteger(position) ||
         (position as number) < 0 ||
         !isRecord(lifts)
@@ -417,10 +441,24 @@ export function stateProblem(s: Record<string, unknown>): string | null {
         return `program ${i + 1} is damaged`;
     }
   }
+  if (s.bands !== undefined) {
+    const problem = bandsProblem(s.bands);
+    if (problem) return problem;
+  }
+  if (s.inventory !== undefined) {
+    if (!isRecord(s.inventory)) return 'the equipment is damaged';
+    const inv = s.inventory;
+    for (const key of ['platesKg', 'platesLb', 'kettlebellsKg', 'kettlebellsLb'])
+      if (inv[key] !== undefined && !weightList(inv[key]))
+        return 'the plate or kettlebell weights are damaged';
+    for (const key of ['barKg', 'barLb'])
+      if (inv[key] !== undefined && !weightList([inv[key]])) return 'the bar weight is damaged';
+  }
   if (s.customPlans !== undefined) {
     if (!Array.isArray(s.customPlans)) return 'the saved plans are damaged';
     for (const [i, plan] of s.customPlans.entries()) {
-      if (!isRecord(plan) || typeof plan.id !== 'string') return `saved plan ${i + 1} is damaged`;
+      if (!isRecord(plan) || typeof plan.id !== 'string' || !saneName(plan.name))
+        return `saved plan ${i + 1} is damaged`;
       const problem = programProblem(plan.program, `saved plan ${i + 1}`);
       if (problem) return problem;
     }
@@ -878,7 +916,11 @@ export const useStore = create<Store>()(
       deleteCustomPlan: (id) => set((s) => ({ customPlans: s.customPlans.filter((p) => p.id !== id) })),
 
       setEquipment: (list) => set({ equipment: knownEquipment(list) }),
-      setBands: (list) => set({ bands: list }),
+      setBands: (list) => {
+        const problem = bandsProblem(list);
+        if (problem) throw new Error(problem);
+        set({ bands: list });
+      },
       setBreakDeload: (on) => set({ breakDeload: on }),
       setHealthSync: (on) => set({ healthSync: on }),
       setHealthId: (n, id) =>

@@ -101,6 +101,124 @@ describe('backup import', () => {
   });
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: tests mutate arbitrary JSON
+type Doc = any;
+
+describe('hostile backups are refused where the app would crash on them', () => {
+  const withEdit = (mut: (s: Doc) => void) => {
+    seeded();
+    const c = JSON.parse(get().exportJson());
+    mut(c);
+    return c;
+  };
+  test.each([
+    [
+      'bands {}',
+      (s: Doc) => {
+        s.bands = {};
+      },
+    ],
+    [
+      'bands [null]',
+      (s: Doc) => {
+        s.bands = [null];
+      },
+    ],
+    [
+      'a band without a label',
+      (s: Doc) => {
+        s.bands = [{ id: 'red' }];
+      },
+    ],
+    [
+      'a band id every object has',
+      (s: Doc) => {
+        s.bands = [{ id: 'constructor', label: 'x' }];
+      },
+    ],
+    [
+      'program name 5',
+      (s: Doc) => {
+        s.programs[0].name = 5;
+      },
+    ],
+    [
+      'program name object',
+      (s: Doc) => {
+        s.programs[0].name = { a: 1 };
+      },
+    ],
+    [
+      'program name empty',
+      (s: Doc) => {
+        s.programs[0].name = '';
+      },
+    ],
+    [
+      'program name too long',
+      (s: Doc) => {
+        s.programs[0].name = 'x'.repeat(101);
+      },
+    ],
+    [
+      'kettlebells ["x"]',
+      (s: Doc) => {
+        s.inventory.kettlebellsKg = ['x'];
+      },
+    ],
+    [
+      'kettlebells lb 0',
+      (s: Doc) => {
+        s.inventory.kettlebellsLb = [0];
+      },
+    ],
+    [
+      'plates [null]',
+      (s: Doc) => {
+        s.inventory.platesKg = [null];
+      },
+    ],
+    [
+      'bar "x"',
+      (s: Doc) => {
+        s.inventory.barLb = 'x';
+      },
+    ],
+    [
+      'kettlebells not a list',
+      (s: Doc) => {
+        s.inventory.kettlebellsKg = 8;
+      },
+    ],
+    [
+      'saved plan name 5',
+      (s: Doc) => {
+        s.customPlans = [{ id: 'p', name: 5, program: s.programs[0] }];
+      },
+    ],
+  ])('%s', (_n, mut) => {
+    const data = withEdit(mut);
+    expect(parseBackup(JSON.stringify(data)).ok).toBe(false);
+    // Loading the stored file goes through the same check.
+    expect(() => migratePersisted(data, 4)).toThrow(/damaged/);
+  });
+
+  test('good bands, names and kettlebells still load', () => {
+    const data = withEdit((s) => {
+      s.bands = [{ id: 'red', label: 'Red' }];
+      s.inventory.kettlebellsKg = [8, 12.5];
+    });
+    expect(parseBackup(JSON.stringify(data)).ok).toBe(true);
+  });
+
+  test('setBands refuses what a backup would be refused for', () => {
+    expect(() => get().setBands({} as never)).toThrow();
+    expect(() => get().setBands([{ id: '__proto__', label: 'x' }])).toThrow();
+    get().setBands([{ id: 'red', label: 'Red' }]);
+    expect(get().bands).toEqual([{ id: 'red', label: 'Red' }]);
+  });
+});
+
 describe('persist migration', () => {
   test('a v2 snapshot without newer fields hydrates with defaults', async () => {
     const stale: Record<string, unknown> = { ...initialState(), unit: 'lb', minimalist: true };
