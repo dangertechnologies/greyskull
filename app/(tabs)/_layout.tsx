@@ -1,13 +1,9 @@
 import { NativeTabs } from 'expo-router/native-tabs';
-import { useEffect } from 'react';
 import { useTheme } from '../../src/design/theme';
-import { startHealthSync } from '../../src/health';
 
 /** The only file that imports the native tabs API. */
 export default function TabsLayout() {
   const t = useTheme();
-  // The tabs mount once the saved data has loaded, so the sync never reads a half-loaded store.
-  useEffect(() => startHealthSync(), []);
   return (
     <NativeTabs tintColor={t.color.accent}>
       <NativeTabs.Trigger name="index">

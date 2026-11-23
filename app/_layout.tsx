@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { StorageRecovery } from '../src/components/StorageRecovery';
 import { useAppFonts } from '../src/design/fonts';
 import { ThemeProvider, useTheme } from '../src/design/theme';
+import { startHealthSync } from '../src/health';
 import { AppIntentsBridge } from '../src/intents/Bridge';
 import { useStackOptions } from '../src/navigation';
 import { initStore, useStore } from '../src/store';
@@ -38,6 +39,9 @@ export default function RootLayout() {
     void initStore();
   }, []);
   useEffect(() => watchStoreForWidgets(useStore), []);
+  // Only on data that loaded and is writable: the sync reads the history and writes Health ids back into it.
+  const storageHealthy = hydrated && !storageError;
+  useEffect(() => (storageHealthy ? startHealthSync() : undefined), [storageHealthy]);
   const ready = hydrated && fontsReady;
   useEffect(() => {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
