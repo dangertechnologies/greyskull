@@ -32,7 +32,6 @@ export default function ExerciseScreen() {
       <Stack.Screen
         options={{
           title: '',
-          headerLargeTitle: false,
           headerRight: () => (
             <IconButton
               icon="edit"

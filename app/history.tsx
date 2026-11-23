@@ -15,7 +15,7 @@ export default function History() {
   return (
     <>
       <Stack.Screen options={{ title: 'History' }} />
-      {/* View root, as in ScreenScroll: a list as the screen root left the large title blank on iOS. */}
+      {/* View root, as in ScreenScroll: a list as the screen root left the header title blank on iOS. */}
       <View style={{ flex: 1, backgroundColor: t.color.background }}>
         <FlatList
           data={data}

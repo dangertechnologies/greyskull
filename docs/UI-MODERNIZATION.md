@@ -151,8 +151,8 @@ route keys (`'(tabs)/_layout'`, `'(tabs)/index'`, …).
 | `borderStrong` | `#5A616C` | `#8A919C` | Input and chip outlines (≥ 3:1 on surface) |
 | `text` | `#F4F5F7` | `#0E1013` | Primary text (17.9:1 / 17.8:1 on background) |
 | `textMuted` | `#A3A9B3` | `#5B6370` | Secondary text (8.3:1 / 5.7:1) |
-| `accent` | `#C6F432` | `#1F7A3A` | Primary buttons, selection, progress (15.3:1 / 5.0:1 on background) |
-| `onAccent` | `#0B0C0E` | `#FFFFFF` | Text on accent (15.3:1 / 5.4:1) |
+| `accent` | `#62B97B` | `#1F7A3A` | Primary buttons, selection, progress (8.2:1 / 5.0:1 on background) |
+| `onAccent` | `#0B0C0E` | `#FFFFFF` | Text on accent (8.2:1 / 5.4:1) |
 | `success` | `#4ADE80` | `#15803D` | Weight went up, logged sets |
 | `warning` | `#FBBF24` | `#B45309` | Failed rep target, experimental badge |
 | `danger` | `#F87171` | `#B91C1C` | Destructive, deload, "looks wrong" |

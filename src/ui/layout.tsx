@@ -59,7 +59,7 @@ export function ScreenScroll({
   const gutter = useGutter();
   const insets = useSafeAreaInsets();
   return (
-    // A plain View root: with the ScrollView itself as the screen root, iOS left the large title blank.
+    // A plain View root: with the ScrollView itself as the screen root, iOS left the header title blank.
     <View style={{ flex: 1, backgroundColor: theme.color.background }}>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.color.background }}
