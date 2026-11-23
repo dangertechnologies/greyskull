@@ -31,7 +31,7 @@ from `node_modules/@expo-google-fonts/inter`; the system font is used if they ar
 | --- | --- |
 | `exports/01-today-draft-light.png` / `exports/01-today-draft-dark.png` | Today with an open draft: resume card on top, two program cards (GSLP, Skill Track) with Start and Skip, one paused program (5/3/1). |
 | `exports/02-today-empty-light.png` / `exports/02-today-empty-dark.png` | Today with no program: empty state, "Add a program" and "Generate a program". |
-| `exports/03-programs-light.png` / `exports/03-programs-dark.png` | Programs tab: active, paused, "My programs" groups; New button. The tab is labelled "Programs" here (it is "Plan" in the app today). |
+| `exports/03-programs-light.png` / `exports/03-programs-dark.png` | Programs tab: active, paused, "My programs" groups; New button. The tab is labelled "Programs", as in the app. |
 | `exports/04-program-detail-light.png` / `exports/04-program-detail-dark.png` | Program detail for Skill Track: next day with Start, days, rules, pause, remove. |
 | `exports/05-add-program-light.png` / `exports/05-add-program-dark.png` | Add program picker: category chips (Strength, Hypertrophy, Calisthenics selected, Skills, Mobility), equipment-fit badge per program (fits, missing barbell, equipment not set), "Generate a program" entry. |
 | `exports/06-session-hold-light.png` / `exports/06-session-hold-dark.png` | Session, timed hold: stopwatch running at 0:18 of a 30 s target, set circles with the first logged in seconds, Stop button. |

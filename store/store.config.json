@@ -3,12 +3,15 @@
   "apple": {
     "version": "1.1.0",
     "copyright": "2026 Dangertechnologies",
-    "categories": ["HEALTH_AND_FITNESS", "SPORTS"],
+    "categories": [
+      "HEALTH_AND_FITNESS",
+      "SPORTS"
+    ],
     "info": {
       "en-US": {
         "title": "GSLP Workout Tracker",
-        "subtitle": "Strength training log",
-        "description": "Greyskull LP is a workout log for the Greyskull LP strength program. It tells you what to lift today, with which plates, and what to lift next time.\n\nHOW THE PROGRAM WORKS\nEach lift has two work sets. The last set is as many reps as you can do. Five or more reps adds weight. Ten or more adds double. Miss twice in a row and the lift drops 10 %. Greyskull LP does this for you after every workout.\n\nWHAT YOU GET\n• Today screen with the lifts, sets and weights for your next workout\n• Plate maths: weights are the bar plus pairs of the plates you own, in kg or lb\n• Edit any weight at any time, and the plan carries on from there\n• Rest timer with a custom length and an alert when it ends\n• Projections for where each lift is heading\n• History and progress charts, with stalls and deloads marked\n• Add your own exercises\n• Minimalist mode for a plainer workout screen\n• Home-screen widget with today's lifts\n• Backup and restore, so a new phone keeps your history\n• Other beginner programs built in, including Phrak's GSLP, 5x5 and full-body routines\n\nNO ACCOUNT. NO TRACKING.\nYour data stays on your phone. The app has no ads and sends nothing anywhere.\n\nSupport: https://dangertechnologies.github.io/greyskull/support.html",
+        "subtitle": "Strength & calisthenics log",
+        "description": "Greyskull LP is a workout tracker for lifting programs and calisthenics. It tells you what to do today, with which plates, bands or progression step, and what to do next time.\n\nRUN SEVERAL PROGRAMS AT ONCE\nEach program keeps its own weights, steps and place in the rotation. Train Greyskull LP and a skill track side by side, or add your own.\n\nPROGRAMS BUILT IN\n• Strength: Greyskull LP, Phrak's GSLP, StrongLifts 5x5, Starting Strength, AllPro Beginner Routine\n• Calisthenics: Recommended Routine, Six Ladders, Skill Track, and a barbell + bodyweight Hybrid\n• Build your own: days, sets, progression, ladders, supersets, circuits, EMOM and interval blocks\n• Share a program as a file or text and import one from a friend\n\nWHAT YOU GET\n• Plate maths: weights are the bar plus pairs of the plates you own, in kg or lb; kettlebell sizes and bands too\n• Progression ladders: easier and harder steps, hold timers, added load once you pass the top step\n• Library of more than 900 exercises with line pictograms, muscles and form-video links\n• Ease back after a break: after two weeks or more away, weights come back down and you can undo it\n• Supersets, circuits, EMOM and interval timers with alerts and a Live Activity on iPhone\n• Program generator: answer a few questions, or describe what you want and let the model on your phone draft it (supported devices only)\n• Siri and Shortcuts: ask for your next workout or start it by voice (iPhone)\n• Save finished workouts to Apple Health or Health Connect (optional, write-only)\n• History, progress charts and projections, with stalls and deloads marked\n• Home-screen widget, backup and restore, minimalist mode\n\nNO ACCOUNT. NO TRACKING.\nYour data stays on your phone. The app has no ads and sends nothing anywhere. Program generation runs on your device, with no network and no key.\n\nSupport: https://dangertechnologies.github.io/greyskull/support.html",
         "keywords": [
           "gslp",
           "workout",
@@ -24,8 +27,8 @@
           "deadlift",
           "bench"
         ],
-        "releaseNotes": "Fixed weights jumping to huge numbers. Edit any weight at any time. Correct Greyskull LP days and exercise order. New: custom rest timer, projections, custom exercises, minimalist mode, back and Finish buttons, home-screen widget. kg and lb both work with your real plates.",
-        "promoText": "Two sets, the last to failure. The app sets your weights, finds your plates and tracks every lift. No account, no ads.",
+        "releaseNotes": "New: several programs at once, calisthenics programs and ladders, build your own, 900+ exercises, ease-back after a break, supersets and timers, on-device program generator, Siri, Apple Health and Health Connect.",
+        "promoText": "Run several programs at once. Plates, bands and ladders do the maths; ease-back after a break. No account, no ads.",
         "marketingUrl": "https://dangertechnologies.github.io/greyskull/",
         "supportUrl": "https://dangertechnologies.github.io/greyskull/support.html",
         "privacyPolicyUrl": "https://dangertechnologies.github.io/greyskull/privacy.html"
