@@ -23,6 +23,10 @@ export function logPosition(log: SessionLog, program: Pick<ActiveProgram, 'id' |
   return log.n - program.startN;
 }
 
+/** Whether a workout belongs to a program: by its program id, or for old history by the program's start. */
+export const belongsTo = (log: SessionLog, program: Pick<ActiveProgram, 'id' | 'startN'>): boolean =>
+  log.programId !== undefined ? log.programId === program.id : logPosition(log, program) !== null;
+
 /** Exercise name that survives a deleted custom exercise (history keeps the id). */
 export const nameOf = (exercises: Record<string, Exercise>, id: string, short = false): string => {
   const e = exercises[id];

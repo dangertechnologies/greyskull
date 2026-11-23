@@ -21,12 +21,15 @@ const shortDate = (iso: string): string =>
 export function LiftChart({
   points,
   format,
+  axisFormat = format,
   label,
   height = 200,
   now = new Date(),
 }: {
   points: SeriesPoint[];
   format(value: number): string;
+  /** The top and bottom labels of the value axis (a ladder names its steps); defaults to `format`. */
+  axisFormat?(value: number): string;
   label: string;
   height?: number;
   now?: Date;
@@ -73,7 +76,7 @@ export function LiftChart({
       <Text variant="numberLarge">{shown ? format(shown.value) : '–'}</Text>
       <Text variant="caption" color="textMuted">
         {shown
-          ? `${shortDate(shown.date)}${shown.reps ? ` · ${shown.reps} reps` : ''}${shown.pr ? ' · PR' : ''}`
+          ? `${shortDate(shown.date)}${shown.label ? ` · ${shown.label}` : shown.reps ? ` · ${shown.reps} reps` : ''}${shown.pr ? ' · PR' : ''}`
           : 'No finished sessions yet'}
       </Text>
     </View>
@@ -164,10 +167,10 @@ export function LiftChart({
         {scaled ? (
           <>
             <Text variant="caption" color="textMuted" style={{ position: 'absolute', top: 0, right: 0 }}>
-              {format(scaled.max)}
+              {axisFormat(scaled.max)}
             </Text>
             <Text variant="caption" color="textMuted" style={{ position: 'absolute', bottom: 22, right: 0 }}>
-              {format(scaled.min)}
+              {axisFormat(scaled.min)}
             </Text>
           </>
         ) : null}

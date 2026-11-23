@@ -54,7 +54,7 @@ test('switching to lb shows 45 lb; ticking the 1.25 lb plate lowers the smallest
 
 test('the lift editor changes the weight and shows the plates', async () => {
   setProgram(TEMPLATES.base);
-  await renderRouter(routes(), { initialUrl: '/lift/BENCH_PRESS' });
+  await renderRouter(routes(), { initialUrl: `/lift/BENCH_PRESS?program=${programId()}` });
   expect((await screen.findAllByText('Working weight')).length).toBeGreaterThan(0);
   for (let i = 0; i < 17; i++) fireEvent.press(screen.getAllByLabelText('Increase')[0]); // 20 → 62.5 kg
   expect(lifts().BENCH_PRESS.weightKg).toBe(62.5);

@@ -5,7 +5,7 @@ import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
 import type { ActiveProgram, SessionLog } from '../../src/domain';
 import { exerciseOfLift, liftKeysOf, project, trim } from '../../src/domain';
-import { liftLabel, logPosition, nameOf, weightLabel } from '../../src/format';
+import { belongsTo, liftLabel, nameOf, weightLabel } from '../../src/format';
 import { chartsAddedLoad, seriesFor } from '../../src/series';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -16,10 +16,6 @@ import { ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
 import { ladderAt } from '../../src/views/ladder';
-
-/** Whether a workout belongs to a program: by its program id, or for old history by the program's start. */
-const belongsTo = (log: SessionLog, program: ActiveProgram): boolean =>
-  log.programId !== undefined ? log.programId === program.id : logPosition(log, program) !== null;
 
 /** The lifts of one program with their trends, and what its next workouts will weigh. */
 function ProgramProgress({ program, only }: { program: ActiveProgram; only: boolean }) {

@@ -152,3 +152,74 @@ describe('the ladder screen', () => {
     expect(await screen.findByText('Program not found')).toBeTruthy();
   });
 });
+
+describe('the lift screen', () => {
+  /** Finished sessions of the pull-up ladder: `[step, reps]` per session, the first `own` in this program. */
+  function history(rows: [number, number][], own = rows.length) {
+    const exercise = (step: number) => ['CAL_SCAPULAR_PULL', 'CAL_ARCH_HANG', 'CAL_PULLUP_NEGATIVE'][step];
+    useStore.setState({
+      sessions: rows.map(([step, reps], n) => ({
+        n,
+        dayName: 'A',
+        startedAt: new Date(Date.UTC(2026, 9, n + 1)).toISOString(),
+        finishedAt: new Date(Date.UTC(2026, 9, n + 1)).toISOString(),
+        programId: n < own ? programId() : 'removed',
+        results: {
+          [exercise(step)]: {
+            weightKg: 0,
+            sets: [{ target: 5, reps }],
+            lift: 'rr_pullup',
+            step,
+            scheme: step === 1 ? ('3x10-30s' as const) : ('3x5-8' as const),
+            ...(step === 1 ? { timed: true as const } : {}),
+          },
+        },
+        order: [exercise(step)],
+      })),
+      nextSession: rows.length,
+    });
+  }
+
+  test('a ladder charts its level with step names, and can chart every program', async () => {
+    setStale('rr_pullup', { step: 2 });
+    history(
+      [
+        [0, 8],
+        [1, 20],
+        [2, 5],
+        [0, 6],
+      ],
+      3,
+    );
+    await renderRouter(allRoutes(), { initialUrl: `/lift/rr_pullup?program=${programId()}` });
+    expect(
+      await screen.findByLabelText('Pull-up progression: Level 2 to Level 3 over 3 sessions'),
+    ).toBeTruthy();
+    expect(screen.getByText('3 Pull-up negative')).toBeTruthy();
+    expect(screen.getByText('Step now: Pull-up negative · 3 of 6')).toBeTruthy();
+    expect(screen.getByText('Arch hang · 20 s')).toBeTruthy();
+    fireEvent.press(screen.getByRole('radio', { name: 'All programs' }));
+    expect(screen.getByLabelText('Pull-up progression: Level 1.3 to Level 3 over 4 sessions')).toBeTruthy();
+  });
+
+  test('a program id that no longer exists shows a not-found state', async () => {
+    await renderRouter(allRoutes(), { initialUrl: '/lift/rr_pullup?program=gone' });
+    expect(await screen.findByText('Program not found')).toBeTruthy();
+  });
+
+  test('a timed lift charts seconds', async () => {
+    useStore.setState({
+      sessions: [10, 25].map((reps, n) => ({
+        n,
+        dayName: 'A',
+        startedAt: new Date(Date.UTC(2026, 9, n + 1)).toISOString(),
+        finishedAt: new Date(Date.UTC(2026, 9, n + 1)).toISOString(),
+        results: { CAL_SUPPORT_HOLD: { weightKg: 0, sets: [{ target: 10, reps }], timed: true } },
+        order: ['CAL_SUPPORT_HOLD'],
+      })),
+    });
+    await renderRouter(allRoutes(), { initialUrl: '/lift/CAL_SUPPORT_HOLD' });
+    expect(await screen.findByLabelText('Support hold: 10 s to 25 s over 2 sessions')).toBeTruthy();
+    expect(screen.getByText('Best last set: 25 s')).toBeTruthy();
+  });
+});
