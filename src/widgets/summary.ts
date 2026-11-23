@@ -1,6 +1,6 @@
 import type { AppState } from '../domain';
-import { fiveThreeOneSets, formatWeight, sessionFor, sessionWeightKg } from '../domain';
-import { nameOf, weekLabel } from '../format';
+import { fiveThreeOneSets, sessionFor, sessionWeightKg } from '../domain';
+import { nameOf, weekLabel, weightLabel } from '../format';
 
 /** What the "Next workout" widget shows. Plain JSON: it is handed to the widget extension as-is. */
 export interface NextWorkoutProps {
@@ -8,7 +8,7 @@ export interface NextWorkoutProps {
   title: string;
   /** "Week 3" */
   subtitle: string;
-  /** "Squat 62.5 kg" — at most 4, bodyweight lifts show their name only. */
+  /** "Squat 62.5 kg" — at most 4; bodyweight lifts show their added load ("Dips +10 kg") or only their name. */
   lines: string[];
   /** True while a workout is in progress. */
   inProgress: boolean;
@@ -38,7 +38,7 @@ export function nextWorkoutProps(
   const lines = session.slots.slice(0, 4).map(({ exercise: id, lift, progression, week }) => {
     const exercise = s.exercises[id];
     const name = nameOf(s.exercises, id, true);
-    if (!exercise || exercise.kind === 'bodyweight') return name;
+    if (!exercise) return name;
     const working = program.lifts[lift]?.weightKg ?? 0;
     const kg =
       progression === '531'
@@ -46,7 +46,7 @@ export function nextWorkoutProps(
             ...fiveThreeOneSets(working, week ?? 0, exercise, s.inventory, s.unit).map((s) => s.kg ?? 0),
           )
         : sessionWeightKg(working, session.intensity, exercise, s.inventory, s.unit);
-    return `${name} ${formatWeight(kg, s.unit)}`;
+    return `${name}${weightLabel(kg, exercise, s.unit)}`;
   });
   return {
     title: session.dayName,

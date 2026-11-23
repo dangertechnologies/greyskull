@@ -45,6 +45,29 @@ describe('widget props', () => {
     expect(Object.keys(builtInExercises()).length).toBeGreaterThan(0);
   });
 
+  test('bodyweight lifts show their added load, and only their name without one', () => {
+    const s = initialState();
+    s.programs = [
+      active(
+        {
+          ...TEMPLATES.base,
+          days: [
+            {
+              name: 'A',
+              slots: [
+                { exercise: 'DIPS', scheme: '2xAMRAP' },
+                { exercise: 'CHINUPS', scheme: '2xAMRAP' },
+              ],
+            },
+          ],
+        },
+        0,
+        { DIPS: { weightKg: 10, startKg: 0, fails: 0 }, CHINUPS: { weightKg: 0, startKg: 0, fails: 0 } },
+      ),
+    ];
+    expect(nextWorkoutProps(s).lines).toEqual(['Dips +10 kg', 'Chin']);
+  });
+
   test('paused programs are skipped; all paused shows the set-up prompt', () => {
     const s = withProgram();
     s.programs = [{ ...s.programs[0], id: 'paused', name: 'Paused', paused: true }, s.programs[0]];

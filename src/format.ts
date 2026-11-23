@@ -47,19 +47,30 @@ export function summarize(log: SessionLog, exercises: Record<string, Exercise>, 
       const r = log.results[id];
       if (!r) return null;
       const last = r.sets[r.sets.length - 1];
-      const weight = exercises[id]?.kind === 'bodyweight' ? '' : ` ${formatWeight(r.weightKg, unit)}`;
-      return `${nameOf(exercises, id, true)}${weight} × ${last?.reps ?? 0}`;
+      const seconds = r.timed ? ' s' : '';
+      return `${nameOf(exercises, id, true)}${weightLabel(r.weightKg, exercises[id], unit)} × ${last?.reps ?? 0}${seconds}`;
     })
     .filter((s): s is string => s !== null)
     .join(' · ');
 }
 
-/** "2x5+", or for a rep range the current target: "2×9 (8–12)". */
+/**
+ * " 62.5 kg" for a weight, " +10 kg" for a bodyweight exercise's added load, "" for bodyweight alone (leading
+ * space included, so it follows a name directly).
+ */
+export function weightLabel(kg: number, exercise: Exercise | undefined, unit: Unit): string {
+  if (exercise?.kind !== 'bodyweight') return ` ${formatWeight(kg, unit)}`;
+  return kg > 0 ? ` +${formatWeight(kg, unit)}` : '';
+}
+
+/** "2x5+", for a rep range the current target: "2×9 (8–12)"; holds in seconds: "3×30 s", "3×15 s (10–30 s)". */
 export function schemeLabel(scheme: Scheme, liftReps?: number): string {
   const parsed = tryParseScheme(scheme);
-  if (!parsed || parsed.repsMax === null || parsed.reps === null) return scheme;
+  if (!parsed || parsed.reps === null) return scheme;
+  const s = parsed.timed ? ' s' : '';
+  if (parsed.repsMax === null) return parsed.timed ? `${parsed.sets}×${parsed.reps}${s}` : scheme;
   const [target] = setTargets(scheme, liftReps);
-  return `${parsed.sets}×${target} (${parsed.reps}–${parsed.repsMax})`;
+  return `${parsed.sets}×${target}${s} (${parsed.reps}–${parsed.repsMax}${s})`;
 }
 
 /** "Light day · 80 %" for reduced-intensity days, else null. */
