@@ -396,7 +396,6 @@ const hostileCases = (id: string): [string, (s: any) => void][] => [
         session({ order: ['BENCH_PRESS'], results: { BENCH_PRESS: result({ lift: `${id}@T2` }) } }),
       ]),
   ],
-  [`${id} as owned equipment`, (s) => (s.equipment = ['barbell', id])],
   [
     `${id} as the exercise part of a stored lift key`,
     (s) => own(s.programs[0].lifts, `${id}@T2`, { weightKg: 20, startKg: 20, fails: 0 }),
@@ -422,8 +421,6 @@ describe('a damaged backup is refused, never thrown', () => {
     ['exercises with a null entry', (s) => (s.exercises.BENCH_PRESS = null)],
     ['an order item that has no result', (s) => (s.sessions = [session({ order: ['BENCH_PRESS'] })])],
     ['an order item that is not text', (s) => (s.sessions = [session({ order: [3] })])],
-    ['equipment that is not a list', (s) => (s.equipment = 'barbell')],
-    ['equipment this app does not know', (s) => (s.equipment = ['barbell', 'jetpack'])],
     ['an exercise filed under another id', (s) => (s.exercises.custom_x = custom('custom_y'))],
     ...HOSTILE.flatMap(hostileCases),
     [
@@ -443,6 +440,16 @@ describe('a damaged backup is refused, never thrown', () => {
       result = parseBackup(JSON.stringify(data));
     }).not.toThrow();
     expect(result?.ok).toBe(false);
+  });
+
+  test('owned equipment this version does not know is left out, as on a load, not refused', () => {
+    const data = current();
+    data.equipment = ['barbell', 'jetpack', ...HOSTILE];
+    const r = parseBackup(JSON.stringify(data));
+    expect(r.ok && r.state.equipment).toEqual(['barbell']);
+    expect(migratePersisted(data, 4).equipment).toEqual(['barbell']);
+    data.equipment = 'barbell';
+    expect(parseBackup(JSON.stringify(data))).toMatchObject({ ok: true, state: { equipment: [] } });
   });
 });
 

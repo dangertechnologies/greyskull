@@ -5,7 +5,6 @@ import { isReservedKey } from './domain/own';
 import { NEWER_VERSION_ERROR } from './storage';
 import type { OneProgramState } from './store';
 import {
-  isEquipment,
   migratePersisted,
   repairStored,
   restoreExercises,
@@ -37,9 +36,15 @@ const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFin
 
 const KINDS = ['barbell', 'bodyweight', 'dumbbell', 'machine', 'kettlebell'];
 const reserved = (map: Record<string, unknown>): boolean => Object.keys(map).some(isReservedKey);
-/** A lift key is an exercise id or ladder id, optionally `<id>@tier`; neither part may be a name every object has. */
+/**
+ * A lift key is an exercise id or ladder id, optionally `<id>@tier`; neither part may be a name every object has.
+ * Older versions made custom exercise ids of any length, so the key may be as long as stored text.
+ */
 const saneLiftKey = (k: unknown): boolean =>
-  typeof k === 'string' && k.length > 0 && k.length <= 100 && !k.split('@').some(isReservedKey);
+  typeof k === 'string' &&
+  k.length > 0 &&
+  k.length <= STORED_LIMITS.text &&
+  !k.split('@').some(isReservedKey);
 
 /** An ISO 8601 date-time the app can compare and sort by time (`toISOString` output and its time-zone forms). */
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:?\d{2})$/;
@@ -180,8 +185,7 @@ function parse(raw: string): BackupResult {
       return { ok: false, error: 'An exercise is malformed.' };
     }
   }
-  if (data.equipment !== undefined && !(Array.isArray(data.equipment) && data.equipment.every(isEquipment)))
-    return { ok: false, error: 'The equipment list in the backup is invalid.' };
+  // Owned equipment this version does not know is left out by the conversion below, as on a load.
   const problem = stateProblem(data);
   if (problem) return { ok: false, error: `The backup is damaged: ${problem.replace(/\.$/, '')}.` };
 

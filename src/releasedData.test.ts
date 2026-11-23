@@ -41,6 +41,7 @@ function released(): Doc {
   days[0].name = '';
   days[1].name = 'n'.repeat(150);
   days[2].slots.push({ exercise: LONG_ID, scheme: '3x5' });
+  state.lifts[LONG_ID] = { weightKg: 40, startKg: 20, fails: 0 };
   while (days.length < 16) days.push({ ...days[days.length % 3], name: `Extra ${days.length}` });
   return state;
 }
