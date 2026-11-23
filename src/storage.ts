@@ -55,7 +55,8 @@ function parsed(raw: string): { state: unknown; version?: unknown } {
   return value as { state: unknown; version?: unknown };
 }
 
-const isWhole = (raw: string): boolean => {
+/** Whether `raw` is a whole data file (it parses and holds a state). */
+export const isWhole = (raw: string): boolean => {
   try {
     parsed(raw);
     return true;
@@ -83,6 +84,9 @@ const listKept = (prefix: string): File[] => {
 export const listUnreadable = (): File[] => listKept(UNREADABLE_PREFIX);
 /** The kept copies of data a restore or reset replaced, newest first. */
 export const listBeforeRestore = (): File[] => listKept(BEFORE_RESTORE_PREFIX);
+/** Every kept copy of the data (unreadable, before a restore or reset, before an upgrade): all but the saved files. */
+export const listCopies = (): File[] =>
+  listKept('state.').filter((f) => ![STATE_FILE, TMP_FILE, PREV_FILE].includes(f.name));
 
 /** Writes `source` (a file or text) to a new `<prefix><time>[.<label>].json`. Never overwrites a file. */
 async function keepCopy(prefix: string, source: File | string, label?: string): Promise<void> {

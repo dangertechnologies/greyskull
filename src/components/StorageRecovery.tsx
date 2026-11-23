@@ -1,11 +1,11 @@
 import type { File } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useTheme } from '../design/theme';
-import { importFromFile } from '../importFlow';
-import { listUnreadable, PREV_FILE, STATE_FILE, stateFile, TMP_FILE } from '../storage';
-import { initStore } from '../store';
+import { confirmAndApply, importFromFile } from '../importFlow';
+import { isWhole, listCopies, PREV_FILE, STATE_FILE, stateFile, TMP_FILE } from '../storage';
+import { initialState, initStore, useStore } from '../store';
 import { Button } from '../ui/Button';
 import { ScreenScroll } from '../ui/layout';
 import { Text } from '../ui/Text';
@@ -15,11 +15,22 @@ const saved = () => [STATE_FILE, TMP_FILE, PREV_FILE].map((name) => stateFile(na
 
 /**
  * Shown instead of the app when the saved data cannot be read. Nothing is written while it shows, so the
- * file stays as it was: the user can try again, send the file somewhere safe, or restore a backup.
+ * file stays as it was: the user can try again, send the file somewhere safe, go back to the previous save,
+ * restore a backup or start fresh. The last three first keep every data file as a copy.
  */
 export function StorageRecovery({ error }: { error: string }) {
   const t = useTheme();
   const [busy, setBusy] = useState(false);
+  const [previous, setPrevious] = useState<string | null>(null);
+
+  useEffect(() => {
+    const file = stateFile(PREV_FILE);
+    if (!file.exists) return;
+    file.text().then(
+      (raw) => setPrevious(isWhole(raw) ? raw : null),
+      () => undefined,
+    );
+  }, []);
 
   const retry = async () => {
     setBusy(true);
@@ -47,8 +58,22 @@ export function StorageRecovery({ error }: { error: string }) {
     await share(file);
   };
 
-  // The other files the next save replaces, and the copies kept from earlier failed loads.
-  const others = [...saved().slice(1), ...listUnreadable()];
+  const startFresh = () =>
+    Alert.alert(
+      'Start fresh?',
+      'The app starts empty. Your data files stay on this device as copies you can export from Settings.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Start fresh',
+          style: 'destructive',
+          onPress: () => void useStore.getState().importBackup(initialState()),
+        },
+      ],
+    );
+
+  // The other files the next save replaces, and every copy kept from earlier loads, restores and upgrades.
+  const others = [...saved().slice(1), ...listCopies()];
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
@@ -74,12 +99,20 @@ export function StorageRecovery({ error }: { error: string }) {
           {others.map((file) => (
             <Button
               key={file.uri}
-              title={`Export ${file.uri.split('/').pop()}`}
+              title={`Export ${file.name}`}
               variant="secondary"
               onPress={() => void share(file)}
             />
           ))}
+          {previous !== null ? (
+            <Button
+              title="Use the previous save"
+              variant="secondary"
+              onPress={() => confirmAndApply(previous)}
+            />
+          ) : null}
           <Button title="Restore a backup" variant="secondary" onPress={() => void importFromFile()} />
+          <Button title="Start fresh" variant="destructive" onPress={startFresh} />
         </View>
       </ScreenScroll>
     </View>

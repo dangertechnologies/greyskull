@@ -9,7 +9,7 @@ import { TEMPLATES } from '../../src/domain';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
 import { SiriCard } from '../../src/intents/SiriCard';
 import { goHome } from '../../src/navigation';
-import { listBeforeRestore, listUnreadable } from '../../src/storage';
+import { listCopies } from '../../src/storage';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ListRow } from '../../src/ui/ListRow';
@@ -19,9 +19,9 @@ import { Section } from '../../src/ui/Section';
 import { SegmentedControl } from '../../src/ui/SegmentedControl';
 import { Text } from '../../src/ui/Text';
 
-/** Copies of the data kept when it could not be read or before a restore or reset replaced it. */
+/** Copies of the data kept when it could not be read, before a restore or reset replaced it, or before an upgrade. */
 function KeptCopies() {
-  const files = [...listBeforeRestore(), ...listUnreadable()];
+  const files = listCopies();
   if (files.length === 0) return null;
   return (
     <>
