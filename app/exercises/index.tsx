@@ -220,7 +220,8 @@ export default function Exercises() {
   );
 
   return (
-    <>
+    // A plain View root: with the list itself as the screen root, iOS left the large title blank.
+    <View style={{ flex: 1, backgroundColor: t.color.background }}>
       <Stack.Screen
         options={{
           title: 'Exercises',
@@ -283,6 +284,6 @@ export default function Exercises() {
         onClear={() => set({ patterns: [] })}
         onClose={() => setSheet(null)}
       />
-    </>
+    </View>
   );
 }
