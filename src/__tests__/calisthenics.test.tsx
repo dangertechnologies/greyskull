@@ -306,7 +306,7 @@ test('the past-session editor edits seconds for holds and added load for bodywei
   });
   await renderRouter(allRoutes(), { initialUrl: '/session/edit/0' });
   expect(await screen.findByText('12 s')).toBeTruthy();
-  expect(screen.getByText('+5 kg')).toBeTruthy();
+  expect(screen.getByText('+5.0 kg')).toBeTruthy();
   expect(screen.getByText('8 reps')).toBeTruthy();
   const increase = () => screen.getAllByLabelText('Increase');
   fireEvent.press(increase()[0]); // hold 12 → 13 s

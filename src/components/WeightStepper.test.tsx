@@ -27,5 +27,5 @@ test('bodyweight steps added load in single plates and back down to none', () =>
   expect(stepFrom('DIPS', 0, 'Increase')).toBe(1.25);
   expect(stepFrom('DIPS', 1.25, 'Decrease')).toBe(0);
   render(<WeightStepper exercise={ex.DIPS} kg={10} onChange={jest.fn()} unit="kg" />);
-  expect(screen.getByText('+10 kg')).toBeTruthy();
+  expect(screen.getByText('+10.0 kg')).toBeTruthy();
 });

@@ -66,7 +66,7 @@ test('seeded v1 data goes through the confirm screen into history', async () => 
   await renderRouter(routes(), { initialUrl: '/' });
   expect(await screen.findByText('Check your weights')).toBeTruthy();
   expect(screen.getByText('looks wrong')).toBeTruthy();
-  expect(screen.getAllByText('45 lb').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('45.0 lb').length).toBeGreaterThan(0);
   fireEvent.press(screen.getByTestId('confirm-weights'));
   expect(await screen.findByText('Recent')).toBeTruthy();
   expect(screen.getAllByText(/Imported/).length).toBeGreaterThan(0);

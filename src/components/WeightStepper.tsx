@@ -16,6 +16,13 @@ interface Props {
   inventory?: PlateInventory;
 }
 
+/** A weight with at least one decimal ("40.0 kg"), so the number keeps the same width as it steps. */
+function fixedWeight(kg: number, unit: Unit): string {
+  const text = formatWeight(kg, unit);
+  const [value, suffix] = text.split(' ');
+  return `${value.includes('.') ? value : `${value}.0`} ${suffix}`;
+}
+
 /**
  * Steps through the weights the user can actually load: bar totals (on the exercise's own bar), owned kettlebells,
  * added load in single plates for bodyweight, or the exercise's rounding step.
@@ -68,9 +75,9 @@ export function WeightStepper({
       format={(v) =>
         bodyweight
           ? v > 0
-            ? `+${formatWeight(toKg(v, unit), unit)}`
+            ? `+${fixedWeight(toKg(v, unit), unit)}`
             : 'Bodyweight'
-          : formatWeight(toKg(v, unit), unit)
+          : fixedWeight(toKg(v, unit), unit)
       }
       onChange={(v) => onChange(snap(v))}
     />
