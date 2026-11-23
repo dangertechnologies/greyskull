@@ -1,7 +1,7 @@
+import { startingWeightKg } from './plates';
 import { parseScheme, sessionFor, setTargets } from './program';
 import { fiveThreeOneSets, nextLift, SUCCESS_REPS, sessionWeightKg } from './progression';
 import type { AppState, LiftState, Scheme, SetResult } from './types';
-import { toKg } from './units';
 
 export interface ProjectedSession {
   n: number;
@@ -17,7 +17,6 @@ export function project(state: AppState, programId: string, count: number): Proj
   const program = state.programs.find((p) => p.id === programId);
   if (!program) return [];
   const unit = state.unit;
-  const barKg = toKg(unit === 'kg' ? state.inventory.barKg : state.inventory.barLb, unit);
   const lifts: Record<string, LiftState> = { ...program.lifts };
   const out: ProjectedSession[] = [];
   for (let i = 0; i < count; i++) {
@@ -26,8 +25,9 @@ export function project(state: AppState, programId: string, count: number): Proj
     const projected = session.slots.map((slot) => {
       const { exercise: id, lift: key, scheme, progression, week, advanceAt } = slot;
       const exercise = state.exercises[id];
-      if (!exercise || exercise.kind === 'bodyweight') return { exercise: id, scheme, weightKg: 0 };
-      const lift = lifts[key] ?? { weightKg: barKg, startKg: barKg, fails: 0 };
+      if (!exercise) return { exercise: id, scheme, weightKg: 0 };
+      const start = startingWeightKg(exercise, state.inventory, unit);
+      const lift = lifts[key] ?? { weightKg: start, startKg: start, fails: 0 };
       let weightKg = sessionWeightKg(lift.weightKg, session.intensity, exercise, state.inventory, unit);
       // A plain success reaches each target, including the slot's AMRAP threshold.
       const sets: SetResult[] =
@@ -44,6 +44,7 @@ export function project(state: AppState, programId: string, count: number): Proj
       lifts[key] = nextLift(lift, { weightKg, sets }, program.rules, exercise, state.inventory, unit, {
         ...slot,
         intensity: session.intensity,
+        bands: state.bands,
       }).next;
       return { exercise: id, scheme, weightKg };
     });

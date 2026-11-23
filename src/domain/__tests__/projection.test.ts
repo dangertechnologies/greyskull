@@ -47,7 +47,7 @@ test('does not mutate state and starts from the program position', () => {
   expect(p.map((x) => x.dayName)).toEqual(['Day 2', 'Day 3', 'Day 1']);
 });
 
-test('bodyweight shows 0 and no program gives []', () => {
+test('bodyweight shows its added load (0 = none) and no program gives []', () => {
   const s = state(PLUGINS.chins.apply(TEMPLATES.base));
   expect(project(s, 'test', 1)[0].lifts.at(-1)).toEqual({
     exercise: 'CHINUPS',
@@ -56,4 +56,35 @@ test('bodyweight shows 0 and no program gives []', () => {
   });
   expect(project(state(null), 'test', 5)).toEqual([]);
   expect(project(s, 'another', 5)).toEqual([]);
+});
+
+test('bodyweight added load is projected, not zeroed', () => {
+  const s = state(PLUGINS.chins.apply(TEMPLATES.base));
+  s.programs[0].lifts = { ...LIFTS, CHINUPS: { weightKg: 10, startKg: 0, fails: 0 } };
+  expect(project(s, 'test', 1)[0].lifts.at(-1)?.weightKg).toBe(10);
+});
+
+test('an EZ-bar lift without a state starts at its own bar', () => {
+  const p = JSON.parse(JSON.stringify(TEMPLATES.base)) as Program;
+  p.days[0].slots.push({ exercise: 'EZ_BAR_CURL', scheme: '3x8' });
+  expect(project(state(p), 'test', 1)[0].lifts.at(-1)).toMatchObject({
+    exercise: 'EZ_BAR_CURL',
+    weightKg: 10,
+  });
+});
+
+test('ladder lifts climb through their steps', () => {
+  const ladder: Program = {
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: TEMPLATES.base.rules,
+    days: [{ name: 'A', slots: [{ exercise: 'CAL_SCAPULAR_PULL', scheme: '3x5-8', ladder: 'rr_pullup' }] }],
+  };
+  const p = project(state(ladder), 'test', 8);
+  // 5, 6, 7, 8 reps on the first step, then the arch hang (timed) begins.
+  expect(p.map((x) => x.lifts[0].exercise)).toEqual([
+    ...Array(4).fill('CAL_SCAPULAR_PULL'),
+    ...Array(4).fill('CAL_ARCH_HANG'),
+  ]);
+  expect(p[4].lifts[0]).toMatchObject({ scheme: '3x10-30s', weightKg: 0 });
 });
