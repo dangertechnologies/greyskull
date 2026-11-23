@@ -73,33 +73,61 @@ describe('iOS Apple Health', () => {
     });
   });
 
-  it('removes its earlier write of the same id before saving, without reading', async () => {
+  it('saves the new workout first, then removes the other copies of the same id, without reading', async () => {
     const p = load('ios').createPlatform();
     const order: string[] = [];
-    hk.deleteObjects.mockImplementationOnce(async () => {
-      order.push('delete');
-      return 1;
-    });
     hk.saveWorkoutSample.mockImplementationOnce(async () => {
       order.push('save');
       return { dispose: jest.fn() };
     });
+    hk.deleteObjects.mockImplementationOnce(async () => {
+      order.push('delete');
+      return 1;
+    });
     await p?.write(workout());
-    expect(order).toEqual(['delete', 'save']);
+    expect(order).toEqual(['save', 'delete']);
+    const metadata = (hk.saveWorkoutSample.mock.calls[0] as unknown[])[5] as { GreyskullWriteId: string };
+    expect(metadata.GreyskullWriteId).toEqual(expect.any(String));
     expect(hk.deleteObjects).toHaveBeenCalledWith('HKWorkoutTypeIdentifier', {
       metadata: {
         withMetadataKey: 'HKSyncIdentifier',
         operatorType: 4,
         value: 'greyskull-2026-11-20T08:00:00.000Z-7',
       },
+      NOT: [
+        {
+          metadata: {
+            withMetadataKey: 'GreyskullWriteId',
+            operatorType: 4,
+            value: metadata.GreyskullWriteId,
+          },
+        },
+      ],
     });
   });
 
-  it('does not save when removing the earlier write failed', async () => {
+  it('marks every write with its own marker', async () => {
+    const p = load('ios').createPlatform();
+    await p?.write(workout());
+    await p?.write(workout());
+    const markers = hk.saveWorkoutSample.mock.calls.map(
+      (c) => ((c as unknown[])[5] as { GreyskullWriteId: string }).GreyskullWriteId,
+    );
+    expect(new Set(markers).size).toBe(2);
+  });
+
+  it('crash window: when removing the old copies fails, the new workout is already saved and the write fails', async () => {
     const p = load('ios').createPlatform();
     hk.deleteObjects.mockRejectedValueOnce(new Error('no access'));
     await expect(p?.write(workout())).rejects.toThrow('no access');
-    expect(hk.saveWorkoutSample).not.toHaveBeenCalled();
+    expect(hk.saveWorkoutSample).toHaveBeenCalledTimes(1);
+  });
+
+  it('crash window: when saving fails, nothing is deleted', async () => {
+    const p = load('ios').createPlatform();
+    hk.saveWorkoutSample.mockRejectedValueOnce(new Error('disk'));
+    await expect(p?.write(workout())).rejects.toThrow('disk');
+    expect(hk.deleteObjects).not.toHaveBeenCalled();
   });
 
   it('uses functional strength training for the functional activity', async () => {

@@ -32,20 +32,21 @@ function appleHealth(): HealthPlatform {
           ? m.WorkoutActivityType.functionalStrengthTraining
           : m.WorkoutActivityType.traditionalStrengthTraining;
       // HealthKit does not replace a workout that has the same sync identifier and a higher version (checked on
-      // iOS 26: both stay), so remove this app's earlier write of the same id first, then save. Deleting by
-      // metadata needs no read access and only ever touches samples this app saved. A crash between the two
-      // steps leaves no copy, and the next attempt saves it.
-      await m.deleteObjects(WORKOUT_TYPE, {
-        metadata: {
-          withMetadataKey: 'HKSyncIdentifier',
-          operatorType: m.ComparisonPredicateOperator.equalTo,
-          value: w.id,
-        },
-      });
+      // iOS 26: both stay). So save the new one first, then delete this app's other workouts with the same id
+      // (matched by metadata: no read access, and only this app's own samples can be deleted). The new one is
+      // told apart by a marker unique to this write. A failure between the two leaves a visible duplicate that
+      // the next write of the same workout removes, and never a missing workout.
+      const marker = `${w.version}-${Math.random().toString(36).slice(2, 10)}`;
       const saved = await m.saveWorkoutSample(type, [], w.start, w.end, undefined, {
         HKSyncIdentifier: w.id,
         HKSyncVersion: w.version,
+        GreyskullWriteId: marker,
         GreyskullTitle: w.title,
+      });
+      const equalTo = m.ComparisonPredicateOperator.equalTo;
+      await m.deleteObjects(WORKOUT_TYPE, {
+        metadata: { withMetadataKey: 'HKSyncIdentifier', operatorType: equalTo, value: w.id },
+        NOT: [{ metadata: { withMetadataKey: 'GreyskullWriteId', operatorType: equalTo, value: marker } }],
       });
       saved.dispose?.();
     },
@@ -71,6 +72,25 @@ function healthConnect(): HealthPlatform {
         'accessType' in p &&
         p.accessType === 'write',
     );
+  const writeMany = async (workouts: HealthWorkout[]) => {
+    const m = hc();
+    // A record with the same client id and a higher client version replaces the earlier one.
+    await m.insertRecords(
+      workouts.map((w) => ({
+        recordType: 'ExerciseSession' as const,
+        startTime: w.start.toISOString(),
+        endTime: w.end.toISOString(),
+        exerciseType:
+          w.activity === 'functional' ? m.ExerciseType.CALISTHENICS : m.ExerciseType.STRENGTH_TRAINING,
+        title: w.title,
+        metadata: {
+          clientRecordId: w.id,
+          clientRecordVersion: w.version,
+          recordingMethod: m.RecordingMethod.RECORDING_METHOD_MANUAL_ENTRY,
+        },
+      })),
+    );
+  };
   return {
     async permission() {
       if (!(await ready())) return 'unavailable';
@@ -81,25 +101,8 @@ function healthConnect(): HealthPlatform {
       if (!(await ready())) return 'unavailable';
       return hasWrite(await hc().requestPermission([WRITE])) ? 'granted' : 'denied';
     },
-    async write(w: HealthWorkout) {
-      const m = hc();
-      // A record with the same client id and a higher client version replaces the earlier one.
-      await m.insertRecords([
-        {
-          recordType: 'ExerciseSession',
-          startTime: w.start.toISOString(),
-          endTime: w.end.toISOString(),
-          exerciseType:
-            w.activity === 'functional' ? m.ExerciseType.CALISTHENICS : m.ExerciseType.STRENGTH_TRAINING,
-          title: w.title,
-          metadata: {
-            clientRecordId: w.id,
-            clientRecordVersion: w.version,
-            recordingMethod: m.RecordingMethod.RECORDING_METHOD_MANUAL_ENTRY,
-          },
-        },
-      ]);
-    },
+    write: (w: HealthWorkout) => writeMany([w]),
+    writeMany,
     openSettings: () => hc().openHealthConnectSettings(),
   };
 }
