@@ -24,7 +24,14 @@ export function PhotoHeader({
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   return (
-    <View style={{ height: Math.max(240, height * fraction), backgroundColor: t.color.surface }}>
+    // Clipped: a cover image taller than the header (a portrait photo) would otherwise spill over the screen below.
+    <View
+      style={{
+        height: Math.max(240, height * fraction),
+        backgroundColor: t.color.surface,
+        overflow: 'hidden',
+      }}
+    >
       <Image
         source={BACKGROUNDS[image] ?? BACKGROUNDS.default}
         resizeMode="cover"
