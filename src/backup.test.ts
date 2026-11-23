@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { lifts, setLift, setProgram, startSession } from './__fixtures__/oneProgram';
 import { parseBackup } from './backup';
 import { CATALOG_VERSION } from './catalog';
 import fixture from './dev/v1-imperial.json';
@@ -8,14 +9,17 @@ import { initialState, migratePersisted, STORAGE_KEY, useStore } from './store';
 
 const get = () => useStore.getState();
 
+const files = (jest.requireMock('expo-file-system') as { __files: Map<string, string> }).__files;
+
 beforeEach(async () => {
+  files.clear();
   await AsyncStorage.clear();
   useStore.setState({ ...initialState(), hydrated: false });
 });
 
 function seeded() {
-  get().setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
-  const d = get().startSession(0);
+  setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
+  const d = startSession();
   for (const id of d.order)
     d.results[id].sets.forEach((_s, i) => {
       get().logSet(id, i, 6);
@@ -77,12 +81,12 @@ describe('backup import', () => {
     ).toBe(false);
     expect(
       bad((s) => {
-        s.lifts.BARBELL_SQUAT.weightKg = 0;
+        s.programs[0].lifts.BARBELL_SQUAT.weightKg = -1;
       }),
     ).toBe(false);
     expect(
       bad((s) => {
-        s.program.days[0].slots[0].scheme = '9y9';
+        s.programs[0].days[0].slots[0].scheme = '9y9';
       }),
     ).toBe(false);
     expect(bad(() => {})).toBe(true);
@@ -133,17 +137,17 @@ describe('soft delete', () => {
     });
     const p = JSON.parse(JSON.stringify(TEMPLATES.base)) as Program;
     p.days[0].slots.push({ exercise: 'custom_curl', scheme: '2x8-12' });
-    get().setProgram(p);
-    const d = get().startSession(0);
+    setProgram(p);
+    const d = startSession();
     for (const id of d.order)
       d.results[id].sets.forEach((_s, i) => {
         get().logSet(id, i, 8);
       });
     get().finishSession();
-    get().setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
+    setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
     expect(get().deleteExercise('custom_curl')).toEqual([]);
     expect(get().exercises.custom_curl.archived).toBe(true);
-    expect(get().lifts.custom_curl).toBeUndefined();
+    expect(lifts().custom_curl).toBeUndefined();
   });
 });
 
@@ -168,25 +172,25 @@ test('optional engine fields and seven training days survive a backup round-trip
       },
     ],
   };
-  get().setProgram(program);
-  get().setLift('BARBELL_SQUAT@T2', { stage: 1 });
-  get().startSession(0);
+  setProgram(program);
+  setLift('BARBELL_SQUAT@T2', { stage: 1 });
+  startSession();
   get().finishSession();
   const state = JSON.parse(get().exportJson());
   state.sessions[0].results.BARBELL_SQUAT.sets[0].kg = 20;
   const r = parseBackup(JSON.stringify(state));
   expect(r.ok).toBe(true);
   if (r.ok) {
-    expect(r.state.program).toEqual(program);
-    expect(r.state.lifts['BARBELL_SQUAT@T2'].stage).toBe(0);
+    expect(r.state.programs[0]).toMatchObject(program);
+    expect(r.state.programs[0].lifts['BARBELL_SQUAT@T2'].stage).toBe(0);
     expect(r.state.sessions[0].results.BARBELL_SQUAT.sets[0].kg).toBe(20);
   }
   state.sessions[0].results.BARBELL_SQUAT.sets[0].kg = 'bad';
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
   delete state.sessions[0].results.BARBELL_SQUAT.sets[0].kg;
-  state.lifts['BARBELL_SQUAT@T2'].stage = -1;
+  state.programs[0].lifts['BARBELL_SQUAT@T2'].stage = -1;
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
-  state.lifts['BARBELL_SQUAT@T2'].stage = 0;
-  state.program.sessionsPerWeek = 8;
+  state.programs[0].lifts['BARBELL_SQUAT@T2'].stage = 0;
+  state.programs[0].sessionsPerWeek = 8;
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
 });

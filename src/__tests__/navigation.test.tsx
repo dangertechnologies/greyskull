@@ -2,13 +2,14 @@ import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
+import { setProgram, startSession } from '../__fixtures__/oneProgram';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 
 beforeEach(() => {
   useStore.setState({ ...initialState(), hydrated: true });
-  useStore.getState().setProgram(TEMPLATES.base);
+  setProgram(TEMPLATES.base);
   useStore.getState().setSettings({ restSeconds: 0 });
 });
 
@@ -43,7 +44,7 @@ test('Back on the session screen returns to Today and keeps the logged sets', as
 });
 
 test('editing the program during a workout warns before discarding logged sets', async () => {
-  useStore.getState().startSession(0);
+  startSession();
   useStore.getState().logSet('MILITARY_PRESS', 0, 5);
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
   await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });

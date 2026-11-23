@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-native';
+import { lifts, programId, setLift, setPosition, setProgram } from '../__fixtures__/oneProgram';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { useSession } from './useSession';
@@ -12,13 +13,13 @@ const labels = (items: ReturnType<typeof useSession>) =>
 beforeEach(() => {
   jest.useFakeTimers();
   useStore.setState({ ...initialState(), hydrated: true, restSeconds: 90 });
-  useStore.getState().setProgram(TEMPLATES.base);
-  useStore.getState().setLift('BARBELL_SQUAT', { weightKg: 100 });
+  setProgram(TEMPLATES.base);
+  setLift('BARBELL_SQUAT', { weightKg: 100 });
 });
 afterEach(() => jest.useRealTimers());
 
 test('session 0 lists warm-ups then work sets in program order', () => {
-  const { result } = renderHook(() => useSession(0));
+  const { result } = renderHook(() => useSession(0, programId()));
   expect(labels(result.current)).toEqual([
     'MIL:warmup:20x5',
     'MIL:work:5',
@@ -37,13 +38,13 @@ test('session 0 lists warm-ups then work sets in program order', () => {
 test('warm-ups can be switched off in the program rules', () => {
   const program = JSON.parse(JSON.stringify(TEMPLATES.base)) as typeof TEMPLATES.base;
   program.rules.warmups = false;
-  useStore.getState().setProgram(program);
-  const { result } = renderHook(() => useSession(0));
+  setProgram(program);
+  const { result } = renderHook(() => useSession(0, programId()));
   expect(result.current!.items.every((i) => i.kind !== 'warmup')).toBe(true);
 });
 
 test('recording a set persists it, advances, and starts the rest timer', () => {
-  const { result } = renderHook(() => useSession(0));
+  const { result } = renderHook(() => useSession(0, programId()));
   act(() => result.current!.record(0, 5)); // warm-up: no rest
   expect(result.current!.activeIndex).toBe(1);
   expect(result.current!.restRemaining).toBeNull();
@@ -62,7 +63,7 @@ test('recording a set persists it, advances, and starts the rest timer', () => {
 
 test('rest time 0 disables the rest timer; the last set never rests', () => {
   useStore.getState().setSettings({ restSeconds: 0 });
-  const { result } = renderHook(() => useSession(0));
+  const { result } = renderHook(() => useSession(0, programId()));
   act(() => result.current!.record(1, 5));
   expect(result.current!.restRemaining).toBeNull();
   useStore.getState().setSettings({ restSeconds: 60 });
@@ -72,11 +73,11 @@ test('rest time 0 disables the rest timer; the last set never rests', () => {
 });
 
 test('kill and resume continues at the same set (warm-ups of started lifts count as done)', () => {
-  const first = renderHook(() => useSession(0));
+  const first = renderHook(() => useSession(0, programId()));
   act(() => first.result.current!.record(1, 5));
   act(() => first.result.current!.record(2, 12));
   first.unmount();
-  const second = renderHook(() => useSession(0));
+  const second = renderHook(() => useSession(0, programId()));
   const s = second.result.current!;
   expect(s.draft.n).toBe(0);
   expect(s.items[s.activeIndex]).toMatchObject({ exerciseId: 'BARBELL_SQUAT', kind: 'warmup', position: 1 });
@@ -84,7 +85,7 @@ test('kill and resume continues at the same set (warm-ups of started lifts count
 });
 
 test('full session: press AMRAP 12 and squat AMRAP 4 progress once; finishing does not restart a draft', () => {
-  const { result } = renderHook(() => useSession(0));
+  const { result } = renderHook(() => useSession(0, programId()));
   const reps = [5, 5, 12, 5, 4, 3, 2, 5, 4];
   reps.forEach((r, i) => {
     expect(result.current!.activeIndex).toBe(i);
@@ -103,13 +104,13 @@ test('full session: press AMRAP 12 and squat AMRAP 4 progress once; finishing do
   const s = useStore.getState();
   expect(s.draft).toBeNull();
   expect(s.nextSession).toBe(1);
-  expect(s.lifts.BARBELL_SQUAT.fails).toBe(1);
+  expect(lifts().BARBELL_SQUAT.fails).toBe(1);
   expect(result.current).toBeNull();
   expect(s.sessions).toHaveLength(1);
 });
 
 test('changing the weight mid-session rescales warm-ups', async () => {
-  const { result } = renderHook(() => useSession(0));
+  const { result } = renderHook(() => useSession(0, programId()));
   await act(async () => result.current!.setWeight('BARBELL_SQUAT', 60));
   const squatWarm = result.current!.items.filter(
     (i) => i.exerciseId === 'BARBELL_SQUAT' && i.kind === 'warmup',
@@ -120,7 +121,7 @@ test('changing the weight mid-session rescales warm-ups', async () => {
 describe('editing and rest controls', () => {
   test('selecting a logged set shows it; logging it again changes reps without a rest', async () => {
     useStore.getState().setSettings({ restSeconds: 90 });
-    const { result } = renderHook(() => useSession(0));
+    const { result } = renderHook(() => useSession(0, programId()));
     act(() => result.current?.record(0, 5)); // warm-up
     act(() => result.current?.record(1, 5)); // set 1 → rest starts
     act(() => result.current?.skipRest());
@@ -135,7 +136,7 @@ describe('editing and rest controls', () => {
 
   test('±30 s changes the rest, never below zero, and the total follows', () => {
     useStore.getState().setSettings({ restSeconds: 90 });
-    const { result } = renderHook(() => useSession(0));
+    const { result } = renderHook(() => useSession(0, programId()));
     act(() => result.current?.record(1, 5));
     expect(result.current?.restTotal).toBe(90);
     act(() => result.current?.addRest(30));
@@ -149,7 +150,7 @@ describe('editing and rest controls', () => {
   });
 
   test('finish reports personal records against earlier sessions only', () => {
-    const { result } = renderHook(() => useSession(0));
+    const { result } = renderHook(() => useSession(0, programId()));
     result.current?.items.forEach((_i, index) => {
       act(() => result.current?.record(index, 5));
       act(() => result.current?.skipRest());
@@ -163,15 +164,15 @@ describe('editing and rest controls', () => {
 });
 
 test('531 items use each set weight and warm-ups ramp to the first main set', () => {
-  const s = useStore.getState();
-  s.setProgram({
+  setProgram({
     template: 'custom',
     sessionsPerWeek: 3,
     rules: { ...TEMPLATES.base.rules, progression: '531' },
     days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5+' }] }],
   });
-  s.setLift('BARBELL_SQUAT', { weightKg: 100 });
-  const { result, unmount } = renderHook(() => useSession(2));
+  setLift('BARBELL_SQUAT', { weightKg: 100 });
+  setPosition(2);
+  const { result, unmount } = renderHook(() => useSession(0, programId()));
   const work = result.current!.items.filter((i) => i.kind !== 'warmup');
   expect(work.map((i) => i.weightKg)).toEqual([75, 85, 95, 75, 75, 75, 75, 75]);
   expect(work[2]).toMatchObject({ kind: 'amrap', minReps: 1, perSetWeight: true });
@@ -179,4 +180,30 @@ test('531 items use each set weight and warm-ups ramp to the first main set', ()
     20, 40, 52.5, 62.5,
   ]);
   unmount();
+});
+
+test('the session takes its program from the draft, not the first program', () => {
+  const noWarmups = JSON.parse(JSON.stringify(TEMPLATES.base)) as typeof TEMPLATES.base;
+  noWarmups.rules.warmups = false;
+  const second = useStore.getState().addProgram({ ...noWarmups, name: 'Second' });
+  const draft = useStore.getState().startSession(second);
+  const { result } = renderHook(() => useSession(draft.n));
+  expect(result.current!.draft.programId).toBe(second);
+  expect(result.current!.items.every((i) => i.kind !== 'warmup')).toBe(true);
+});
+
+test('another program cannot start while a workout is open', () => {
+  const second = useStore.getState().addProgram({ ...TEMPLATES.base, name: 'Second' });
+  useStore.getState().startSession(second);
+  const { result } = renderHook(() => useSession(useStore.getState().nextSession, programId()));
+  expect(result.current).toBeNull();
+  expect(useStore.getState().draft?.programId).toBe(second);
+});
+
+test('a workout finished elsewhere is not started again by an open session screen', () => {
+  const { result } = renderHook(() => useSession(0, programId()));
+  expect(result.current!.draft.n).toBe(0);
+  act(() => void useStore.getState().finishSession());
+  expect(useStore.getState().draft).toBeNull();
+  expect(result.current).toBeNull();
 });

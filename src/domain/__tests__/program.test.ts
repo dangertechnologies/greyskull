@@ -1,3 +1,4 @@
+import { active } from '../../__fixtures__/oneProgram';
 import { builtInExercises } from '../../catalog';
 import { PLANS } from '../../config/plans';
 import {
@@ -12,7 +13,7 @@ import {
 import type { Program } from '../types';
 
 const ex = builtInExercises();
-const ids = (p: Program, n: number) => sessionFor(p, n).slots.map((s) => s.exercise);
+const ids = (p: Program, n: number) => sessionFor(active(p, n)).slots.map((s) => s.exercise);
 const short = (p: Program, n: number) => ids(p, n).map((id) => ex[id].shortName);
 
 test('base template: press/bench alternate, squat sessions 0 and 2, deadlift once in 3', () => {
@@ -29,7 +30,7 @@ test('base template: press/bench alternate, squat sessions 0 and 2, deadlift onc
 });
 
 test('phrak template: A B A B…, deadlift only on B', () => {
-  const days = [0, 1, 2, 3, 4, 5].map((n) => sessionFor(TEMPLATES.phrak, n).dayName);
+  const days = [0, 1, 2, 3, 4, 5].map((n) => sessionFor(active(TEMPLATES.phrak, n)).dayName);
   expect(days).toEqual(['A', 'B', 'A', 'B', 'A', 'B']);
   const dl = [0, 1, 2, 3, 4, 5].filter((n) => ids(TEMPLATES.phrak, n).includes('DEADLIFT'));
   expect(dl).toEqual([1, 3, 5]);

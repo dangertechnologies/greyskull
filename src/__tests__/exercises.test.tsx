@@ -2,13 +2,14 @@ import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
+import { program as current, lifts, setLift, setProgram } from '../__fixtures__/oneProgram';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 
 beforeEach(() => {
   useStore.setState({ ...initialState(), hydrated: true });
-  useStore.getState().setProgram(TEMPLATES.base);
+  setProgram(TEMPLATES.base);
 });
 
 test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused until removed', async () => {
@@ -36,9 +37,9 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
   fireEvent.press(await screen.findByLabelText('Front squat'));
   fireEvent.press(screen.getByText('Save'));
   expect((await screen.findAllByText('Front squat')).length).toBeGreaterThan(0);
-  expect(useStore.getState().lifts.custom_front_squat.weightKg).toBe(20);
+  expect(lifts().custom_front_squat.weightKg).toBe(20);
 
-  useStore.getState().setLift('custom_front_squat', { weightKg: 60 });
+  setLift('custom_front_squat', { weightKg: 60 });
   expect((await screen.findAllByText('per side: 20')).length).toBeGreaterThan(0);
 
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
@@ -47,11 +48,9 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
   expect(alert.mock.calls[0][1]).toMatch(/Day 1/);
   expect(useStore.getState().exercises.custom_front_squat).toBeDefined();
 
-  const program = JSON.parse(JSON.stringify(useStore.getState().program)) as NonNullable<
-    ReturnType<typeof useStore.getState>['program']
-  >;
+  const program = JSON.parse(JSON.stringify(current())) as ReturnType<typeof current>;
   program.days[0].slots = program.days[0].slots.filter((s) => s.exercise !== 'custom_front_squat');
-  useStore.getState().setProgram(program);
+  setProgram(program);
   fireEvent.press(screen.getByLabelText('Delete exercise'));
   expect(useStore.getState().exercises.custom_front_squat).toBeUndefined();
   alert.mockRestore();

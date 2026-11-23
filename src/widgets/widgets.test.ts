@@ -1,3 +1,4 @@
+import { active } from '../__fixtures__/oneProgram';
 import { builtInExercises } from '../catalog';
 import { TEMPLATES } from '../domain';
 import { initialState } from '../store';
@@ -13,10 +14,13 @@ jest.mock('./definitions', () => {
 
 const withProgram = () => {
   const s = initialState();
-  s.program = JSON.parse(JSON.stringify(TEMPLATES.base));
-  for (const id of ['BARBELL_SQUAT', 'DEADLIFT', 'BENCH_PRESS', 'MILITARY_PRESS']) {
-    s.lifts[id] = { weightKg: 62.5, startKg: 20, fails: 0 };
-  }
+  const lifts = Object.fromEntries(
+    ['BARBELL_SQUAT', 'DEADLIFT', 'BENCH_PRESS', 'MILITARY_PRESS'].map((id) => [
+      id,
+      { weightKg: 62.5, startKg: 20, fails: 0 },
+    ]),
+  );
+  s.programs = [active(TEMPLATES.base, 0, lifts)];
   return s;
 };
 
@@ -33,9 +37,20 @@ describe('widget props', () => {
     expect(p.lines.length).toBeGreaterThan(0);
     expect(p.lines.some((l) => /kg$/.test(l))).toBe(true);
     expect(p.inProgress).toBe(false);
-    s.draft = { n: 0, dayName: p.title, startedAt: '', results: {}, order: [] };
+    s.draft = { n: 0, dayName: p.title, startedAt: '', results: {}, order: [], programId: 'other' };
+    expect(nextWorkoutProps(s).inProgress).toBe(false);
+    s.draft = { ...s.draft, programId: 'test', position: 0 };
     expect(nextWorkoutProps(s).inProgress).toBe(true);
+    expect(nextWorkoutProps(s).title).toBe(p.title);
     expect(Object.keys(builtInExercises()).length).toBeGreaterThan(0);
+  });
+
+  test('paused programs are skipped; all paused shows the set-up prompt', () => {
+    const s = withProgram();
+    s.programs = [{ ...s.programs[0], id: 'paused', name: 'Paused', paused: true }, s.programs[0]];
+    expect(nextWorkoutProps(s).ready).toBe(true);
+    s.programs = [s.programs[0]];
+    expect(nextWorkoutProps(s)).toEqual(EMPTY_NEXT);
   });
 
   test('props are JSON-serialisable (they cross into the extension as JSON)', () => {

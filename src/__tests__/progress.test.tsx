@@ -1,14 +1,14 @@
 import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { lifts, setProgram, startSession } from '../__fixtures__/oneProgram';
 import { PLUGINS, TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 
 function playSessions(count: number, reps: number) {
   for (let i = 0; i < count; i++) {
-    const s = useStore.getState();
-    const draft = s.startSession(s.nextSession);
+    const draft = startSession();
     for (const id of draft.order) {
       draft.results[id].sets.forEach((_x, j) => {
         useStore.getState().logSet(id, j, reps);
@@ -20,7 +20,7 @@ function playSessions(count: number, reps: number) {
 
 beforeEach(() => {
   useStore.setState({ ...initialState(), hydrated: true });
-  useStore.getState().setProgram(PLUGINS.chins.apply(TEMPLATES.base));
+  setProgram(PLUGINS.chins.apply(TEMPLATES.base));
 });
 
 test('the progress tab lists every lift with its current weight and trend', async () => {
@@ -76,7 +76,7 @@ test('the chart range chips filter sessions and the tooltip defaults to the late
 
 test('editing a past session changes its record, not the current lifts', async () => {
   playSessions(3, 6);
-  const liftsBefore = JSON.stringify(useStore.getState().lifts);
+  const liftsBefore = JSON.stringify(lifts());
   await renderRouter(routes(), { initialUrl: '/' });
   act(() => router.push('/session/edit/0'));
   expect(await screen.findByText(/Changing a past session does not recalculate/)).toBeTruthy();
@@ -88,7 +88,7 @@ test('editing a past session changes its record, not the current lifts', async (
   const squat = useStore.getState().sessions[0].results.BARBELL_SQUAT;
   expect(squat.sets[1].reps).toBe(7);
   expect(squat.weightKg).toBe(22.5);
-  expect(JSON.stringify(useStore.getState().lifts)).toBe(liftsBefore);
+  expect(JSON.stringify(lifts())).toBe(liftsBefore);
 });
 
 test('the full history lists every workout, newest first', async () => {

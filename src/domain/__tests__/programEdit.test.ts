@@ -1,3 +1,4 @@
+import { active } from '../../__fixtures__/oneProgram';
 import { builtInExercises } from '../../catalog';
 import { sessionFor, TEMPLATES, validateProgram } from '../program';
 import {
@@ -37,8 +38,12 @@ test('edits are immutable and keep the program valid', () => {
   const dips = addSlot(base, 1, 'DIPS', '2xAMRAP');
   expect(dips.days[1].slots.at(-1)).toEqual({ exercise: 'DIPS', scheme: '2xAMRAP' });
   expect(base.days[1].slots).toHaveLength(2);
-  expect(sessionFor(dips, 1).slots.map((s) => s.exercise)).toEqual(['BENCH_PRESS', 'DEADLIFT', 'DIPS']);
-  expect(sessionFor(dips, 0).slots).toHaveLength(2); // other days unchanged
+  expect(sessionFor(active(dips, 1)).slots.map((s) => s.exercise)).toEqual([
+    'BENCH_PRESS',
+    'DEADLIFT',
+    'DIPS',
+  ]);
+  expect(sessionFor(active(dips, 0)).slots).toHaveLength(2); // other days unchanged
   const moved = moveSlot(dips, 1, 2, -1);
   expect(moved.days[1].slots.map((s) => s.exercise)).toEqual([
     ['MILITARY_PRESS', 'BENCH_PRESS'],

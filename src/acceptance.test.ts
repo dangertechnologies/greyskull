@@ -1,3 +1,4 @@
+import { lifts, programId, setLift, setProgram, startSession } from './__fixtures__/oneProgram';
 import { getPlan, PLANS } from './config/plans';
 import type { AppState, Unit } from './domain';
 import {
@@ -24,12 +25,12 @@ function everyWeightLoadable(unit: Unit) {
     expect(bar + 2 * side.reduce((a, b) => a + b, 0)).toBeCloseTo(toUnit(kg, unit), 6);
     expect(formatPlates(kg, s.inventory, unit)).toMatch(/^(bar only|per side: )/);
   };
-  for (const [key, lift] of Object.entries(s.lifts)) {
+  for (const [key, lift] of Object.entries(lifts())) {
     expect(lift.weightKg).toBeLessThan(1000);
     // Dumbbells and machines round to their own step, not to bar + plates.
     if (s.exercises[exerciseOfLift(key)].kind === 'barbell') check(lift.weightKg);
   }
-  for (const p of project(s as AppState, 9)) {
+  for (const p of project(s as AppState, programId(), 9)) {
     for (const l of p.lifts) if (s.exercises[l.exercise].kind === 'barbell') check(l.weightKg);
   }
 }
@@ -51,12 +52,11 @@ describe.each<[Unit, number[]]>([
           : { platesLb: [...s.inventory.platesLb, ...extra] },
       );
     }
-    s.setProgram(PLUGINS.chins.apply(PLUGINS.curls.apply(TEMPLATES.base)));
+    setProgram(PLUGINS.chins.apply(PLUGINS.curls.apply(TEMPLATES.base)));
     const startKg = toKg(unit === 'kg' ? 20 : 45, unit);
 
     for (let i = 0; i < 150; i++) {
-      const state = useStore.getState();
-      const draft = state.startSession(state.nextSession);
+      const draft = startSession();
       draft.order.forEach((id, k) => {
         const reps = REPS[(i + k * 3) % REPS.length];
         draft.results[id].sets.forEach((_x, j) => {
@@ -68,38 +68,35 @@ describe.each<[Unit, number[]]>([
     }
     // No compounding: nothing can grow faster than two increments (2 × 5 lb / 2 × 2.5 kg) per session.
     const maxKg = startKg + 150 * (unit === 'kg' ? 5.5 : 2 * 5 * 0.45359237 + 0.5);
-    for (const lift of Object.values(useStore.getState().lifts))
-      expect(lift.weightKg).toBeLessThanOrEqual(maxKg);
+    for (const lift of Object.values(lifts())) expect(lift.weightKg).toBeLessThanOrEqual(maxKg);
   });
 });
 
 test('toggling kg ↔ lb 20 times leaves every displayed weight unchanged', () => {
   useStore.setState({ ...initialState(), hydrated: true });
-  const s = useStore.getState();
-  s.setProgram(TEMPLATES.base);
+  setProgram(TEMPLATES.base);
   for (const [id, kg] of [
     ['BARBELL_SQUAT', 102.5],
     ['DEADLIFT', 140],
     ['BENCH_PRESS', 62.5],
     ['MILITARY_PRESS', 40],
   ] as const) {
-    s.setLift(id, { weightKg: kg, startKg: kg });
+    setLift(id, { weightKg: kg, startKg: kg });
   }
-  const before = JSON.stringify(useStore.getState().lifts);
+  const before = JSON.stringify(lifts());
   for (let i = 0; i < 20; i++) useStore.getState().setUnit(i % 2 === 0 ? 'lb' : 'kg');
   expect(useStore.getState().unit).toBe('kg');
-  expect(JSON.stringify(useStore.getState().lifts)).toBe(before);
+  expect(JSON.stringify(lifts())).toBe(before);
 });
 
 test.each(PLANS.map((p) => [p.id] as const))(
   '%s: 120 mixed sessions keep every weight loadable and bounded',
   (planId) => {
     useStore.setState({ ...initialState(), hydrated: true });
-    const s = useStore.getState();
-    s.setProgram(getPlan(planId)!.program);
+    setProgram(getPlan(planId)!.program);
     for (let i = 0; i < 120; i++) {
       const state = useStore.getState();
-      const draft = state.startSession(state.nextSession);
+      const draft = startSession();
       draft.order.forEach((id, k) => {
         draft.results[id].sets.forEach((set, j) => {
           const miss = REPS[(i + k * 3 + j) % REPS.length] < 4;
@@ -113,7 +110,6 @@ test.each(PLANS.map((p) => [p.id] as const))(
       useStore.getState().finishSession();
       everyWeightLoadable('kg');
     }
-    for (const lift of Object.values(useStore.getState().lifts))
-      expect(lift.weightKg).toBeLessThanOrEqual(20 + 120 * 10);
+    for (const lift of Object.values(lifts())) expect(lift.weightKg).toBeLessThanOrEqual(20 + 120 * 10);
   },
 );
