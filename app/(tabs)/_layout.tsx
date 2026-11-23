@@ -1,23 +1,18 @@
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
 import { useTheme } from '../../src/design/theme';
+import { startHealthSync } from '../../src/health';
 
 /** Dev builds only: one line showing which native modules linked (the native modules do not exist in Jest). */
 async function logNativeModules() {
-  const [health, intents, ai, keepAwake] = await Promise.allSettled([
-    Platform.OS === 'ios'
-      ? import('@kingstinct/react-native-healthkit').then((m) => m.isHealthDataAvailable())
-      : import('react-native-health-connect').then((m) => m.getSdkStatus()),
+  const [intents, ai, keepAwake] = await Promise.allSettled([
     import('expo-app-intents').then((m) => m.isAvailable()),
     import('expo-ai').then((m) => m.getAvailabilityAsync()),
     import('expo-keep-awake').then((m) => m.isAvailableAsync()),
   ]);
   const show = (r: PromiseSettledResult<unknown>) =>
     r.status === 'fulfilled' ? JSON.stringify(r.value) : `error: ${String(r.reason)}`;
-  console.log(
-    `[native] health=${show(health)} appIntents=${show(intents)} onDeviceModel=${show(ai)} keepAwake=${show(keepAwake)}`,
-  );
+  console.log(`[native] appIntents=${show(intents)} onDeviceModel=${show(ai)} keepAwake=${show(keepAwake)}`);
 }
 
 /** The only file that imports the native tabs API. */
@@ -26,6 +21,8 @@ export default function TabsLayout() {
   useEffect(() => {
     if (__DEV__ && !process.env.JEST_WORKER_ID) void logNativeModules();
   }, []);
+  // The tabs mount once the saved data has loaded, so the sync never reads a half-loaded store.
+  useEffect(() => startHealthSync(), []);
   return (
     <NativeTabs tintColor={t.color.accent}>
       <NativeTabs.Trigger name="index">
