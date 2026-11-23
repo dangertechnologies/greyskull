@@ -241,7 +241,8 @@ describe('adding a program', () => {
     expect(screen.getByRole('radio', { name: /^Shoulder/ })).toBeTruthy();
     expect(screen.queryByRole('radio', { name: /^Greyskull/ })).toBeNull();
     fireEvent.press(screen.getByRole('radio', { name: 'Calisthenics' }));
-    expect(screen.getByText('No programs in this category yet.')).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /^Recommended Routine/ })).toBeTruthy();
+    expect(screen.queryByRole('radio', { name: /^Shoulder/ })).toBeNull();
     fireEvent.press(screen.getByRole('radio', { name: 'Calisthenics' }));
     expect(screen.getByRole('radio', { name: /^Greyskull/ })).toBeTruthy();
   });

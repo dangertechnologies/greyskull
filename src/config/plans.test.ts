@@ -9,6 +9,7 @@ import {
 } from '../__fixtures__/oneProgram';
 import { builtInExercises } from '../catalog';
 import { liftKeyOf, PLUGINS, sessionFor, tryParseScheme, validateProgram } from '../domain';
+import { getLadder } from '../domain/ladders';
 import { initialState, useStore } from '../store';
 import { getPlan, PLANS } from './plans';
 
@@ -105,4 +106,103 @@ test.each([0, 1, 2])('5/3/1 day %s builds eight sets for each main lift', (n) =>
     expect(sets.map((s) => s.target)).toEqual([5, 5, null, 5, 5, 5, 5, 5]);
     expect(sets.every((s) => s.kg !== undefined)).toBe(true);
   }
+});
+
+describe('plan categories', () => {
+  test('every plan has one of the five categories', () => {
+    const categories = ['strength', 'hypertrophy', 'calisthenics', 'skills', 'mobility'];
+    for (const plan of PLANS) expect(categories).toContain(plan.category);
+  });
+
+  test.each([
+    ['base', 'strength'],
+    ['phrak', 'strength'],
+    ['stronglifts', 'strength'],
+    ['starting-strength', 'strength'],
+    ['gzclp', 'strength'],
+    ['531-beginners', 'strength'],
+    ['allpro', 'hypertrophy'],
+    ['lyle-gbr', 'hypertrophy'],
+    ['full-body-hypertrophy', 'hypertrophy'],
+    ['shoulder-mobilex', 'mobility'],
+    ['recommended-routine', 'calisthenics'],
+    ['six-ladders', 'calisthenics'],
+    ['skill-track', 'skills'],
+    ['hybrid', 'calisthenics'],
+  ])('%s is %s', (id, category) => {
+    expect(getPlan(id)?.category).toBe(category);
+  });
+});
+
+describe('calisthenics plans', () => {
+  const ladderSlots = (id: string) =>
+    getPlan(id)!.program.days.map((d) => d.slots.filter((s) => s.ladder).map((s) => s.ladder));
+
+  test('every ladder slot names its ladder and progresses as a ladder, starting at the first step', () => {
+    for (const id of ['recommended-routine', 'six-ladders', 'skill-track', 'hybrid']) {
+      for (const day of getPlan(id)!.program.days)
+        for (const slot of day.slots.filter((s) => s.ladder)) {
+          expect(slot.progression).toBe('ladder');
+          expect(slot.exercise).toBe(getLadder(slot.ladder!)!.steps[0].exercise);
+        }
+    }
+  });
+
+  test('Recommended Routine: one day of three supersets and a core circuit with the brief rests', () => {
+    const { days } = getPlan('recommended-routine')!.program;
+    expect(days).toHaveLength(1);
+    expect(days[0].slots.map((s) => [s.ladder, s.scheme, s.group])).toEqual([
+      ['rr_pullup', '3x5-8', 's1'],
+      ['rr_squat', '3x5-8', 's1'],
+      ['rr_dip', '3x5-8', 's2'],
+      ['rr_hinge', '3x5-8', 's2'],
+      ['rr_row', '3x5-8', 's3'],
+      ['rr_pushup', '3x5-8', 's3'],
+      ['rr_antiextension', '3x8-12', 'core'],
+      ['rr_antirotation', '3x8-12', 'core'],
+      ['rr_extension', '3x8-12', 'core'],
+    ]);
+    expect(days[0].groups).toEqual([
+      { id: 's1', kind: 'superset', restS: 90 },
+      { id: 's2', kind: 'superset', restS: 90 },
+      { id: 's3', kind: 'superset', restS: 90 },
+      { id: 'core', kind: 'circuit', rounds: 3, restS: 60 },
+    ]);
+    expect(getPlan('recommended-routine')!.description).toMatch(/bodyweightfitness/);
+  });
+
+  test('Six Ladders rotates push-up and leg raise, pull-up and squat, handstand push-up and bridge', () => {
+    expect(ladderSlots('six-ladders')).toEqual([
+      ['six_pushup', 'six_legraise'],
+      ['six_pullup', 'six_squat'],
+      ['six_hspu', 'six_bridge'],
+    ]);
+    expect(getPlan('six-ladders')!.program.sessionsPerWeek).toBe(3);
+  });
+
+  test('Skill Track: two days that share the handstand, holds of 10 to 30 s and muscle-up 3 to 5', () => {
+    const plan = getPlan('skill-track')!;
+    expect(ladderSlots('skill-track')).toEqual([
+      ['skill_handstand', 'skill_front_lever', 'skill_lsit'],
+      ['skill_handstand', 'skill_planche', 'skill_muscleup'],
+    ]);
+    const schemes = plan.program.days.flatMap((d) => d.slots.map((s) => [s.ladder, s.scheme]));
+    expect(schemes).toContainEqual(['skill_handstand', '3x10-30s']);
+    expect(schemes).toContainEqual(['skill_muscleup', '3x3-5']);
+    expect(plan.program.sessionsPerWeek).toBe(3);
+  });
+
+  test('Hybrid: barbell lifts as 2x5+ AMRAP beside ladders at 3x5-8, anti-extension on both days', () => {
+    const { days } = getPlan('hybrid')!.program;
+    expect(days.map((d) => d.slots.map((s) => s.ladder ?? s.exercise))).toEqual([
+      ['BARBELL_SQUAT', 'rr_pullup', 'rr_dip', 'rr_antiextension'],
+      ['DEADLIFT', 'rr_row', 'rr_pushup', 'rr_antiextension'],
+    ]);
+    for (const day of days) {
+      expect(day.slots[0]).toMatchObject({ scheme: '2x5+' });
+      expect(day.slots[0].ladder).toBeUndefined();
+      expect(day.slots[1].scheme).toBe('3x5-8');
+      expect(day.slots[2].scheme).toBe('3x5-8');
+    }
+  });
 });

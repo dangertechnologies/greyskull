@@ -1,14 +1,22 @@
 import ladders from './catalog/ladders.json';
+import { getPlan, type PlanCategory } from './config/plans';
 import type { Equipment, Exercise, Kind, Ladder, Program } from './domain';
 
 export const CATEGORIES = ['Strength', 'Hypertrophy', 'Calisthenics', 'Skills', 'Mobility'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
-/**
- * The category of a built-in plan, derived from its id.
- * Replace the body with the plan's own `category` field once plans carry one.
- */
+const LABELS: Record<PlanCategory, Category> = {
+  strength: 'Strength',
+  hypertrophy: 'Hypertrophy',
+  calisthenics: 'Calisthenics',
+  skills: 'Skills',
+  mobility: 'Mobility',
+};
+
+/** The category of a built-in plan (its own `category`); a plan without one falls back to a table by id. */
 export function categoryOf(planId: string): Category | null {
+  const plan = getPlan(planId);
+  if (plan) return LABELS[plan.category];
   const table: Record<string, Category> = {
     base: 'Strength',
     phrak: 'Strength',

@@ -5,11 +5,17 @@ import { exerciseOfLift, PLUGINS, type PluginId } from '../program';
 
 const REPS = [3, 4, 5, 6, 8, 10, 12, 15, 20, 4, 25];
 
-/** Every plan with its offered extras plus chin-ups and dips, as the store runs it. */
-const cases = PLANS.map((plan) => {
-  const extras = [...new Set<PluginId>([...plan.plugins, 'chins', 'dips'])];
-  return [plan.id, extras.reduce((p, id) => PLUGINS[id].apply(p), plan.program)] as const;
-});
+/**
+ * Every plan without ladders, with its offered extras plus chin-ups and dips, as the store runs it. Ladder plans
+ * are left out: the dip ladder already ends on dips, so the extra would put dips in a day twice, and ladders
+ * add load by design (src/acceptance.test.ts covers them).
+ */
+const cases = PLANS.filter((plan) => !plan.program.days.some((d) => d.slots.some((s) => s.ladder))).map(
+  (plan) => {
+    const extras = [...new Set<PluginId>([...plan.plugins, 'chins', 'dips'])];
+    return [plan.id, extras.reduce((p, id) => PLUGINS[id].apply(p), plan.program)] as const;
+  },
+);
 
 describe('bodyweight extras of the built-in plans never change (no added load, same lift state)', () => {
   test.each(cases)('%s: 120 sessions', (_id, program) => {

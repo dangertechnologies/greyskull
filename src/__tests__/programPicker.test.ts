@@ -1,3 +1,4 @@
+import { PLANS } from '../config/plans';
 import type { Equipment, Exercise, Kind } from '../domain';
 import { TEMPLATES } from '../domain';
 import {
@@ -27,10 +28,17 @@ const exercises: Record<string, Exercise> = Object.fromEntries(
   ].map((e) => [e.id, e]),
 );
 
+test('every built-in plan has a category from the fixed list; unknown ids have none', () => {
+  for (const plan of PLANS) expect(CATEGORIES).toContain(categoryOf(plan.id));
+});
+
 test('built-in plans have a category from the fixed list; unknown ids have none', () => {
   expect(categoryOf('base')).toBe('Strength');
   expect(categoryOf('allpro')).toBe('Hypertrophy');
   expect(categoryOf('shoulder-mobilex')).toBe('Mobility');
+  expect(categoryOf('recommended-routine')).toBe('Calisthenics');
+  expect(categoryOf('skill-track')).toBe('Skills');
+  expect(categoryOf('hybrid')).toBe('Calisthenics');
   expect(categoryOf('custom')).toBeNull();
   expect(CATEGORIES).toEqual(['Strength', 'Hypertrophy', 'Calisthenics', 'Skills', 'Mobility']);
 });
