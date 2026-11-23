@@ -76,8 +76,8 @@ export function migrateV1(
   const suspects: string[] = [];
   const initials: Record<string, number> = {};
   for (const [id, w] of Object.entries(cfg.weights)) {
-    if (!Object.hasOwn(catalog, id) || typeof w.current !== 'number') continue;
-    const initial = typeof w.initial === 'number' ? w.initial : 0;
+    if (!Object.hasOwn(catalog, id) || !Number.isFinite(w?.current)) continue;
+    const initial = Number.isFinite(w.initial) ? w.initial : 0;
     initials[id] = initial;
     // Bodyweight lifts start without added load; v1 stored a weight for them that never meant one.
     if (catalog[id].kind === 'bodyweight') {
@@ -101,18 +101,30 @@ export function migrateV1(
 
   const sessions: SessionLog[] = [];
   for (const workout of workoutPlan) {
-    if (!workout.completed) continue;
+    // Only finished workouts with a real date become history (v1 stored epoch milliseconds).
+    if (!workout || !Number.isFinite(workout.completed) || !workout.completed) continue;
     const results: Record<string, ExerciseResult> = {};
     const order: string[] = [];
-    for (const e of workout.exercises) {
-      if (!e.completed || !Object.hasOwn(catalog, e.definition)) continue;
-      const weightKg = e.weight ?? 0;
+    for (const e of Array.isArray(workout.exercises) ? workout.exercises : []) {
+      if (!e?.completed || !Object.hasOwn(catalog, e.definition)) continue;
+      const weightKg = Number.isFinite(e.weight) ? (e.weight as number) : 0;
       if (looksWrong(weightKg, initials[e.definition] ?? 0)) continue;
-      results[e.definition] = { weightKg, sets: [{ target: null, reps: e.amrap ?? 0 }] };
+      const reps = Number.isFinite(e.amrap) ? (e.amrap as number) : 0;
+      results[e.definition] = { weightKg, sets: [{ target: null, reps }] };
       order.push(e.definition);
     }
-    const when = new Date(workout.completed).toISOString();
+    const when = new Date(workout.completed as number).toISOString();
     sessions.push({ n: workout.id, dayName: '', startedAt: when, finishedAt: when, results, order });
+  }
+  // Session ids must be unique whole numbers: editing and Health sync find a workout by its id. v1 ids are kept;
+  // a missing, broken or repeated one gets a new id after the highest, and new workouts continue after that.
+  const validId = (n: unknown): n is number => Number.isSafeInteger(n) && (n as number) >= 0;
+  let nextSession = 0;
+  for (const s of sessions) if (validId(s.n)) nextSession = Math.max(nextSession, s.n + 1);
+  const seen = new Set<number>();
+  for (const s of sessions) {
+    if (!validId(s.n) || seen.has(s.n)) s.n = nextSession++;
+    seen.add(s.n);
   }
   sessions.sort((a, b) => a.n - b.n);
 
@@ -122,7 +134,7 @@ export function migrateV1(
       program,
       lifts,
       sessions,
-      nextSession: sessions.length,
+      nextSession,
       needsWeightConfirm: true,
       needsWeightConfirmSuspects: suspects,
     },

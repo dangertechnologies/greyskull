@@ -1,13 +1,17 @@
+import type { File } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import { importFromFile } from '../importFlow';
-import { stateFile } from '../storage';
+import { listUnreadable, PREV_FILE, STATE_FILE, stateFile, TMP_FILE } from '../storage';
 import { initStore } from '../store';
 import { Button } from '../ui/Button';
 import { ScreenScroll } from '../ui/layout';
 import { Text } from '../ui/Text';
+
+/** The files a save rotates through that exist, `state.json` first. */
+const saved = () => [STATE_FILE, TMP_FILE, PREV_FILE].map((name) => stateFile(name)).filter((f) => f.exists);
 
 /**
  * Shown instead of the app when the saved data cannot be read. Nothing is written while it shows, so the
@@ -23,12 +27,7 @@ export function StorageRecovery({ error }: { error: string }) {
     setBusy(false);
   };
 
-  const exportFile = async () => {
-    const file = stateFile();
-    if (!file.exists) {
-      Alert.alert('No data file', 'There is no saved data file on this device to export.');
-      return;
-    }
+  const share = async (file: File) => {
     if (!(await Sharing.isAvailableAsync())) {
       Alert.alert('Sharing is not available', 'This device cannot share files.');
       return;
@@ -38,6 +37,18 @@ export function StorageRecovery({ error }: { error: string }) {
       dialogTitle: 'Export your data file',
     });
   };
+
+  const exportFile = async () => {
+    const file = saved().at(0);
+    if (!file) {
+      Alert.alert('No data file', 'There is no saved data file on this device to export.');
+      return;
+    }
+    await share(file);
+  };
+
+  // The other files the next save replaces, and the copies kept from earlier failed loads.
+  const others = [...saved().slice(1), ...listUnreadable()];
 
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
@@ -55,6 +66,19 @@ export function StorageRecovery({ error }: { error: string }) {
         <View style={{ gap: t.space[3] }}>
           <Button title="Try again" size="lg" disabled={busy} onPress={() => void retry()} />
           <Button title="Export the data file" variant="secondary" onPress={() => void exportFile()} />
+          {others.length > 0 ? (
+            <Text variant="caption" color="textMuted">
+              Other copies of your data on this device:
+            </Text>
+          ) : null}
+          {others.map((file) => (
+            <Button
+              key={file.uri}
+              title={`Export ${file.uri.split('/').pop()}`}
+              variant="secondary"
+              onPress={() => void share(file)}
+            />
+          ))}
           <Button title="Restore a backup" variant="secondary" onPress={() => void importFromFile()} />
         </View>
       </ScreenScroll>

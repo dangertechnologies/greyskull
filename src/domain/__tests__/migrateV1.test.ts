@@ -77,3 +77,52 @@ test('bodyweight lifts migrate without added load, whatever v1 stored', () => {
   expect(m.patch.lifts.DIPS).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
   expect(m.suspects).not.toContain('CHINUPS');
 });
+
+test('new workouts continue after the highest v1 id, not after the number of workouts', () => {
+  const v = JSON.parse(raw);
+  v.workoutPlan[0].id = 4;
+  v.workoutPlan[1].id = 9;
+  const { patch } = migrateV1(JSON.stringify(v), catalog)!;
+  expect(patch.sessions.map((s) => s.n)).toEqual([4, 9]);
+  expect(patch.nextSession).toBe(10);
+});
+
+test('missing, broken and repeated v1 ids get new unique ids after the highest; every workout is kept', () => {
+  const v = JSON.parse(raw);
+  const done = v.workoutPlan[0];
+  v.workoutPlan = [
+    { ...done, id: 3 },
+    { ...done, id: 3 },
+    { ...done, id: 'x' },
+    { ...done, id: 1.5 },
+    { ...done, id: -1 },
+    { ...done, id: null },
+  ];
+  const { patch } = migrateV1(JSON.stringify(v), catalog)!;
+  expect(patch.sessions.map((s) => s.n)).toEqual([3, 4, 5, 6, 7, 8]);
+  expect(patch.nextSession).toBe(9);
+});
+
+test('garbage values in v1 workouts and weights are skipped or zeroed, never NaN', () => {
+  const v = JSON.parse(raw);
+  const done = v.workoutPlan[0];
+  v.configuration.weights.DEADLIFT = { initial: 'a', current: 'b' };
+  v.configuration.weights.BENCH_PRESS = null;
+  v.workoutPlan = [
+    null,
+    { ...done, id: 1, completed: 'yesterday' },
+    { ...done, id: 2, exercises: 'none' },
+    {
+      ...done,
+      id: 3,
+      exercises: [null, { definition: 'BARBELL_SQUAT', completed: 1, weight: 'x', amrap: 'y' }],
+    },
+  ];
+  const { patch } = migrateV1(JSON.stringify(v), catalog)!;
+  expect(patch.sessions.map((s) => s.n)).toEqual([2, 3]);
+  expect(patch.sessions[1].results.BARBELL_SQUAT).toEqual({ weightKg: 0, sets: [{ target: null, reps: 0 }] });
+  // Lifts with no usable weight start at the bar, like lifts v1 never stored.
+  expect(patch.lifts.DEADLIFT.weightKg).toBe(20);
+  expect(patch.lifts.BENCH_PRESS.weightKg).toBe(20);
+  expect(patch.nextSession).toBe(4);
+});
