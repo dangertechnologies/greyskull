@@ -2,8 +2,8 @@ import { active } from '../__fixtures__/oneProgram';
 import type { ActiveProgram, SessionLog } from '../domain';
 import { TEMPLATES } from '../domain';
 import { initialState } from '../store';
-import { type AppIntentsDeps, handleInvocation, resolveStart } from './handlers';
-import { buildCatalogs, nextWorkoutText, pickProgram, startNote } from './snapshot';
+import { type AppIntentsDeps, handleInvocation } from './handlers';
+import { buildCatalogs, nextWorkoutText } from './snapshot';
 
 const lifts = Object.fromEntries(
   ['BARBELL_SQUAT', 'DEADLIFT', 'BENCH_PRESS', 'MILITARY_PRESS'].map((id) => [
@@ -26,11 +26,12 @@ const draftOf = (programId: string, n = 7): SessionLog => ({
   programId,
 });
 
-const state = (programs: ActiveProgram[], draft: SessionLog | null = null) => ({
+const state = (programs: ActiveProgram[], draft: SessionLog | null = null, confirm = false) => ({
   ...initialState(),
   programs,
   draft,
   nextSession: 12,
+  needsWeightConfirm: confirm,
 });
 
 describe('next workout text', () => {
@@ -49,30 +50,23 @@ describe('next workout text', () => {
     expect(nextWorkoutText(state([program('a', 'A')], draftOf('a')))).toMatch(/in progress/i);
   });
 
-  test('picks the same program as the widget: the open workout, else the first unpaused', () => {
-    const programs = [
-      program('a', 'Paused', { paused: true }),
-      program('b', 'Second'),
-      program('c', 'Third'),
-    ];
-    expect(pickProgram(state(programs))?.id).toBe('b');
-    expect(pickProgram(state(programs, draftOf('c')))?.id).toBe('c');
-    expect(pickProgram(state([program('a', 'Paused', { paused: true })]))).toBeUndefined();
-  });
-});
-
-describe('start note', () => {
-  const programs = [program('a', 'Alpha'), program('b', 'Beta')];
-  test('starting without a workout open', () => {
-    expect(startNote(state(programs), programs[0])).toBe('Starting Alpha, Day 1.');
-  });
-  test('resuming the program own workout', () => {
-    expect(startNote(state(programs, draftOf('a')), programs[0])).toBe('Resuming Alpha, Day 1.');
-  });
-  test("another program's workout is open: says it opens that one instead", () => {
-    expect(startNote(state(programs, draftOf('b')), programs[0])).toBe(
-      "Beta is already in progress, so I'm opening that instead of Alpha.",
+  test('weights moved from the old version are not read out as if confirmed', () => {
+    expect(nextWorkoutText(state([program('a', 'Alpha')], null, true))).toBe(
+      'Open Greyskull LP to confirm your weights.',
     );
+  });
+
+  test('every program paused: says so, not that there is no program', () => {
+    expect(nextWorkoutText(state([program('a', 'Alpha', { paused: true })]))).toBe(
+      'All your programs are paused. Open Greyskull LP to resume one.',
+    );
+  });
+
+  test('a long program name is cut to 40 characters', () => {
+    const text = nextWorkoutText(
+      state([program('a', 'A very long program name that goes on and on forever')]),
+    );
+    expect(text).toMatch(/^A very long program name that goes on a…: /);
   });
 });
 
@@ -91,13 +85,40 @@ describe('catalogs', () => {
     expect(next[0].metadata?.text).toMatch(/^In progress\. Alpha: Day 1,/);
   });
 
+  test('programs that share a name are told apart by their day, and every title is unique', () => {
+    const programs = [
+      program('a', 'GZCLP', { position: 0 }),
+      program('b', 'gzclp', { position: 0 }),
+      program('c', 'Other'),
+    ];
+    const titles = buildCatalogs(state(programs)).programs.map((p) => p.title);
+    expect(titles).toEqual(['GZCLP, Day 1', 'gzclp, Day 1 (2)', 'Other']);
+    expect(new Set(titles).size).toBe(3);
+  });
+
+  test('the start sentence follows the weight check and an open workout of another program', () => {
+    const programs = [program('a', 'Alpha'), program('b', 'Beta')];
+    expect(buildCatalogs(state(programs, null, true)).programs[0].metadata?.start).toMatch(
+      /confirm your weights/,
+    );
+    expect(buildCatalogs(state(programs, draftOf('b'))).programs[0].metadata?.start).toMatch(
+      /Beta is already in progress/,
+    );
+  });
+
+  test('every program paused: the default start line says to resume one', () => {
+    const { programs: list, next } = buildCatalogs(state([program('a', 'A', { paused: true })]));
+    expect(list).toEqual([]);
+    expect(next[0].metadata?.start).toBe('All your programs are paused. Open Greyskull LP to resume one.');
+  });
+
   test('no programs: an empty program list and a next answer that says so', () => {
     const { programs: list, next } = buildCatalogs(state([]));
     expect(list).toEqual([]);
     expect(next).toHaveLength(1);
     expect(next[0]).toMatchObject({ id: 'next' });
     expect(next[0].metadata?.text).toMatch(/don't have a program/i);
-    expect(next[0].metadata?.start).toMatch(/set one up|set up/i);
+    expect(next[0].metadata?.start).toMatch(/set one up/i);
   });
 
   test('carries nothing but program names, day names and weights', () => {
@@ -107,40 +128,18 @@ describe('catalogs', () => {
   });
 });
 
-describe('where starting a workout goes', () => {
-  const programs = [program('a', 'Alpha'), program('b', 'Beta'), program('p', 'Paused', { paused: true })];
-
-  test('no workout open: the next session of the program, like the Today screen', () => {
-    expect(resolveStart(state(programs), 'b')).toEqual({ route: '/session/12?program=b' });
-  });
-  test('the program own workout is open: resumes it', () => {
-    expect(resolveStart(state(programs, draftOf('b')), 'b')).toEqual({ route: '/session/7?program=b' });
-  });
-  test("another program's workout is open: opens that one, never starts a second", () => {
-    expect(resolveStart(state(programs, draftOf('a')), 'b')).toEqual({ route: '/session/7' });
-  });
-  test('no program given: the open workout, else the first unpaused program', () => {
-    expect(resolveStart(state(programs))).toEqual({ route: '/session/12?program=a' });
-    expect(resolveStart(state(programs, draftOf('b')))).toEqual({ route: '/session/7?program=b' });
-  });
-  test('no program, a paused one, or an unknown id: the Today screen, nothing started', () => {
-    expect(resolveStart(state([]))).toEqual({ route: '/' });
-    expect(resolveStart(state(programs), 'p')).toEqual({ route: '/' });
-    expect(resolveStart(state(programs), 'gone')).toEqual({ route: '/' });
-  });
-});
-
 describe('handling invocations', () => {
   const now = 1_000_000;
   const make = (over: Partial<AppIntentsDeps> = {}) => {
-    const push = jest.fn();
+    const navigate = jest.fn();
     const deps: AppIntentsDeps = {
       getState: () => state([program('a', 'Alpha')]),
-      push,
+      navigate,
+      current: () => '/',
       now: () => now,
       ...over,
     };
-    return { deps, push };
+    return { deps, navigate };
   };
   const inv = (name: string, params: Record<string, unknown> = {}, createdAt = now - 1000) => ({
     id: `i-${name}`,
@@ -150,52 +149,85 @@ describe('handling invocations', () => {
   });
 
   test('start workout opens the session route and is done', async () => {
-    const { deps, push } = make();
+    const { deps, navigate } = make();
     expect(await handleInvocation(inv('startWorkout', { programId: 'a' }), deps)).toBe('done');
-    expect(push).toHaveBeenCalledWith('/session/12?program=a');
+    expect(navigate).toHaveBeenCalledWith('/session/12?program=a');
   });
 
   test('start workout with no program parameter', async () => {
-    const { deps, push } = make();
+    const { deps, navigate } = make();
     await handleInvocation(inv('startWorkout'), deps);
-    expect(push).toHaveBeenCalledWith('/session/12?program=a');
+    expect(navigate).toHaveBeenCalledWith('/session/12?program=a');
+  });
+
+  test('start workout while old weights are unconfirmed goes to the confirmation screen', async () => {
+    const { deps, navigate } = make({ getState: () => state([program('a', 'Alpha')], null, true) });
+    await handleInvocation(inv('startWorkout', { programId: 'a' }), deps);
+    expect(navigate).toHaveBeenCalledWith('/setup/confirm');
+  });
+
+  test('start workout with another program open goes to that workout, never a second draft', async () => {
+    const { deps, navigate } = make({
+      getState: () => state([program('a', 'Alpha'), program('b', 'Beta')], draftOf('b')),
+    });
+    await handleInvocation(inv('startWorkout', { programId: 'a' }), deps);
+    expect(navigate).toHaveBeenCalledWith('/session/7');
+  });
+
+  test('already on that session: nothing is opened a second time', async () => {
+    const { deps, navigate } = make({ current: () => '/session/12' });
+    expect(await handleInvocation(inv('startWorkout', { programId: 'a' }), deps)).toBe('done');
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   test('make a program opens the Describe screen with the text prefilled and encoded', async () => {
-    const { deps, push } = make();
+    const { deps, navigate } = make();
     await handleInvocation(inv('makeProgram', { text: '3 days & dips, "light"' }), deps);
-    expect(push).toHaveBeenCalledWith(
+    expect(navigate).toHaveBeenCalledWith(
       `/generate/describe?text=${encodeURIComponent('3 days & dips, "light"')}`,
     );
   });
 
+  test('make a program strips control and invisible formatting characters', async () => {
+    const { deps, navigate } = make();
+    await handleInvocation(inv('makeProgram', { text: 'dips\u0000\n\u202Eand\u0007 rows\u200B' }), deps);
+    expect(navigate).toHaveBeenCalledWith(`/generate/describe?text=${encodeURIComponent('dips and rows')}`);
+  });
+
   test('make a program cuts the text to the length the screen accepts', async () => {
-    const { deps, push } = make();
+    const { deps, navigate } = make();
     await handleInvocation(inv('makeProgram', { text: 'x'.repeat(900) }), deps);
-    expect(decodeURIComponent(String(push.mock.calls[0][0]).split('text=')[1])).toHaveLength(500);
+    expect(decodeURIComponent(String(navigate.mock.calls[0][0]).split('text=')[1])).toHaveLength(500);
   });
 
   test('make a program with no text still opens the screen', async () => {
-    const { deps, push } = make();
+    const { deps, navigate } = make();
     await handleInvocation(inv('makeProgram', { text: 5 }), deps);
-    expect(push).toHaveBeenCalledWith('/generate/describe');
+    expect(navigate).toHaveBeenCalledWith('/generate/describe');
   });
 
-  test('an old invocation is dropped without opening anything', async () => {
-    const { deps, push } = make();
-    expect(await handleInvocation(inv('startWorkout', {}, now - 6 * 60_000), deps)).toBe('done');
-    expect(push).not.toHaveBeenCalled();
+  test('an invocation older than a minute is dropped without opening anything', async () => {
+    const { deps, navigate } = make();
+    expect(await handleInvocation(inv('startWorkout', {}, now - 61_000), deps)).toBe('done');
+    expect(await handleInvocation(inv('makeProgram', { text: 'x' }, now - 61_000), deps)).toBe('done');
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('one just under a minute old is still acted on', async () => {
+    const { deps, navigate } = make();
+    await handleInvocation(inv('startWorkout', {}, now - 59_000), deps);
+    expect(navigate).toHaveBeenCalledTimes(1);
   });
 
   test('an unknown name is left alone', async () => {
-    const { deps, push } = make();
+    const { deps, navigate } = make();
     expect(await handleInvocation(inv('somethingNew'), deps)).toBe('unknown');
-    expect(push).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   test('a navigation failure leaves the invocation pending', async () => {
     const { deps } = make({
-      push: () => {
+      navigate: () => {
         throw new Error('not ready');
       },
     });
