@@ -16,19 +16,29 @@ export const stateFile = (name = STATE_FILE): File => new File(Paths.document, n
 export interface FileStorage extends StateStorage {
   /** Write the latest change now. Resolves once it is on disk (or the write failed and stays pending). */
   flush(): Promise<void>;
-  /** False until a read succeeds, and after a failed one: nothing is written then. */
+  /** False until the store enables writes, and again from the start of every read. */
   canWrite(): boolean;
   /**
+   * Allow writes. The store calls this only once the data it read has been migrated and merged: reading alone
+   * never enables writes, so a failed migration cannot save the defaults over the file.
+   */
+  enableWrites(): void;
+  /**
    * After a failed read, allow writes again (the user restores a backup). The unreadable file is copied aside
-   * first; later writes wait for the copy.
+   * first; when that copy fails, writes stay blocked and the promise rejects.
    */
   allowWrites(): Promise<void>;
 }
 
+export const NEWER_VERSION_ERROR =
+  'The data was saved by a newer version of the app. Update the app to open it.';
+
 /** Throws unless `raw` is a persisted store blob (`{ state, version }`). */
 function parsed(raw: string): { state: unknown; version?: unknown } {
   const value: unknown = JSON.parse(raw);
-  if (typeof value !== 'object' || value === null || typeof (value as { state?: unknown }).state !== 'object')
+  const state =
+    typeof value === 'object' && value !== null ? (value as { state?: unknown }).state : undefined;
+  if (typeof state !== 'object' || state === null || Array.isArray(state))
     throw new Error('The saved data is not app data');
   return value as { state: unknown; version?: unknown };
 }
@@ -39,11 +49,13 @@ function parsed(raw: string): { state: unknown; version?: unknown } {
  *
  * Reading: `state.json`, else a finished `state.json.tmp` (a crash between removing the old file and moving
  * the new one), else the AsyncStorage entry `name` from before the file existed (copied to the file, the
- * entry is kept), else nothing (a fresh install). A read that fails throws and leaves writes blocked, so the
- * defaults of a failed launch never replace stored data.
+ * entry is kept), else nothing (a fresh install). A read that fails throws. Writes stay blocked from the start
+ * of every read until the store calls `enableWrites`, so the defaults of a failed launch never replace stored
+ * data, and a failed preservation step (copy, backup, move) never enables an overwrite.
  *
  * `version`: data stored by an older store version is copied once to `state.v<old>.json` before the store
- * migrates it.
+ * migrates it (for the file this copy must succeed; AsyncStorage keeps its own original). Data from a newer
+ * version is refused.
  */
 export function createFileStorage({ version }: { version: number }): FileStorage {
   let writable = false;
@@ -58,9 +70,16 @@ export function createFileStorage({ version }: { version: number }): FileStorage
     await tmp.move(stateFile(), { overwrite: true });
   };
 
+  /** Throws when `raw` is not app data or comes from a newer store version (it must not be migrated). */
+  const check = (raw: string): number | undefined => {
+    const stored = parsed(raw).version;
+    if (typeof stored === 'number' && stored > version) throw new Error(NEWER_VERSION_ERROR);
+    return typeof stored === 'number' ? stored : undefined;
+  };
+
   const keepOldVersion = async (raw: string) => {
-    const old = parsed(raw).version;
-    if (typeof old !== 'number' || old >= version) return;
+    const old = check(raw);
+    if (old === undefined || old >= version) return;
     const copy = stateFile(`state.v${old}.json`);
     if (!copy.exists) await copy.write(raw);
   };
@@ -69,26 +88,42 @@ export function createFileStorage({ version }: { version: number }): FileStorage
     const main = stateFile();
     if (main.exists) {
       const raw = await main.text();
-      parsed(raw);
+      check(raw);
       await keepOldVersion(raw);
       return raw;
     }
     const tmp = stateFile(TMP_FILE);
     if (tmp.exists) {
       const raw = await tmp.text();
+      let whole = true;
       try {
         parsed(raw);
-        await tmp.move(main, { overwrite: true });
-        return raw;
       } catch {
         // A first write that never finished: the AsyncStorage entry below is still the latest data.
+        whole = false;
+      }
+      if (whole) {
+        check(raw);
+        await keepOldVersion(raw);
+        try {
+          await tmp.move(main, { overwrite: true });
+        } catch (e) {
+          // The data is whole; the next save writes both files again.
+          console.warn('Could not move the saved data into place', e);
+        }
+        return raw;
       }
     }
     const legacy = await AsyncStorage.getItem(name);
     if (legacy === null) return null;
-    parsed(legacy);
-    await keepOldVersion(legacy);
-    await writeAtomically(legacy);
+    check(legacy);
+    // The AsyncStorage entry is never written, so it stays the original whatever happens to these copies.
+    try {
+      await keepOldVersion(legacy);
+      await writeAtomically(legacy);
+    } catch (e) {
+      console.warn('Could not copy the saved data to a file yet; the next save tries again', e);
+    }
     return legacy;
   };
 
@@ -120,12 +155,10 @@ export function createFileStorage({ version }: { version: number }): FileStorage
       if (!listening) {
         listening = true;
         AppState.addEventListener('change', (status) => {
-          if (status === 'background') void flush();
+          if (status === 'background' || status === 'inactive') void flush();
         });
       }
-      const raw = await read(name);
-      writable = true;
-      return raw;
+      return read(name);
     },
     setItem(_name, value) {
       if (!writable) return;
@@ -138,17 +171,17 @@ export function createFileStorage({ version }: { version: number }): FileStorage
     },
     flush,
     canWrite: () => writable,
-    allowWrites() {
+    enableWrites() {
       writable = true;
-      chain = chain.then(async () => {
+    },
+    allowWrites() {
+      const copied = chain.then(async () => {
         const main = stateFile();
-        try {
-          if (main.exists) await main.copy(stateFile(UNREADABLE_FILE), { overwrite: true });
-        } catch {
-          // Best effort: the user already chose to replace it.
-        }
+        if (main.exists) await main.copy(stateFile(UNREADABLE_FILE), { overwrite: true });
+        writable = true;
       });
-      return chain;
+      chain = copied.catch(() => undefined);
+      return copied;
     },
   };
 }
