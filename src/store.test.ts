@@ -872,12 +872,48 @@ describe('ladder lifts in the store', () => {
     expect(draft.results.CAL_ARCH_HANG).toMatchObject({ step: 1, timed: true, scheme: '3x10-30s' });
     expect(draft.results.BARBELL_SQUAT.sets[0].reps).toBe(5);
     get().logSet('CAL_ARCH_HANG', 0, 20);
-    get().setLiftStep(programId(), 'rr_pullup', 2);
+    // Once a set of the ladder is logged the step is locked for this workout: the change is refused.
+    expect(get().setLiftStep(programId(), 'rr_pullup', 2)).toBe(false);
     draft = get().draft!;
     expect(draft.order[0]).toBe('CAL_ARCH_HANG');
-    expect(lifts().rr_pullup.step).toBe(2);
+    expect(lifts().rr_pullup.step).toBe(1);
+  });
+
+  test('a step change before any set of the ladder is logged is kept at finish', () => {
+    startSession();
+    expect(get().setLiftStep(programId(), 'rr_pullup', 2)).toBe(true);
+    get().draft!.results.CAL_PULLUP_NEGATIVE.sets.forEach((_s, i) => {
+      get().logSet('CAL_PULLUP_NEGATIVE', i, 5);
+    });
     get().finishSession();
-    expect(lifts().rr_pullup.step).toBe(2);
+    expect(lifts().rr_pullup).toMatchObject({ step: 2, reps: 6 });
+  });
+
+  test('choosing another step after logging sets is refused and finishing progresses the logged step', () => {
+    startSession();
+    for (let i = 0; i < 3; i++) get().logSet('CAL_SCAPULAR_PULL', i, 5);
+    expect(get().setLiftStep(programId(), 'rr_pullup', 3)).toBe(false);
+    expect(lifts().rr_pullup.step ?? 0).toBe(0);
+    expect(get().draft?.order).toEqual(['CAL_SCAPULAR_PULL']);
+    get().finishSession();
+    expect(lifts().rr_pullup).toMatchObject({ step: 0, reps: 6 });
+  });
+
+  test('moving onto a banded step starts at the heaviest band; leaving it clears the band; reps reset', () => {
+    setLift('rr_pullup', { step: 2, reps: 7 });
+    get().setLiftStep(programId(), 'rr_pullup', 3);
+    expect(lifts().rr_pullup).toMatchObject({ step: 3, bandId: 'heavy' });
+    expect(lifts().rr_pullup.reps).toBeUndefined();
+    setLift('rr_pullup', { bandId: 'light', reps: 8 });
+    get().setLiftStep(programId(), 'rr_pullup', 4);
+    expect(lifts().rr_pullup.bandId).toBeUndefined();
+    expect(lifts().rr_pullup.reps).toBeUndefined();
+    const draft = startSession();
+    expect(draft.results.CAL_PULLUP.band).toBeUndefined();
+    expect(draft.results.CAL_PULLUP.sets.map((x) => x.target)).toEqual([5, 5, 5]);
+    get().discardDraft();
+    get().setLiftStep(programId(), 'rr_pullup', 3);
+    expect(startSession().results.CAL_PULLUP_BAND_ASSISTED.band).toMatchObject({ id: 'heavy' });
   });
 
   test('after 30 days off a ladder goes one step down for the session, onto the heaviest band', () => {

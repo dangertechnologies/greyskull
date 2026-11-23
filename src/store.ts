@@ -35,6 +35,7 @@ import {
   sessionWeightKg,
   setTargets,
   startingWeightKg,
+  stepTransition,
   toKg,
   touchedSince,
   tryParseScheme,
@@ -107,8 +108,11 @@ interface Actions {
   updateRules(id: string, rules: Rules): void;
   setSessionsPerWeek(id: string, days: number): void;
   setLift(programId: string, key: string, patch: Partial<LiftState>): void;
-  /** Move a ladder to `step`; the workout in progress swaps that exercise while none of its sets is logged. */
-  setLiftStep(programId: string, key: string, step: number): void;
+  /**
+   * Move a ladder to `step` (band and rep target follow `stepTransition`); the workout in progress swaps that
+   * exercise. Refused (false) once a set of the ladder is logged in the open workout.
+   */
+  setLiftStep(programId: string, key: string, step: number): boolean;
   /** The program's workout: the open one when it belongs to this program, else a new one. */
   startSession(programId: string): SessionLog;
   /** Take back the ease after a break: rebuild the workout from the stored lifts (only before any set is logged). */
@@ -663,20 +667,24 @@ export const useStore = create<Store>()(
 
       setLiftStep: (programId, key, step) => {
         if (!Number.isInteger(step) || step < 0) throw new Error('Invalid step');
+        const s = get();
+        // Sets already logged at this ladder's step in the open workout lock it: a change could not reach the
+        // finish (the logged step progresses), so it is refused instead of being lost.
+        const d = s.draft;
+        const slot = d?.programId === programId ? d.slots?.find((x) => x.lift === key) : undefined;
+        if (slot && d?.results[slot.exercise]?.sets.some((x) => x.reps !== 0)) return false;
         const touchedAt = new Date().toISOString();
-        set((s) => {
-          const programs = mapProgram(s.programs, programId, (p) => ({
-            ...p,
-            lifts: {
-              ...p.lifts,
-              [key]: { ...(p.lifts[key] ?? { weightKg: 0, startKg: 0, fails: 0 }), step, touchedAt },
-            },
-          }));
-          return {
-            programs,
-            draft: withStep(withoutEase(s, programs, programId, key), s, programs, programId, key),
-          };
+        const ladder = getLadder(key);
+        const programs = mapProgram(s.programs, programId, (p) => {
+          const lift = p.lifts[key] ?? { weightKg: 0, startKg: 0, fails: 0 };
+          const moved = ladder ? stepTransition(lift, step, ladder, s.bands) : { ...lift, step };
+          return { ...p, lifts: { ...p.lifts, [key]: { ...moved, touchedAt } } };
         });
+        set({
+          programs,
+          draft: withStep(withoutEase(s, programs, programId, key), s, programs, programId, key),
+        });
+        return true;
       },
 
       startSession: (programId) => {
