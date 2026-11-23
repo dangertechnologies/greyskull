@@ -2,7 +2,7 @@ import * as Clipboard from 'expo-clipboard';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import type { CustomPlan, Equipment, Exercise, Kind, Muscle, Pattern, Program } from './domain';
-import { exerciseIdsOf, parseProgram, validateProgram } from './domain';
+import { exerciseIdsOf, own, parseProgram, validateProgram } from './domain';
 import { linkProblem } from './exerciseEdit';
 import { EQUIPMENT_LABELS, MUSCLE_LABELS, PATTERN_LABELS } from './exerciseFilter';
 import { customId } from './exerciseId';
@@ -157,7 +157,7 @@ const sameExercise = (a: Exercise, b: Exercise): boolean =>
 /** The plan as a JSON string, with the custom exercises it uses. Built-in exercises are not included. */
 export function exportPlan(plan: CustomPlan, exercises: Record<string, Exercise>): string {
   const used = exerciseIdsOf(plan.program)
-    .map((id) => exercises[id])
+    .map((id) => own(exercises, id))
     .filter((e): e is Exercise => e?.custom === true);
   return JSON.stringify({ format: PLAN_FORMAT, version: PLAN_VERSION, plan, exercises: used }, null, 2);
 }
