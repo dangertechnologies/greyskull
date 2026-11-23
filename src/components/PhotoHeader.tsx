@@ -1,7 +1,7 @@
 import { useIsFocused } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import type { ReactNode } from 'react';
-import { ImageBackground, useWindowDimensions, View } from 'react-native';
+import { Image, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BACKGROUNDS } from '../backgrounds';
 import { useTheme } from '../design/theme';
@@ -24,11 +24,13 @@ export function PhotoHeader({
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   return (
-    <ImageBackground
-      source={BACKGROUNDS[image] ?? BACKGROUNDS.default}
-      resizeMode="cover"
-      style={{ height: Math.max(240, height * fraction), backgroundColor: t.color.surface }}
-    >
+    <View style={{ height: Math.max(240, height * fraction), backgroundColor: t.color.surface }}>
+      <Image
+        source={BACKGROUNDS[image] ?? BACKGROUNDS.default}
+        resizeMode="cover"
+        style={StyleSheet.absoluteFill}
+        accessibilityIgnoresInvertColors
+      />
       {focused ? <StatusBar style="light" /> : null}
       <View
         style={{
@@ -40,6 +42,6 @@ export function PhotoHeader({
       >
         {children}
       </View>
-    </ImageBackground>
+    </View>
   );
 }

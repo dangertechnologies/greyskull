@@ -62,7 +62,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:scripts",
     "build:preview": "eas build --profile preview --platform ios",
     "build:ios": "eas build --profile production --platform ios",
     "build:android": "eas build --profile production --platform android",
@@ -76,6 +77,10 @@
   "jest": {
     "preset": "jest-expo",
     "testTimeout": 20000,
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/scripts/"
+    ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.tsx"
     ]

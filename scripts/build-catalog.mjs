@@ -77,7 +77,11 @@ export const EQUIPMENT = {
   'medicine ball': 'medicine-ball',
   other: 'none',
 };
-const normal = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+const normal = (s) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .replace(/s$/, '');
 const muscle = (s) => s.replaceAll(' ', '-');
 const rules = [
   [/pistol/i, 'pistol'],
@@ -240,7 +244,9 @@ export function buildCatalog(existing, source, calisthenics = {}, { maxBytes = I
     enriched.pictogram = pictogram(enriched);
     exercises[e.id] = enriched;
   }
-  const names = new Set(Object.values(existing).map((e) => normal(e.name)));
+  const names = new Set(
+    [...Object.values(existing), ...Object.values(calisthenics)].map((e) => normal(e.name)),
+  );
   const descriptions = {};
   let imported = 0;
   for (const s of [...source].sort((a, b) => a.id.localeCompare(b.id, 'en'))) {

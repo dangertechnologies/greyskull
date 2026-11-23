@@ -796,32 +796,6 @@
     "pictogram": "leg-curl",
     "description": "Ball Leg Curl: exercise ball; works hamstrings; beginner."
   },
-  "BAND_ASSISTED_PULL_UP": {
-    "id": "BAND_ASSISTED_PULL_UP",
-    "name": "Band Assisted Pull-Up",
-    "shortName": "Band Assisted",
-    "abbr": "BAP",
-    "kind": "bodyweight",
-    "equipment": [
-      "pull-up-bar"
-    ],
-    "muscles": [
-      "lats"
-    ],
-    "secondary": [
-      "abdominals",
-      "forearms",
-      "middle-back"
-    ],
-    "pattern": "pull",
-    "level": "beginner",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "pull-up",
-    "description": "Band Assisted Pull-Up: pull up bar; works lats; beginner."
-  },
   "BAND_GOOD_MORNING": {
     "id": "BAND_GOOD_MORNING",
     "name": "Band Good Morning",
@@ -2310,31 +2284,6 @@
     },
     "pictogram": "row",
     "description": "Bodyweight Mid Row: no equipment; works middle back; intermediate."
-  },
-  "BODYWEIGHT_SQUAT": {
-    "id": "BODYWEIGHT_SQUAT",
-    "name": "Bodyweight Squat",
-    "shortName": "Bodyweight Squat",
-    "abbr": "BS",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "quadriceps"
-    ],
-    "secondary": [
-      "glutes",
-      "hamstrings"
-    ],
-    "pattern": "squat",
-    "level": "beginner",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "squat",
-    "description": "Bodyweight Squat: no equipment; works quadriceps; beginner."
   },
   "BODYWEIGHT_WALKING_LUNGE": {
     "id": "BODYWEIGHT_WALKING_LUNGE",
@@ -12019,30 +11968,6 @@
     "pictogram": "stretch",
     "description": "Hamstring Stretch: no equipment; works hamstrings; beginner."
   },
-  "HANDSTAND_PUSH_UPS": {
-    "id": "HANDSTAND_PUSH_UPS",
-    "name": "Handstand Push-Ups",
-    "shortName": "Handstand Push-Ups",
-    "abbr": "HP",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "shoulders"
-    ],
-    "secondary": [
-      "triceps"
-    ],
-    "pattern": "push",
-    "level": "expert",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "push-up",
-    "description": "Handstand Push-Ups: no equipment; works shoulders; expert."
-  },
   "HANG_CLEAN": {
     "id": "HANG_CLEAN",
     "name": "Hang Clean",
@@ -12917,31 +12842,6 @@
     },
     "pictogram": "curl",
     "description": "Incline Inner Biceps Curl: dumbbell; works biceps; beginner."
-  },
-  "INCLINE_PUSH_UP": {
-    "id": "INCLINE_PUSH_UP",
-    "name": "Incline Push-Up",
-    "shortName": "Incline Push-Up",
-    "abbr": "IP",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "chest"
-    ],
-    "secondary": [
-      "shoulders",
-      "triceps"
-    ],
-    "pattern": "push",
-    "level": "beginner",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "push-up",
-    "description": "Incline Push-Up: no equipment; works chest; beginner."
   },
   "INCLINE_PUSH_UP_CLOSE_GRIP": {
     "id": "INCLINE_PUSH_UP_CLOSE_GRIP",
@@ -16321,36 +16221,6 @@
     "pictogram": "overhead-press",
     "description": "Muscle Snatch: barbell; works hamstrings; intermediate."
   },
-  "MUSCLE_UP": {
-    "id": "MUSCLE_UP",
-    "name": "Muscle Up",
-    "shortName": "Muscle Up",
-    "abbr": "MU",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "lats"
-    ],
-    "secondary": [
-      "abdominals",
-      "biceps",
-      "forearms",
-      "middle-back",
-      "shoulders",
-      "traps",
-      "triceps"
-    ],
-    "pattern": "pull",
-    "level": "intermediate",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "row",
-    "description": "Muscle Up: no equipment; works lats; intermediate."
-  },
   "NARROW_STANCE_HACK_SQUATS": {
     "id": "NARROW_STANCE_HACK_SQUATS",
     "name": "Narrow Stance Hack Squats",
@@ -18100,28 +17970,6 @@
     "pictogram": "stretch",
     "description": "Piriformis-SMR: foam roll; works glutes; intermediate."
   },
-  "PLANK": {
-    "id": "PLANK",
-    "name": "Plank",
-    "shortName": "Plank",
-    "abbr": "P",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "abdominals"
-    ],
-    "secondary": [],
-    "pattern": "core",
-    "level": "beginner",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "plank",
-    "description": "Plank: no equipment; works abdominals; beginner."
-  },
   "PLATE_PINCH": {
     "id": "PLATE_PINCH",
     "name": "Plate Pinch",
@@ -18670,31 +18518,6 @@
     "pictogram": "row",
     "description": "Pull Through: cable; works glutes; beginner."
   },
-  "PULLUPS": {
-    "id": "PULLUPS",
-    "name": "Pullups",
-    "shortName": "Pullups",
-    "abbr": "P",
-    "kind": "bodyweight",
-    "equipment": [
-      "pull-up-bar"
-    ],
-    "muscles": [
-      "lats"
-    ],
-    "secondary": [
-      "biceps",
-      "middle-back"
-    ],
-    "pattern": "pull",
-    "level": "beginner",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "pull-up",
-    "description": "Pullups: pull up bar; works lats; beginner."
-  },
   "PUSH_PRESS": {
     "id": "PUSH_PRESS",
     "name": "Push Press",
@@ -18872,31 +18695,6 @@
     },
     "pictogram": "push-up",
     "description": "Push-Ups With Feet On An Exercise Ball: exercise ball; works chest; intermediate."
-  },
-  "PUSHUPS": {
-    "id": "PUSHUPS",
-    "name": "Pushups",
-    "shortName": "Pushups",
-    "abbr": "P",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "chest"
-    ],
-    "secondary": [
-      "shoulders",
-      "triceps"
-    ],
-    "pattern": "push",
-    "level": "beginner",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "push-up",
-    "description": "Pushups: no equipment; works chest; beginner."
   },
   "PUSHUPS_CLOSE_AND_WIDE_HAND_POSITIONS": {
     "id": "PUSHUPS_CLOSE_AND_WIDE_HAND_POSITIONS",
@@ -19495,35 +19293,6 @@
     },
     "pictogram": "triceps-extension",
     "description": "Reverse Grip Triceps Pushdown: cable; works triceps; beginner."
-  },
-  "REVERSE_HYPEREXTENSION": {
-    "id": "REVERSE_HYPEREXTENSION",
-    "name": "Reverse Hyperextension",
-    "shortName": "Reverse Hyperextension",
-    "abbr": "RH",
-    "kind": "machine",
-    "equipment": [
-      "machine"
-    ],
-    "muscles": [
-      "hamstrings"
-    ],
-    "secondary": [
-      "calves",
-      "glutes"
-    ],
-    "pattern": "pull",
-    "level": "intermediate",
-    "increment": {
-      "kg": 2,
-      "lb": 5
-    },
-    "step": {
-      "kg": 2,
-      "lb": 5
-    },
-    "pictogram": "back-extension",
-    "description": "Reverse Hyperextension: machine; works hamstrings; intermediate."
   },
   "REVERSE_MACHINE_FLYES": {
     "id": "REVERSE_MACHINE_FLYES",
@@ -20244,43 +20013,13 @@
     ],
     "background": "cable",
     "equipment": [
-      "machine"
-    ],
-    "muscles": [
-      "lats"
-    ],
-    "pattern": "pull",
-    "pictogram": "row"
-  },
-  "SEATED_CABLE_ROWS": {
-    "id": "SEATED_CABLE_ROWS",
-    "name": "Seated Cable Rows",
-    "shortName": "Seated Cable",
-    "abbr": "SCR",
-    "kind": "machine",
-    "equipment": [
       "cable"
     ],
     "muscles": [
       "middle-back"
     ],
-    "secondary": [
-      "biceps",
-      "lats",
-      "shoulders"
-    ],
     "pattern": "pull",
-    "level": "beginner",
-    "increment": {
-      "kg": 2,
-      "lb": 5
-    },
-    "step": {
-      "kg": 2,
-      "lb": 5
-    },
-    "pictogram": "row",
-    "description": "Seated Cable Rows: cable; works middle back; beginner."
+    "pictogram": "row"
   },
   "SEATED_CABLE_SHOULDER_PRESS": {
     "id": "SEATED_CABLE_SHOULDER_PRESS",
@@ -23042,32 +22781,6 @@
     },
     "pictogram": "split-squat",
     "description": "Split Squat with Dumbbells: dumbbell; works quadriceps; beginner."
-  },
-  "SPLIT_SQUATS": {
-    "id": "SPLIT_SQUATS",
-    "name": "Split Squats",
-    "shortName": "Split Squats",
-    "abbr": "SS",
-    "kind": "bodyweight",
-    "equipment": [
-      "none"
-    ],
-    "muscles": [
-      "hamstrings"
-    ],
-    "secondary": [
-      "calves",
-      "glutes",
-      "quadriceps"
-    ],
-    "pattern": "mobility",
-    "level": "intermediate",
-    "increment": {
-      "kg": 2.5,
-      "lb": 5
-    },
-    "pictogram": "stretch",
-    "description": "Split Squats: no equipment; works hamstrings; intermediate."
   },
   "SQUAT_JERK": {
     "id": "SQUAT_JERK",

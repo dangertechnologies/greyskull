@@ -92,9 +92,6 @@
   "BALL_LEG_CURL": {
     "description": "Ball Leg Curl: exercise ball; works hamstrings; beginner."
   },
-  "BAND_ASSISTED_PULL_UP": {
-    "description": "Band Assisted Pull-Up: pull up bar; works lats; beginner."
-  },
   "BAND_GOOD_MORNING": {
     "description": "Band Good Morning: bands; works hamstrings; beginner."
   },
@@ -253,9 +250,6 @@
   },
   "BODYWEIGHT_MID_ROW": {
     "description": "Bodyweight Mid Row: no equipment; works middle back; intermediate."
-  },
-  "BODYWEIGHT_SQUAT": {
-    "description": "Bodyweight Squat: no equipment; works quadriceps; beginner."
   },
   "BODYWEIGHT_WALKING_LUNGE": {
     "description": "Bodyweight Walking Lunge: no equipment; works quadriceps; beginner."
@@ -878,9 +872,6 @@
   "HAMSTRING_SMR": {
     "description": "Hamstring-SMR: foam roll; works hamstrings; beginner."
   },
-  "HANDSTAND_PUSH_UPS": {
-    "description": "Handstand Push-Ups: no equipment; works shoulders; expert."
-  },
   "HANG_CLEAN": {
     "description": "Hang Clean: barbell; works quadriceps; intermediate."
   },
@@ -976,9 +967,6 @@
   },
   "INCLINE_INNER_BICEPS_CURL": {
     "description": "Incline Inner Biceps Curl: dumbbell; works biceps; beginner."
-  },
-  "INCLINE_PUSH_UP": {
-    "description": "Incline Push-Up: no equipment; works chest; beginner."
   },
   "INCLINE_PUSH_UP_CLOSE_GRIP": {
     "description": "Incline Push-Up Close-Grip: no equipment; works triceps; beginner."
@@ -1349,9 +1337,6 @@
   "MUSCLE_SNATCH": {
     "description": "Muscle Snatch: barbell; works hamstrings; intermediate."
   },
-  "MUSCLE_UP": {
-    "description": "Muscle Up: no equipment; works lats; intermediate."
-  },
   "NARROW_STANCE_HACK_SQUATS": {
     "description": "Narrow Stance Hack Squats: machine; works quadriceps; intermediate."
   },
@@ -1550,9 +1535,6 @@
   "PIRIFORMIS_SMR": {
     "description": "Piriformis-SMR: foam roll; works glutes; intermediate."
   },
-  "PLANK": {
-    "description": "Plank: no equipment; works abdominals; beginner."
-  },
   "PLATE_PINCH": {
     "description": "Plate Pinch: no equipment; works forearms; intermediate."
   },
@@ -1607,9 +1589,6 @@
   "PULL_THROUGH": {
     "description": "Pull Through: cable; works glutes; beginner."
   },
-  "PULLUPS": {
-    "description": "Pullups: pull up bar; works lats; beginner."
-  },
   "PUSH_PRESS": {
     "description": "Push Press: barbell; works shoulders; expert."
   },
@@ -1630,9 +1609,6 @@
   },
   "PUSH_UPS_WITH_FEET_ON_AN_EXERCISE_BALL": {
     "description": "Push-Ups With Feet On An Exercise Ball: exercise ball; works chest; intermediate."
-  },
-  "PUSHUPS": {
-    "description": "Pushups: no equipment; works chest; beginner."
   },
   "PUSHUPS_CLOSE_AND_WIDE_HAND_POSITIONS": {
     "description": "Pushups (Close and Wide Hand Positions): no equipment; works chest; beginner."
@@ -1702,9 +1678,6 @@
   },
   "REVERSE_GRIP_TRICEPS_PUSHDOWN": {
     "description": "Reverse Grip Triceps Pushdown: cable; works triceps; beginner."
-  },
-  "REVERSE_HYPEREXTENSION": {
-    "description": "Reverse Hyperextension: machine; works hamstrings; intermediate."
   },
   "REVERSE_MACHINE_FLYES": {
     "description": "Reverse Machine Flyes: machine; works shoulders; beginner."
@@ -1780,9 +1753,6 @@
   },
   "SEATED_BICEPS": {
     "description": "Seated Biceps: no equipment; works biceps; expert."
-  },
-  "SEATED_CABLE_ROWS": {
-    "description": "Seated Cable Rows: cable; works middle back; beginner."
   },
   "SEATED_CABLE_SHOULDER_PRESS": {
     "description": "Seated Cable Shoulder Press: cable; works shoulders; beginner."
@@ -2095,9 +2065,6 @@
   },
   "SPLIT_SQUAT_WITH_DUMBBELLS": {
     "description": "Split Squat with Dumbbells: dumbbell; works quadriceps; beginner."
-  },
-  "SPLIT_SQUATS": {
-    "description": "Split Squats: no equipment; works hamstrings; intermediate."
   },
   "SQUAT_JERK": {
     "description": "Squat Jerk: barbell; works quadriceps; expert."
