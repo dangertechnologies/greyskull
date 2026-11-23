@@ -76,7 +76,7 @@ export function migrateV1(
   const suspects: string[] = [];
   const initials: Record<string, number> = {};
   for (const [id, w] of Object.entries(cfg.weights)) {
-    if (!(id in catalog) || typeof w.current !== 'number') continue;
+    if (!Object.hasOwn(catalog, id) || typeof w.current !== 'number') continue;
     const initial = typeof w.initial === 'number' ? w.initial : 0;
     initials[id] = initial;
     // Bodyweight lifts start without added load; v1 stored a weight for them that never meant one.
@@ -105,7 +105,7 @@ export function migrateV1(
     const results: Record<string, ExerciseResult> = {};
     const order: string[] = [];
     for (const e of workout.exercises) {
-      if (!e.completed || !(e.definition in catalog)) continue;
+      if (!e.completed || !Object.hasOwn(catalog, e.definition)) continue;
       const weightKg = e.weight ?? 0;
       if (looksWrong(weightKg, initials[e.definition] ?? 0)) continue;
       results[e.definition] = { weightKg, sets: [{ target: null, reps: e.amrap ?? 0 }] };
