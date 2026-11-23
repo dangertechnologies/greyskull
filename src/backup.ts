@@ -1,5 +1,6 @@
 import type { AppState, Exercise, Program, SessionLog } from './domain';
 import { tryParseScheme, validateProgram } from './domain';
+import { NULLABLE_USER_FIELDS, USER_FIELDS } from './domain/exerciseFields';
 import type { OneProgramState } from './store';
 import { migratePersisted, restoreExercises, stateProblem, upgradeOneProgramState } from './store';
 
@@ -107,7 +108,14 @@ function parse(raw: string): BackupResult {
   // 0 kg is valid: bodyweight and ladder lifts carry no weight.
   if (liftSets.some(badLifts)) return { ok: false, error: 'A lift weight is invalid.' };
   for (const e of Object.values(data.exercises)) {
-    if (!isObject(e) || typeof e.id !== 'string' || typeof e.name !== 'string') {
+    // A stored built-in marks a user field it switched off as `null`; fields that always have a value cannot be.
+    const nullable = NULLABLE_USER_FIELDS as readonly string[];
+    if (
+      !isObject(e) ||
+      typeof e.id !== 'string' ||
+      typeof e.name !== 'string' ||
+      USER_FIELDS.some((f) => e[f] === null && !nullable.includes(f))
+    ) {
       return { ok: false, error: 'An exercise is malformed.' };
     }
   }
