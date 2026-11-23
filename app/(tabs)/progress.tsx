@@ -3,10 +3,11 @@ import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
+import type { ActiveProgram, AppState } from '../../src/domain';
 import { exerciseOfLift, formatWeight, liftKeysOf, project, trim } from '../../src/domain';
-import { liftLabel, nameOf } from '../../src/format';
+import { liftLabel, logPosition, nameOf } from '../../src/format';
 import { seriesFor } from '../../src/series';
-import { useProgram, useStore } from '../../src/store';
+import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
@@ -15,44 +16,42 @@ import { ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
 
-export default function Progress() {
-  const state = useStore();
+/** The lifts of one program with their trends, and what its next workouts will weigh. */
+function ProgramProgress({
+  program,
+  state,
+  only,
+}: {
+  program: ActiveProgram;
+  state: AppState;
+  only: boolean;
+}) {
   const { sessions, unit, exercises } = state;
-  const program = useProgram();
-  const lifts = program?.lifts ?? {};
   const t = useTheme();
-  const ids = useMemo(() => (program ? liftKeysOf(program) : []), [program]);
-  const upcoming = useMemo(() => (program ? project(state, program.id, 6) : []), [state, program]);
-  const finished = sessions.filter((s) => !s.skipped).length;
+  const ids = useMemo(() => liftKeysOf(program), [program]);
+  // Only this program's workouts, so a lift two programs share charts each program's own progress.
+  const own = useMemo(() => sessions.filter((s) => logPosition(s, program) !== null), [sessions, program]);
+  const upcoming = useMemo(() => project(state, program.id, 6), [state, program]);
   const series = useMemo(
     () =>
       Object.fromEntries(
         ids.map((id) => [
           id,
-          exercises[exerciseOfLift(id)] ? seriesFor(sessions, exercises[exerciseOfLift(id)], unit, id) : [],
+          exercises[exerciseOfLift(id)] ? seriesFor(own, exercises[exerciseOfLift(id)], unit, id) : [],
         ]),
       ),
-    [ids, sessions, exercises, unit],
+    [ids, own, exercises, unit],
   );
   const anyTrend = ids.some((id) => series[id].length > 1);
+  const title = program.paused ? `${program.name} (paused)` : program.name;
 
   return (
-    <ScreenScroll headerless gap={10}>
-      <Text variant="title" accessibilityRole="header">
-        Progress
-      </Text>
-
-      {finished === 0 ? (
-        <EmptyState
-          icon="progress"
-          title="Nothing to chart yet"
-          body="Finish your first workout and your lifts show up here."
-        />
-      ) : null}
-
+    <>
       <Section
-        label="Lifts"
-        footer={finished > 0 && !anyTrend ? 'Trends show once a lift has 2 workouts.' : undefined}
+        label={only ? 'Lifts' : title}
+        footer={
+          own.some((s) => !s.skipped) && !anyTrend ? 'Trends show once a lift has 2 workouts.' : undefined
+        }
         card
       >
         {ids.map((id) => {
@@ -67,7 +66,7 @@ export default function Progress() {
             ? last !== undefined
               ? `${trim(last)} reps`
               : 'Bodyweight'
-            : formatWeight(lifts[id]?.weightKg ?? 0, unit);
+            : formatWeight(program.lifts[id]?.weightKg ?? 0, unit);
           const trend =
             values.length > 1
               ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta), bodyweight || unit === 'kg' ? 2 : 1)} ${bodyweight ? 'reps' : unit} since the start`
@@ -76,8 +75,8 @@ export default function Progress() {
             <Pressable
               key={id}
               accessibilityRole="button"
-              accessibilityLabel={`${liftLabel(id, exercises)}, ${current}.${trend ? ` ${trend}` : ''}`}
-              onPress={() => router.push(program ? `/lift/${id}?program=${program.id}` : `/lift/${id}`)}
+              accessibilityLabel={`${only ? '' : `${program.name}: `}${liftLabel(id, exercises)}, ${current}.${trend ? ` ${trend}` : ''}`}
+              onPress={() => router.push(`/lift/${id}?program=${program.id}`)}
               style={({ pressed }) => ({
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -106,10 +105,14 @@ export default function Progress() {
         })}
       </Section>
 
-      <Section label="Projection" footer="If you hit your reps every time." card>
+      <Section
+        label={only ? 'Projection' : `${program.name}: projection`}
+        footer="If you hit your reps every time."
+        card
+      >
         {upcoming.map((s, i) => (
           <View key={s.n} style={{ gap: t.space[1], paddingVertical: t.space[3] }}>
-            <Text variant="bodyStrong">{`Workout ${(program?.position ?? 0) + i + 1} · ${s.dayName}`}</Text>
+            <Text variant="bodyStrong">{`Workout ${program.position + i + 1} · ${s.dayName}`}</Text>
             <Text variant="callout" color="textMuted">
               {s.lifts
                 .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
@@ -119,6 +122,32 @@ export default function Progress() {
           </View>
         ))}
       </Section>
+    </>
+  );
+}
+
+export default function Progress() {
+  const state = useStore();
+  const { programs, sessions } = state;
+  const finished = sessions.filter((s) => !s.skipped).length;
+
+  return (
+    <ScreenScroll headerless gap={10}>
+      <Text variant="title" accessibilityRole="header">
+        Progress
+      </Text>
+
+      {finished === 0 ? (
+        <EmptyState
+          icon="progress"
+          title="Nothing to chart yet"
+          body="Finish your first workout and your lifts show up here."
+        />
+      ) : null}
+
+      {programs.map((p) => (
+        <ProgramProgress key={p.id} program={p} state={state} only={programs.length === 1} />
+      ))}
 
       <Section label="History">
         <Button title="See all workouts" variant="secondary" onPress={() => router.push('/history')} />

@@ -2,7 +2,7 @@ import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
-import { program as current, lifts, setLift, setProgram } from '../__fixtures__/oneProgram';
+import { program as current, lifts, programId, setLift, setProgram } from '../__fixtures__/oneProgram';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
@@ -41,6 +41,7 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
   expect(lifts().custom_front_squat.weightKg).toBe(20);
 
   setLift('custom_front_squat', { weightKg: 60 });
+  act(() => router.push(`/program/${programId()}`));
   expect((await screen.findAllByText('per side: 20')).length).toBeGreaterThan(0);
 
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);

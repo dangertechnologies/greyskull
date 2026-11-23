@@ -37,7 +37,7 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Icon sf="chart.line.uptrend.xyaxis" md="show_chart" />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="plan">
-        <NativeTabs.Trigger.Label>Plan</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>Programs</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="list.bullet" md="list" />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">

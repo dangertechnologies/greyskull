@@ -9,6 +9,7 @@ export const routes = () => ({
   history: require('../app/history'),
   gallery: require('../app/gallery'),
   'plan/rules': require('../app/plan/rules'),
+  'program/[id]': require('../app/program/[id]'),
   'setup/_layout': require('../app/setup/_layout'),
   'setup/index': require('../app/setup/index'),
   'setup/gym': require('../app/setup/gym'),

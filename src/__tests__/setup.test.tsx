@@ -27,7 +27,7 @@ test("full flow with Phrak's: Day A = chins, press, squat; session 1 = B with de
   press('setup-next');
   await screen.findByTestId('start-training');
   press('start-training');
-  expect((await screen.findAllByText('A')).length).toBeGreaterThan(0);
+  expect(await screen.findByText('Next: A · Week 1')).toBeTruthy();
   const { nextSession } = useStore.getState();
   const program = current();
   const lifts = program.lifts;
@@ -37,7 +37,7 @@ test("full flow with Phrak's: Day A = chins, press, squat; session 1 = B with de
   expect(program?.days[1].slots.map((s) => [s.exercise, s.scheme]).at(-1)).toEqual(['DEADLIFT', '1x5+']);
   expect(lifts.DEADLIFT.weightKg).toBe(20);
   expect(lifts.CHINUPS).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
-  expect(screen.getAllByText('Chin-up').length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/Chin/).length).toBeGreaterThan(0);
 });
 
 test('base + curls: every day ends with curls 2xAMRAP', async () => {
@@ -49,7 +49,7 @@ test('base + curls: every day ends with curls 2xAMRAP', async () => {
   press('setup-next');
   await screen.findByTestId('start-training');
   press('start-training');
-  await screen.findAllByText('Week 1');
+  await screen.findByText(/^Next:/);
   const program = current();
   expect(
     program?.days.every((d) => d.slots.at(-1)?.exercise === 'CURLS' && d.slots.at(-1)?.scheme === '2xAMRAP'),
@@ -66,6 +66,8 @@ test('lb chosen in setup means 45 lb starting weights', async () => {
   await screen.findByTestId('start-training');
   expect(screen.getAllByText('45 lb').length).toBeGreaterThan(0);
   press('start-training');
+  await screen.findByText(/^Next:/);
+  act(() => router.push(`/program/${current().id}`));
   expect((await screen.findAllByText('45 lb')).length).toBeGreaterThanOrEqual(2);
   expect(useStore.getState().unit).toBe('lb');
 });
@@ -81,7 +83,7 @@ test('a starting weight can be changed on the review screen', async () => {
   for (let i = 0; i < 4; i++) fireEvent.press(await screen.findByLabelText('Increase')); // 20 → 30
   fireEvent.press(screen.getByText('Done'));
   press('start-training');
-  await screen.findAllByText('Week 1');
+  await screen.findByText(/^Next:/);
   expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 30, startKg: 30 });
 });
 
@@ -111,6 +113,8 @@ test('experimental plans are labelled and StrongLifts goes through setup to a 5x
   press('setup-next');
   await screen.findByTestId('start-training');
   press('start-training');
+  await screen.findByText(/^Next:/);
+  act(() => router.push(`/program/${current().id}`));
   expect((await screen.findAllByText('5x5')).length).toBeGreaterThan(0);
   expect(current().rules.progression).toBe('linear');
 });
@@ -118,7 +122,7 @@ test('experimental plans are labelled and StrongLifts goes through setup to a 5x
 test('AllPro shows the light day and the current rep target on Today', async () => {
   setProgram(getPlan('allpro')!.program);
   setPosition(1);
-  await renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: `/program/${current().id}` });
   expect(await screen.findByText('Light day · 80 % of your working weights')).toBeTruthy();
   expect(screen.getAllByText('2×8 (8–12)').length).toBeGreaterThanOrEqual(5);
 });
@@ -137,8 +141,8 @@ describe('editing the saved program', () => {
     fireEvent.changeText(await screen.findByLabelText('Search exercises'), 'Dips');
     fireEvent.press(await screen.findByLabelText('Dips'));
     fireEvent.press(screen.getByText('Save'));
-    expect((await screen.findAllByText('Day 2')).length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Dips').length).toBeGreaterThan(0);
+    expect(await screen.findByText(/^Next: Day 2/)).toBeTruthy();
+    expect(screen.getAllByText(/Dips/).length).toBeGreaterThan(0);
     const s = useStore.getState();
     expect(s.sessions).toHaveLength(1);
     expect(lifts().BARBELL_SQUAT.weightKg).toBe(100);
@@ -191,12 +195,12 @@ test('Change plan keeps lifts and history and replaces the program', async () =>
   startSession();
   store.finishSession();
   await renderRouter(routes(), { initialUrl: '/' });
-  act(() => router.push('/setup/plan?change=1'));
+  act(() => router.push(`/setup/plan?change=1&program=${current().id}`));
   fireEvent.press(await screen.findByRole('radio', { name: /^Starting Strength/ }));
   press('setup-next');
   await screen.findByTestId('start-training');
   press('start-training');
-  await screen.findAllByText('Week 1');
+  await screen.findByText(/^Next:/);
   const s = useStore.getState();
   expect(s.programs).toHaveLength(1);
   expect(current().template).toBe('starting-strength');
@@ -220,11 +224,11 @@ test('training days can be set to five in setup and changed while a workout is i
   await screen.findByTestId('start-training');
   expect(screen.getAllByRole('button', { name: /^Squat, change starting weight/ })).toHaveLength(1);
   press('start-training');
-  await screen.findAllByText('Week 1');
+  await screen.findByText(/^Next:/);
   expect(current().sessionsPerWeek).toBe(5);
   act(() => {
     startSession();
-    router.push('/plan');
+    router.push(`/program/${current().id}`);
   });
   const draft = useStore.getState().draft;
   fireEvent(await screen.findByLabelText('Training days per week'), 'accessibilityAction', {

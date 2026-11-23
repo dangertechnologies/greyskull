@@ -1,102 +1,115 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { getPlan } from '../../src/config/plans';
+import { CategoryPill, Pill, ProgramBadge } from '../../src/components/ProgramBits';
 import { useTheme } from '../../src/design/theme';
-import { liftLabel, nameOf, schemeLabel } from '../../src/format';
-import { useProgram, useStore } from '../../src/store';
+import type { ActiveProgram, CustomPlan } from '../../src/domain';
+import { sessionFor } from '../../src/domain';
+import { useStore } from '../../src/store';
+import { Button } from '../../src/ui/Button';
+import { EmptyState } from '../../src/ui/EmptyState';
+import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { ListRow } from '../../src/ui/ListRow';
 import { ScreenScroll } from '../../src/ui/layout';
-import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
-import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 
-export default function Plan() {
-  const program = useProgram();
-  const exercises = useStore((s) => s.exercises);
+function ProgramRow({ program }: { program: ActiveProgram }) {
   const t = useTheme();
-  const plan = program ? getPlan(program.template) : undefined;
-  const name = plan?.name ?? 'Custom plan';
+  const draft = useStore((s) => s.draft);
+  const day = sessionFor(program).dayName;
+  const subtitle = program.paused
+    ? `Paused · ${day} next`
+    : `${day} next · ${program.sessionsPerWeek} a week`;
+  return (
+    <ListRow
+      title={program.name}
+      subtitle={subtitle}
+      leading={<ProgramBadge program={program} />}
+      accessibilityLabel={`${program.name}, ${subtitle}${draft?.programId === program.id ? ', workout open' : ''}`}
+      onPress={() => router.push(`/program/${program.id}`)}
+      accessory={
+        <View style={{ alignItems: 'flex-end', gap: t.space[1] }}>
+          <CategoryPill program={program} />
+          {draft?.programId === program.id ? (
+            <Pill label="Draft open" tone="warning" />
+          ) : program.paused ? null : (
+            <Pill label="Active" tone="success" />
+          )}
+        </View>
+      }
+    />
+  );
+}
+
+function CustomPlanRow({ plan }: { plan: CustomPlan }) {
+  const exercises = useStore((s) => s.exercises);
+  const first = plan.program.days[0]?.slots[0]?.exercise;
+  const exercise = exercises[Array.isArray(first) ? first[0] : (first ?? '')];
+  return (
+    <ListRow
+      title={plan.name}
+      subtitle={plan.summary ?? `${plan.program.days.length} days`}
+      leading={exercise ? <ExerciseBadge exercise={exercise} size={40} /> : undefined}
+      accessory="chevron"
+      onPress={() => router.push(`/setup/plan?add=1&pick=${plan.id}`)}
+    />
+  );
+}
+
+export default function Programs() {
+  const programs = useStore((s) => s.programs);
+  const customPlans = useStore((s) => s.customPlans);
+  const active = programs.filter((p) => !p.paused);
+  const paused = programs.filter((p) => p.paused);
 
   return (
     <ScreenScroll headerless gap={10}>
-      <Text variant="title" accessibilityRole="header">
-        Plan
-      </Text>
-
-      <Card style={{ gap: t.space[2] }}>
-        <Text variant="headline">{name}</Text>
-        <Text variant="callout" color="textMuted">
-          {program
-            ? `${program.days.length} days · ${program.sessionsPerWeek} sessions a week`
-            : 'No plan yet'}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text variant="title" accessibilityRole="header" style={{ flexShrink: 1 }}>
+          Programs
         </Text>
-        {program ? (
-          <NumberStepper
-            label="Training days per week"
-            value={program.sessionsPerWeek}
-            min={1}
-            max={7}
-            step={1}
-            format={String}
-            onChange={(days) => useStore.getState().setSessionsPerWeek(program.id, days)}
+        <View style={{ minWidth: 120 }}>
+          <Button
+            title="New"
+            variant="secondary"
+            icon="add"
+            testID="new-program"
+            accessibilityLabel="Add a program"
+            onPress={() => router.push('/setup/plan?add=1')}
           />
-        ) : null}
-        {plan?.status === 'experimental' ? (
-          <Text variant="caption" color="warning">
-            Experimental plan
-          </Text>
-        ) : null}
-      </Card>
+        </View>
+      </View>
 
-      {program ? (
-        <Section label="Days" card>
-          {program.days.map((day) => (
-            <View key={day.name} style={{ gap: t.space[1], paddingVertical: t.space[4] }}>
-              <Text variant="bodyStrong">
-                {day.intensity && day.intensity < 1
-                  ? `${day.name} · ${Math.round(day.intensity * 100)} %`
-                  : day.name}
-              </Text>
-              {day.slots.map((slot) => {
-                const ids = typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise;
-                return (
-                  <Text key={ids.join('/')} variant="callout" color="textMuted">
-                    {`${slot.lift ? liftLabel(slot.lift, exercises) : ids.map((id) => nameOf(exercises, id)).join(' / ')} · ${schemeLabel(slot.scheme)}`}
-                  </Text>
-                );
-              })}
-            </View>
+      {programs.length === 0 ? (
+        <EmptyState
+          icon="plan"
+          title="No program yet"
+          body="Add a program to see its workouts on Today."
+          action={{ title: 'Add a program', onPress: () => router.push('/setup/plan?add=1') }}
+        />
+      ) : null}
+
+      {active.length > 0 ? (
+        <Section label="Active" card>
+          {active.map((p) => (
+            <ProgramRow key={p.id} program={p} />
           ))}
         </Section>
       ) : null}
-
-      <Section label="Edit" card>
-        <ListRow
-          title="Days and exercises"
-          accessory="chevron"
-          onPress={() =>
-            router.push(program ? `/setup/days?edit=1&program=${program.id}` : '/setup/days?edit=1')
-          }
-        />
-        <ListRow
-          title="Progression rules"
-          accessory="chevron"
-          onPress={() => router.push(program ? `/plan/rules?program=${program.id}` : '/plan/rules')}
-        />
-        <ListRow
-          title="Exercises"
-          subtitle="Form tips, videos, custom exercises"
-          accessory="chevron"
-          onPress={() => router.push('/exercises')}
-        />
-        <ListRow
-          title="Change plan"
-          subtitle="Keeps your weights and history"
-          accessory="chevron"
-          onPress={() => router.push('/setup/plan?change=1')}
-        />
-      </Section>
+      {paused.length > 0 ? (
+        <Section label="Paused" card>
+          {paused.map((p) => (
+            <ProgramRow key={p.id} program={p} />
+          ))}
+        </Section>
+      ) : null}
+      {customPlans.length > 0 ? (
+        <Section label="My programs" footer="Saved programs you can add again." card>
+          {customPlans.map((c) => (
+            <CustomPlanRow key={c.id} plan={c} />
+          ))}
+        </Section>
+      ) : null}
     </ScreenScroll>
   );
 }

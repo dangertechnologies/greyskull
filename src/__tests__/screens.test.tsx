@@ -18,16 +18,26 @@ test('fresh install lands on setup', async () => {
   expect(await screen.findByText('Get started')).toBeTruthy();
 });
 
-test('today lists the first session with bar-only plates', async () => {
+test('today shows a card for the program with its next day and exercises', async () => {
   setProgram(TEMPLATES.base);
   await renderRouter(routes(), { initialUrl: '/' });
+  expect(await screen.findByText('Next: Day 1 · Week 1')).toBeTruthy();
+  expect(screen.getAllByText('Test program').length).toBeGreaterThan(0);
+  expect(screen.getByText(/Press · Squat/)).toBeTruthy();
+  expect(screen.getByTestId(`start-${programId()}`)).toBeTruthy();
+  expect(screen.getByTestId(`skip-${programId()}`)).toBeTruthy();
+});
+
+test('the program screen lists the first session with bar-only plates', async () => {
+  setProgram(TEMPLATES.base);
+  await renderRouter(routes(), { initialUrl: `/program/${programId()}` });
   expect((await screen.findAllByText('Day 1')).length).toBeGreaterThan(0);
-  expect(screen.getByText('Week 1')).toBeTruthy();
+  expect(screen.getByText('Day 1 · Week 1')).toBeTruthy();
   expect(screen.getAllByText('Overhead press').length).toBeGreaterThan(0);
   expect(screen.getAllByText('Squat').length).toBeGreaterThan(0);
   expect(screen.getAllByText('20 kg').length).toBeGreaterThanOrEqual(2);
   expect(screen.getAllByText('bar only').length).toBeGreaterThanOrEqual(2);
-  expect(screen.getByTestId('start-session')).toBeTruthy();
+  expect(screen.getByTestId(`start-${programId()}`)).toBeTruthy();
 });
 
 test('switching to lb shows 45 lb; ticking the 1.25 lb plate lowers the smallest jump', async () => {
@@ -38,7 +48,7 @@ test('switching to lb shows 45 lb; ticking the 1.25 lb plate lowers the smallest
   expect(screen.getByText('Smallest jump: 5 lb')).toBeTruthy();
   fireEvent.press(screen.getByLabelText('1.25'));
   expect(screen.getByText('Smallest jump: 2.5 lb')).toBeTruthy();
-  act(() => router.navigate('/'));
+  act(() => router.navigate(`/program/${programId()}`));
   expect((await screen.findAllByText('45 lb')).length).toBeGreaterThanOrEqual(2);
 });
 
@@ -86,7 +96,7 @@ test('the developer seed plays three months of backdated workouts with a deload 
   expect(span / 86_400_000).toBeCloseTo(90 * (38 / 39), 0);
   const squat = sessions.map((l) => l.results.BARBELL_SQUAT?.weightKg).filter((w) => w !== undefined);
   expect(squat.some((w, i) => i > 0 && w < squat[i - 1])).toBe(true);
-  expect(await screen.findByText('Start workout')).toBeTruthy();
+  expect(await screen.findByLabelText(/^Start /)).toBeTruthy();
 });
 
 test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async () => {
@@ -126,9 +136,8 @@ test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async (
   expect(draft).toBeNull();
 
   fireEvent.press(screen.getByTestId('back-to-today'));
-  expect((await screen.findAllByText('Day 2')).length).toBeGreaterThan(0);
-  expect(screen.getAllByText('Bench press').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('Deadlift').length).toBeGreaterThan(0);
+  expect(await screen.findByText('Next: Day 2 · Week 1')).toBeTruthy();
+  expect(screen.getByText(/Bench · Deadlift/)).toBeTruthy();
 });
 
 test('a half-finished session shows Resume on Today and keeps its sets', async () => {
@@ -185,6 +194,6 @@ test('unreadable saved data shows the recovery screen and writes nothing until i
   );
   fireEvent.press(screen.getByText('Try again'));
   // The loaded program shows, not the empty state's set-up screen.
-  expect((await screen.findAllByText('Day 2')).length).toBeGreaterThan(0);
+  expect(await screen.findByText(/^Next: Day 2/)).toBeTruthy();
   expect(useStore.getState().unit).toBe('lb');
 });
