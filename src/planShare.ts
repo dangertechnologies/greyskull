@@ -60,7 +60,13 @@ const pair = (v: unknown, where: string): { kg: number; lb: number } => {
 
 const known = <T extends string>(v: unknown, allowed: Record<T, unknown>, where: string): T[] => {
   must(Array.isArray(v) && v.length <= 40, `${where} is not a list.`);
-  return v.filter((x): x is T => typeof x === 'string' && x in allowed);
+  // Own keys only: "constructor" or "toString" would otherwise pass as a known value.
+  for (const x of v)
+    must(
+      typeof x === 'string' && Object.hasOwn(allowed, x),
+      `${where}: unknown value ${JSON.stringify(x).slice(0, 40)}.`,
+    );
+  return v as T[];
 };
 
 const lines = (v: unknown, where: string): string[] => {
@@ -113,8 +119,17 @@ function exerciseFrom(v: unknown, n: number): Exercise {
   if (v.muscles !== undefined) out.muscles = known<Muscle>(v.muscles, MUSCLE_LABELS, `${where}: muscles`);
   if (v.secondary !== undefined)
     out.secondary = known<Muscle>(v.secondary, MUSCLE_LABELS, `${where}: muscles`);
-  if (typeof v.pattern === 'string' && v.pattern in PATTERN_LABELS) out.pattern = v.pattern as Pattern;
-  if (LEVELS.includes(v.level as (typeof LEVELS)[number])) out.level = v.level as Exercise['level'];
+  if (v.pattern !== undefined) {
+    must(
+      typeof v.pattern === 'string' && Object.hasOwn(PATTERN_LABELS, v.pattern),
+      `${where}: unknown pattern.`,
+    );
+    out.pattern = v.pattern as Pattern;
+  }
+  if (v.level !== undefined) {
+    must(LEVELS.includes(v.level as (typeof LEVELS)[number]), `${where}: unknown level.`);
+    out.level = v.level as Exercise['level'];
+  }
   if (v.timed === true) out.timed = true;
   return out;
 }
@@ -233,7 +248,7 @@ function read(
   const added: Exercise[] = [];
   const map = new Map<string, string>();
   for (const e of incoming) {
-    const clash = catalog[e.id];
+    const clash = Object.hasOwn(catalog, e.id) ? catalog[e.id] : undefined;
     if (clash?.custom && sameExercise(clash, e)) continue;
     if (!clash && ID.test(e.id)) {
       catalog[e.id] = e;

@@ -176,7 +176,6 @@ describe('importPlan', () => {
       video: 'https://example.com/v',
       archived: true,
       kind: 'barbell',
-      equipment: ['barbell', 'jetpack'],
     };
     const r = importPlan(text({}, [dirty]), have());
     expect(r.ok).toBe(true);
@@ -187,6 +186,58 @@ describe('importPlan', () => {
     expect(e.url).toBeUndefined();
     expect(e.video).toBe('https://example.com/v');
     expect(e.equipment).toEqual(['barbell']);
+  });
+
+  test('unknown equipment, muscle, pattern and level values are refused', () => {
+    for (const bad of [
+      { equipment: ['barbell', 'jetpack'] },
+      { muscles: ['quads'] },
+      { secondary: [3] },
+      { pattern: 'dance' },
+      { level: 'god' },
+    ])
+      expect(importPlan(text({}, [{ ...front, ...bad }]), have()).ok).toBe(false);
+  });
+
+  describe('names that exist on every object are not exercises, patterns or ladders', () => {
+    const hostile = ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf'];
+    const refused = (raw: string) => {
+      const r = importPlan(raw, have());
+      expect(r.ok).toBe(false);
+      return r.ok ? '' : r.error;
+    };
+    const slotted = (patch: Record<string, unknown>) => {
+      const p = program();
+      p.days[0].slots[1] = { exercise: 'BENCH_PRESS', scheme: '3x5', ...patch } as never;
+      return plan(p);
+    };
+    test.each(hostile)('%s as a slot exercise', (id) => {
+      expect(refused(text({ plan: slotted({ exercise: id }) }))).toMatch(/unknown exercise/);
+    });
+    test.each(hostile)('%s as an alternating pair member', (id) => {
+      expect(refused(text({ plan: slotted({ exercise: ['BENCH_PRESS', id] }) }))).toMatch(/unknown exercise/);
+    });
+    test.each(hostile)('%s as a ladder id', (id) => {
+      expect(refused(text({ plan: slotted({ ladder: id }) }))).toMatch(/unknown ladder/);
+    });
+    test.each(hostile)('%s as a lift key', (id) => {
+      expect(refused(text({ plan: slotted({ lift: id }) }))).toMatch(/lift/);
+    });
+    test.each(hostile)('%s as a pattern', (id) => {
+      expect(refused(text({}, [{ ...front, pattern: id }]))).toMatch(/pattern/);
+    });
+    test.each(hostile)('%s as the id of a carried exercise gets a custom id, never the name itself', (id) => {
+      const p = program();
+      p.days[0].slots[0] = { exercise: id, scheme: '3x5' };
+      const r = importPlan(text({ plan: plan(p) }, [{ ...front, id }]), have());
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+      expect(r.exercises[0].id).toBe('custom_front_squat');
+      expect(r.plan.program.days[0].slots[0].exercise).toBe('custom_front_squat');
+    });
+    test('a plan that names no exercise it carries or the app has is refused even with an empty list', () => {
+      expect(refused(text({ plan: slotted({ exercise: 'constructor' }) }, []))).toMatch(/unknown exercise/);
+    });
   });
 
   test('a bad exercise value is refused, not guessed', () => {
