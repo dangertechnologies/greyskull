@@ -3,6 +3,8 @@ internal import ExpoAppIntents
 
 /// Reads the next workout aloud. Answers from the snapshot the app last published, so the app does not open.
 struct NextWorkoutIntent: AppIntent {
+  /// Spoken program names and weights need an unlocked device.
+  static var authenticationPolicy: IntentAuthenticationPolicy { .requiresAuthentication }
   static let title: LocalizedStringResource = "What's my next workout?"
   static let description = IntentDescription("Tells you your next workout with the weights.")
   static let openAppWhenRun: Bool = false
@@ -18,6 +20,8 @@ struct NextWorkoutIntent: AppIntent {
 /// Opens the app on a workout. The program is optional: without one the app picks the workout in
 /// progress, else the first program that is not paused (the same pick as the widget).
 struct StartWorkoutIntent: AppIntent {
+  /// Spoken program names and weights need an unlocked device.
+  static var authenticationPolicy: IntentAuthenticationPolicy { .requiresAuthentication }
   static let title: LocalizedStringResource = "Start my workout"
   static let description = IntentDescription("Opens your workout in Greyskull LP.")
   static let openAppWhenRun: Bool = true
@@ -46,6 +50,8 @@ struct StartWorkoutIntent: AppIntent {
 
 /// Opens the "Describe it" screen with the words prefilled. The program is written in the app, in the foreground.
 struct MakeProgramIntent: AppIntent {
+  /// Spoken program names and weights need an unlocked device.
+  static var authenticationPolicy: IntentAuthenticationPolicy { .requiresAuthentication }
   static let title: LocalizedStringResource = "Make me a program"
   static let description = IntentDescription("Opens Greyskull LP to write a program from your description.")
   static let openAppWhenRun: Bool = true
