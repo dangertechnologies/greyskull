@@ -15,7 +15,9 @@ import { Text } from '../../src/ui/Text';
 
 export default function ConfirmWeights() {
   const exercises = useStore((s) => s.exercises);
-  const program = useProgram();
+  // The weights to check are the ones of the program moved over from the old version: the first one.
+  const firstId = useStore((s) => s.programs[0]?.id);
+  const program = useProgram(firstId);
   const suspects = useStore((s) => s.needsWeightConfirmSuspects);
   const storedLifts = program?.lifts ?? {};
   const confirmWeights = useStore((s) => s.confirmWeights);

@@ -18,14 +18,23 @@ import { Text } from '../../src/ui/Text';
 
 /** Step 3: starting weights. Tap a lift to change its starting weight; "Customise days" edits the plan. */
 export default function Review() {
-  const { change } = useLocalSearchParams<{ change?: string }>();
+  const {
+    change,
+    add,
+    custom,
+    program: programId,
+  } = useLocalSearchParams<{ change?: string; add?: string; custom?: string; program?: string }>();
   const changing = change === '1';
+  // Adding a program to the ones already running: the unit and plates are already set up.
+  const adding = add === '1';
   const { draft, update } = useSetup();
   const exercises = useStore((s) => s.exercises);
-  const current = useProgram();
+  const customPlans = useStore((s) => s.customPlans);
+  const current = useProgram(changing ? programId : undefined);
   const storedLifts = current?.lifts ?? {};
   const t = useTheme();
   const [editing, setEditing] = useState<string | null>(null);
+  if (changing && !current) return <Redirect href="/" />;
   if (!draft.program) return <Redirect href="/setup/plan" />;
   const program = draft.program;
   const errors = validateProgram(program, exercises);
@@ -40,26 +49,28 @@ export default function Review() {
   const apply = () => {
     const store = useStore.getState();
     const commit = () => {
-      if (!changing) {
+      if (!changing && !adding) {
         store.setUnit(draft.unit);
         store.setInventory(draft.inventory);
       }
-      // One program at a time here, as before: a program that exists is replaced, else one is added.
-      let programId: string;
-      if (current) {
+      let savedId: string;
+      if (changing && current) {
         store.updateProgram(current.id, program);
-        programId = current.id;
+        savedId = current.id;
       } else {
-        programId = store.addProgram({
+        savedId = store.addProgram({
           ...program,
-          name: getPlan(program.template)?.name ?? 'Custom program',
+          name:
+            customPlans.find((c) => c.id === custom)?.name ??
+            getPlan(program.template)?.name ??
+            'Custom program',
         });
       }
       for (const id of liftKeysOf(program)) {
         if (exercises[exerciseOfLift(id)]?.kind === 'bodyweight') continue;
         if (changing && draft.weights[id] === undefined) continue;
         const kg = weightOf(id);
-        store.setLift(programId, id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
+        store.setLift(savedId, id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
       }
       goHome();
     };
@@ -82,7 +93,7 @@ export default function Review() {
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
       <Stack.Screen options={{ title: 'Starting weights' }} />
       <ScreenScroll withBottomBar gap={10}>
-        {changing ? null : (
+        {changing || adding ? null : (
           <Text variant="label" color="textMuted">
             Step 3 of 3
           </Text>
@@ -135,7 +146,7 @@ export default function Review() {
       </ScreenScroll>
       <BottomBar>
         <Button
-          title={changing ? 'Switch plan' : 'Start training'}
+          title={changing ? 'Switch plan' : adding ? 'Add program' : 'Start training'}
           size="lg"
           testID="start-training"
           disabled={errors.length > 0}
