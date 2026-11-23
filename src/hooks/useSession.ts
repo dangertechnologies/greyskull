@@ -47,6 +47,24 @@ export interface ItemGroup {
   steps: number;
 }
 
+/**
+ * Seconds of rest after logging `items[index]` (before it is logged). Ungrouped sets rest the global time. A
+ * superset or circuit rests its group's time once every set of the round is logged, never between them. No rest
+ * before or inside an EMOM or interval block (it keeps its own clock), nor after the last set.
+ */
+export function restAfter(items: SessionItem[], index: number, restSeconds: number): number {
+  const item = items[index];
+  if (!item || item.kind === 'warmup' || item.logged) return 0;
+  const nextOpen = items.find((i, k) => k !== index && !i.logged && i.kind !== 'warmup' && k > index);
+  if (!nextOpen || (nextOpen.group && isTimerKind(nextOpen.group.kind))) return 0;
+  const g = item.group;
+  if (!g) return restSeconds;
+  if (isTimerKind(g.kind)) return 0;
+  const round = items.filter((i) => i.group?.id === g.id && i.group.round === g.round);
+  if (round.some((i) => i !== item && !i.logged)) return 0;
+  return round.find((i) => i.group?.restAfterS !== undefined)?.group?.restAfterS ?? 0;
+}
+
 /** Groups run by a clock rather than by the Done button. */
 export const isTimerKind = (kind: GroupKind): boolean => kind === 'emom' || kind === 'interval';
 
@@ -112,6 +130,7 @@ export function useSession(n: number, programId?: string): SessionApi | null {
   const restSeconds = useStore((s) => s.restSeconds);
   const startSession = useStore((s) => s.startSession);
   const logSet = useStore((s) => s.logSet);
+  const unskipExercise = useStore((s) => s.unskipExercise);
   const setDraftWeight = useStore((s) => s.setDraftWeight);
   const finishSession = useStore((s) => s.finishSession);
 
@@ -174,7 +193,13 @@ export function useSession(n: number, programId?: string): SessionApi | null {
       });
     };
     // Grouped sets interleave (superset A1, A2, rest, A1, A2...); every other exercise goes set by set.
-    const known = resolved.filter((s) => draft.results[s.exercise] && exercises[s.exercise]);
+    // Exercises of the draft its slots no longer name (an old draft, the program changed) go last, ungrouped.
+    const known = [
+      ...resolved.filter((s) => draft.results[s.exercise] && exercises[s.exercise]),
+      ...draft.order
+        .filter((id) => draft.results[id] && exercises[id] && !resolved.some((s) => s.exercise === id))
+        .map((id) => ({ exercise: id }) as ResolvedSlot),
+    ];
     const counts = Object.fromEntries(known.map((s) => [s.exercise, draft.results[s.exercise].sets.length]));
     const steps = setOrder({ dayName: draft.dayName, intensity: 1, slots: known, groups }, counts);
     const letters = new Map(
@@ -296,16 +321,14 @@ export function useSession(n: number, programId?: string): SessionApi | null {
         setDoneWarmups((prev) => new Set(prev).add(`${item.exerciseId}:${item.position - 1}`));
       } else if (item.setIndex !== null) {
         logSet(item.exerciseId, item.setIndex, Math.max(1, reps));
+        // A set logged for an exercise skipped earlier counts again.
+        if (draft?.skippedExercises?.includes(item.exerciseId)) unskipExercise(item.exerciseId);
       }
       // Rest only after a *new* work set: warm-ups and edits of an already logged set do not start one. A
       // grouped set rests the group's time after its round (none between the exercises of a round); an EMOM
       // or interval keeps its own clock.
-      const rest = !item.group
-        ? restSeconds
-        : isTimerKind(item.group.kind)
-          ? 0
-          : (item.group.restAfterS ?? 0);
-      if (item.kind !== 'warmup' && !wasLogged && rest > 0 && itemIndex < items.length - 1) {
+      const rest = restAfter(items, itemIndex, restSeconds);
+      if (!wasLogged && rest > 0) {
         void ensureRestAlertPermission();
         const start = Date.now();
         setNow(start);
@@ -313,7 +336,7 @@ export function useSession(n: number, programId?: string): SessionApi | null {
         setRestEndsAt(start + rest * 1000);
       }
     },
-    [items, logSet, restSeconds],
+    [items, logSet, restSeconds, draft, unskipExercise],
   );
 
   const finish = useCallback((): FinishedExercise[] => {
@@ -325,6 +348,7 @@ export function useSession(n: number, programId?: string): SessionApi | null {
     const lifts = owner?.lifts ?? {};
     const slots = owner ? slotsOf(before, owner) : [];
     const outcomes = finishSession();
+    useTimers.getState().clear(); // the workout's timers end with it
     setFinished(true);
     setRestEndsAt(null);
     return before.order

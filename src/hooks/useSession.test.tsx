@@ -271,4 +271,12 @@ describe('grouped sets', () => {
     act(() => result.current!.record(7, 30));
     expect(result.current!.restRemaining).toBeNull();
   });
+
+  test('logging a set of a skipped exercise counts it again', () => {
+    const { result } = renderHook(() => useSession(0, programId()));
+    act(() => useStore.getState().skipExercise('CAL_SCAPULAR_PULL'));
+    expect(useStore.getState().draft?.skippedExercises).toEqual(['CAL_SCAPULAR_PULL']);
+    act(() => result.current!.record(3, 5));
+    expect(useStore.getState().draft?.skippedExercises).toBeUndefined();
+  });
 });
