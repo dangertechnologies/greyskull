@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { Alert, Share, View } from 'react-native';
+import { GymEquipment } from '../../src/components/GymEquipment';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
 import { dynamicColorSupported, useTheme } from '../../src/design/theme';
@@ -14,13 +15,6 @@ import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
 import { SegmentedControl } from '../../src/ui/SegmentedControl';
 import { Text } from '../../src/ui/Text';
-
-/** Attribution for exercise photos under licences that require it; full list in assets/CREDITS.md. */
-const PHOTO_CREDITS = [
-  '"Close-up Hand holding dumbbell in gym" and "Young man using a leg press machine at the gym" by Nenad Stojkovic, CC BY 2.0, via Wikimedia Commons.',
-  'Cable machine and bench photos by Rashed Hossain and lat pulldown photo by Teddyhtsai, CC0.',
-  'Photos are cropped, blurred and recoloured.',
-].join('\n\n');
 
 function devSeed() {
   const fixture: unknown = require('../../src/dev/v1-imperial.json');
@@ -100,6 +94,8 @@ export default function Settings() {
         onInventoryChange={setInventory}
       />
 
+      <GymEquipment unit={unit} inventory={inventory} onInventoryChange={setInventory} />
+
       <Section label="Workout" card>
         <ListRow
           title="Minimalist workout view"
@@ -173,11 +169,7 @@ export default function Settings() {
       </Section>
 
       <Section label="About" card>
-        <ListRow
-          title="Photo credits"
-          accessory="chevron"
-          onPress={() => Alert.alert('Photo credits', PHOTO_CREDITS)}
-        />
+        <ListRow title="Credits" accessory="chevron" onPress={() => router.push('/credits')} />
       </Section>
 
       {__DEV__ ? (
