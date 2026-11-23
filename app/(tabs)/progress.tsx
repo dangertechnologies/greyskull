@@ -4,9 +4,9 @@ import { Pressable, View } from 'react-native';
 import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
 import type { ActiveProgram, SessionLog } from '../../src/domain';
-import { exerciseOfLift, formatWeight, liftKeysOf, project, trim } from '../../src/domain';
-import { liftLabel, logPosition, nameOf } from '../../src/format';
-import { seriesFor } from '../../src/series';
+import { exerciseOfLift, liftKeysOf, project, trim } from '../../src/domain';
+import { liftLabel, logPosition, nameOf, weightLabel } from '../../src/format';
+import { chartsAddedLoad, seriesFor } from '../../src/series';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
@@ -15,6 +15,7 @@ import { Icon } from '../../src/ui/Icon';
 import { ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
+import { ladderAt } from '../../src/views/ladder';
 
 /** Whether a workout belongs to a program: by its program id, or for old history by the program's start. */
 const belongsTo = (log: SessionLog, program: ActiveProgram): boolean =>
@@ -37,15 +38,19 @@ function ProgramProgress({ program, only }: { program: ActiveProgram; only: bool
     () => project(useStore.getState(), program.id, 6),
     [program, exercises, inventory, unit, nextSession],
   );
+  // A ladder shows its current step's exercise; its series is the level climbed.
+  const exerciseFor = (id: string) =>
+    ladderAt(id, program.lifts[id], exercises)?.exercise ?? exercises[exerciseOfLift(id)];
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `exerciseFor` reads only the program and exercises
   const series = useMemo(
     () =>
       Object.fromEntries(
-        ids.map((id) => [
-          id,
-          exercises[exerciseOfLift(id)] ? seriesFor(own, exercises[exerciseOfLift(id)], unit, id) : [],
-        ]),
+        ids.map((id) => {
+          const exercise = exerciseFor(id);
+          return [id, exercise ? seriesFor(own, exercise, unit, id) : []];
+        }),
       ),
-    [ids, own, exercises, unit],
+    [ids, own, exercises, unit, program],
   );
   const anyTrend = ids.some((id) => series[id].length > 1);
   const title = program.paused ? `${program.name} (paused)` : program.name;
@@ -60,27 +65,33 @@ function ProgramProgress({ program, only }: { program: ActiveProgram; only: bool
         card
       >
         {ids.map((id) => {
-          const exercise = exercises[exerciseOfLift(id)];
+          const exercise = exerciseFor(id);
           if (!exercise) return null;
           const values = series[id];
-          const bodyweight = exercise.kind === 'bodyweight';
+          const ladder = ladderAt(id, program.lifts[id], exercises);
+          const weightKg = program.lifts[id]?.weightKg ?? 0;
+          // Reps (or seconds) only for a bodyweight lift that never carried added load.
+          const counted = !ladder && exercise.kind === 'bodyweight' && !chartsAddedLoad(own, exercise, id);
+          const amount = exercise.timed ? 's' : 'reps';
           const first = values[0];
           const last = values[values.length - 1];
           const delta = values.length > 1 ? last - first : 0;
-          const current = bodyweight
-            ? last !== undefined
-              ? `${trim(last)} reps`
-              : 'Bodyweight'
-            : formatWeight(program.lifts[id]?.weightKg ?? 0, unit);
+          const current = ladder
+            ? `Step ${ladder.step + 1} of ${ladder.ladder.steps.length}${weightLabel(weightKg, exercise, unit)}`
+            : counted
+              ? last !== undefined
+                ? `${trim(last)} ${amount}`
+                : 'Bodyweight'
+              : weightLabel(weightKg, exercise, unit).trim();
           const trend =
             values.length > 1
-              ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta), bodyweight || unit === 'kg' ? 2 : 1)} ${bodyweight ? 'reps' : unit} since the start`
+              ? `${delta >= 0 ? '+' : '−'}${trim(Math.abs(delta), counted || unit === 'kg' ? 2 : 1)} ${ladder ? 'steps' : counted ? amount : unit} since the start`
               : null;
           return (
             <Pressable
               key={id}
               accessibilityRole="button"
-              accessibilityLabel={`${only ? '' : `${program.name}: `}${liftLabel(id, exercises)}, ${current}.${trend ? ` ${trend}` : ''}`}
+              accessibilityLabel={`${only ? '' : `${program.name}: `}${ladder?.ladder.name ?? liftLabel(id, exercises)}, ${current}.${trend ? ` ${trend}` : ''}`}
               onPress={() => router.push(`/lift/${id}?program=${program.id}`)}
               style={({ pressed }) => ({
                 flexDirection: 'row',
@@ -93,7 +104,7 @@ function ProgramProgress({ program, only }: { program: ActiveProgram; only: bool
             >
               <ExerciseBadge exercise={exercise} size={40} />
               <View style={{ flex: 1, gap: t.space[1] }}>
-                <Text variant="bodyStrong">{liftLabel(id, exercises)}</Text>
+                <Text variant="bodyStrong">{ladder?.ladder.name ?? liftLabel(id, exercises)}</Text>
                 {trend ? (
                   <Text variant="caption" color={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'textMuted'}>
                     {trend}
@@ -120,8 +131,11 @@ function ProgramProgress({ program, only }: { program: ActiveProgram; only: bool
             <Text variant="bodyStrong">{`Workout ${program.position + i + 1} · ${s.dayName}`}</Text>
             <Text variant="callout" color="textMuted">
               {s.lifts
-                .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
-                .map((l) => `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit)}`)
+                .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight' || l.weightKg > 0)
+                .map(
+                  (l) =>
+                    `${nameOf(exercises, l.exercise, true)}${weightLabel(l.weightKg, exercises[l.exercise], unit)}`,
+                )
                 .join(' · ')}
             </Text>
           </View>
@@ -150,8 +164,8 @@ function EarlierPrograms({ logs }: { logs: SessionLog[] }) {
         const current =
           last === undefined
             ? ''
-            : exercise.kind === 'bodyweight'
-              ? `${trim(last)} reps`
+            : exercise.kind === 'bodyweight' && !chartsAddedLoad(logs, exercise, key)
+              ? `${trim(last)} ${exercise.timed ? 's' : 'reps'}`
               : `${trim(last)} ${unit}`;
         return (
           <View

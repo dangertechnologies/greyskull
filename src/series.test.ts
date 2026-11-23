@@ -1,7 +1,7 @@
 import { builtInExercises } from './catalog';
 import type { Scheme, SessionLog } from './domain';
 import { toKg } from './domain';
-import { resultFor, seriesFor } from './series';
+import { chartsAddedLoad, resultFor, seriesFor } from './series';
 
 const ex = builtInExercises();
 const log = (n: number, results: SessionLog['results'], skipped = false): SessionLog => ({
@@ -41,6 +41,13 @@ test('weights per finished session in the chosen unit; skipped sessions are igno
 
 test('bodyweight lifts chart last-set reps', () => {
   expect(seriesFor(sessions, ex.CHINUPS, 'kg')).toEqual([6, 9]);
+  expect(chartsAddedLoad(sessions, ex.CHINUPS)).toBe(false);
+});
+
+test('a bodyweight lift that has carried added load charts the load', () => {
+  const loaded = [...sessions, log(4, { CHINUPS: { weightKg: 5, sets: [{ target: 8, reps: 8 }] } })];
+  expect(chartsAddedLoad(loaded, ex.CHINUPS)).toBe(true);
+  expect(seriesFor(loaded, ex.CHINUPS, 'kg')).toEqual([0, 0, 5]);
 });
 
 import { inRange, seriesPoints } from './series';

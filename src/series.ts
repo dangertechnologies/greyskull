@@ -34,13 +34,22 @@ function ladderLevel(result: ExerciseResult, best: number): number {
   return step + Math.max(0, Math.min(1, fraction));
 }
 
+/**
+ * True when a bodyweight lift (not a ladder) carried added load in any finished session: its chart shows the load
+ * rather than reps, so one axis never mixes reps and kilograms.
+ */
+export function chartsAddedLoad(sessions: SessionLog[], exercise: Exercise, key = exercise.id): boolean {
+  if (exercise.kind !== 'bodyweight' || getLadder(key)) return false;
+  return sessions.some((log) => !log.skipped && (entryFor(log, key)?.[1].weightKg ?? 0) > 0);
+}
+
 export interface SeriesPoint {
   n: number;
   /** ISO timestamp of the session. */
   date: string;
   /**
-   * Weight in the display unit for loaded lifts (the training max for 5/3/1); last-set reps (or seconds) for
-   * bodyweight lifts; for a ladder, the step plus progress through the step's range.
+   * Weight in the display unit for loaded lifts (the training max for 5/3/1) and for bodyweight lifts that have
+   * carried added load (`chartsAddedLoad`); last-set reps (or seconds) for other bodyweight lifts; for a ladder, the step plus progress through the step's range.
    */
   value: number;
   reps: number;
@@ -63,6 +72,7 @@ export function seriesPoints(
   exercises?: Record<string, Exercise>,
 ): SeriesPoint[] {
   const ladder = getLadder(key) !== undefined;
+  const reps = exercise.kind === 'bodyweight' && !chartsAddedLoad(sessions, exercise, key);
   const points: SeriesPoint[] = [];
   let best = Number.NEGATIVE_INFINITY;
   for (const log of sessions) {
@@ -70,24 +80,24 @@ export function seriesPoints(
     const entry = entryFor(log, key);
     if (!entry) continue;
     const [id, result] = entry;
-    const reps = result.sets.at(-1)?.reps ?? 0;
+    const last = result.sets.at(-1)?.reps ?? 0;
     const timed = result.timed === true || (result.scheme ? !!tryParseScheme(result.scheme)?.timed : false);
     const top = Math.max(0, ...result.sets.map((s) => s.reps));
     const value = ladder
       ? ladderLevel(result, top)
-      : exercise.kind === 'bodyweight'
-        ? reps
+      : reps
+        ? last
         : toUnit(result.tmKg ?? result.weightKg, unit);
     const label = ladder
       ? `${exercises?.[id]?.name ?? id} · ${amount(top, timed)}`
       : timed
-        ? amount(reps, true)
+        ? amount(last, true)
         : undefined;
     points.push({
       n: log.n,
       date: log.finishedAt ?? log.startedAt,
       value,
-      reps,
+      reps: last,
       pr: value > best,
       ...(label ? { label } : {}),
     });

@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import type { Outcome, ResolvedSlot, SessionLog } from '../domain';
+import type { LiftState, Outcome, ResolvedSlot, SessionLog } from '../domain';
 import { isPersonalRecord, parseScheme, sessionFor, warmups } from '../domain';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
@@ -29,6 +29,12 @@ export interface FinishedExercise {
   outcome: Outcome;
   /** A new best weight, or more last-set reps at the best weight. */
   pr: boolean;
+  /** The lift state the workout started from (eased after a break, else stored): tells a step or band change. */
+  from?: LiftState;
+  /** Ladder id when the exercise is a ladder step. */
+  ladder?: string;
+  /** Held for time: reps are seconds. */
+  timed?: boolean;
 }
 
 export interface SessionApi {
@@ -235,10 +241,15 @@ export function useSession(n: number, programId?: string): SessionApi | null {
       .filter((id) => outcomes[id])
       .map((id) => {
         const result = before.results[id];
+        const slot = slots.find((s) => s.exercise === id);
+        const key = slot?.lift ?? id;
         return {
+          from: before.eased?.lifts[key] ?? lifts[key],
+          ...(slot?.ladder ? { ladder: slot.ladder } : {}),
+          ...(result.timed ? { timed: true } : {}),
           exerciseId: id,
           fromKg: result.sets.some((s) => s.kg !== undefined)
-            ? (lifts[slots.find((s) => s.exercise === id)?.lift ?? id]?.weightKg ?? result.weightKg)
+            ? (lifts[key]?.weightKg ?? result.weightKg)
             : result.weightKg,
           outcome: outcomes[id],
           pr:

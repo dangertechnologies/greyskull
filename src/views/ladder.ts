@@ -1,0 +1,56 @@
+import type { Exercise, Ladder, LiftState, Scheme } from '../domain';
+import { getLadder, stepIn, tryParseScheme } from '../domain';
+
+/** A ladder lift key resolved to its ladder, the current step (made whole) and that step's exercise. */
+export function ladderAt(
+  key: string,
+  lift: Pick<LiftState, 'step'> | undefined,
+  exercises: Record<string, Exercise>,
+): { ladder: Ladder; step: number; exercise: Exercise | undefined } | undefined {
+  const ladder = getLadder(key);
+  if (!ladder) return undefined;
+  const step = stepIn(ladder, lift?.step);
+  return { ladder, step, exercise: exercises[ladder.steps[step].exercise] };
+}
+
+/** The scheme a step is trained at: its own, else the slot's. */
+export const stepScheme = (ladder: Ladder, step: number, slotScheme?: Scheme): Scheme | undefined =>
+  ladder.steps[step]?.scheme ?? slotScheme;
+
+/** "3×8", "3×30 s": every set at the top of the scheme, which is what it takes to leave the step. */
+export function topOf(scheme: Scheme | undefined): string | undefined {
+  const parsed = scheme ? tryParseScheme(scheme) : null;
+  if (!parsed || parsed.reps === null) return undefined;
+  return `${parsed.sets}×${parsed.repsMax ?? parsed.reps}${parsed.timed ? ' s' : ''}`;
+}
+
+/** What moves the lift on from `step`: "3×8 to move on", "3×8 with the lightest band", or the added-load rule. */
+export function unlockRule(ladder: Ladder, step: number, slotScheme?: Scheme): string | undefined {
+  const top = topOf(stepScheme(ladder, step, slotScheme));
+  if (!top) return undefined;
+  if (ladder.steps[step]?.band) return `${top} with the lightest band to move on`;
+  if (step < ladder.steps.length - 1) return `${top} to move on`;
+  return ladder.after === 'weighted' ? `${top}, then add load` : `${top} · top of the ladder`;
+}
+
+// ponytail: mirrors the table in `easeBack` (src/domain/breakDeload.ts); export it from there if it ever changes.
+const easedPct = (gapDays: number): number => (gapDays >= 56 ? 30 : gapDays >= 28 ? 20 : 10);
+
+/**
+ * "23 days since you last trained · weights eased back 10 %": what the ease after a break changed, comparing the
+ * eased states with the stored ones (weights, ladder steps, or only rep targets).
+ */
+export function easeSummary(
+  eased: { gapDays: number; lifts: Record<string, LiftState> },
+  stored: Record<string, LiftState>,
+): string {
+  const changes = Object.entries(eased.lifts).map(([key, e]) => ({ e, s: stored[key] }));
+  const parts = [
+    changes.some(({ e, s }) => s && e.weightKg < s.weightKg)
+      ? `weights eased back ${easedPct(eased.gapDays)} %`
+      : null,
+    changes.some(({ e, s }) => s && (e.step ?? 0) < (s.step ?? 0)) ? 'ladders one step back' : null,
+  ].filter(Boolean);
+  const days = `${eased.gapDays} ${eased.gapDays === 1 ? 'day' : 'days'} since you last trained`;
+  return [days, ...(parts.length > 0 ? parts : ['rep targets back to the bottom of the range'])].join(' · ');
+}

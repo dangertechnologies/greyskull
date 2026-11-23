@@ -71,8 +71,9 @@ export default function Review() {
         });
       }
       for (const id of liftKeysOf(program)) {
-        if (exercises[exerciseOfLift(id)]?.kind === 'bodyweight') continue;
-        if (changing && draft.weights[id] === undefined) continue;
+        // Bodyweight lifts start without added load unless the user set some here.
+        const bodyweight = exercises[exerciseOfLift(id)]?.kind === 'bodyweight';
+        if ((bodyweight || changing) && draft.weights[id] === undefined) continue;
         const kg = weightOf(id);
         store.setLift(savedId, id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
       }
@@ -119,14 +120,19 @@ export default function Review() {
               <Card key={key}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`${label}${bodyweight ? '' : ', change starting weight'}`}
-                  disabled={bodyweight}
+                  accessibilityLabel={`${label}, ${bodyweight ? 'change added load' : 'change starting weight'}`}
                   onPress={() => setEditing(key)}
                 >
                   <LiftRow
                     exercise={{ ...exercise, name: label }}
-                    kg={bodyweight ? 0 : weightOf(key)}
-                    schemeLabel={trainingMax ? 'Training max (90 % of your 1RM)' : 'Starting weight'}
+                    kg={weightOf(key)}
+                    schemeLabel={
+                      trainingMax
+                        ? 'Training max (90 % of your 1RM)'
+                        : bodyweight
+                          ? 'Added load'
+                          : 'Starting weight'
+                    }
                     unit={draft.unit}
                     inventory={draft.inventory}
                   />

@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { type HostInstance, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise, Outcome, Unit } from '../domain';
-import { formatWeight } from '../domain';
+import { weightLabel } from '../format';
 import { shareView } from '../shareImage';
 import { Button } from '../ui/Button';
 import { ExerciseBadge } from '../ui/ExerciseBadge';
@@ -17,6 +17,25 @@ export interface CelebrationLine {
   fromKg: number;
   outcome: Outcome;
   pr: boolean;
+  /** Ladder: the name of the step the lift moved up to. */
+  step?: string;
+  /** Ladder: the label of the lighter band the lift moved to. */
+  band?: string;
+  /** Held for time: targets are seconds. */
+  timed?: boolean;
+}
+
+/** "Bench 40 kg → 42.5 kg", "Dips → +2.5 kg", "Step up: Negative pull-up", "Arch hang · target 15 s". */
+function lineText(l: CelebrationLine, unit: Unit): string {
+  if (l.step) return `Step up: ${l.step}`;
+  const { name } = l.exercise;
+  if (l.band !== undefined) return `${name} · Lighter band${l.band ? `: ${l.band}` : ''}`;
+  const from = weightLabel(l.fromKg, l.exercise, unit);
+  const head = from ? `${name}${from}` : name;
+  const { next, change } = l.outcome;
+  if (change === 'same') return `${head} · ${next.fails} ${next.fails === 1 ? 'fail' : 'fails'}`;
+  if (change === 'reps') return `${head} · target ${next.reps}${l.timed ? ' s' : ' reps'}`;
+  return `${head} →${weightLabel(next.weightKg, l.exercise, unit) || ' bodyweight'}`;
 }
 
 const BADGE: Record<
@@ -65,13 +84,6 @@ export function Celebration({
             <Card style={{ gap: t.space[6] }}>
               {shown.map((l) => {
                 const badge = BADGE[l.outcome.change];
-                const fails = l.outcome.next.fails;
-                const detail =
-                  l.outcome.change === 'same'
-                    ? `${formatWeight(l.fromKg, unit)} · ${fails} ${fails === 1 ? 'fail' : 'fails'}`
-                    : l.outcome.change === 'reps'
-                      ? `${formatWeight(l.fromKg, unit)} · target ${l.outcome.next.reps} reps`
-                      : `${formatWeight(l.fromKg, unit)} → ${formatWeight(l.outcome.next.weightKg, unit)}`;
                 return (
                   <View
                     key={l.exercise.id}
@@ -79,7 +91,7 @@ export function Celebration({
                   >
                     <ExerciseBadge exercise={l.exercise} />
                     <View style={{ flex: 1, gap: t.space[1] }}>
-                      <Text variant="bodyStrong">{`${l.exercise.name} ${detail}`}</Text>
+                      <Text variant="bodyStrong">{lineText(l, unit)}</Text>
                       <View style={{ flexDirection: 'row', gap: t.space[3] }}>
                         <Text variant="caption" color={badge.color}>
                           {badge.text}
