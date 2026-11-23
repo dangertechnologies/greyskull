@@ -19,6 +19,7 @@ import {
   MAX_TEXT,
   moveSlot,
   moveSlotTo,
+  own,
   removeDay,
   removeSlot,
   renameDay,
@@ -119,7 +120,9 @@ export function DaysEditor({ program, onChange }: { program: Program; onChange(p
     if (!picking) return;
     if (picking.mode === 'single') {
       onChange(
-        exercises[id] ? addExercise(program, picking.day, exercises[id]) : addSlot(program, picking.day, id),
+        own(exercises, id)
+          ? addExercise(program, picking.day, exercises[id])
+          : addSlot(program, picking.day, id),
       );
       setPicking(null);
     } else if (!picking.first) {
@@ -153,7 +156,7 @@ export function DaysEditor({ program, onChange }: { program: Program; onChange(p
     const ids = idsOf(slot);
     const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
     const title = ladder ? ladder.name : ids.map((id) => nameOf(exercises, id, ids.length > 1)).join(' / ');
-    const first = exercises[ids[0]];
+    const first = own(exercises, ids[0]);
     const key = `${d}:${i}`;
     const open = progOpen === key;
     const inGroup = slot.group !== undefined;
