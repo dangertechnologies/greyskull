@@ -6,6 +6,7 @@ import { haptics } from '../../src/design/haptics';
 import { dynamicColorSupported, useTheme } from '../../src/design/theme';
 import { TEMPLATES } from '../../src/domain';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
+import { SiriCard } from '../../src/intents/SiriCard';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -178,6 +179,8 @@ export default function Settings() {
         />
         <Button title="Reset" variant="destructive" onPress={confirmReset} />
       </Section>
+
+      {Platform.OS === 'ios' ? <SiriCard /> : null}
 
       <Section label="About" card>
         <ListRow title="Credits" accessory="chevron" onPress={() => router.push('/credits')} />

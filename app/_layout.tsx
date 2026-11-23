@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { StorageRecovery } from '../src/components/StorageRecovery';
 import { useAppFonts } from '../src/design/fonts';
 import { ThemeProvider, useTheme } from '../src/design/theme';
+import { AppIntentsBridge } from '../src/intents/Bridge';
 import { useStackOptions } from '../src/navigation';
 import { initStore, useStore } from '../src/store';
 import { SnackbarProvider } from '../src/ui/Snackbar';
@@ -23,6 +24,7 @@ function Shell() {
         <Stack.Screen name="session/[n]" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="setup" options={{ headerShown: false }} />
       </Stack>
+      <AppIntentsBridge />
     </SnackbarProvider>
   );
 }

@@ -104,14 +104,14 @@ function announcement(phase: Phase, progress: number | null): string | null {
 /** The text box, on-device model only: drafts a custom program, checks it, and opens it in the builder. */
 export default function GenerateDescribe() {
   const t = useTheme();
-  const { a } = useLocalSearchParams<{ a?: string }>();
+  const { a, text: preset } = useLocalSearchParams<{ a?: string; text?: string }>();
   const owned = useStore((s) => s.equipment);
   const exercises = useStore((s) => s.exercises);
   const customPlans = useStore((s) => s.customPlans);
   const programs = useStore((s) => s.programs);
   const saveCustomPlan = useStore((s) => s.saveCustomPlan);
   const [answers] = useState(() => answersFrom(a, owned));
-  const [text, setText] = useState('');
+  const [text, setText] = useState(() => (typeof preset === 'string' ? preset.slice(0, MAX_TEXT) : ''));
   const [phase, setPhase] = useState<Phase>({ kind: 'checking' });
   const [progress, setProgress] = useState<number | null>(null);
   const abort = useRef<AbortController | null>(null);
