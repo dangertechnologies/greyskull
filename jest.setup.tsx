@@ -68,3 +68,12 @@ jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn(async () => true),
   shareAsync: jest.fn(async () => undefined),
 }));
+// Siri and Shortcuts: the native module does not exist in tests. Report it unavailable, with inert subscriptions.
+jest.mock('expo-app-intents', () => ({
+  isAvailable: jest.fn(() => false),
+  useAppIntents: jest.fn(),
+  addAppIntentListener: jest.fn(() => ({ remove: jest.fn() })),
+  setEntityCatalogAsync: jest.fn(async () => undefined),
+  getPendingInvocationsAsync: jest.fn(async () => []),
+  removePendingInvocationAsync: jest.fn(async () => undefined),
+}));

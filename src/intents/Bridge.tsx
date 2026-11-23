@@ -1,3 +1,4 @@
+import type { AppIntentInvocation } from 'expo-app-intents';
 import { router, useRootNavigationState } from 'expo-router';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -37,25 +38,73 @@ function publishWhileMounted(m: AppIntentsModule): () => void {
         last = ''; // try again on the next change
       });
   };
-  run();
-  return useStore.subscribe(run);
+  try {
+    run();
+  } catch {
+    // Siri is optional.
+  }
+  return useStore.subscribe(() => {
+    try {
+      run();
+    } catch {
+      // Siri is optional.
+    }
+  });
+}
+
+/**
+ * Handles queued invocations (from while the app was closed) and live ones, one at a time, then removes them.
+ * Written against the module's listener and queue functions rather than its hook, so a subscription without
+ * remove() cannot throw when this unmounts. A failed invocation stays queued for the next launch.
+ */
+function useIntentListener(m: AppIntentsModule): void {
+  useEffect(() => {
+    let alive = true;
+    const handled = new Set<string>();
+    let chain: Promise<unknown> = Promise.resolve();
+    const process = async (list: AppIntentInvocation[]) => {
+      for (const invocation of list) {
+        if (!alive) return;
+        try {
+          if (!handled.has(invocation.id)) {
+            const result = await handleInvocation(invocation, {
+              getState: () => useStore.getState(),
+              push: (href) => router.push(href as never),
+              now: Date.now,
+            });
+            if (result !== 'done') continue;
+            handled.add(invocation.id);
+          }
+          await m.removePendingInvocationAsync(invocation.id);
+        } catch (e) {
+          console.warn('App Intent stays queued', invocation.id, e);
+        }
+      }
+    };
+    const enqueue = (work: () => Promise<void>) => {
+      chain = chain.then(work).catch(() => undefined);
+    };
+    // Subscribe before reading the queue, so nothing falls between the two.
+    let subscription: { remove?: () => void } | undefined;
+    try {
+      subscription = m.addAppIntentListener((invocation) => enqueue(() => process([invocation])));
+    } catch (e) {
+      console.warn('App Intents listener not started', e);
+    }
+    enqueue(async () => process(await m.getPendingInvocationsAsync()));
+    return () => {
+      alive = false;
+      try {
+        subscription?.remove?.();
+      } catch {
+        // Nothing left to release.
+      }
+    };
+  }, [m]);
 }
 
 function Listener({ m }: { m: AppIntentsModule }) {
-  m.useAppIntents(async (pending) => {
-    for (const invocation of pending) {
-      try {
-        const result = await handleInvocation(invocation, {
-          getState: () => useStore.getState(),
-          push: (href) => router.push(href as never),
-          now: Date.now,
-        });
-        if (result === 'done') await m.removePendingInvocationAsync(invocation.id);
-      } catch (e) {
-        console.warn('App Intent stays queued', invocation.id, e);
-      }
-    }
-  });
+  useIntentListener(m);
   return null;
 }
 
