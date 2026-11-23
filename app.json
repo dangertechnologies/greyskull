@@ -22,11 +22,15 @@
     "android": {
       "package": "com.greyskull",
       "versionCode": 2,
+      "permissions": ["android.permission.health.WRITE_EXERCISE"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-foreground.png",
         "backgroundImage": "./assets/adaptive-background.png",
         "monochromeImage": "./assets/adaptive-monochrome.png"
       }
+    },
+    "experiments": {
+      "inlineModules": { "watchedDirectories": ["app-intents"] }
     },
     "plugins": [
       "expo-router",
@@ -45,6 +49,17 @@
       "expo-web-browser",
       "expo-sharing",
       "expo-status-bar",
+      ["expo-build-properties", { "android": { "minSdkVersion": 26, "kotlinVersion": "2.2.21" } }],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthUpdateUsageDescription": "Greyskull saves your finished workouts to Apple Health.",
+          "NSHealthShareUsageDescription": "Greyskull does not read your health data.",
+          "background": false
+        }
+      ],
+      "react-native-health-connect",
+      "expo-app-intents",
       "expo-asset",
       "expo-font",
       "expo-notifications",
