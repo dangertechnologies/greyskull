@@ -1,6 +1,6 @@
 import type { ActiveProgram, Exercise, SessionLog } from '../domain';
 import type { HealthStatus, Permission } from './status';
-import { type HealthWorkout, isEmpty, isSyncable, toWorkout } from './workout';
+import { type HealthWorkout, isEmpty, isSyncable, recordId, toWorkout } from './workout';
 
 /** The native side of one platform; the only part that touches Apple Health or Health Connect. */
 export interface HealthPlatform {
@@ -117,7 +117,8 @@ export function createHealthSync(deps: {
   /** Sessions that still have to go to Health, as `drain` and `disable` both see them. */
   const wanted = (st: HealthStatus, all: boolean) => (log: SessionLog) =>
     isSyncable(log) &&
-    (st.dirty.includes(log.n) || (!log.healthId && (all || (log.finishedAt ?? '') >= (st.since ?? ''))));
+    (st.dirty.includes(log.n) ||
+      (!log.healthId && (all || Date.parse(log.finishedAt ?? '') >= (st.since ? Date.parse(st.since) : 0))));
 
   /**
    * Writes the sessions that need it, oldest first, stopping at the first failure. A session needs it when it has
@@ -166,7 +167,7 @@ export function createHealthSync(deps: {
     const record = (log: SessionLog, workout: HealthWorkout) => {
       ids.set(log.n, workout.id);
       // An edit that landed while this write was under way is not in it: leave the session marked.
-      const current = store.getState().sessions.find((l) => l.n === log.n);
+      const current = store.getState().sessions.find((l) => recordId(l) === workout.id);
       const stale = !!current && current.results !== log.results;
       status.setState((s) => ({
         versions: { ...s.versions, [log.n]: workout.version },
@@ -194,11 +195,12 @@ export function createHealthSync(deps: {
         );
         for (const { log, workout } of items) record(log, workout);
       } else {
-        for (const { n } of list) {
+        for (const planned of list) {
           // Turned off while this run was under way: the rest waits for it to be turned on again.
           if (!all && !store.getState().healthSync) break;
           // Read the session again: it may have changed (or gone) while an earlier one was being written.
-          const log = store.getState().sessions.find((l) => l.n === n);
+          // By its record id, not its number: after a restore the same number can be another workout.
+          const log = store.getState().sessions.find((l) => recordId(l) === recordId(planned));
           const workout = log && next(log);
           if (!log || !workout) continue;
           await withTimeout(

@@ -2,7 +2,7 @@ import { createStore } from 'zustand/vanilla';
 import type { ActiveProgram, SessionLog } from '../domain';
 import { type HealthStatus, initialHealthStatus, type Permission } from './status';
 import { createHealthSync, type HealthPlatform, type SyncState } from './sync';
-import type { HealthWorkout } from './workout';
+import { type HealthWorkout, recordId } from './workout';
 
 const NOW = Date.parse('2026-11-23T10:00:00.000Z');
 const TRAINED = { SQUAT: { weightKg: 60, sets: [{ target: 5, reps: 5 }] } };
@@ -36,7 +36,7 @@ function setup(
     setHealthIds: (entries) =>
       set((s) => ({
         sessions: s.sessions.map((l) => {
-          const e = entries.find((x) => x.n === l.n);
+          const e = entries.find((x) => x.n === l.n && x.healthId === recordId(l));
           return e ? { ...l, healthId: e.healthId } : l;
         }),
       })),
@@ -267,6 +267,34 @@ describe('edits and versions', () => {
     await t.flush();
     expect(t.written).toHaveLength(2);
     expect(t.status.getState().dirty).toEqual([]);
+    stop();
+  });
+
+  it('does not tag another workout with the same number when the history is replaced mid-write', async () => {
+    const t = setup();
+    const stop = t.sync.start();
+    await t.flush();
+    const release = t.hold();
+    t.store.setState({ sessions: [log(1)] });
+    await t.flush();
+    // A restore puts a different workout under the same number while the write is under way.
+    t.store.setState({ sessions: [log(1, { startedAt: '2026-10-01T08:00:00.000Z' })] });
+    release();
+    await t.flush();
+    await t.flush();
+    expect(t.written[0].id).toBe(idOf(1));
+    expect(t.healthIdOf(1)).not.toBe(idOf(1));
+    stop();
+  });
+
+  it('compares times, not text: a finish in another time zone form that is before sync began waits', async () => {
+    const t = setup({ sessions: [] });
+    t.status.setState({ since: '2026-11-22T12:00:00.000Z' });
+    // Text order says "2026-11-22T13:30:00+02:00" is after the start, but it is 11:30 UTC, before it.
+    t.store.setState({ sessions: [log(1, { finishedAt: '2026-11-22T13:30:00+02:00' })] });
+    const stop = t.sync.start();
+    await t.flush();
+    expect(t.written).toHaveLength(0);
     stop();
   });
 
