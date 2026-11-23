@@ -77,12 +77,16 @@ export default function LiftDetail() {
   const bodyweight = exercise.kind === 'bodyweight';
   const loadCharted = chartsAddedLoad(own, exercise, id);
   const points = seriesPoints(own, exercise, unit, id, exercises);
-  // A ladder level is the step plus progress through it; people count steps from 1.
+  // A ladder level is the step plus progress through it; people count steps from 1. The top of the last step
+  // stays at its own level (never one past the ladder).
+  const level = (v: number) => (ladder ? Math.min(v, ladder.ladder.steps.length - 1) : v);
   const stepName = (v: number) =>
-    ladder ? nameOf(exercises, ladder.ladder.steps[stepIn(ladder.ladder, Math.floor(v))].exercise) : '';
+    ladder
+      ? nameOf(exercises, ladder.ladder.steps[stepIn(ladder.ladder, Math.floor(level(v)))].exercise)
+      : '';
   const format = (v: number): string =>
     ladder
-      ? `Level ${trim(v + 1, 1)}`
+      ? `Level ${trim(level(v) + 1, 1)}`
       : bodyweight && !loadCharted
         ? `${trim(v)} ${exercise.timed ? 's' : 'reps'}`
         : `${bodyweight ? '+' : ''}${formatWeight(toKg(v, unit), unit)}`;
@@ -98,6 +102,8 @@ export default function LiftDetail() {
         n: s.n,
         date: s.finishedAt ?? s.startedAt,
         reps,
+        step: result.step,
+        timed: result.timed === true,
         title: done
           ? `${nameOf(exercises, done)} · ${load ? `${load} × ` : ''}${amount}`
           : `${load || 'Bodyweight'} × ${amount}`,
@@ -105,7 +111,10 @@ export default function LiftDetail() {
     ];
   });
   const trainingMax = own.some((s) => resultFor(s, id)?.tmKg !== undefined);
-  const bestAmrap = history.reduce((best, h) => Math.max(best, h.reps), 0);
+  // A ladder's best counts only sets at its current step (an earlier step's reps are another exercise).
+  const best = history.filter((h) => !ladder || !lift || stepIn(ladder.ladder, h.step) === ladder.step);
+  const bestAmrap = best.reduce((most, h) => Math.max(most, h.reps), 0);
+  const bestTimed = best.some((h) => h.timed) || (!ladder && exercise.timed === true);
   const loaded = !bodyweight || (lift?.weightKg ?? 0) > 0 || (lift?.startKg ?? 0) > 0;
 
   return (
@@ -129,7 +138,7 @@ export default function LiftDetail() {
         label={title}
         points={points}
         format={format}
-        axisFormat={ladder ? (v) => `${Math.floor(v) + 1} ${stepName(v)}` : format}
+        axisFormat={ladder ? (v) => `${Math.floor(level(v)) + 1} ${stepName(v)}` : format}
       />
 
       <Section label="Stats" card>
@@ -142,7 +151,7 @@ export default function LiftDetail() {
           ) : null}
           <Text>
             {bestAmrap > 0
-              ? `Best last set: ${bestAmrap} ${exercise.timed && !ladder ? 's' : 'reps'}`
+              ? `Best last set${ladder && lift ? ' at this step' : ''}: ${bestAmrap} ${bestTimed ? 's' : 'reps'}`
               : 'No sets logged yet'}
           </Text>
           {lift && !bodyweight && bestAmrap > 0 && !trainingMax ? (

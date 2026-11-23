@@ -223,8 +223,45 @@ describe('the lift screen', () => {
     expect(screen.getByText('3 Pull-up negative')).toBeTruthy();
     expect(screen.getByText('Step now: Pull-up negative · 3 of 6')).toBeTruthy();
     expect(screen.getByText('Arch hang · 20 s')).toBeTruthy();
+    expect(screen.getByText('Best last set at this step: 5 reps')).toBeTruthy();
     fireEvent.press(screen.getByRole('radio', { name: 'All programs' }));
     expect(screen.getByLabelText('Pull-up progression: Level 1.3 to Level 3 over 4 sessions')).toBeTruthy();
+  });
+
+  test('a hold step counts its best in seconds; the top of the last step stays at the last level', async () => {
+    setStale('rr_pullup', { step: 1 });
+    history([
+      [0, 8],
+      [1, 20],
+    ]);
+    await renderRouter(allRoutes(), { initialUrl: `/lift/rr_pullup?program=${programId()}` });
+    expect(await screen.findByText('Best last set at this step: 20 s')).toBeTruthy();
+    screen.unmount();
+    const exercise = 'CAL_LSIT_PULLUP';
+    useStore.setState({
+      sessions: [0, 1].map((n) => ({
+        n,
+        dayName: 'A',
+        startedAt: new Date(Date.UTC(2026, 9, n + 1)).toISOString(),
+        finishedAt: new Date(Date.UTC(2026, 9, n + 1)).toISOString(),
+        programId: programId(),
+        results: {
+          [exercise]: {
+            weightKg: 0,
+            sets: [{ target: 8, reps: 5 + 3 * n }],
+            lift: 'rr_pullup',
+            step: 5,
+            scheme: '3x5-8' as const,
+          },
+        },
+        order: [exercise],
+      })),
+    });
+    setStale('rr_pullup', { step: 5 });
+    await renderRouter(allRoutes(), { initialUrl: `/lift/rr_pullup?program=${programId()}` });
+    expect(
+      await screen.findByLabelText('Pull-up progression: Level 6 to Level 6 over 2 sessions'),
+    ).toBeTruthy();
   });
 
   test('a program id that no longer exists shows a not-found state', async () => {
