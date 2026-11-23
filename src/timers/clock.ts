@@ -115,3 +115,17 @@ export function buzzes(before: TimerPosition | null, after: TimerPosition): bool
   if (!before || before.done) return false;
   return after.done || after.step !== before.step || after.phase !== before.phase;
 }
+
+/**
+ * Wall-clock time of the next boundary in milliseconds (for a native countdown). While paused it is where the
+ * boundary would be had the timer resumed at the moment it paused, so a countdown frozen at the pause shows
+ * the time that was left.
+ */
+export function nextBoundaryAt(plan: TimerPlan, a: TimerAnchor, now: number): number {
+  const at = isPaused(a) ? (a.pauses.at(-1)?.from ?? now) : now;
+  const period = (plan.workS + plan.restS) * 1000;
+  const elapsed = elapsedMs(a, at);
+  const p = positionAt(plan, a, at);
+  const phaseEnd = p.step * period + (p.phase === 'work' ? plan.workS * 1000 : period);
+  return at + Math.max(0, phaseEnd - elapsed);
+}

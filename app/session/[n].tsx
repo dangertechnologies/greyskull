@@ -4,10 +4,12 @@ import { Celebration, type CelebrationLine } from '../../src/components/Celebrat
 import { getLadder, project, sessionFor } from '../../src/domain';
 import { nameOf, weightLabel } from '../../src/format';
 import type { FinishedExercise } from '../../src/hooks/useSession';
-import { useSession } from '../../src/hooks/useSession';
+import { isTimerKind, useSession } from '../../src/hooks/useSession';
 import { goBackOr, goHome } from '../../src/navigation';
 import { startRoute } from '../../src/programStart';
 import { useStore } from '../../src/store';
+import { anchorOf, useTimers, useTimersHydrated } from '../../src/timers/store';
+import { GroupTimer } from '../../src/views/GroupTimer';
 import { ladderMove } from '../../src/views/ladder';
 import { SessionImmersive } from '../../src/views/SessionImmersive';
 import { SessionMinimal } from '../../src/views/SessionMinimal';
@@ -32,6 +34,10 @@ export default function SessionScreen() {
   const unit = useStore((s) => s.unit);
   const minimalist = useStore((s) => s.minimalist);
   const session = useSession(n, params.program);
+  const timersReady = useTimersHydrated();
+  // An EMOM or interval block that has not ended takes the whole screen, in either session view.
+  const shown = session?.items[session.selectedIndex]?.group;
+  const timerEnded = useTimers((s) => (shown ? anchorOf(s, n, shown.id)?.endedAt !== undefined : false));
   const mustConfirm = useStore((s) => s.draft === null && startRoute(s, params.program).kind === 'confirm');
   const [summary, setSummary] = useState<{ finished: FinishedExercise[]; programId?: string } | null>(null);
 
@@ -67,7 +73,9 @@ export default function SessionScreen() {
   // One workout at a time: another open workout is shown instead; without one only the next id can start.
   if (draftN !== null && draftN !== n) return <Redirect href={`/session/${draftN}`} />;
   if (draftN === null && (n !== nextSession || !params.program)) return <Redirect href="/" />;
-  if (!session) return null;
+  if (!session || !timersReady) return null;
+  if (shown && isTimerKind(shown.kind) && !timerEnded)
+    return <GroupTimer session={session} groupId={shown.id} onBack={() => goBackOr('/')} />;
 
   const Session = minimalist ? SessionMinimal : SessionImmersive;
   return (

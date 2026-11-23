@@ -2,7 +2,8 @@ import { requireOptionalNativeModule } from 'expo';
 import type { LiveActivity } from 'expo-widgets';
 import { Platform } from 'react-native';
 import type { AppState } from '../domain';
-import { type NextWorkoutProps, nextWorkoutProps, type RestProps, restProps } from './summary';
+import type { TimerProps } from './definitions';
+import { type NextWorkoutProps, nextWorkoutProps, restProps } from './summary';
 
 type Definitions = typeof import('./definitions');
 
@@ -44,7 +45,7 @@ export function syncNextWorkout(state: Parameters<typeof nextWorkoutProps>[0]): 
   return props;
 }
 
-let activity: LiveActivity<RestProps> | null = null;
+let activity: LiveActivity<TimerProps> | null = null;
 
 /** Show the rest countdown on the Lock Screen and in the Dynamic Island. */
 export function startRestActivity(label: string, seconds: number): void {
@@ -58,6 +59,24 @@ export function startRestActivity(label: string, seconds: number): void {
       ) ?? null;
   } catch {
     activity = null; // e.g. Live Activities switched off in iOS settings
+  }
+}
+
+/**
+ * Show an EMOM or interval timer in the same Live Activity: the countdown runs to the next boundary, so the
+ * app calls this again at each boundary (and on pause and resume) while it is open.
+ */
+export function showTimerActivity(props: TimerProps): void {
+  try {
+    if (activity) {
+      void activity.update(props).catch(() => undefined);
+      return;
+    }
+    activity =
+      load()?.restActivity.start(props, undefined, new Date(Math.max(props.endsAt, Date.now()) + 60_000)) ??
+      null;
+  } catch {
+    activity = null;
   }
 }
 

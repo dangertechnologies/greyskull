@@ -82,3 +82,27 @@ test('rest live activity defines every Dynamic Island region around a native tim
   expect(timer.props.countsDown).toBe(true);
   expect(texts(layout.banner)).toContain('Squat · set 1 of 2');
 });
+
+test('the same live activity shows an EMOM minute: exercise, minute x of n, countdown, paused', () => {
+  const props = {
+    label: 'Next: Push-up',
+    startsAt: 0,
+    endsAt: 37000,
+    kicker: 'MINUTE 4 OF 10',
+    title: 'Swing',
+  };
+  const layout = evaluate((restActivity as unknown as { layout: unknown }).layout, props, {}) as Record<
+    string,
+    Node
+  >;
+  expect(texts(layout.banner)).toEqual(['MINUTE 4 OF 10', 'Swing', 'Next: Push-up']);
+  expect(texts(layout.compactLeading)).toEqual(['Swing']);
+  expect(layout.compactTrailing.props.pauseTime).toBeUndefined();
+  const paused = evaluate(
+    (restActivity as unknown as { layout: unknown }).layout,
+    { ...props, pausedAt: 5000 },
+    {},
+  ) as Record<string, Node>;
+  expect((paused.compactTrailing.props.pauseTime as Date).getTime()).toBe(5000);
+  expect(texts(paused.compactLeading)).toEqual(['Paused']);
+});

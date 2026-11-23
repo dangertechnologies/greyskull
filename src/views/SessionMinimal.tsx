@@ -20,6 +20,7 @@ import { Sheet } from '../ui/Sheet';
 import { Card } from '../ui/Surface';
 import { Text } from '../ui/Text';
 import { EaseBanner } from './EaseBanner';
+import { groupTitle } from './groupText';
 import { clockLabel, HoldDial } from './HoldDial';
 import { LadderPanel } from './LadderPanel';
 import { supertitle } from './SessionImmersive';
@@ -33,7 +34,7 @@ interface Props {
 
 /** StrongLifts-style checklist: every exercise and its sets on one scrollable page. */
 export function SessionMinimal({ session, onBack, onFinish }: Props) {
-  const { draft, items, record, setWeight, restRemaining, restTotal, skipRest, addRest, isComplete } =
+  const { draft, items, record, setWeight, restRemaining, restTotal, skipRest, addRest, isComplete, groups } =
     session;
   const exercises = useStore((s) => s.exercises);
   const unit = useStore((s) => s.unit);
@@ -209,43 +210,67 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
             .map((item, index) => ({ item, index }))
             .filter(({ item }) => item.exerciseId === id);
           const warm = own.filter(({ item }) => item.kind === 'warmup');
+          // Grouped exercises carry their label ("A1"); the first of a group gets the group's header above it.
+          const tag = own.find(({ item }) => item.group)?.item.group;
+          const group = tag ? groups.find((g) => g.id === tag.id) : undefined;
+          const firstOfGroup =
+            !!tag &&
+            draft.order.find((x) => items.some((i) => i.exerciseId === x && i.group?.id === tag.id)) === id;
           return (
-            <Card key={id} style={{ gap: t.space[5] }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
-                <ExerciseBadge exercise={exercise} size={40} />
-                <Text variant="headline" style={{ flex: 1 }}>
-                  {nameOf(exercises, id)}
+            <View key={id} style={{ gap: t.space[3] }}>
+              {group && tag && firstOfGroup ? (
+                <Text variant="label" color="textMuted" accessibilityRole="header">
+                  {groupTitle(
+                    group,
+                    tag.label.slice(0, 1),
+                    items.filter((i) => i.group?.id === tag.id).length,
+                  )}
                 </Text>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Change ${bodyweight ? 'added load' : 'weight'}, now ${weightText}`}
-                  accessibilityState={{ disabled: !canEdit }}
-                  disabled={!canEdit}
-                  onPress={() => setWeightFor(id)}
-                  style={{ minHeight: 48, justifyContent: 'center', alignItems: 'flex-end', gap: t.space[1] }}
-                >
-                  <Text variant="headline">{weightText}</Text>
-                </Pressable>
-              </View>
-              <LadderPanel draft={draft} exerciseId={id} compact />
-              {bodyweight || perSetWeight || exercise.kind !== 'barbell' ? null : (
-                <PlateStack kg={result.weightKg} size="sm" exercise={exercise} />
-              )}
-              {warm.length > 0 ? (
-                <View style={{ gap: t.space[2] }}>
-                  <Text variant="label" color="textMuted">
-                    Warm-up
-                  </Text>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-                    {warm.map(({ item, index }) => warmupPill(item, index))}
-                  </View>
-                </View>
               ) : null}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
-                {own.filter(({ item }) => item.kind !== 'warmup').map(({ item, index }) => pill(item, index))}
-              </View>
-              <TechniqueLinks exercise={exercise} compact />
-            </Card>
+              <Card style={{ gap: t.space[5] }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
+                  <ExerciseBadge exercise={exercise} size={40} />
+                  <Text variant="headline" style={{ flex: 1 }}>
+                    {tag ? `${tag.label} · ${nameOf(exercises, id)}` : nameOf(exercises, id)}
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Change ${bodyweight ? 'added load' : 'weight'}, now ${weightText}`}
+                    accessibilityState={{ disabled: !canEdit }}
+                    disabled={!canEdit}
+                    onPress={() => setWeightFor(id)}
+                    style={{
+                      minHeight: 48,
+                      justifyContent: 'center',
+                      alignItems: 'flex-end',
+                      gap: t.space[1],
+                    }}
+                  >
+                    <Text variant="headline">{weightText}</Text>
+                  </Pressable>
+                </View>
+                <LadderPanel draft={draft} exerciseId={id} compact />
+                {bodyweight || perSetWeight || exercise.kind !== 'barbell' ? null : (
+                  <PlateStack kg={result.weightKg} size="sm" exercise={exercise} />
+                )}
+                {warm.length > 0 ? (
+                  <View style={{ gap: t.space[2] }}>
+                    <Text variant="label" color="textMuted">
+                      Warm-up
+                    </Text>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                      {warm.map(({ item, index }) => warmupPill(item, index))}
+                    </View>
+                  </View>
+                ) : null}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
+                  {own
+                    .filter(({ item }) => item.kind !== 'warmup')
+                    .map(({ item, index }) => pill(item, index))}
+                </View>
+                <TechniqueLinks exercise={exercise} compact />
+              </Card>
+            </View>
           );
         })}
       </ScrollView>

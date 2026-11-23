@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { TimerAnchor } from './clock';
@@ -41,3 +42,14 @@ export const anchorOf = (
   n: number,
   group: string,
 ): TimerAnchor | undefined => (s.n === n ? s.anchors[group] : undefined);
+
+/** Whether the anchors were read back from storage (a timer screen waits for this before it decides). */
+export function useTimersHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(() => useTimers.persist.hasHydrated());
+  useEffect(() => {
+    if (hydrated) return undefined;
+    if (useTimers.persist.hasHydrated()) setHydrated(true);
+    return useTimers.persist.onFinishHydration(() => setHydrated(true));
+  }, [hydrated]);
+  return hydrated;
+}

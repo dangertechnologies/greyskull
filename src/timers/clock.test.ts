@@ -4,6 +4,7 @@ import {
   elapsedMs,
   end,
   isPaused,
+  nextBoundaryAt,
   pause,
   planOf,
   positionAt,
@@ -88,4 +89,13 @@ test('buzzes once per boundary, never on the first look (a relaunch)', () => {
   expect(buzzes(at(599_000), at(600_000))).toBe(true);
   const r = start(0);
   expect(buzzes(positionAt(tabata, r, 19_000), positionAt(tabata, r, 20_000))).toBe(true);
+});
+
+test('the next boundary as a wall-clock time, frozen while paused', () => {
+  const a = start(1_000);
+  expect(nextBoundaryAt(emom10, a, 1_000 + 23_000)).toBe(61_000);
+  expect(nextBoundaryAt(tabata, a, 1_000 + 25_000)).toBe(31_000);
+  const p = pause(a, 11_000);
+  // 50 s were left at the pause; the countdown shows 50 s ending 50 s after the pause.
+  expect(nextBoundaryAt(emom10, p, 99_000)).toBe(61_000);
 });

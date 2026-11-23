@@ -8,7 +8,7 @@ import { WeightSheet } from '../components/WeightSheet';
 import { useTheme } from '../design/theme';
 import { lastResult } from '../domain';
 import { intensityLabel, nameOf, weightLabel } from '../format';
-import type { SessionApi, SessionItem } from '../hooks/useSession';
+import { isTimerKind, type SessionApi, type SessionItem } from '../hooks/useSession';
 import { useStore } from '../store';
 import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
@@ -19,6 +19,7 @@ import { PlateStack } from '../ui/PlateStack';
 import { Section } from '../ui/Section';
 import { Text } from '../ui/Text';
 import { EaseBanner } from './EaseBanner';
+import { roundLabel, targetText } from './groupText';
 import { clockLabel, HoldDial } from './HoldDial';
 import { LadderPanel, ladderLine, ladderSlot } from './LadderPanel';
 import { useStopwatch } from './useStopwatch';
@@ -33,6 +34,7 @@ interface Props {
 
 export function supertitle(item: SessionItem): string {
   if (item.kind === 'warmup') return `Warm-up ${item.position} of ${item.total}`;
+  if (item.group) return roundLabel(item.group);
   if (item.kind === 'amrap') {
     return item.total > 1 && item.targetReps !== null ? `Set ${item.position} of ${item.total}` : 'AMRAP';
   }
@@ -107,6 +109,27 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
   // A paused hold fills in the seconds; the stepper can still correct them.
   const shownReps = timed && watch.seconds > 0 && !watch.running ? watch.seconds : reps;
 
+  // A superset or circuit round: its exercises together, the shown one highlighted, rest only after the round.
+  const roundOf = item?.group && !isTimerKind(item.group.kind) ? item.group : undefined;
+  const round = roundOf
+    ? items.flatMap((i, index) =>
+        i.group?.id === roundOf.id && i.group.round === roundOf.round ? [{ i, index }] : [],
+      )
+    : [];
+  const afterThis = roundOf
+    ? roundOf.restAfterS
+      ? `After this: rest ${roundOf.restAfterS} s${roundOf.round < roundOf.rounds ? `, then round ${roundOf.round + 1}` : ''}`
+      : next?.group?.id === roundOf.id
+        ? `No rest: ${next.group.label} ${nameOf(exercises, next.exerciseId, true)} next`
+        : undefined
+    : undefined;
+  const doneTitle =
+    item?.logged && item.kind !== 'warmup'
+      ? 'Update set'
+      : roundOf
+        ? `Done ${roundOf.label}${roundOf.restAfterS ? ' · start rest' : ''}`
+        : 'Done';
+
   const resting = restRemaining !== null;
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
@@ -145,6 +168,72 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
               <EaseBanner draft={draft} />
 
               {ladder ? <LadderPanel draft={draft} exerciseId={item.exerciseId} /> : null}
+
+              {roundOf ? (
+                <View style={{ gap: t.space[3] }} testID="round-card">
+                  {round.map(({ i, index }, k) => {
+                    const current = index === selectedIndex;
+                    return (
+                      <View key={`${i.exerciseId}-${i.position}`} style={{ gap: t.space[3] }}>
+                        {k > 0 ? (
+                          <Text variant="caption" color="textMuted" align="center">
+                            no rest here
+                          </Text>
+                        ) : null}
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityState={{ selected: current }}
+                          accessibilityLabel={`${i.group?.label} ${nameOf(exercises, i.exerciseId)}, set ${i.position}, ${i.logged ? `${i.reps}${i.timed ? ' seconds' : ' reps'} done` : `target ${targetText(i)}`}`}
+                          onPress={() => select(index)}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: t.space[4],
+                            minHeight: 64,
+                            padding: t.space[4],
+                            borderRadius: t.radius.xl,
+                            backgroundColor: t.color.surface,
+                            borderWidth: current ? 2 : 1,
+                            borderColor: current ? t.color.accent : t.color.border,
+                          }}
+                        >
+                          <View
+                            style={{
+                              minWidth: 44,
+                              paddingHorizontal: t.space[2],
+                              paddingVertical: t.space[1],
+                              borderRadius: t.radius.pill,
+                              alignItems: 'center',
+                              backgroundColor: current ? t.color.chartFill : 'transparent',
+                              borderWidth: current ? 0 : 1,
+                              borderColor: t.color.border,
+                            }}
+                          >
+                            <Text variant="bodyStrong" color={current ? 'accent' : 'textMuted'}>
+                              {i.group?.label}
+                            </Text>
+                          </View>
+                          <View style={{ flex: 1, gap: t.space[1] }}>
+                            <Text variant="bodyStrong">{nameOf(exercises, i.exerciseId)}</Text>
+                            <Text variant="callout" color="textMuted">
+                              {`Set ${i.position} · ${i.logged ? `${i.reps}${i.timed ? ' s' : ' reps'}` : `target ${targetText(i)}`}`}
+                            </Text>
+                          </View>
+                          {i.logged ? <Icon name="check" size={22} color="success" /> : null}
+                        </Pressable>
+                      </View>
+                    );
+                  })}
+                  {afterThis ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+                      <Icon name="timer" size={20} color="accent" />
+                      <Text variant="callout" style={{ flex: 1 }}>
+                        {afterThis}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              ) : null}
 
               <View style={{ gap: t.space[4] }}>
                 <Pressable
@@ -270,7 +359,7 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
         ) : item ? (
           <>
             <Button
-              title={item.logged && item.kind !== 'warmup' ? 'Update set' : 'Done'}
+              title={doneTitle}
               size="lg"
               testID="done-set"
               onPress={() => {
