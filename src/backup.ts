@@ -42,9 +42,14 @@ const saneLiftKey = (k: unknown): boolean =>
   typeof k === 'string' && k.length > 0 && k.length <= 100 && !k.split('@').some(isReservedKey);
 
 /** An ISO 8601 date-time the app can compare and sort by time (`toISOString` output and its time-zone forms). */
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:?\d{2})$/;
-export const isIsoDate = (v: unknown): v is string =>
-  typeof v === 'string' && ISO_DATE.test(v) && !Number.isNaN(Date.parse(v));
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:?\d{2})$/;
+export const isIsoDate = (v: unknown): v is string => {
+  const m = typeof v === 'string' ? ISO_DATE.exec(v) : null;
+  if (!m || Number.isNaN(Date.parse(v as string))) return false;
+  // Date.parse rolls an impossible day over (2024-02-30 is 1 March): the day must exist in its month.
+  const day = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return day.getUTCMonth() === Number(m[2]) - 1 && day.getUTCDate() === Number(m[3]);
+};
 
 function badSession(s: unknown): string | null {
   // An id that is missing, broken or repeated is renumbered (`normaliseSessionIds`), never refused.

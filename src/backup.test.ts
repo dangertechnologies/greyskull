@@ -570,6 +570,10 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
       'a finish that is not a date',
       (s: Doc) => (s.sessions = [session({ finishedAt: '2026-13-45T99:00:00Z' })]),
     ],
+    [
+      'a day that does not exist',
+      (s: Doc) => (s.sessions = [session({ startedAt: '2024-02-30T10:00:00Z' })]),
+    ],
   ])('a backup with %s is refused', (_name, edit) => {
     const doc = seededDoc();
     edit(doc);
@@ -621,6 +625,7 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
     const doc = seededDoc();
     doc.sessions = [
       session({ startedAt: '2026-01-01T10:00:00+02:00', finishedAt: '2026-01-01T11:00:00.000+02:00' }),
+      session({ n: 1, startedAt: '2024-02-29T10:00:00Z', finishedAt: '2024-12-31T23:59:59.999Z' }),
     ];
     expect(parseBackup(JSON.stringify(doc)).ok).toBe(true);
   });
