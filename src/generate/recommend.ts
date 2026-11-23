@@ -173,19 +173,24 @@ export function decodeAnswers(raw: string | undefined): Answers {
     goal: one(GOALS, data.goal, DEFAULT_ANSWERS.goal),
     days: days ? (data.days as number) : DEFAULT_ANSWERS.days,
     minutes: one(MINUTES, data.minutes, DEFAULT_ANSWERS.minutes),
-    equipment: Array.isArray(data.equipment)
-      ? [
-          ...new Set(
-            data.equipment.filter(
-              (e): e is Equipment => typeof e === 'string' && Object.hasOwn(EQUIPMENT_LABELS, e),
-            ),
-          ),
-        ]
-      : [],
+    equipment: knownEquipment(data.equipment),
     experience: one(EXPERIENCE, data.experience, DEFAULT_ANSWERS.experience),
   };
 }
 
+/**
+ * The equipment values the app knows, once each; anything else is dropped. `Object.hasOwn`, so a name such as
+ * `constructor` from a link or a restored file never matches an inherited member.
+ */
+export const knownEquipment = (list: unknown): Equipment[] =>
+  Array.isArray(list)
+    ? [
+        ...new Set(
+          list.filter((e): e is Equipment => typeof e === 'string' && Object.hasOwn(EQUIPMENT_LABELS, e)),
+        ),
+      ]
+    : [];
+
 /** Answers from a route parameter, or, when the screen was opened without one, the defaults with the saved equipment. */
-export const answersFrom = (raw: string | undefined, owned: Equipment[]): Answers =>
-  raw ? decodeAnswers(raw) : { ...DEFAULT_ANSWERS, equipment: [...owned] };
+export const answersFrom = (raw: string | undefined, owned: unknown): Answers =>
+  raw ? decodeAnswers(raw) : { ...DEFAULT_ANSWERS, equipment: knownEquipment(owned) };

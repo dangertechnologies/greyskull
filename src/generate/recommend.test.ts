@@ -169,3 +169,8 @@ describe('fix round: untrusted equipment in the route', () => {
     ).toEqual(['rings']);
   });
 });
+
+test('stored equipment with unknown or prototype names is cleaned before it is used', () => {
+  expect(answersFrom(undefined, ['rings', 'toString', '__proto__', 'rings', 7]).equipment).toEqual(['rings']);
+  expect(answersFrom(undefined, 'junk').equipment).toEqual([]);
+});
