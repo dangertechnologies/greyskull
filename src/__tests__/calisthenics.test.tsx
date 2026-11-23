@@ -223,3 +223,34 @@ describe('the lift screen', () => {
     expect(screen.getByText('Best last set: 25 s')).toBeTruthy();
   });
 });
+
+test('the past-session editor edits seconds for holds and added load for bodyweight', async () => {
+  useStore.setState({
+    sessions: [
+      {
+        n: 0,
+        dayName: 'A',
+        startedAt: new Date(Date.UTC(2026, 9, 1)).toISOString(),
+        finishedAt: new Date(Date.UTC(2026, 9, 1)).toISOString(),
+        programId: programId(),
+        results: {
+          CAL_SUPPORT_HOLD: { weightKg: 0, sets: [{ target: 10, reps: 12 }], timed: true },
+          DIPS: { weightKg: 5, sets: [{ target: 8, reps: 8 }] },
+        },
+        order: ['CAL_SUPPORT_HOLD', 'DIPS'],
+      },
+    ],
+    nextSession: 1,
+  });
+  await renderRouter(allRoutes(), { initialUrl: '/session/edit/0' });
+  expect(await screen.findByText('12 s')).toBeTruthy();
+  expect(screen.getByText('+5 kg')).toBeTruthy();
+  expect(screen.getByText('8 reps')).toBeTruthy();
+  const increase = () => screen.getAllByLabelText('Increase');
+  fireEvent.press(increase()[0]); // hold 12 → 13 s
+  fireEvent.press(increase()[1]); // dips added load 5 → 6.25 kg
+  fireEvent.press(screen.getByText('Save'));
+  const { results } = get().sessions[0];
+  expect(results.CAL_SUPPORT_HOLD.sets[0].reps).toBe(13);
+  expect(results.DIPS.weightKg).toBe(6.25);
+});

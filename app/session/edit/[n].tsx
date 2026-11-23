@@ -54,7 +54,10 @@ export default function EditSession() {
             const result = results[id];
             const exercise = exercises[id];
             if (!result) return null;
-            const loaded = exercise && exercise.kind !== 'bodyweight' && result.weightKg !== 0;
+            const bodyweight = exercise?.kind === 'bodyweight';
+            // Bodyweight reps can carry added load (not holds or band-assisted steps); a 0 kg loaded lift had none.
+            const loaded = exercise && (bodyweight ? !result.timed && !result.band : result.weightKg !== 0);
+            const amount = result.timed ? 's' : 'reps';
             return (
               <Card key={id} style={{ gap: t.space[6], alignItems: 'center' }}>
                 <View
@@ -71,12 +74,14 @@ export default function EditSession() {
                 {loaded && !result.sets.some((s) => s.kg !== undefined) ? (
                   <>
                     <WeightStepper
-                      label="Weight"
+                      label={bodyweight ? 'Added load' : 'Weight'}
                       exercise={exercise}
                       kg={result.weightKg}
                       onChange={(kg) => setResults((r) => ({ ...r, [id]: { ...r[id], weightKg: kg } }))}
                     />
-                    {exercise.kind === 'barbell' ? <PlateStack kg={result.weightKg} exercise={exercise} /> : null}
+                    {exercise.kind === 'barbell' ? (
+                      <PlateStack kg={result.weightKg} exercise={exercise} />
+                    ) : null}
                   </>
                 ) : null}
                 {result.sets.map((set, i) => (
@@ -87,7 +92,7 @@ export default function EditSession() {
                     value={set.reps}
                     min={0}
                     step={1}
-                    format={(v) => `${v} reps`}
+                    format={(v) => `${v} ${amount}`}
                     onChange={(reps) => setReps(id, i, reps)}
                   />
                 ))}
