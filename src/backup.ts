@@ -1,6 +1,7 @@
 import type { AppState, Exercise, Program, SessionLog } from './domain';
 import { tryParseScheme, validateProgram } from './domain';
 import { NULLABLE_USER_FIELDS, USER_FIELDS } from './domain/exerciseFields';
+import { isReservedKey } from './domain/own';
 import type { OneProgramState } from './store';
 import {
   isEquipment,
@@ -26,17 +27,23 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
-/** Names every object already has ("constructor", "toString", "__proto__"): never valid as an id or a lift key. */
-const RESERVED = new Set(Object.getOwnPropertyNames(Object.prototype));
-const reserved = (map: Record<string, unknown>): boolean => Object.keys(map).some((k) => RESERVED.has(k));
+const KINDS = ['barbell', 'bodyweight', 'dumbbell', 'machine', 'kettlebell'];
+const reserved = (map: Record<string, unknown>): boolean => Object.keys(map).some(isReservedKey);
+/** A lift key is an exercise id or ladder id, optionally `<id>@tier`; neither part may be a name every object has. */
+const saneLiftKey = (k: unknown): boolean =>
+  typeof k === 'string' && k.length > 0 && k.length <= 100 && !k.split('@').some(isReservedKey);
 
 function badSession(s: unknown): string | null {
   if (!isObject(s) || !isNum(s.n) || typeof s.startedAt !== 'string') return 'a session is malformed';
   if (!isObject(s.results) || !Array.isArray(s.order) || reserved(s.results))
     return `session ${String(s.n)} is malformed`;
+  // The app reads `results[id]` for every id in the order, so each one must be a result of its own.
+  if (s.order.some((id) => typeof id !== 'string' || !Object.hasOwn(s.results as object, id)))
+    return `session ${String(s.n)} lists an exercise that has no result`;
   for (const r of Object.values(s.results)) {
     if (!isObject(r) || !isNum(r.weightKg) || !Array.isArray(r.sets))
       return `session ${String(s.n)} has a bad result`;
+    if (r.lift !== undefined && !saneLiftKey(r.lift)) return `session ${String(s.n)} has a bad lift key`;
     for (const set of r.sets) {
       if (
         !isObject(set) ||
@@ -53,7 +60,7 @@ function badSession(s: unknown): string | null {
 
 const badLifts = (lifts: unknown): boolean =>
   !isObject(lifts) ||
-  reserved(lifts) ||
+  !Object.keys(lifts).every(saneLiftKey) ||
   Object.values(lifts).some(
     (l) =>
       !isObject(l) ||
@@ -127,10 +134,16 @@ function parse(raw: string): BackupResult {
       typeof e.id !== 'string' ||
       typeof e.name !== 'string' ||
       e.id !== key ||
-      RESERVED.has(key) ||
-      [e.pattern, e.level, ...[e.equipment, e.muscles, e.secondary].flat()].some(
-        (v) => typeof v === 'string' && RESERVED.has(v),
-      ) ||
+      isReservedKey(key) ||
+      (e.kind !== undefined && !KINDS.includes(e.kind as never)) ||
+      [
+        e.pattern,
+        e.level,
+        e.pictogram,
+        e.background,
+        e.icon,
+        ...[e.equipment, e.muscles, e.secondary].flat(),
+      ].some((v) => typeof v === 'string' && isReservedKey(v)) ||
       USER_FIELDS.some((f) => e[f] === null && !nullable.includes(f))
     ) {
       return { ok: false, error: 'An exercise is malformed.' };

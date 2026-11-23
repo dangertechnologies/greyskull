@@ -234,6 +234,16 @@ const custom = (id: string, extra: object = {}) => ({
   custom: true,
   ...extra,
 });
+const result = (extra: object = {}) => ({ weightKg: 20, sets: [{ target: 5, reps: 5 }], ...extra });
+const session = (extra: object = {}) => ({
+  n: 0,
+  dayName: 'A',
+  startedAt: '2026-01-01T10:00:00.000Z',
+  finishedAt: '2026-01-01T11:00:00.000Z',
+  order: [],
+  results: {},
+  ...extra,
+});
 // `defineProperty` makes "__proto__" an own key, as JSON.parse does, instead of setting a prototype.
 // biome-ignore lint/suspicious/noExplicitAny: tests mutate arbitrary JSON
 const own = (o: any, key: string, value: unknown) =>
@@ -255,11 +265,38 @@ const hostileCases = (id: string): [string, (s: any) => void][] => [
       ]),
   ],
   [
+    `${id} as the pictogram of an exercise`,
+    (s) => (s.exercises.custom_x = custom('custom_x', { pictogram: id })),
+  ],
+  [
+    `${id} as the background of an exercise`,
+    (s) => (s.exercises.custom_x = custom('custom_x', { background: id })),
+  ],
+  [`${id} as the kind of an exercise`, (s) => (s.exercises.custom_x = custom('custom_x', { kind: id }))],
+  [`${id} as the template of a program`, (s) => (s.programs[0].template = id)],
+  [
     `${id} as the pattern of an exercise`,
     (s) => (s.exercises.custom_x = custom('custom_x', { pattern: id })),
   ],
   [`${id} as an equipment value`, (s) => (s.exercises.custom_x = custom('custom_x', { equipment: [id] }))],
+  [`${id} in the order of a session`, (s) => (s.sessions = [session({ order: [id] })])],
+  [
+    `${id} as the lift of a result`,
+    (s) =>
+      (s.sessions = [session({ order: ['BENCH_PRESS'], results: { BENCH_PRESS: result({ lift: id }) } })]),
+  ],
+  [
+    `${id} as the exercise part of a lift key`,
+    (s) =>
+      (s.sessions = [
+        session({ order: ['BENCH_PRESS'], results: { BENCH_PRESS: result({ lift: `${id}@T2` }) } }),
+      ]),
+  ],
   [`${id} as owned equipment`, (s) => (s.equipment = ['barbell', id])],
+  [
+    `${id} as the exercise part of a stored lift key`,
+    (s) => own(s.programs[0].lifts, `${id}@T2`, { weightKg: 20, startKg: 20, fails: 0 }),
+  ],
   [`${id} as a lift key`, (s) => own(s.programs[0].lifts, id, { weightKg: 20, startKg: 20, fails: 0 })],
 ];
 
@@ -279,6 +316,8 @@ describe('a damaged backup is refused, never thrown', () => {
     ['a slot that is null', (s) => (s.programs[0].days[0].slots = [null])],
     ['lifts that are a list', (s) => (s.programs[0].lifts = [])],
     ['exercises with a null entry', (s) => (s.exercises.BENCH_PRESS = null)],
+    ['an order item that has no result', (s) => (s.sessions = [session({ order: ['BENCH_PRESS'] })])],
+    ['an order item that is not text', (s) => (s.sessions = [session({ order: [3] })])],
     ['equipment that is not a list', (s) => (s.equipment = 'barbell')],
     ['equipment this app does not know', (s) => (s.equipment = ['barbell', 'jetpack'])],
     ['an exercise filed under another id', (s) => (s.exercises.custom_x = custom('custom_y'))],
