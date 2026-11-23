@@ -40,7 +40,7 @@ import {
   tryParseScheme,
   validateProgram,
 } from './domain';
-import { USER_FIELDS } from './domain/exerciseFields';
+import { isEdited, userFieldsOf, withUserFields } from './domain/exerciseFields';
 import { createFileStorage } from './storage';
 
 /** AsyncStorage entry the state lived in before it moved to a file (read once, then kept untouched). */
@@ -156,11 +156,11 @@ export function snapshot(s: AppState): AppState {
 
 const SHIPPED = builtInExercises();
 const editedCache = new WeakMap<Exercise, boolean>();
-const sameField = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /**
  * What is stored of the exercises: custom ones whole, built-ins only when the user changed one of their user
- * fields, and then only those fields. The shipped catalog fills in the rest on launch.
+ * fields, and then only those fields (a field turned off is stored as `null`). The shipped catalog fills in
+ * the rest on launch.
  */
 export function persistedExercises(exercises: Record<string, Exercise>): Record<string, Exercise> {
   const out: Record<string, Exercise> = {};
@@ -172,30 +172,23 @@ export function persistedExercises(exercises: Record<string, Exercise>): Record<
     }
     let edited = editedCache.get(e);
     if (edited === undefined) {
-      edited = USER_FIELDS.some((f) => !sameField(e[f], shipped[f]));
+      edited = isEdited(e, shipped);
       editedCache.set(e, edited);
     }
-    if (edited) out[id] = userFieldsOf(e);
+    if (edited) out[id] = userFieldsOf(e, shipped);
   }
   return out;
 }
-
-const userFieldsOf = (e: Exercise): Exercise => {
-  const out: Record<string, unknown> = { id: e.id };
-  for (const f of USER_FIELDS) if (e[f] !== undefined) out[f] = e[f];
-  return out as unknown as Exercise;
-};
 
 /** The full exercise map from stored entries: shipped built-ins with the user's fields on top, plus custom ones. */
 export function restoreExercises(stored: Record<string, Exercise> | undefined): Record<string, Exercise> {
   for (const [id, e] of Object.entries(stored ?? {})) {
     if (!isRecord(e)) throw new Error(`The saved exercise ${id} is damaged`);
   }
-  const out = refreshCatalog(stored ?? {});
-  const shipped = builtInExercises();
-  for (const [id, e] of Object.entries(stored ?? {})) {
-    if (!shipped[id]) continue;
-    out[id] = { ...shipped[id], ...userFieldsOf(e) };
+  const out: Record<string, Exercise> = { ...stored };
+  for (const [id, shipped] of Object.entries(builtInExercises())) {
+    const entry = stored?.[id];
+    out[id] = entry ? withUserFields(shipped, entry as unknown as Record<string, unknown>) : shipped;
   }
   return out;
 }
@@ -322,9 +315,10 @@ export function upgradeOneProgramState(old: Partial<OneProgramState>): AppState 
     ...rest,
     version: 3,
     inventory: { ...base.inventory, ...rest.inventory },
-    // This version stored every built-in exercise whole, content included: refresh the content (abbreviation,
-    // bodyweight increments, …) from the bundle so only the user's own changes carry over.
-    exercises: rest.exercises ? refreshCatalog(rest.exercises) : base.exercises,
+    // This version stored every built-in exercise whole, content included: refresh the content from the bundle,
+    // and the abbreviation too (it was replaced on every refresh then), so only the user's own changes to the
+    // other user fields carry over.
+    exercises: rest.exercises ? refreshCatalog(rest.exercises, ['abbr']) : base.exercises,
     programs,
     customPlans: rest.customPlans ?? [],
     nextSession: next,
