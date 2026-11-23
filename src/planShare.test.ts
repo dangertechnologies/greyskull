@@ -199,6 +199,59 @@ describe('importPlan', () => {
       expect(importPlan(text({}, [{ ...front, ...bad }]), have()).ok).toBe(false);
   });
 
+  test('a weight step or a bar that would give a NaN or an unusable weight is refused', () => {
+    for (const bad of [
+      { step: { kg: 0, lb: 0 } },
+      { step: { kg: 0.25, lb: 0.5 } },
+      { step: { kg: 1, lb: 0 } },
+      { step: { kg: 101, lb: 2 } },
+      { barKg: { kg: 0, lb: 45 } },
+      { barKg: { kg: 20, lb: 0 } },
+      { barKg: { kg: 51, lb: 45 } },
+      { barKg: { kg: 20, lb: 111 } },
+      { increment: { kg: -1, lb: 2 } },
+      { increment: { kg: 2, lb: 101 } },
+    ]) {
+      const r = importPlan(text({}, [{ ...front, ...bad }]), have());
+      expect(r.ok).toBe(false);
+    }
+    for (const good of [
+      { step: { kg: 0.5, lb: 1 } },
+      { barKg: { kg: 10, lb: 25 } },
+      { increment: { kg: 0, lb: 0 } },
+    ])
+      expect(importPlan(text({}, [{ ...front, ...good }]), have()).ok).toBe(true);
+  });
+
+  test('only the exercises the program uses are added', () => {
+    const extra = ['custom_unused_a', 'custom_unused_b'].map((id) => ({ ...front, id, name: id }));
+    const r = importPlan(text({}, [front, ...extra]), have());
+    expect(r.ok && r.exercises.map((e) => e.id)).toEqual(['custom_front_squat']);
+    // An unused exercise that is broken does not spoil the file either.
+    expect(importPlan(text({}, [front, { id: 'custom_junk', kind: 'x' }]), have()).ok).toBe(true);
+  });
+
+  test('a file that lists an exercise id twice is refused', () => {
+    const r = importPlan(text({}, [front, { ...front, name: 'Another' }]), have());
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/custom_front_squat.*twice/);
+  });
+
+  test('an archived exercise with the same content is not reused: a visible copy is added', () => {
+    const archived = { ...front, archived: true };
+    const r = importPlan(text(), have({ custom_front_squat: archived }));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.exercises.map((e) => e.id)).toEqual(['custom_front_squat_2']);
+    expect(r.exercises[0].archived).toBeUndefined();
+    expect(r.plan.program.days[0].slots[0].exercise).toBe('custom_front_squat_2');
+  });
+
+  test('the version must be a positive whole number', () => {
+    for (const version of [0, -3, 1.5, '1', null])
+      expect(importPlan(text({ version }), have()).ok).toBe(false);
+  });
+
   describe('names that exist on every object are not exercises, patterns or ladders', () => {
     const hostile = ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf'];
     const refused = (raw: string) => {

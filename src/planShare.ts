@@ -58,6 +58,23 @@ const pair = (v: unknown, where: string): { kg: number; lb: number } => {
   return { kg: v.kg as number, lb: v.lb as number };
 };
 
+/** A weight step the weight stepper and the rounding divide by: at least 0.5 (the editor's minimum). */
+const stepPair = (v: unknown, where: string): { kg: number; lb: number } => {
+  const p = pair(v, where);
+  must(p.kg >= 0.5 && p.lb >= 0.5, `${where} must be at least 0.5.`);
+  return p;
+};
+
+/** A bar of its own: heavier than nothing and no heavier than 50 kg (110 lb). */
+const barPair = (v: unknown, where: string): { kg: number; lb: number } => {
+  const p = pair(v, where);
+  must(
+    p.kg > 0 && p.kg <= 50 && p.lb > 0 && p.lb <= 110,
+    `${where} must be over 0 and at most 50 kg (110 lb).`,
+  );
+  return p;
+};
+
 const known = <T extends string>(v: unknown, allowed: Record<T, unknown>, where: string): T[] => {
   must(Array.isArray(v) && v.length <= 40, `${where} is not a list.`);
   // Own keys only: "constructor" or "toString" would otherwise pass as a known value.
@@ -98,8 +115,8 @@ function exerciseFrom(v: unknown, n: number): Exercise {
     must(typeof v.abbr === 'string', `${where}: abbreviation.`);
     if (v.abbr.trim()) out.abbr = v.abbr.trim().slice(0, 3).toUpperCase();
   }
-  if (v.step !== undefined) out.step = pair(v.step, `${where}: step`);
-  if (v.barKg !== undefined) out.barKg = pair(v.barKg, `${where}: bar`);
+  if (v.step !== undefined) out.step = stepPair(v.step, `${where}: weight step`);
+  if (v.barKg !== undefined) out.barKg = barPair(v.barKg, `${where}: bar`);
   if (v.description !== undefined) {
     must(
       typeof v.description === 'string' && v.description.length <= MAX_LONG_TEXT,
@@ -228,7 +245,11 @@ function read(
   }
   must(isObject(data) && data.format === PLAN_FORMAT, 'This is not a Greyskull program.');
   must(
-    typeof data.version === 'number' && data.version <= PLAN_VERSION,
+    typeof data.version === 'number' && Number.isInteger(data.version) && data.version >= 1,
+    'This file has no valid version number.',
+  );
+  must(
+    data.version <= PLAN_VERSION,
     'This program was made by a newer version of Greyskull. Update the app to open it.',
   );
   must(isObject(data.plan), 'The file has no program in it (plan).');
@@ -242,14 +263,22 @@ function read(
 
   const parsed = parseProgram(plan.program);
   must(parsed.ok, `The program is invalid: ${parsed.ok ? '' : parsed.error}`);
-  const incoming = data.exercises.map(exerciseFrom);
+  // A file may list an exercise once, and only the ones the program uses are read and added.
+  const listed = data.exercises.flatMap((e) => (isObject(e) && typeof e.id === 'string' ? [e.id] : []));
+  const twice = listed.find((id, i) => listed.indexOf(id) !== i);
+  must(twice === undefined, `The file lists the exercise ${twice} twice.`);
+  const used = new Set(exerciseIdsOf(parsed.program));
+  const incoming = data.exercises
+    .map((e, n) => ({ e, n }))
+    .filter(({ e }) => isObject(e) && typeof e.id === 'string' && used.has(e.id))
+    .map(({ e, n }) => exerciseFrom(e, n));
 
   const catalog: Record<string, Exercise> = { ...have.exercises };
   const added: Exercise[] = [];
   const map = new Map<string, string>();
   for (const e of incoming) {
     const clash = Object.hasOwn(catalog, e.id) ? catalog[e.id] : undefined;
-    if (clash?.custom && sameExercise(clash, e)) continue;
+    if (clash?.custom && !clash.archived && sameExercise(clash, e)) continue;
     if (!clash && ID.test(e.id)) {
       catalog[e.id] = e;
       added.push(e);
