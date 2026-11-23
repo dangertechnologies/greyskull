@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
@@ -28,16 +28,23 @@ function ProgramProgress({ program, only }: { program: ActiveProgram; only: bool
   const ids = useMemo(() => liftKeysOf(program), [program]);
   // Only this program's workouts, so a lift two programs share charts each program's own progress.
   const own = useMemo(() => sessions.filter((s) => belongsTo(s, program)), [sessions, program]);
-  // `project` reads the programs, exercises, plates, unit and next id: the slices above re-run it on change.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the slices above stand for the store state
+  const bands = useStore((s) => s.bands);
+  const breakDeload = useStore((s) => s.breakDeload);
+  // `project` reads these slices (the ease-back after a break reads the history, bands and the switch).
   const upcoming = useMemo(
-    () => project(useStore.getState(), program.id, 6),
-    [program, exercises, inventory, unit, nextSession],
+    () =>
+      project(
+        { ...useStore.getState(), exercises, inventory, unit, nextSession, bands, breakDeload, sessions },
+        program.id,
+        6,
+      ),
+    [program, exercises, inventory, unit, nextSession, bands, breakDeload, sessions],
   );
   // A ladder shows its current step's exercise; its series is the level climbed.
-  const exerciseFor = (id: string) =>
-    ladderAt(id, program.lifts[id], exercises)?.exercise ?? exercises[exerciseOfLift(id)];
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `exerciseFor` reads only the program and exercises
+  const exerciseFor = useCallback(
+    (id: string) => ladderAt(id, program.lifts[id], exercises)?.exercise ?? exercises[exerciseOfLift(id)],
+    [program, exercises],
+  );
   const series = useMemo(
     () =>
       Object.fromEntries(
@@ -46,7 +53,7 @@ function ProgramProgress({ program, only }: { program: ActiveProgram; only: bool
           return [id, exercise ? seriesFor(own, exercise, unit, id) : []];
         }),
       ),
-    [ids, own, exercises, unit, program],
+    [ids, own, unit, exerciseFor],
   );
   const anyTrend = ids.some((id) => series[id].length > 1);
   const title = program.paused ? `${program.name} (paused)` : program.name;
