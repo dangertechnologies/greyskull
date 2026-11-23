@@ -4,6 +4,7 @@ import { LiftChart } from '../../src/components/LiftChart';
 import { TechniqueLinks } from '../../src/components/TechniqueLinks';
 import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
+import type { LiftState } from '../../src/domain';
 import {
   DEFAULT_RULES,
   exerciseOfLift,
@@ -16,7 +17,7 @@ import {
 } from '../../src/domain';
 import { formatDate, liftLabel } from '../../src/format';
 import { resultFor, seriesPoints } from '../../src/series';
-import { useInventory, useLift, useStore, useUnit } from '../../src/store';
+import { useInventory, useLift, useProgram, useStore, useUnit } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
 import { ListRow } from '../../src/ui/ListRow';
@@ -28,9 +29,11 @@ import { Text } from '../../src/ui/Text';
 
 /** One lift: chart and stats on top, then the controls to change its weights and increment, then history. */
 export default function LiftDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // `?program=<id>`: lift states belong to a program; without one, the first program that is not paused.
+  const { id, program: programParam } = useLocalSearchParams<{ id: string; program?: string }>();
+  const programId = useProgram(programParam)?.id;
   const exercise = useStore((s) => s.exercises[exerciseOfLift(id)]);
-  const lift = useLift(id);
+  const lift = useLift(programId, id);
   const sessions = useStore((s) => s.sessions);
   const unit = useUnit();
   const exercises = useStore((s) => s.exercises);
@@ -90,7 +93,7 @@ export default function LiftDetail() {
         </View>
       </Section>
 
-      {lift && !bodyweight ? <LiftControls id={id} /> : null}
+      {lift && !bodyweight && programId ? <LiftControls id={id} programId={programId} /> : null}
 
       {history.length > 0 ? (
         <Section label="History" card>
@@ -107,13 +110,14 @@ export default function LiftDetail() {
   );
 }
 
-function LiftControls({ id }: { id: string }) {
+function LiftControls({ id, programId }: { id: string; programId: string }) {
   const exercise = useStore((s) => s.exercises[exerciseOfLift(id)]);
-  const current = useLift(id);
+  const current = useLift(programId, id);
   const unit = useUnit();
   const inventory = useInventory();
-  const program = useStore((s) => s.program);
-  const setLift = useStore((s) => s.setLift);
+  const program = useProgram(programId);
+  const setLift = (key: string, patch: Partial<LiftState>) =>
+    useStore.getState().setLift(programId, key, patch);
   const t = useTheme();
   if (!current || !exercise) return null;
   const trainingMax = program?.days.some((day) =>

@@ -21,7 +21,7 @@ import {
 import { nameOf, schemeLabel } from '../../src/format';
 import { goBackOr, goHome } from '../../src/navigation';
 import { useSetup } from '../../src/setup/SetupContext';
-import { useStore } from '../../src/store';
+import { useProgram, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { IconButton } from '../../src/ui/IconButton';
@@ -37,14 +37,14 @@ type Picking = { day: number; mode: 'single' | 'pair'; first?: string } | null;
  * onboarding or Change plan and returns to the review screen.
  */
 export default function Days() {
-  const { edit } = useLocalSearchParams<{ edit?: string }>();
+  const { edit, program: programParam } = useLocalSearchParams<{ edit?: string; program?: string }>();
   const editing = edit === '1';
   const setup = useSetup();
   const t = useTheme();
   const exercises = useStore((s) => s.exercises);
-  const stored = useStore((s) => s.program);
-  const setProgram = useStore((s) => s.setProgram);
-  const [program, setLocal] = useState<Program | null>(editing ? stored : setup.draft.program);
+  const stored = useProgram(programParam);
+  const updateProgram = useStore((s) => s.updateProgram);
+  const [program, setLocal] = useState<Program | null>(editing ? (stored ?? null) : setup.draft.program);
   const [picking, setPicking] = useState<Picking>(null);
   const [schemeFor, setSchemeFor] = useState<{ day: number; slot: number } | null>(null);
 
@@ -77,13 +77,15 @@ export default function Days() {
   const save = () => {
     const commit = () => {
       try {
-        setProgram(program);
+        if (!stored) throw new Error('The program no longer exists');
+        updateProgram(stored.id, program);
         goHome();
       } catch (e) {
         Alert.alert('Cannot save', e instanceof Error ? e.message : String(e));
       }
     };
-    if (!useStore.getState().draft) return commit();
+    const open = useStore.getState().draft;
+    if (!open || open.programId !== stored?.id) return commit();
     Alert.alert(
       'Discard the workout in progress?',
       'Saving a new program ends the current workout without logging it.',

@@ -5,7 +5,7 @@ import { useTheme } from '../../src/design/theme';
 import { exerciseOfLift, liftKeysOf, roundForExercise } from '../../src/domain';
 import { liftLabel } from '../../src/format';
 import { goHome } from '../../src/navigation';
-import { useStore } from '../../src/store';
+import { useProgram, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
@@ -15,9 +15,9 @@ import { Text } from '../../src/ui/Text';
 
 export default function ConfirmWeights() {
   const exercises = useStore((s) => s.exercises);
-  const program = useStore((s) => s.program);
+  const program = useProgram();
   const suspects = useStore((s) => s.needsWeightConfirmSuspects);
-  const storedLifts = useStore((s) => s.lifts);
+  const storedLifts = program?.lifts ?? {};
   const confirmWeights = useStore((s) => s.confirmWeights);
   const unit = useStore((s) => s.unit);
   const inventory = useStore((s) => s.inventory);
@@ -75,7 +75,7 @@ export default function ConfirmWeights() {
           size="lg"
           testID="confirm-weights"
           onPress={() => {
-            confirmWeights(weights);
+            confirmWeights(weights, program?.id);
             goHome();
           }}
         />

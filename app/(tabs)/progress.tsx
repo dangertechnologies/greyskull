@@ -6,7 +6,7 @@ import { useTheme } from '../../src/design/theme';
 import { exerciseOfLift, formatWeight, liftKeysOf, project, trim } from '../../src/domain';
 import { liftLabel, nameOf } from '../../src/format';
 import { seriesFor } from '../../src/series';
-import { useStore } from '../../src/store';
+import { useProgram, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
@@ -17,10 +17,12 @@ import { Text } from '../../src/ui/Text';
 
 export default function Progress() {
   const state = useStore();
-  const { sessions, lifts, unit, exercises, program } = state;
+  const { sessions, unit, exercises } = state;
+  const program = useProgram();
+  const lifts = program?.lifts ?? {};
   const t = useTheme();
   const ids = useMemo(() => (program ? liftKeysOf(program) : []), [program]);
-  const upcoming = useMemo(() => project(state, 6), [state]);
+  const upcoming = useMemo(() => (program ? project(state, program.id, 6) : []), [state, program]);
   const finished = sessions.filter((s) => !s.skipped).length;
   const series = useMemo(
     () =>
@@ -75,7 +77,7 @@ export default function Progress() {
               key={id}
               accessibilityRole="button"
               accessibilityLabel={`${liftLabel(id, exercises)}, ${current}.${trend ? ` ${trend}` : ''}`}
-              onPress={() => router.push(`/lift/${id}`)}
+              onPress={() => router.push(program ? `/lift/${id}?program=${program.id}` : `/lift/${id}`)}
               style={({ pressed }) => ({
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -105,9 +107,9 @@ export default function Progress() {
       </Section>
 
       <Section label="Projection" footer="If you hit your reps every time." card>
-        {upcoming.map((s) => (
+        {upcoming.map((s, i) => (
           <View key={s.n} style={{ gap: t.space[1], paddingVertical: t.space[3] }}>
-            <Text variant="bodyStrong">{`Workout ${s.n + 1} · ${s.dayName}`}</Text>
+            <Text variant="bodyStrong">{`Workout ${(program?.position ?? 0) + i + 1} · ${s.dayName}`}</Text>
             <Text variant="callout" color="textMuted">
               {s.lifts
                 .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')

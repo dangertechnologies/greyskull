@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import type { Outcome, SessionLog } from '../domain';
+import type { Outcome, ResolvedSlot, SessionLog } from '../domain';
 import { isPersonalRecord, parseScheme, sessionFor, warmups } from '../domain';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
@@ -57,15 +57,21 @@ const cancelPending = async (pending: Promise<string | null>): Promise<void> => 
   if (id) await cancelRestAlert(id);
 };
 
+/** The draft's resolved exercises (only a draft from before they were stored lacks them). */
+const slotsOf = (draft: SessionLog, program: Parameters<typeof sessionFor>[0]): ResolvedSlot[] =>
+  draft.slots ?? sessionFor({ ...program, position: draft.position ?? program.position }).slots;
+
 /**
  * The engine behind every session view. State lives in the store's draft (persisted on every set), warm-ups
- * and the rest timer are local to the screen.
+ * and the rest timer are local to the screen. Session `n` is the open draft; without one, `programId` names
+ * the program to start a workout of. The program always comes from the draft once it exists.
  */
-export function useSession(n: number): SessionApi | null {
+export function useSession(n: number, programId?: string): SessionApi | null {
   const draft = useStore((s) => s.draft);
-  const program = useStore((s) => s.program);
+  const program = useStore((s) =>
+    s.programs.find((p) => p.id === (s.draft && s.draft.n === n ? s.draft.programId : programId)),
+  );
   const exercises = useStore((s) => s.exercises);
-  const lifts = useStore((s) => s.lifts);
   const inventory = useStore((s) => s.inventory);
   const unit = useStore((s) => s.unit);
   const restSeconds = useStore((s) => s.restSeconds);
@@ -77,16 +83,18 @@ export function useSession(n: number): SessionApi | null {
   // After finishing, the draft is gone on purpose: never start a new one for the same session.
   const [finished, setFinished] = useState(false);
   const ready = draft !== null && draft.n === n;
+  const hasDraft = draft !== null;
+  const startId = program?.id;
   useEffect(() => {
-    if (!ready && !finished && program) startSession(n);
-  }, [ready, finished, program, n, startSession]);
+    if (!ready && !finished && !hasDraft && startId) startSession(startId);
+  }, [ready, finished, hasDraft, startId, startSession]);
 
   const [picked, setPicked] = useState<number | null>(null);
   const [doneWarmups, setDoneWarmups] = useState<ReadonlySet<string>>(new Set());
 
   const items = useMemo<SessionItem[]>(() => {
     if (!ready || !program) return [];
-    const slots = new Map(sessionFor(program, n, lifts).slots.map((s) => [s.exercise, s]));
+    const slots = new Map(slotsOf(draft, program).map((s) => [s.exercise, s]));
     const out: SessionItem[] = [];
     // Warm-ups are not persisted: they count as done once real work exists for the lift or any later lift.
     const laterLogged = new Set<string>();
@@ -137,7 +145,7 @@ export function useSession(n: number): SessionApi | null {
       });
     }
     return out;
-  }, [ready, draft, program, exercises, inventory, unit, doneWarmups, n, lifts]);
+  }, [ready, draft, program, exercises, inventory, unit, doneWarmups]);
 
   const firstOpen = items.findIndex((i) => !i.logged);
   const activeIndex = firstOpen === -1 ? items.length : firstOpen;
@@ -215,7 +223,9 @@ export function useSession(n: number): SessionApi | null {
     const before = state.draft;
     if (!before) throw new Error('No session in progress');
     const history = state.sessions;
-    const slots = state.program ? sessionFor(state.program, n, state.lifts).slots : [];
+    const owner = state.programs.find((p) => p.id === before.programId);
+    const lifts = owner?.lifts ?? {};
+    const slots = owner ? slotsOf(before, owner) : [];
     const outcomes = finishSession();
     setFinished(true);
     setRestEndsAt(null);
@@ -226,7 +236,7 @@ export function useSession(n: number): SessionApi | null {
         return {
           exerciseId: id,
           fromKg: result.sets.some((s) => s.kg !== undefined)
-            ? (state.lifts[slots.find((s) => s.exercise === id)?.lift ?? id]?.weightKg ?? result.weightKg)
+            ? (lifts[slots.find((s) => s.exercise === id)?.lift ?? id]?.weightKg ?? result.weightKg)
             : result.weightKg,
           outcome: outcomes[id],
           pr:
@@ -234,7 +244,7 @@ export function useSession(n: number): SessionApi | null {
             isPersonalRecord(history, id, result.weightKg, result.sets.at(-1)?.reps ?? 0),
         };
       });
-  }, [finishSession, n]);
+  }, [finishSession]);
 
   const addRest = useCallback((seconds: number) => {
     setRestEndsAt((end) => {

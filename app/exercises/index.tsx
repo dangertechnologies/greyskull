@@ -43,8 +43,8 @@ function Row({ exercise, inProgram }: { exercise: Exercise; inProgram: boolean }
 export default function Exercises() {
   const t = useTheme();
   const exercises = useStore((s) => s.exercises);
-  const program = useStore((s) => s.program);
-  const used = new Set(program ? exerciseIdsOf(program) : []);
+  const programs = useStore((s) => s.programs);
+  const used = new Set(programs.flatMap(exerciseIdsOf));
   const all = Object.values(exercises)
     .filter((e) => !e.archived)
     .sort((a, b) => a.name.localeCompare(b.name));

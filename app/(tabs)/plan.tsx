@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
 import { liftLabel, nameOf, schemeLabel } from '../../src/format';
-import { useStore } from '../../src/store';
+import { useProgram, useStore } from '../../src/store';
 import { ListRow } from '../../src/ui/ListRow';
 import { ScreenScroll } from '../../src/ui/layout';
 import { NumberStepper } from '../../src/ui/NumberStepper';
@@ -12,7 +12,7 @@ import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 
 export default function Plan() {
-  const program = useStore((s) => s.program);
+  const program = useProgram();
   const exercises = useStore((s) => s.exercises);
   const t = useTheme();
   const plan = program ? getPlan(program.template) : undefined;
@@ -39,7 +39,7 @@ export default function Plan() {
             max={7}
             step={1}
             format={String}
-            onChange={(days) => useStore.getState().setSessionsPerWeek(days)}
+            onChange={(days) => useStore.getState().setSessionsPerWeek(program.id, days)}
           />
         ) : null}
         {plan?.status === 'experimental' ? (
@@ -75,9 +75,15 @@ export default function Plan() {
         <ListRow
           title="Days and exercises"
           accessory="chevron"
-          onPress={() => router.push('/setup/days?edit=1')}
+          onPress={() =>
+            router.push(program ? `/setup/days?edit=1&program=${program.id}` : '/setup/days?edit=1')
+          }
         />
-        <ListRow title="Progression rules" accessory="chevron" onPress={() => router.push('/plan/rules')} />
+        <ListRow
+          title="Progression rules"
+          accessory="chevron"
+          onPress={() => router.push(program ? `/plan/rules?program=${program.id}` : '/plan/rules')}
+        />
         <ListRow
           title="Exercises"
           subtitle="Form tips, videos, custom exercises"

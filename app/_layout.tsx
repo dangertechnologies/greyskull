@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { StorageRecovery } from '../src/components/StorageRecovery';
 import { useAppFonts } from '../src/design/fonts';
 import { ThemeProvider, useTheme } from '../src/design/theme';
 import { useStackOptions } from '../src/navigation';
@@ -28,6 +29,7 @@ function Shell() {
 
 export default function RootLayout() {
   const hydrated = useStore((s) => s.hydrated);
+  const storageError = useStore((s) => s.storageError);
   const fontsReady = useAppFonts();
 
   useEffect(() => {
@@ -40,9 +42,5 @@ export default function RootLayout() {
   }, [ready]);
 
   if (!ready) return null;
-  return (
-    <ThemeProvider>
-      <Shell />
-    </ThemeProvider>
-  );
+  return <ThemeProvider>{storageError ? <StorageRecovery error={storageError} /> : <Shell />}</ThemeProvider>;
 }

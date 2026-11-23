@@ -1,14 +1,15 @@
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { RulesEditor } from '../../src/components/RulesEditor';
 import { goBackOr } from '../../src/navigation';
-import { useStore } from '../../src/store';
+import { useProgram, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ScreenScroll } from '../../src/ui/layout';
 import { Text } from '../../src/ui/Text';
 
 export default function RulesScreen() {
-  const program = useStore((s) => s.program);
+  const params = useLocalSearchParams<{ program?: string }>();
+  const program = useProgram(params.program);
   const updateRules = useStore((s) => s.updateRules);
   const [rules, setRules] = useState(program?.rules);
   if (!program || !rules) return null;
@@ -20,7 +21,7 @@ export default function RulesScreen() {
       <Button
         title="Save"
         onPress={() => {
-          updateRules(rules);
+          updateRules(program.id, rules);
           goBackOr('/');
         }}
       />

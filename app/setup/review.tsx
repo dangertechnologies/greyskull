@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { LiftRow } from '../../src/components/LiftRow';
 import { WeightSheet } from '../../src/components/WeightSheet';
+import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
 import { exerciseOfLift, liftKeysOf, validateProgram } from '../../src/domain';
 import { liftLabel } from '../../src/format';
 import { goHome } from '../../src/navigation';
 import { useSetup } from '../../src/setup/SetupContext';
-import { startingWeightKg, useStore } from '../../src/store';
+import { startingWeightKg, useProgram, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
@@ -21,7 +22,8 @@ export default function Review() {
   const changing = change === '1';
   const { draft, update } = useSetup();
   const exercises = useStore((s) => s.exercises);
-  const storedLifts = useStore((s) => s.lifts);
+  const current = useProgram();
+  const storedLifts = current?.lifts ?? {};
   const t = useTheme();
   const [editing, setEditing] = useState<string | null>(null);
   if (!draft.program) return <Redirect href="/setup/plan" />;
@@ -42,16 +44,26 @@ export default function Review() {
         store.setUnit(draft.unit);
         store.setInventory(draft.inventory);
       }
-      store.setProgram(program);
+      // One program at a time here, as before: a program that exists is replaced, else one is added.
+      let programId: string;
+      if (current) {
+        store.updateProgram(current.id, program);
+        programId = current.id;
+      } else {
+        programId = store.addProgram({
+          ...program,
+          name: getPlan(program.template)?.name ?? 'Custom program',
+        });
+      }
       for (const id of liftKeysOf(program)) {
         if (exercises[exerciseOfLift(id)]?.kind === 'bodyweight') continue;
         if (changing && draft.weights[id] === undefined) continue;
         const kg = weightOf(id);
-        store.setLift(id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
+        store.setLift(programId, id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
       }
       goHome();
     };
-    if (changing && store.draft) {
+    if (changing && current && store.draft?.programId === current.id) {
       Alert.alert(
         'Discard the workout in progress?',
         'Changing plan ends the current workout without logging it.',

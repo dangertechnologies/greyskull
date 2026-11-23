@@ -29,9 +29,9 @@ function devSeed() {
   void importLegacy(JSON.stringify(fixture)).then(goHome);
 }
 
-function devFastForward(reps = 8) {
-  const { nextSession, startSession, logSet, finishSession } = useStore.getState();
-  const draft = startSession(nextSession);
+function devFastForward(programId: string, reps = 8) {
+  const { startSession, logSet, finishSession } = useStore.getState();
+  const draft = startSession(programId);
   for (const id of draft.order) {
     draft.results[id].sets.forEach((_s, i) => {
       logSet(id, i, reps);
@@ -44,11 +44,12 @@ function devFastForward(reps = 8) {
 function devSeedHistory() {
   const days = 90;
   const s = useStore.getState();
-  if (!s.program) s.setProgram(TEMPLATES.base);
-  const perWeek = useStore.getState().program?.sessionsPerWeek ?? 3;
+  const programId =
+    s.programs.find((p) => !p.paused)?.id ?? s.addProgram({ ...TEMPLATES.base, name: 'Greyskull LP' });
+  const perWeek = useStore.getState().programs.find((p) => p.id === programId)?.sessionsPerWeek ?? 3;
   const count = Math.round((days / 7) * perWeek);
   const first = useStore.getState().sessions.length;
-  for (let i = 0; i < count; i++) devFastForward(i % 9 >= 6 ? 3 : 5 + (i % 3));
+  for (let i = 0; i < count; i++) devFastForward(programId, i % 9 >= 6 ? 3 : 5 + (i % 3));
   const now = Date.now();
   useStore.setState((st) => ({
     sessions: st.sessions.map((log, i) => {
@@ -182,7 +183,14 @@ export default function Settings() {
       {__DEV__ ? (
         <Section label="Developer">
           <Button title="Seed v1 data" variant="secondary" onPress={devSeed} />
-          <Button title="Fast-forward" variant="secondary" onPress={() => devFastForward()} />
+          <Button
+            title="Fast-forward"
+            variant="secondary"
+            onPress={() => {
+              const id = useStore.getState().programs.find((p) => !p.paused)?.id;
+              if (id) devFastForward(id);
+            }}
+          />
           <Button title="Seed 3 months of workouts" variant="secondary" onPress={devSeedHistory} />
           <Button title="Design gallery" variant="secondary" onPress={() => router.push('/gallery')} />
         </Section>

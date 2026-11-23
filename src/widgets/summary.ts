@@ -24,16 +24,22 @@ export const EMPTY_NEXT: NextWorkoutProps = {
   ready: false,
 };
 
+/** The workout in progress, else the next session of the first program that is not paused. */
 export function nextWorkoutProps(
-  s: Pick<AppState, 'program' | 'nextSession' | 'lifts' | 'exercises' | 'inventory' | 'unit' | 'draft'>,
+  s: Pick<AppState, 'programs' | 'exercises' | 'inventory' | 'unit' | 'draft'>,
 ): NextWorkoutProps {
-  if (!s.program) return EMPTY_NEXT;
-  const session = sessionFor(s.program, s.nextSession, s.lifts);
+  const program =
+    s.programs.find((p) => s.draft && p.id === s.draft.programId) ?? s.programs.find((p) => !p.paused);
+  if (!program) return EMPTY_NEXT;
+  const inProgress = !!s.draft && s.draft.programId === program.id;
+  const session = sessionFor(
+    inProgress && s.draft?.position !== undefined ? { ...program, position: s.draft.position } : program,
+  );
   const lines = session.slots.slice(0, 4).map(({ exercise: id, lift, progression, week }) => {
     const exercise = s.exercises[id];
     const name = nameOf(s.exercises, id, true);
     if (!exercise || exercise.kind === 'bodyweight') return name;
-    const working = s.lifts[lift]?.weightKg ?? 0;
+    const working = program.lifts[lift]?.weightKg ?? 0;
     const kg =
       progression === '531'
         ? Math.max(
@@ -44,9 +50,9 @@ export function nextWorkoutProps(
   });
   return {
     title: session.dayName,
-    subtitle: weekLabel(s.program, s.nextSession),
+    subtitle: weekLabel(program),
     lines,
-    inProgress: s.draft?.n === s.nextSession,
+    inProgress,
     ready: true,
   };
 }

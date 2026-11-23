@@ -4,10 +4,12 @@ import { View } from 'react-native';
 import { LiftRow } from '../../src/components/LiftRow';
 import { WorkoutRow } from '../../src/components/WorkoutRow';
 import { useTheme } from '../../src/design/theme';
+import type { ActiveProgram } from '../../src/domain';
 import { fiveThreeOneSets, formatWeight, project, sessionFor, sessionWeightKg } from '../../src/domain';
-import { intensityLabel, nameOf, schemeLabel, weekLabel, weekOf } from '../../src/format';
-import { useStore } from '../../src/store';
+import { intensityLabel, logPosition, nameOf, schemeLabel, weekLabel, weekOf } from '../../src/format';
+import { useProgram, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
+import { EmptyState } from '../../src/ui/EmptyState';
 import { Icon } from '../../src/ui/Icon';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
@@ -15,10 +17,11 @@ import { useSnackbar } from '../../src/ui/Snackbar';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 
-/** The week as one dot per session: done, skipped, next, or still to come. */
-function WeekStrip({ first, perWeek, next }: { first: number; perWeek: number; next: number }) {
+/** The week as one dot per session of the program: done, skipped, next, or still to come. */
+function WeekStrip({ program, first, perWeek }: { program: ActiveProgram; first: number; perWeek: number }) {
   const t = useTheme();
   const sessions = useStore((s) => s.sessions);
+  const next = program.position;
   return (
     <View
       accessible
@@ -26,7 +29,7 @@ function WeekStrip({ first, perWeek, next }: { first: number; perWeek: number; n
       style={{ flexDirection: 'row', gap: t.space[3] }}
     >
       {Array.from({ length: perWeek }, (_, i) => first + i).map((n) => {
-        const log = sessions.find((s) => s.n === n);
+        const log = sessions.find((s) => logPosition(s, program) === n);
         const isNext = n === next;
         return (
           <View
@@ -65,26 +68,40 @@ function WeekStrip({ first, perWeek, next }: { first: number; perWeek: number; n
 
 export default function Today() {
   const state = useStore();
-  const { program, lifts, nextSession, draft, sessions, unit, inventory, exercises, needsWeightConfirm } =
-    state;
+  const { programs, draft, sessions, unit, inventory, exercises, needsWeightConfirm } = state;
+  const program = useProgram();
   const snackbar = useSnackbar();
   const t = useTheme();
-  const upcoming = useMemo(() => project(state, 3), [state]);
+  const upcoming = useMemo(() => (program ? project(state, program.id, 3) : []), [state, program]);
 
-  if (program === null) return <Redirect href="/setup" />;
+  if (programs.length === 0) return <Redirect href="/setup" />;
   if (needsWeightConfirm) return <Redirect href="/setup/confirm" />;
+  if (!program) {
+    return (
+      <ScreenScroll headerless>
+        <EmptyState
+          icon="plan"
+          title="All programs are paused"
+          body="Resume a program to see its next workout."
+        />
+      </ScreenScroll>
+    );
+  }
 
-  const session = sessionFor(program, nextSession, lifts);
+  const { lifts } = program;
+  // The workout in progress of this program, shown in place of the plain plan.
+  const current = draft?.programId === program.id ? draft : null;
+  const session = sessionFor(program);
   const perWeek = program.sessionsPerWeek;
-  const week = weekOf(nextSession, perWeek);
+  const week = weekOf(program.position, perWeek);
   const light = intensityLabel(session.dayName, session.intensity);
   const recent = [...sessions].reverse().slice(0, 3);
 
   const skip = () => {
-    state.skipSession();
+    state.skipSession(program.id);
     snackbar.show({
       message: 'Workout skipped',
-      action: { label: 'Undo', onPress: () => useStore.getState().undoSkip() },
+      action: { label: 'Undo', onPress: () => useStore.getState().undoSkip(program.id) },
     });
   };
 
@@ -93,7 +110,7 @@ export default function Today() {
       <ScreenScroll headerless withBottomBar gap={10}>
         <View style={{ gap: t.space[2] }}>
           <Text variant="label" color="textMuted">
-            {weekLabel(program, nextSession)}
+            {weekLabel(program)}
           </Text>
           <Text variant="title" accessibilityRole="header">
             {session.dayName}
@@ -103,24 +120,22 @@ export default function Today() {
           ) : null}
         </View>
 
-        <WeekStrip first={(week - 1) * perWeek} perWeek={perWeek} next={nextSession} />
+        <WeekStrip program={program} first={(week - 1) * perWeek} perWeek={perWeek} />
 
         <Card style={{ gap: t.space[5] }}>
           {session.slots.map(({ exercise: id, lift, scheme, progression, week }) => {
             const exercise = exercises[id];
             if (!exercise) return null;
-            const sets =
-              draft?.n === nextSession
-                ? draft.results[id]?.sets
-                : progression === '531'
-                  ? fiveThreeOneSets(lifts[lift]?.weightKg ?? 0, week ?? 0, exercise, inventory, unit)
-                  : undefined;
-            const kg =
-              draft?.n === nextSession
-                ? (draft.results[id]?.weightKg ?? 0)
-                : progression === '531'
-                  ? Math.max(...(sets ?? []).map((s) => s.kg ?? 0))
-                  : sessionWeightKg(lifts[lift]?.weightKg ?? 0, session.intensity, exercise, inventory, unit);
+            const sets = current
+              ? current.results[id]?.sets
+              : progression === '531'
+                ? fiveThreeOneSets(lifts[lift]?.weightKg ?? 0, week ?? 0, exercise, inventory, unit)
+                : undefined;
+            const kg = current
+              ? (current.results[id]?.weightKg ?? 0)
+              : progression === '531'
+                ? Math.max(...(sets ?? []).map((s) => s.kg ?? 0))
+                : sessionWeightKg(lifts[lift]?.weightKg ?? 0, session.intensity, exercise, inventory, unit);
             return (
               <LiftRow
                 key={id}
@@ -169,7 +184,9 @@ export default function Today() {
           title={draft ? 'Resume workout' : 'Start workout'}
           size="lg"
           testID="start-session"
-          onPress={() => router.push(`/session/${nextSession}`)}
+          onPress={() =>
+            router.push(draft ? `/session/${draft.n}` : `/session/${state.nextSession}?program=${program.id}`)
+          }
         />
       </BottomBar>
     </>
