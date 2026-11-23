@@ -12,6 +12,12 @@
     "production": {
       "channel": "production",
       "autoIncrement": true
+    },
+    "preview-simulator": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      }
     }
   },
   "submit": {
