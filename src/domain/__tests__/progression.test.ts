@@ -1,5 +1,6 @@
 import { builtInExercises } from '../../catalog';
 import { ceilLoadableKg, floorLoadableKg, isLoadable } from '../plates';
+import { setTargets } from '../program';
 import { nextLift, sessionWeightKg, warmups } from '../progression';
 import {
   DEFAULT_INVENTORY,
@@ -7,6 +8,7 @@ import {
   type Exercise,
   type LiftState,
   type PlateInventory,
+  type Scheme,
   type Unit,
 } from '../types';
 import { toKg, toUnit } from '../units';
@@ -59,10 +61,58 @@ test.each(rows)(
   },
 );
 
-test('bodyweight never changes', () => {
-  const o = run(ex.CHINUPS, 'kg', 0, 15, 0);
-  expect(o.change).toBe('none');
-  expect(o.next).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+describe('bodyweight progresses reps, then added load', () => {
+  const chin = ex.CHINUPS;
+  const go = (
+    weight: number,
+    reps: number[],
+    progression: 'amrap' | 'linear' | 'double',
+    scheme: Scheme,
+    patch: Partial<LiftState> = {},
+    unit: Unit = 'kg',
+  ) => {
+    const weightKg = toKg(weight, unit);
+    const lift: LiftState = { weightKg, startKg: 0, fails: 0, ...patch };
+    const targets = setTargets(scheme, lift.reps);
+    const sets = reps.map((r, i) => ({ target: targets[i] ?? null, reps: r }));
+    const o = nextLift(lift, { weightKg, sets }, DEFAULT_RULES, chin, inv, unit, { progression, scheme });
+    return { ...o, shown: toUnit(o.next.weightKg, unit) };
+  };
+  type Row = [string, ReturnType<typeof go>, number, string, Partial<LiftState>];
+  const rows: Row[] = [
+    ['AMRAP below the double-jump reps holds', go(0, [5, 7], 'amrap', '2x5+'), 0, 'same', { fails: 0 }],
+    ['AMRAP at the double-jump reps adds load', go(0, [5, 15], 'amrap', '2x5+'), 2.5, 'up', { fails: 0 }],
+    ['AMRAP adds load in pounds', go(0, [5, 10], 'amrap', '2x5+', {}, 'lb'), 5, 'up', {}],
+    ['AMRAP miss counts a fail', go(0, [5, 3], 'amrap', '2x5+'), 0, 'same', { fails: 1 }],
+    [
+      'AMRAP second miss without load stays',
+      go(0, [5, 3], 'amrap', '2x5+', { fails: 1 }),
+      0,
+      'same',
+      { fails: 0 },
+    ],
+    [
+      'AMRAP second miss with load deloads',
+      go(10, [5, 3], 'amrap', '2x5+', { fails: 1 }),
+      8.75,
+      'deload',
+      {},
+    ],
+    [
+      'double adds a rep inside the range',
+      go(0, [6, 6, 6], 'double', '3x5-8', { reps: 6 }),
+      0,
+      'reps',
+      { reps: 7 },
+    ],
+    ['double at the top adds load', go(0, [8, 8, 8], 'double', '3x5-8', { reps: 8 }), 2.5, 'up', { reps: 5 }],
+    ['linear adds load', go(5, [5, 5, 5], 'linear', '3x5'), 7.5, 'up', {}],
+  ];
+  test.each(rows)('%s', (_name, o, weight, change, patch) => {
+    expect(o.shown).toBeCloseTo(weight, 9);
+    expect(o.change).toBe(change);
+    expect(o.next).toMatchObject(patch);
+  });
 });
 
 test('uses the weight actually lifted, not the stored weight', () => {
@@ -271,7 +321,10 @@ test('session weight on a light day is re-rounded to a loadable weight', () => {
   expect(sessionWeightKg(100, 0.8, ex.BARBELL_SQUAT, inv, 'kg')).toBe(80);
   expect(sessionWeightKg(62.5, 0.9, ex.BARBELL_SQUAT, inv, 'kg')).toBe(55); // 56.25: ties round down
   expect(sessionWeightKg(62.5, 1, ex.BARBELL_SQUAT, inv, 'kg')).toBe(62.5);
-  expect(sessionWeightKg(62.5, 0.8, ex.CHINUPS, inv, 'kg')).toBe(0);
+  // Bodyweight: the added load, scaled and rounded to single plates; 0 means no added load.
+  expect(sessionWeightKg(10, 1, ex.CHINUPS, inv, 'kg')).toBe(10);
+  expect(sessionWeightKg(10, 0.8, ex.CHINUPS, inv, 'kg')).toBe(7.5);
+  expect(sessionWeightKg(0, 0.8, ex.CHINUPS, inv, 'kg')).toBe(0);
 });
 
 test('warm-ups: single-set schemes get two jumps, 5x5 ramps from the bar, rep-range work too', () => {
@@ -280,4 +333,6 @@ test('warm-ups: single-set schemes get two jumps, 5x5 ramps from the bar, rep-ra
   expect(w(140, '1x5', ex.DEADLIFT)).toEqual([70, 105]);
   expect(w(100, '5x5', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
   expect(w(100, '2x8-12', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
+  // An EZ bar (10 kg) starts from its own bar.
+  expect(w(30, '3x8', { ...ex.BARBELL_SQUAT, barKg: { kg: 10, lb: 25 } })[0]).toBe(10);
 });
