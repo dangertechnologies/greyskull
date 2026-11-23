@@ -347,6 +347,11 @@ export function canGroup(day: Day, indices: number[], kind: GroupKind): string |
   return null;
 }
 
+/** A new union member that a `switch` does not handle fails to compile here instead of taking some default. */
+function unreachable(value: never): never {
+  throw new Error(`Unhandled case: ${String(value)}`);
+}
+
 /** Starting values that pass validation for `count` exercises. */
 export function defaultGroupSettings(kind: GroupKind, count: number): GroupSettings {
   switch (kind) {
@@ -356,8 +361,10 @@ export function defaultGroupSettings(kind: GroupKind, count: number): GroupSetti
       return { rounds: 3, restS: 60 };
     case 'emom':
       return { minutes: count * Math.ceil(10 / count) };
-    default:
+    case 'interval':
       return { rounds: 8, workS: 30, restS: 15 };
+    default:
+      return unreachable(kind);
   }
 }
 
@@ -365,10 +372,18 @@ export function defaultGroupSettings(kind: GroupKind, count: number): GroupSetti
 function settingsOf(kind: GroupKind, g: GroupSettings): GroupSettings {
   const pick = (keys: (keyof GroupSettings)[]): GroupSettings =>
     Object.fromEntries(keys.flatMap((k) => (g[k] === undefined ? [] : [[k, g[k]]])));
-  if (kind === 'superset') return pick(['restS']);
-  if (kind === 'circuit') return pick(['rounds', 'restS']);
-  if (kind === 'emom') return pick(['minutes']);
-  return pick(['rounds', 'workS', 'restS']);
+  switch (kind) {
+    case 'superset':
+      return pick(['restS']);
+    case 'circuit':
+      return pick(['rounds', 'restS']);
+    case 'emom':
+      return pick(['minutes']);
+    case 'interval':
+      return pick(['rounds', 'workS', 'restS']);
+    default:
+      return unreachable(kind);
+  }
 }
 
 const withSets = (scheme: Scheme, sets: number): Scheme => scheme.replace(/^\d+/, String(sets)) as Scheme;
@@ -537,8 +552,10 @@ export function buildScheme({ sets, mode, reps, repsMax }: SchemeParts): Scheme 
       return `${sets}x${reps}s`;
     case 'timedRange':
       return `${sets}x${reps}-${Math.max(reps, repsMax)}s`;
-    default:
+    case 'fixed':
       return `${sets}x${reps}`;
+    default:
+      return unreachable(mode);
   }
 }
 
