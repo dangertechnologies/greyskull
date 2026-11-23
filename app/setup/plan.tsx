@@ -87,7 +87,10 @@ export default function PlanStep() {
     program: c.program,
     category: null,
   }));
-  const shown = category ? BUILT_IN.filter((c) => c.category === category) : [...BUILT_IN, FROM_SCRATCH];
+  // A plan that is chosen stays listed whatever the filter says, so Next never applies to a hidden plan.
+  const shown = category
+    ? [...BUILT_IN, FROM_SCRATCH].filter((c) => c.category === category || c.id === chosen)
+    : [...BUILT_IN, FROM_SCRATCH];
   const isSaved = mine.some((c) => c.id === chosen);
 
   const choose = (c: Choice) => {

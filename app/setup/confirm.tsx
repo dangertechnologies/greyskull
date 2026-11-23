@@ -4,8 +4,9 @@ import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
 import { exerciseOfLift, liftKeysOf, roundForExercise } from '../../src/domain';
 import { liftLabel } from '../../src/format';
+import { useProgramById } from '../../src/hooks/useProgramById';
 import { goHome } from '../../src/navigation';
-import { useProgram, useStore } from '../../src/store';
+import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
@@ -15,9 +16,10 @@ import { Text } from '../../src/ui/Text';
 
 export default function ConfirmWeights() {
   const exercises = useStore((s) => s.exercises);
-  // The weights to check are the ones of the program moved over from the old version: the first one.
+  // Intended fallback: the weights to check are the ones of the program moved over from the old version,
+  // which is the first program (the same one `confirmWeights` writes to when given no id).
   const firstId = useStore((s) => s.programs[0]?.id);
-  const program = useProgram(firstId);
+  const program = useProgramById(firstId);
   const suspects = useStore((s) => s.needsWeightConfirmSuspects);
   const storedLifts = program?.lifts ?? {};
   const confirmWeights = useStore((s) => s.confirmWeights);

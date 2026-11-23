@@ -7,9 +7,11 @@ import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
 import { exerciseOfLift, liftKeysOf, validateProgram } from '../../src/domain';
 import { liftLabel } from '../../src/format';
+import { useProgramById } from '../../src/hooks/useProgramById';
 import { goHome } from '../../src/navigation';
+import { uniqueProgramName } from '../../src/programPicker';
 import { useSetup } from '../../src/setup/SetupContext';
-import { startingWeightKg, useProgram, useStore } from '../../src/store';
+import { startingWeightKg, useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
@@ -30,7 +32,7 @@ export default function Review() {
   const { draft, update } = useSetup();
   const exercises = useStore((s) => s.exercises);
   const customPlans = useStore((s) => s.customPlans);
-  const current = useProgram(changing ? programId : undefined);
+  const current = useProgramById(changing ? programId : undefined);
   const storedLifts = current?.lifts ?? {};
   const t = useTheme();
   const [editing, setEditing] = useState<string | null>(null);
@@ -60,10 +62,12 @@ export default function Review() {
       } else {
         savedId = store.addProgram({
           ...program,
-          name:
+          name: uniqueProgramName(
             customPlans.find((c) => c.id === custom)?.name ??
-            getPlan(program.template)?.name ??
-            'Custom program',
+              getPlan(program.template)?.name ??
+              'Custom program',
+            store.programs.map((p) => p.name),
+          ),
         });
       }
       for (const id of liftKeysOf(program)) {
