@@ -4,6 +4,7 @@ export * from './history';
 export * from './ladders';
 export * from './migrateV1';
 export * from './monogram';
+export * from './own';
 export * from './plates';
 export * from './program';
 export * from './programEdit';
