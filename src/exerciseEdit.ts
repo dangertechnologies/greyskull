@@ -34,11 +34,15 @@ const DEFAULT_EQUIPMENT: Record<Kind, Equipment[]> = {
   bodyweight: ['none'],
 };
 
+/** What a saved custom exercise keeps: the importer of a shared program refuses anything longer. */
+export const LIMITS = { name: 100, description: 2000, tips: 20, tip: 300 } as const;
+
 const lines = (text: string): string[] =>
   text
     .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean);
+    .map((l) => l.trim().slice(0, LIMITS.tip))
+    .filter(Boolean)
+    .slice(0, LIMITS.tips);
 
 /** An empty list the user did not touch stays as stored (missing or `[]`), so saving never counts as an edit. */
 const unlessBothEmpty = <T>(list: T[], stored: T[] | undefined): T[] | undefined =>
@@ -80,11 +84,11 @@ export function exerciseFromForm(
   existing: Exercise | undefined,
   newId: (name: string) => string,
 ): Exercise {
-  const name = form.name.trim();
+  const name = form.name.trim().slice(0, LIMITS.name);
   const weighted = form.kind === 'dumbbell' || form.kind === 'machine' || form.kind === 'kettlebell';
   const edited: Partial<Exercise> = {
     name,
-    shortName: form.shortName.trim() || name.split(/\s+/)[0],
+    shortName: form.shortName.trim().slice(0, LIMITS.name) || name.split(/\s+/)[0],
     abbr: form.abbr.trim().slice(0, 3).toUpperCase() || undefined,
     kind: form.kind,
     increment: { kg: form.incKg, lb: form.incLb },
@@ -111,7 +115,7 @@ export function exerciseFromForm(
     shortName: edited.shortName as string,
     kind: form.kind,
     increment: { kg: form.incKg, lb: form.incLb },
-    description: form.description.trim() || undefined,
+    description: form.description.trim().slice(0, LIMITS.description) || undefined,
     goodForm: lines(form.good),
     badForm: lines(form.bad),
     url: form.url.trim() || undefined,

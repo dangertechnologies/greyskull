@@ -1,6 +1,8 @@
 import { builtInExercises } from './catalog';
 import { USER_FIELDS } from './domain/exerciseFields';
 import { exerciseFromForm, formFrom, linkProblem } from './exerciseEdit';
+import { customId } from './exerciseId';
+import { exportPlan, importPlan } from './planShare';
 
 const catalog = builtInExercises();
 
@@ -96,4 +98,48 @@ test('a link must be empty or an http(s) address', () => {
   expect(linkProblem('youtube.com/watch')).not.toBeNull();
   expect(linkProblem('file:///etc/passwd')).not.toBeNull();
   expect(linkProblem('https://')).not.toBeNull();
+});
+
+describe('limits a saved custom exercise keeps, so a program that uses it can be shared', () => {
+  const form = (patch: object) => ({ ...formFrom(undefined), name: 'Front squat', ...patch });
+  const made = (patch: object) => exerciseFromForm(form(patch), undefined, (n) => `custom_${n}`);
+
+  test('name and short name 100 letters, description 2000, at most 20 tips of 300 letters', () => {
+    const e = made({
+      name: 'n'.repeat(150),
+      shortName: 's'.repeat(150),
+      description: 'd'.repeat(2500),
+      good: Array.from({ length: 30 }, () => 'g'.repeat(400)).join('\n'),
+      bad: Array.from({ length: 30 }, (_, i) => `bad ${i}`).join('\n'),
+    });
+    expect(e.name).toHaveLength(100);
+    expect(e.shortName).toHaveLength(100);
+    expect(e.description).toHaveLength(2000);
+    expect(e.goodForm).toHaveLength(20);
+    expect(e.goodForm?.every((l) => l.length === 300)).toBe(true);
+    expect(e.badForm).toHaveLength(20);
+  });
+
+  test('an exercise at every limit is accepted by the importer', () => {
+    const e = made({
+      name: 'n'.repeat(150),
+      description: 'd'.repeat(2500),
+      good: Array.from({ length: 30 }, () => 'g'.repeat(400)).join('\n'),
+    });
+    const id = customId(e.name, catalog);
+    expect(id.length).toBeLessThanOrEqual(80);
+    const plan = {
+      id: 'p',
+      name: 'P',
+      program: {
+        template: 'custom',
+        sessionsPerWeek: 3,
+        rules: { doubleAt: 10, deloadPct: 0.1, failsBeforeDeload: 1, warmups: true },
+        days: [{ name: 'A', slots: [{ exercise: id, scheme: '2x5+' }] }],
+      },
+    } as const;
+    const file = exportPlan(plan as never, { ...catalog, [id]: { ...e, id } });
+    const r = importPlan(file, { exercises: catalog, customPlans: [] });
+    expect(r.ok).toBe(true);
+  });
 });
