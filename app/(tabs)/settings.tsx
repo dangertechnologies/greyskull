@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Alert, Share, View } from 'react-native';
+import { Alert, Platform, Share, View } from 'react-native';
 import { GymEquipment } from '../../src/components/GymEquipment';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
@@ -63,6 +63,7 @@ export default function Settings() {
   const appearance = useStore((s) => s.appearance);
   const hapticsEnabled = useStore((s) => s.hapticsEnabled);
   const dynamicColor = useStore((s) => s.dynamicColor);
+  const healthSync = useStore((s) => s.healthSync);
   const { setUnit, setInventory, setSettings, reset, exportJson } = useStore.getState();
 
   const confirmReset = () => {
@@ -143,6 +144,16 @@ export default function Settings() {
           accessory="switch"
           switchValue={hapticsEnabled}
           onSwitch={(v) => setSettings({ hapticsEnabled: v })}
+        />
+      </Section>
+
+      <Section label="Health" card>
+        <ListRow
+          title={Platform.OS === 'ios' ? 'Apple Health' : 'Health Connect'}
+          subtitle="Save finished workouts"
+          value={healthSync ? 'On' : 'Off'}
+          accessory="chevron"
+          onPress={() => router.push('/settings/health')}
         />
       </Section>
 
