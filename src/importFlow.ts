@@ -32,9 +32,10 @@ export function confirmAndApply(raw: string, onDone?: () => void): boolean {
         void useStore
           .getState()
           .importBackup(result.state)
-          .then(() => {
-            // A failed replacement leaves the recovery screen up with its reason.
-            if (!useStore.getState().storageError) onDone?.();
+          .then((failed) => {
+            // Nothing was replaced: the data stays as it was (unreadable data keeps the recovery screen up).
+            if (failed) Alert.alert('Nothing was replaced', failed);
+            else onDone?.();
           });
       },
     },

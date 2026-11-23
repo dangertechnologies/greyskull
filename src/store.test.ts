@@ -490,9 +490,10 @@ describe('persistence and migration', () => {
       ['reset', () => get().reset()],
     ])('%s replaces nothing when the copy fails', async (_name, run) => {
       const copy = jest.spyOn(File.prototype, 'copy').mockRejectedValueOnce(new Error('disk full'));
-      await run();
+      expect(await run()).toMatch(/could not be kept aside.*disk full/);
       copy.mockRestore();
-      expect(get().storageError).toMatch(/could not be kept aside.*disk full/);
+      // The data is still readable and in use: no recovery screen.
+      expect(get().storageError).toBeNull();
       expect(get().programs).toHaveLength(1);
       expect(get().unit).not.toBe('lb');
       expect(keptTexts()).toEqual([]);

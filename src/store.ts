@@ -147,10 +147,13 @@ interface Actions {
   /** Weights checked after importing the first version's data (first program unless `programId`). */
   confirmWeights(weights: Record<string, number>, programId?: string): void;
   exportJson(): string;
-  /** Replace everything with a validated backup (see `parseBackup`). */
-  importBackup(state: AppState): Promise<void>;
-  /** Replace everything with a new install's state; the data it replaces is kept as a copy first. */
-  reset(): Promise<void>;
+  /**
+   * Replace everything with a validated backup (see `parseBackup`). Resolves null once replaced, else the reason
+   * nothing was replaced (the copy of the data it replaces could not be kept).
+   */
+  importBackup(state: AppState): Promise<string | null>;
+  /** Replace everything with a new install's state; the data it replaces is kept as a copy first (as importBackup). */
+  reset(): Promise<string | null>;
   /** Import v1 data from `raw`, or from the legacy key when omitted (read-only; the key is never written). */
   importLegacy(raw?: string): Promise<boolean>;
 }
@@ -645,21 +648,20 @@ function draftFor(
 
 /**
  * Keep a copy of what a restore or reset is about to replace: the unreadable files when the data could not be
- * read (writes are then allowed again), else the current data file. Resolves false, with the reason shown on the
- * recovery screen and nothing replaced, when the copy could not be made.
+ * read (writes are then allowed again), else the current data file. Resolves null once kept, else the reason the
+ * copy could not be made; the caller then replaces nothing. Unreadable data keeps the recovery screen up with
+ * that reason; readable data stays in use (the caller shows the reason).
  */
-async function keepAside(unreadable: boolean): Promise<boolean> {
+async function keepAside(unreadable: boolean): Promise<string | null> {
   try {
     await (unreadable ? storage.allowWrites() : storage.keepBeforeRestore());
-    return true;
+    return null;
   } catch (e) {
     const why = e instanceof Error ? e.message : String(e);
-    useStore.setState({
-      storageError: unreadable
-        ? `The unreadable data could not be kept aside, so nothing was replaced: ${why}`
-        : `Your current data could not be kept aside, so nothing was replaced: ${why}`,
-    });
-    return false;
+    if (!unreadable) return `Your current data could not be kept aside, so nothing was replaced: ${why}`;
+    const reason = `The unreadable data could not be kept aside, so nothing was replaced: ${why}`;
+    useStore.setState({ storageError: reason });
+    return reason;
   }
 }
 
@@ -1135,14 +1137,18 @@ export const useStore = create<Store>()(
       importBackup: async (state) => {
         // Restoring a backup is how the user recovers from unreadable data: it replaces the file only once the
         // unreadable file has been kept aside. Readable data is kept aside as it is, before it is replaced.
-        if (!(await keepAside(get().storageError !== null))) return;
+        const failed = await keepAside(get().storageError !== null);
+        if (failed) return failed;
         set({ ...snapshot(withNextSession(state)), legacyChecked: true, storageError: null });
+        return null;
       },
 
       reset: async () => {
         // Writes stay blocked while the data is unreadable: only a restore lifts that.
-        if (!(await keepAside(false))) return;
+        const failed = await keepAside(false);
+        if (failed) return failed;
         set({ ...initialState(), legacyChecked: true });
+        return null;
       },
 
       importLegacy: async (raw) => {

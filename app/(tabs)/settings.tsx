@@ -50,9 +50,12 @@ function KeptCopies() {
 function devSeed() {
   const fixture: unknown = require('../../src/dev/v1-imperial.json');
   const { reset, importLegacy } = useStore.getState();
-  void reset()
-    .then(() => importLegacy(JSON.stringify(fixture)))
-    .then(goHome);
+  // The first version's data replaces the sessions: only once reset has kept a copy of the data.
+  void reset().then(async (failed) => {
+    if (failed) return Alert.alert('Nothing was reset', failed);
+    await importLegacy(JSON.stringify(fixture));
+    goHome();
+  });
 }
 
 function devFastForward(programId: string, reps = 8) {
@@ -107,9 +110,7 @@ export default function Settings() {
         style: 'destructive',
         onPress: () => {
           // A copy of the data is kept first; when that fails nothing is reset and the reason is shown.
-          void reset().then(() => {
-            if (!useStore.getState().storageError) goHome();
-          });
+          void reset().then((failed) => (failed ? Alert.alert('Nothing was reset', failed) : goHome()));
         },
       },
     ]);
