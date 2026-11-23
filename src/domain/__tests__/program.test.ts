@@ -5,6 +5,8 @@ import {
   PLUGINS,
   parseProgram,
   parseScheme,
+  SCHEME_LIMITS,
+  schemeProblem,
   sessionFor,
   setTargets,
   TEMPLATES,
@@ -381,5 +383,52 @@ describe('validateProgram: the same limits the importer has', () => {
     expect(validateProgramByDay(g, catalog).days).toEqual([0]);
     const general = { ...prog([day('A')]), sessionsPerWeek: 9 };
     expect(validateProgramByDay(general, catalog).days).toEqual([null]);
+  });
+});
+
+describe('scheme limits', () => {
+  const one = (slot: Partial<Slot>): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES, progression: 'linear' },
+    days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5', ...slot } as Slot] }],
+  });
+
+  test('a scheme may ask for no more than the scheme editor offers', () => {
+    expect(SCHEME_LIMITS).toEqual({ sets: 20, reps: 30, repsMax: 40, seconds: 300, secondsMax: 600 });
+    for (const ok of ['20x5', '3x30', '3x10-40', '20xAMRAP', '3x30+', '3x300s', '3x10-600s'])
+      expect([ok, schemeProblem(ok)]).toEqual([ok, null]);
+    for (const bad of [
+      '100000000x8-12',
+      '21x5',
+      '3x31',
+      '3x10-41',
+      '3x31-40',
+      '3x301s',
+      '3x10-601s',
+      '21xAMRAP',
+    ])
+      expect(schemeProblem(bad)).toMatch(/too/);
+    expect(schemeProblem('nonsense')).toMatch(/unknown scheme/);
+  });
+
+  test('validateProgram refuses a scheme or a stage over the limits, and a huge advanceAt', () => {
+    expect(validateProgram(one({ scheme: '100000000x8-12' as never }), ex)).toEqual([
+      'A: scheme 100000000x8-12 is too much: at most 20 sets of 30 reps (a range up to 40).',
+    ]);
+    const staged = one({ scheme: '3x5', stages: ['3x5', '99x3'] as never, progression: 'stages' });
+    expect(validateProgram(staged, ex).join(' ')).toMatch(/99x3 is too much/);
+    expect(validateProgram(one({ advanceAt: 1e9 }), ex)).toEqual(['A: invalid advanceAt.']);
+    expect(validateProgram(one({ advanceAt: Number.NaN }), ex)).toEqual(['A: invalid advanceAt.']);
+  });
+
+  test('a huge scheme passes the structural parse but never validateProgram', () => {
+    const parsed = parseProgram(one({ scheme: '100000000x8-12' as never }));
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(validateProgram(parsed.program, ex).join(' ')).toMatch(/too much/);
+  });
+
+  test('every built-in plan stays within the limits', () => {
+    for (const plan of PLANS) expect([plan.id, validateProgram(plan.program, ex)]).toEqual([plan.id, []]);
   });
 });

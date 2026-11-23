@@ -3,7 +3,11 @@ import type { Day, GroupKind, Slot } from './types';
 
 const KINDS: GroupKind[] = ['superset', 'circuit', 'emom', 'interval'];
 const MAX_SECONDS = 600;
-const isWhole = (n: number | undefined): n is number => n !== undefined && Number.isInteger(n) && n >= 1;
+/** The most rounds and EMOM minutes a group may have, as the group editor allows. */
+export const MAX_ROUNDS = 20;
+export const MAX_MINUTES = 60;
+const isWhole = (n: number | undefined, max: number): n is number =>
+  n !== undefined && Number.isInteger(n) && n >= 1 && n <= max;
 
 /**
  * Problems with a day's grouped sets. `setCounts` gives every set count a slot can have (one per ladder step),
@@ -41,13 +45,13 @@ export function groupErrors(day: Day, setCounts: (slot: Slot) => number[]): stri
         add(`group ${g.id}: every exercise needs ${sets} sets for ${per}.`);
     };
     if (g.kind === 'circuit' || g.kind === 'interval') {
-      if (!isWhole(g.rounds)) add(`group ${g.id}: set the number of rounds.`);
+      if (!isWhole(g.rounds, MAX_ROUNDS)) add(`group ${g.id}: set 1 to ${MAX_ROUNDS} rounds.`);
       else needSets(g.rounds, `${g.rounds} rounds`);
     }
     if (g.kind === 'interval' && !(g.workS !== undefined && g.workS >= 1))
       add(`group ${g.id}: set the work time.`);
     if (g.kind === 'emom' && slots.length > 0) {
-      if (!isWhole(g.minutes)) add(`group ${g.id}: set the number of minutes.`);
+      if (!isWhole(g.minutes, MAX_MINUTES)) add(`group ${g.id}: set 1 to ${MAX_MINUTES} minutes.`);
       else if (g.minutes % slots.length !== 0)
         add(`group ${g.id}: ${slots.length} exercises must divide ${g.minutes} minutes evenly.`);
       else needSets(g.minutes / slots.length, `${g.minutes} minutes`);

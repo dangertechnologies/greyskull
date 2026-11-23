@@ -192,3 +192,21 @@ describe('validateProgram with groups', () => {
     expect(validateProgram(day(slots, groups), ex).join('\n')).toMatch(error);
   });
 });
+
+describe('group limits', () => {
+  const circuit = (rounds: number) =>
+    day(
+      [s('BARBELL_SQUAT', '3x5', 'g1'), s('BENCH_PRESS', '3x5', 'g1')],
+      [{ id: 'g1', kind: 'circuit', rounds }],
+    );
+  const emom = (minutes: number) =>
+    day([s('BARBELL_SQUAT', '3x5', 'g1')], [{ id: 'g1', kind: 'emom', minutes }]);
+
+  test('rounds and minutes stay within what the group editor offers', () => {
+    for (const bad of [0, 21, 1e9, Number.NaN, Number.POSITIVE_INFINITY, -3, 2.5])
+      expect(validateProgram(circuit(bad), ex).join(' ')).toMatch(/set 1 to 20 rounds/);
+    for (const bad of [0, 61, 1e9, Number.NaN, Number.POSITIVE_INFINITY])
+      expect(validateProgram(emom(bad), ex).join(' ')).toMatch(/set 1 to 60 minutes/);
+    expect(validateProgram(emom(3), ex)).toEqual([]);
+  });
+});

@@ -89,6 +89,25 @@ export function tryParseScheme(s: string): ParsedScheme | null {
   return min >= 1 && max >= min ? { sets, reps: min, repsMax: max, amrap: false, timed: m[8] === 's' } : null;
 }
 
+/**
+ * The most a scheme may ask for, as the scheme editor allows: sets, reps (fixed or the bottom of a range) and the
+ * top of a range, and the same for seconds held.
+ */
+export const SCHEME_LIMITS = { sets: 20, reps: 30, repsMax: 40, seconds: 300, secondsMax: 600 } as const;
+
+/** Why a scheme cannot be saved (not one the app understands, or more than `SCHEME_LIMITS`), or null. */
+export function schemeProblem(s: string): string | null {
+  const p = tryParseScheme(s);
+  if (!p) return `unknown scheme ${String(s).slice(0, 20)}`;
+  const L = SCHEME_LIMITS;
+  const [low, high] = p.timed ? [L.seconds, L.secondsMax] : [L.reps, L.repsMax];
+  if (p.sets > L.sets || (p.reps ?? 0) > low || (p.repsMax ?? 0) > high)
+    return p.timed
+      ? `scheme ${s} is too long: at most ${L.sets} sets of ${low} seconds (a range up to ${high})`
+      : `scheme ${s} is too much: at most ${L.sets} sets of ${low} reps (a range up to ${high})`;
+  return null;
+}
+
 export function parseScheme(s: Scheme): ParsedScheme {
   const parsed = tryParseScheme(s);
   if (!parsed) throw new Error(`Unknown scheme ${s}`);
@@ -303,10 +322,22 @@ export function validateProgramByDay(
           errors.push(`${day.name}: lift ${key} must use the same exercise everywhere.`);
         liftExercises.set(key, owner);
       }
-      if (!tryParseScheme(slot.scheme)) errors.push(`${day.name}: unknown scheme ${slot.scheme}.`);
+      for (const scheme of new Set([slot.scheme, ...(Array.isArray(slot.stages) ? slot.stages : [])])) {
+        // A stage that does not parse is reported with the stages below; here it only meets the scheme's limits.
+        if (scheme !== slot.scheme && !tryParseScheme(scheme)) continue;
+        const problem = typeof scheme === 'string' ? schemeProblem(scheme) : 'invalid scheme';
+        if (problem) errors.push(`${day.name}: ${problem}.`);
+      }
       if (slot.progression !== undefined && !models.includes(slot.progression))
         errors.push(`${day.name}: unknown progression model.`);
-      if (slot.advanceAt !== undefined && (!Number.isInteger(slot.advanceAt) || slot.advanceAt < 1))
+      if (
+        slot.advanceAt !== undefined &&
+        !(
+          Number.isInteger(slot.advanceAt) &&
+          slot.advanceAt >= 1 &&
+          slot.advanceAt <= SCHEME_LIMITS.secondsMax
+        )
+      )
         errors.push(`${day.name}: invalid advanceAt.`);
       if (
         slot.lift !== undefined &&

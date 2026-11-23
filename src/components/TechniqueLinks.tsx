@@ -1,7 +1,7 @@
-import * as WebBrowser from 'expo-web-browser';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise } from '../domain';
+import { openLink } from '../openLink';
 import { Icon } from '../ui/Icon';
 import type { IconName } from '../ui/icons';
 import { Text } from '../ui/Text';
@@ -26,7 +26,7 @@ export function TechniqueLinks({ exercise, compact = false }: { exercise: Exerci
           accessibilityRole="link"
           accessibilityLabel={`${l.label}: ${exercise.name}`}
           hitSlop={8}
-          onPress={() => void WebBrowser.openBrowserAsync(l.href)}
+          onPress={() => void openLink(l.href)}
           style={({ pressed }) => ({
             flexDirection: 'row',
             alignItems: 'center',

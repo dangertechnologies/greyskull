@@ -98,6 +98,14 @@ describe('importPlan', () => {
     if (!r.ok) expect(r.error).toMatch(/too large/);
   });
 
+  test('a scheme with more sets or reps than the editor allows is refused', () => {
+    const p = program();
+    p.days[0].slots[1] = { exercise: 'BENCH_PRESS', scheme: '100000000x8-12' as never };
+    const r = importPlan(text({ plan: plan(p) }), have());
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/100000000x8-12 is too much/);
+  });
+
   test('too many exercises are refused', () => {
     const many = Array.from({ length: 101 }, (_, i) => ({ ...front, id: `custom_e${i}`, name: `E${i}` }));
     const r = importPlan(text({}, many), have());

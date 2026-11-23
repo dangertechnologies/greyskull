@@ -1,10 +1,9 @@
 import * as Clipboard from 'expo-clipboard';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import type { CustomPlan, Equipment, Exercise, Kind, Muscle, Pattern, Program } from './domain';
+import type { CustomPlan, Exercise, Program } from './domain';
 import { exerciseIdsOf, own, parseProgram, validateProgram } from './domain';
-import { linkProblem } from './exerciseEdit';
-import { EQUIPMENT_LABELS, MUSCLE_LABELS, PATTERN_LABELS } from './exerciseFilter';
+import { sanitizeExercise } from './domain/sanitizeExercise';
 import { customId } from './exerciseId';
 import { uniqueProgramName } from './programPicker';
 
@@ -14,17 +13,11 @@ export const PLAN_VERSION = 1;
 export const MAX_IMPORT_CHARS = 200_000;
 const MAX_EXERCISES = 100;
 const MAX_TEXT = 100;
-const MAX_LONG_TEXT = 2000;
-const MAX_FORM_LINES = 20;
-const MAX_FORM_LINE = 300;
 
 type Json = Record<string, unknown>;
 const isObject = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 const text = (v: unknown, max = MAX_TEXT): v is string =>
   typeof v === 'string' && v.trim().length > 0 && v.length <= max;
-const amount = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100;
-const KINDS: Kind[] = ['barbell', 'bodyweight', 'dumbbell', 'machine', 'kettlebell'];
-const LEVELS = ['beginner', 'intermediate', 'expert'] as const;
 
 /** Every field of an exercise that travels in a shared plan (and nothing else does). */
 const FIELDS: (keyof Exercise)[] = [
@@ -53,102 +46,11 @@ function must(ok: boolean, message: string): asserts ok {
   if (!ok) throw new Refused(message);
 }
 
-const pair = (v: unknown, where: string): { kg: number; lb: number } => {
-  must(isObject(v) && amount(v.kg) && amount(v.lb), `${where} is not a weight.`);
-  return { kg: v.kg as number, lb: v.lb as number };
-};
-
-/** A weight step the weight stepper and the rounding divide by: at least 0.5 (the editor's minimum). */
-const stepPair = (v: unknown, where: string): { kg: number; lb: number } => {
-  const p = pair(v, where);
-  must(p.kg >= 0.5 && p.lb >= 0.5, `${where} must be at least 0.5.`);
-  return p;
-};
-
-/** A bar of its own: heavier than nothing and no heavier than 50 kg (110 lb). */
-const barPair = (v: unknown, where: string): { kg: number; lb: number } => {
-  const p = pair(v, where);
-  must(
-    p.kg > 0 && p.kg <= 50 && p.lb > 0 && p.lb <= 110,
-    `${where} must be over 0 and at most 50 kg (110 lb).`,
-  );
-  return p;
-};
-
-const known = <T extends string>(v: unknown, allowed: Record<T, unknown>, where: string): T[] => {
-  must(Array.isArray(v) && v.length <= 40, `${where} is not a list.`);
-  // Own keys only: "constructor" or "toString" would otherwise pass as a known value.
-  for (const x of v)
-    must(
-      typeof x === 'string' && Object.hasOwn(allowed, x),
-      `${where}: unknown value ${JSON.stringify(x).slice(0, 40)}.`,
-    );
-  return v as T[];
-};
-
-const lines = (v: unknown, where: string): string[] => {
-  must(Array.isArray(v) && v.length <= MAX_FORM_LINES, `${where} is not a short list.`);
-  must(
-    v.every((x) => typeof x === 'string' && x.length <= MAX_FORM_LINE),
-    `${where} has a line that is too long.`,
-  );
-  return v as string[];
-};
-
 /** An exercise from a file, rebuilt from the known fields. Throws `Refused` with the reason. */
 function exerciseFrom(v: unknown, n: number): Exercise {
-  const label = `Exercise ${n + 1}`;
-  must(isObject(v), `${label} is not an exercise.`);
-  must(text(v.id), `${label} has no id.`);
-  must(text(v.name), `${label} has no name (at most ${MAX_TEXT} letters).`);
-  must(KINDS.includes(v.kind as Kind), `${v.name}: unknown kind.`);
-  const where = String(v.name);
-  const out: Exercise = {
-    id: v.id as string,
-    name: (v.name as string).trim(),
-    shortName: text(v.shortName) ? (v.shortName as string).trim() : (v.name as string).trim().split(/\s+/)[0],
-    kind: v.kind as Kind,
-    increment: pair(v.increment, `${where}: increment`),
-    custom: true,
-  };
-  if (v.abbr !== undefined) {
-    must(typeof v.abbr === 'string', `${where}: abbreviation.`);
-    if (v.abbr.trim()) out.abbr = v.abbr.trim().slice(0, 3).toUpperCase();
-  }
-  if (v.step !== undefined) out.step = stepPair(v.step, `${where}: weight step`);
-  if (v.barKg !== undefined) out.barKg = barPair(v.barKg, `${where}: bar`);
-  if (v.description !== undefined) {
-    must(
-      typeof v.description === 'string' && v.description.length <= MAX_LONG_TEXT,
-      `${where}: description is too long.`,
-    );
-    out.description = v.description;
-  }
-  if (v.goodForm !== undefined) out.goodForm = lines(v.goodForm, `${where}: good form`);
-  if (v.badForm !== undefined) out.badForm = lines(v.badForm, `${where}: bad form`);
-  // A link that is not a web address is dropped: it would otherwise be offered to the browser.
-  for (const key of ['url', 'video'] as const) {
-    const link = v[key];
-    if (typeof link === 'string' && link.trim() && linkProblem(link) === null) out[key] = link.trim();
-  }
-  if (v.equipment !== undefined)
-    out.equipment = known<Equipment>(v.equipment, EQUIPMENT_LABELS, `${where}: equipment`);
-  if (v.muscles !== undefined) out.muscles = known<Muscle>(v.muscles, MUSCLE_LABELS, `${where}: muscles`);
-  if (v.secondary !== undefined)
-    out.secondary = known<Muscle>(v.secondary, MUSCLE_LABELS, `${where}: muscles`);
-  if (v.pattern !== undefined) {
-    must(
-      typeof v.pattern === 'string' && Object.hasOwn(PATTERN_LABELS, v.pattern),
-      `${where}: unknown pattern.`,
-    );
-    out.pattern = v.pattern as Pattern;
-  }
-  if (v.level !== undefined) {
-    must(LEVELS.includes(v.level as (typeof LEVELS)[number]), `${where}: unknown level.`);
-    out.level = v.level as Exercise['level'];
-  }
-  if (v.timed === true) out.timed = true;
-  return out;
+  const r = sanitizeExercise(v, `Exercise ${n + 1}`);
+  must(r.ok, r.ok ? '' : r.error);
+  return r.exercise;
 }
 
 const sameExercise = (a: Exercise, b: Exercise): boolean =>

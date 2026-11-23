@@ -4,6 +4,7 @@ import {
   floorLoadableKg,
   formatPlates,
   inventoryFor,
+  inventoryProblem,
   loadable,
   nearestLoadableKg,
   platesPerSide,
@@ -149,5 +150,67 @@ describe('roundAddedLoad (single plates on a dip belt)', () => {
   });
   test('no plates leaves the load as it is', () => {
     expect(roundAddedLoad(3.3, none, 'kg')).toBe(3.3);
+  });
+});
+
+describe('a damaged or hostile inventory', () => {
+  test('a bar that is negative, zero, huge or not a number loads nothing, without a huge search', () => {
+    for (const barKg of [-1e9, -20, 0, 51, 1e9, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const started = Date.now();
+      expect(loadable(withPlates({ barKg }), 'kg').totals).toEqual([]);
+      expect(Date.now() - started).toBeLessThan(500);
+    }
+    expect(loadable(withPlates({ barLb: 111 }), 'lb').totals).toEqual([]);
+    expect(loadable(withPlates({ barLb: 110 }), 'lb').totals.length).toBeGreaterThan(0);
+  });
+
+  test('plates out of range are left out and a long list is cut short', () => {
+    const junk = withPlates({ platesKg: [20, 0.001, -5, 1e9, Number.NaN, Number.POSITIVE_INFINITY] });
+    expect(loadable(junk, 'kg').totals).toEqual(loadable(withPlates({ platesKg: [20] }), 'kg').totals);
+    expect(smallestStep(junk, 'kg')).toBe(40);
+    const many = withPlates({ platesKg: Array.from({ length: 5000 }, (_, i) => 1 + i / 1000) });
+    const started = Date.now();
+    loadable(many, 'kg');
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
+
+  test("an exercise's own bar only counts when it is in range in both units", () => {
+    const ez = { ...builtInExercises().BARBELL_SQUAT };
+    for (const barKg of [
+      { kg: -10, lb: 25 },
+      { kg: 10, lb: -25 },
+      { kg: 1e9, lb: 25 },
+      { kg: 10, lb: 111 },
+      { kg: Number.NaN, lb: 25 },
+    ])
+      expect(inventoryFor({ ...ez, barKg }, inv)).toBe(inv);
+    expect(inventoryFor({ ...ez, barKg: { kg: 10, lb: 25 } }, inv)).toEqual({ ...inv, barKg: 10, barLb: 25 });
+  });
+
+  test('inventoryProblem accepts the defaults and names what is out of range', () => {
+    expect(inventoryProblem(inv)).toBeNull();
+    expect(inventoryProblem(withPlates({ platesKg: [...inv.platesKg, 0.5, 0.25] }))).toBeNull();
+    // Missing fields are filled from the defaults on load.
+    expect(inventoryProblem({ barKg: 20 })).toBeNull();
+    for (const bad of [
+      null,
+      [],
+      'inventory',
+      withPlates({ barKg: 0 }),
+      withPlates({ barKg: -20 }),
+      withPlates({ barKg: 51 }),
+      withPlates({ barLb: 111 }),
+      withPlates({ barKg: Number.NaN }),
+      withPlates({ platesKg: [20, -5] }),
+      withPlates({ platesKg: [20, 0.1] }),
+      withPlates({ platesLb: [45, 1e9] }),
+      withPlates({ platesKg: Array.from({ length: 21 }, (_, i) => i + 1) }),
+      withPlates({ platesKg: 'x' as never }),
+      withPlates({ kettlebellsKg: [16, 1000] }),
+      withPlates({ kettlebellsLb: [Number.POSITIVE_INFINITY] }),
+      withPlates({ kettlebellsKg: Array.from({ length: 41 }, () => 16) }),
+      withPlates({ kettlebellsLb: null as never }),
+    ])
+      expect([bad, inventoryProblem(bad)]).toEqual([bad, expect.any(String)]);
   });
 });

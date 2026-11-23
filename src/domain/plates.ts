@@ -19,12 +19,56 @@ const q = (v: number): number => Math.round(v * 4);
 
 const cache = new Map<string, Loadable>();
 
+/** The heaviest bar (the gym's or an exercise's own) the app accepts, per unit. */
+export const BAR_MAX = { kg: 50, lb: 110 } as const;
+/** Plate sizes the app accepts, per unit, and the most different sizes an inventory may list. */
+export const PLATE_RANGE = { kg: [0.25, 50], lb: [0.25, 110] } as const;
+export const MAX_PLATE_SIZES = 20;
+/** Kettlebell sizes the gym editor offers, per unit, and the most an inventory may list. */
+export const KETTLEBELL_RANGE = { kg: [2, 80], lb: [5, 180] } as const;
+export const MAX_KETTLEBELLS = 40;
+
+const within = (v: unknown, [min, max]: readonly [number, number]): v is number =>
+  typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
+const validBar = (v: unknown, unit: Unit): v is number => within(v, [Number.MIN_VALUE, BAR_MAX[unit]]);
+
 function barOf(inv: PlateInventory, unit: Unit): number {
   return unit === 'kg' ? inv.barKg : inv.barLb;
 }
 
+/**
+ * Plates of one unit, largest first. Sizes out of range and anything past the first `MAX_PLATE_SIZES` are left
+ * out, so a damaged or hostile inventory cannot make `loadable` search with a plate that rounds to nothing.
+ */
 function platesOf(inv: PlateInventory, unit: Unit): number[] {
-  return [...(unit === 'kg' ? inv.platesKg : inv.platesLb)].sort((a, b) => b - a);
+  const list = unit === 'kg' ? inv.platesKg : inv.platesLb;
+  return (Array.isArray(list) ? list : [])
+    .slice(0, MAX_PLATE_SIZES)
+    .filter((p) => within(p, PLATE_RANGE[unit]))
+    .sort((a, b) => b - a);
+}
+
+/**
+ * Why an inventory from a file or storage cannot be used, or null when every value is in range. A missing field is
+ * fine: stored inventories are merged over the defaults on load.
+ */
+export function inventoryProblem(v: unknown): string | null {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return 'the equipment is not an inventory';
+  const inv = v as Record<string, unknown>;
+  const list = (x: unknown, max: number, range: readonly [number, number]) =>
+    x === undefined || (Array.isArray(x) && x.length <= max && x.every((n) => within(n, range)));
+  for (const unit of ['kg', 'lb'] as const) {
+    const bar = unit === 'kg' ? inv.barKg : inv.barLb;
+    if (bar !== undefined && !validBar(bar, unit))
+      return `the bar must be over 0 and at most ${BAR_MAX[unit]} ${unit}`;
+    const [pMin, pMax] = PLATE_RANGE[unit];
+    if (!list(unit === 'kg' ? inv.platesKg : inv.platesLb, MAX_PLATE_SIZES, PLATE_RANGE[unit]))
+      return `plates must be at most ${MAX_PLATE_SIZES} sizes of ${pMin} to ${pMax} ${unit}`;
+    const [kMin, kMax] = KETTLEBELL_RANGE[unit];
+    if (!list(unit === 'kg' ? inv.kettlebellsKg : inv.kettlebellsLb, MAX_KETTLEBELLS, KETTLEBELL_RANGE[unit]))
+      return `kettlebells must be at most ${MAX_KETTLEBELLS} sizes of ${kMin} to ${kMax} ${unit}`;
+  }
+  return null;
 }
 
 /** True if candidate (sorted desc) has fewer plates, or the same count and a larger leading plate. */
@@ -43,9 +87,10 @@ export function loadable(inv: PlateInventory, unit: Unit, maxTotal = 1000): Load
   if (hit) return hit;
 
   const bar = barOf(inv, unit);
-  // A bar that is not a number (a half-filled inventory) loads nothing, rather than an array of NaN length.
-  if (!Number.isFinite(bar)) return { totals: [], perSide: new Map() };
-  const plates = platesOf(inv, unit).filter((p) => p > 0);
+  // A bar that is not a number (a half-filled inventory), negative or absurdly heavy loads nothing, rather than
+  // an array of NaN or millions of entries.
+  if (!validBar(bar, unit) || !(maxTotal > 0 && maxTotal <= 1000)) return { totals: [], perSide: new Map() };
+  const plates = platesOf(inv, unit);
   const maxSide = Math.max(0, q((maxTotal - bar) / 2));
   const best: (number[] | null)[] = new Array<number[] | null>(maxSide + 1).fill(null);
   best[0] = [];
@@ -133,7 +178,7 @@ export function isLoadable(kg: number, inv: PlateInventory, unit: Unit): boolean
 
 /** Smallest jump the bar can make: two of the smallest plates, 0 if there are none. */
 export function smallestStep(inv: PlateInventory, unit: Unit): number {
-  const plates = platesOf(inv, unit).filter((p) => p > 0);
+  const plates = platesOf(inv, unit);
   return plates.length === 0 ? 0 : 2 * plates[plates.length - 1];
 }
 
@@ -152,8 +197,9 @@ export function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: 
 /** The inventory with the exercise's own bar (an EZ bar) in place of the gym bar. */
 export function inventoryFor(exercise: Exercise, inv: PlateInventory): PlateInventory {
   const own = exercise.barKg;
-  // Only a bar given in both units replaces the gym's; anything else (an import with one unit) keeps the gym bar.
-  return own && Number.isFinite(own.kg) && Number.isFinite(own.lb)
+  // Only a bar given in both units, each in range, replaces the gym's; anything else (an import with one unit, a
+  // negative or huge bar from a damaged file) keeps the gym bar.
+  return own && validBar(own.kg, 'kg') && validBar(own.lb, 'lb')
     ? { ...inv, barKg: own.kg, barLb: own.lb }
     : inv;
 }
@@ -174,7 +220,7 @@ function stepsOf(value: number, step: number, mode: Mode): number {
  * a load the user typed (a weight vest, say) on the next unit switch or weight edit.
  */
 export function roundAddedLoad(kg: number, inv: PlateInventory, unit: Unit, mode: Mode = 'nearest'): number {
-  const plates = platesOf(inv, unit).filter((p) => p > 0);
+  const plates = platesOf(inv, unit);
   const smallest = plates[plates.length - 1];
   if (smallest === undefined) return kg;
   return toKg(Math.max(0, stepsOf(toUnit(kg, unit), smallest, mode)) * smallest, unit);
