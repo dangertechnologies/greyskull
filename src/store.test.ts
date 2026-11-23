@@ -243,7 +243,7 @@ describe('actions', () => {
     get().setBreakDeload(false);
     get().setHealthSync(true);
     playSession(5);
-    get().setHealthId(0, 'hk-1');
+    get().setHealthIds([{ n: 0, healthId: 'hk-1' }]);
     expect(get()).toMatchObject({
       equipment: ['barbell', 'rings'],
       bands: [{ id: 'red', label: 'Red' }],
@@ -961,4 +961,26 @@ test('switching units snaps a ladder lift’s added load to single plates', () =
   setLift('rr_pullup', { weightKg: 10, step: 5 });
   get().setUnit('lb');
   expect(toKg(22.5, 'lb')).toBeCloseTo(lifts().rr_pullup.weightKg, 9);
+});
+
+test('setHealthIds records the Health ids of several sessions in one update', () => {
+  const log = (n: number): SessionLog => ({
+    n,
+    dayName: 'A',
+    startedAt: '2026-06-01T10:00:00.000Z',
+    finishedAt: '2026-06-01T11:00:00.000Z',
+    results: {},
+    order: [],
+  });
+  useStore.setState({ sessions: [log(1), log(2), log(3)] });
+  let updates = 0;
+  const stop = useStore.subscribe(() => void updates++);
+  get().setHealthIds([
+    { n: 1, healthId: 'a' },
+    { n: 3, healthId: 'c' },
+    { n: 9, healthId: 'gone' },
+  ]);
+  stop();
+  expect(updates).toBe(1);
+  expect(get().sessions.map((l) => l.healthId)).toEqual(['a', undefined, 'c']);
 });

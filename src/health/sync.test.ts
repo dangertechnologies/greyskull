@@ -32,6 +32,13 @@ function setup(
     sessions: opts.sessions ?? [],
     programs: [] as ActiveProgram[],
     setHealthSync: (on) => set({ healthSync: on }),
+    setHealthIds: (entries) =>
+      set((s) => ({
+        sessions: s.sessions.map((l) => {
+          const e = entries.find((x) => x.n === l.n);
+          return e ? { ...l, healthId: e.healthId } : l;
+        }),
+      })),
   }));
   const status = createStore<HealthStatus>()(() => ({
     ...initialHealthStatus(),

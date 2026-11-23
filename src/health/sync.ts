@@ -24,12 +24,12 @@ export interface SyncState {
   sessions: SessionLog[];
   programs: ActiveProgram[];
   setHealthSync(on: boolean): void;
+  setHealthIds(entries: { n: number; healthId: string }[]): void;
 }
 
 export interface SyncStore {
   getState(): SyncState;
   subscribe(listener: (state: SyncState, prev: SyncState) => void): () => void;
-  setState(update: (state: SyncState) => Partial<SyncState>): void;
 }
 
 export interface ExportResult {
@@ -212,9 +212,7 @@ export function createHealthSync(deps: {
       await failureOf(error);
     } finally {
       if (ids.size > 0) {
-        store.setState((s) => ({
-          sessions: s.sessions.map((l) => (ids.has(l.n) ? { ...l, healthId: ids.get(l.n) } : l)),
-        }));
+        store.getState().setHealthIds([...ids].map(([n, healthId]) => ({ n, healthId })));
       }
     }
     if (!result.failed && (all || store.getState().healthSync)) {

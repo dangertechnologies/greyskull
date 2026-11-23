@@ -2,8 +2,7 @@ import type { ActiveProgram, LiftState, Program, SessionLog } from '../domain';
 import { useStore } from '../store';
 
 /**
- * Test helpers for the common case of one program: they act on the first program in the store, the way the
- * app's screens do with `useProgram()`.
+ * Test helpers for the common case of one program: they act on the first program in the store.
  */
 const get = () => useStore.getState();
 

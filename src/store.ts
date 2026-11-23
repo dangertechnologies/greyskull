@@ -131,7 +131,8 @@ interface Actions {
   setBands(list: { id: string; label: string }[]): void;
   setBreakDeload(on: boolean): void;
   setHealthSync(on: boolean): void;
-  setHealthId(n: number, id: string): void;
+  /** Record where each session was written to Health, in one update (sessions that are gone are ignored). */
+  setHealthIds(entries: { n: number; healthId: string }[]): void;
   upsertExercise(exercise: Exercise): void;
   deleteExercise(id: string): string[];
   /** Weights checked after importing the first version's data (first program unless `programId`). */
@@ -923,8 +924,13 @@ export const useStore = create<Store>()(
       },
       setBreakDeload: (on) => set({ breakDeload: on }),
       setHealthSync: (on) => set({ healthSync: on }),
-      setHealthId: (n, id) =>
-        set((s) => ({ sessions: s.sessions.map((log) => (log.n === n ? { ...log, healthId: id } : log)) })),
+      setHealthIds: (entries) =>
+        set((s) => {
+          const ids = new Map(entries.map((e) => [e.n, e.healthId]));
+          return {
+            sessions: s.sessions.map((log) => (ids.has(log.n) ? { ...log, healthId: ids.get(log.n) } : log)),
+          };
+        }),
 
       upsertExercise: (exercise) => set((s) => ({ exercises: { ...s.exercises, [exercise.id]: exercise } })),
 
@@ -1083,10 +1089,6 @@ export async function initStore(): Promise<void> {
   }
   useStore.setState({ legacyChecked, hydrated: true, storageError: null });
 }
-
-/** The program with `id`; without an id, the first program that is not paused. */
-export const useProgram = (id?: string): ActiveProgram | undefined =>
-  useStore((s) => (id ? s.programs.find((p) => p.id === id) : s.programs.find((p) => !p.paused)));
 
 export const useUnit = (): Unit => useStore((s) => s.unit);
 export const useInventory = (): PlateInventory => useStore((s) => s.inventory);
