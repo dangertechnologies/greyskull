@@ -151,6 +151,7 @@ export function roundForExercise(
     case 'barbell':
       return pick(kg, inv, unit, mode);
     case 'dumbbell':
+    case 'kettlebell':
     case 'machine': {
       const step = (exercise.step ?? DEFAULT_STEP)[unit];
       const ratio = toUnit(kg, unit) / step;

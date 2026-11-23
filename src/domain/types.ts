@@ -1,5 +1,46 @@
 export type Unit = 'kg' | 'lb';
-export type Kind = 'barbell' | 'bodyweight' | 'dumbbell' | 'machine';
+export type Kind = 'barbell' | 'bodyweight' | 'dumbbell' | 'machine' | 'kettlebell';
+
+export type Equipment =
+  | 'barbell'
+  | 'ez-bar'
+  | 'trap-bar'
+  | 'dumbbell'
+  | 'kettlebell'
+  | 'cable'
+  | 'machine'
+  | 'bench'
+  | 'pull-up-bar'
+  | 'dip-bars'
+  | 'rings'
+  | 'parallettes'
+  | 'bands'
+  | 'box'
+  | 'medicine-ball'
+  | 'exercise-ball'
+  | 'foam-roll'
+  | 'none';
+
+export type Muscle =
+  | 'abdominals'
+  | 'abductors'
+  | 'adductors'
+  | 'biceps'
+  | 'calves'
+  | 'chest'
+  | 'forearms'
+  | 'glutes'
+  | 'hamstrings'
+  | 'lats'
+  | 'lower-back'
+  | 'middle-back'
+  | 'neck'
+  | 'quadriceps'
+  | 'shoulders'
+  | 'traps'
+  | 'triceps';
+
+export type Pattern = 'push' | 'pull' | 'squat' | 'hinge' | 'core' | 'carry' | 'skill' | 'mobility';
 
 export interface Exercise {
   id: string; // 'BENCH_PRESS' or 'custom_front_squat'
@@ -19,17 +60,31 @@ export interface Exercise {
   custom?: boolean;
   /** Deleted by the user but kept because past sessions still reference it (hidden from pickers). */
   archived?: boolean;
+  equipment?: Equipment[];
+  muscles?: Muscle[];
+  secondary?: Muscle[];
+  pattern?: Pattern;
+  level?: 'beginner' | 'intermediate' | 'expert';
+  /** Held for time: set `reps` are seconds. */
+  timed?: boolean;
+  /** Bar weight when it is not the gym's standard bar (EZ bar). */
+  barKg?: { kg: number; lb: number };
+  /** Key into the pictogram set (src/ui/pictograms.ts). */
+  pictogram?: string;
 }
 
 /**
  * Sets × reps. `5x5` fixed reps, `2x5+` last set AMRAP (at least 5), `2xAMRAP` every set AMRAP,
- * `2x8-12` a rep range for double progression (reps first, then weight).
+ * `2x8-12` a rep range for double progression (reps first, then weight), `3x30s` timed holds of 30 seconds,
+ * `3x20-40s` a range of hold times.
  */
 export type Scheme =
   | `${number}x${number}`
   | `${number}x${number}+`
   | `${number}xAMRAP`
-  | `${number}x${number}-${number}`;
+  | `${number}x${number}-${number}`
+  | `${number}x${number}s`
+  | `${number}x${number}-${number}s`;
 
 /**
  * How a lift moves after a session:
@@ -38,7 +93,7 @@ export type Scheme =
  * - `double`: every set hits the current rep target → one more rep next time; at the top of the range
  *   add the increment and drop back to the bottom (AllPro).
  */
-export type ProgressionModel = 'amrap' | 'linear' | 'double' | 'stages' | '531';
+export type ProgressionModel = 'amrap' | 'linear' | 'double' | 'stages' | '531' | 'ladder';
 
 export interface Slot {
   exercise: string | [string, string]; // tuple = alternate between the two each session
@@ -47,12 +102,38 @@ export interface Slot {
   progression?: ProgressionModel;
   stages?: Scheme[];
   advanceAt?: number;
+  /** Id of a ladder (src/catalog/ladders.json): the slot moves through the ladder's steps. */
+  ladder?: string;
+  /** Id of a group in the same day (superset, circuit, EMOM, interval). */
+  group?: string;
 }
+
+/** A progression of exercises from easiest to hardest (calisthenics skill ladders). */
+export interface Ladder {
+  id: string;
+  name: string;
+  pattern: Pattern;
+  /** `weighted`: after the last step the lift continues with added weight. */
+  after?: 'weighted';
+  steps: { exercise: string; scheme?: Scheme; band?: boolean }[];
+}
+
+export type GroupKind = 'superset' | 'circuit' | 'emom' | 'interval';
+export interface Group {
+  id: string;
+  kind: GroupKind;
+  rounds?: number;
+  restS?: number;
+  workS?: number;
+  minutes?: number;
+}
+
 export interface Day {
   name: string;
   slots: Slot[];
   /** Fraction of the working weight used on this day (light/medium days). Below 1 the day never progresses. */
   intensity?: number;
+  groups?: Group[];
 }
 
 export interface Rules {
@@ -70,8 +151,30 @@ export interface Program {
   days: Day[];
   sessionsPerWeek: number;
   rules: Rules;
-  /** Session number the program started at; a new plan starts on its first day (and 5/3/1 week). */
+  /**
+   * Session number the program started at, from before several programs could run at once. Only kept on
+   * programs moved from that data (it tells which old history entries belong to them); rotation uses
+   * `ActiveProgram.position`.
+   */
   startN?: number;
+}
+
+/** A program the user runs: its own rotation (`position`) and its own lift states. */
+export interface ActiveProgram extends Program {
+  id: string;
+  name: string;
+  /** Sessions finished or skipped in this program; picks the day, alternating pairs and 5/3/1 week. */
+  position: number;
+  lifts: Record<string, LiftState>;
+  paused?: boolean;
+}
+
+/** A program the user built and saved, ready to start. */
+export interface CustomPlan {
+  id: string;
+  name: string;
+  summary?: string;
+  program: Program;
 }
 
 export interface LiftState {
@@ -81,6 +184,8 @@ export interface LiftState {
   incrementOverride?: { kg: number; lb: number };
   stage?: number;
   reps?: number; // double progression: current rep target inside the scheme's range
+  step?: number; // ladder: index of the current step
+  bandId?: string; // ladder: assistance band in use
 }
 
 export interface SetResult {
@@ -95,6 +200,27 @@ export interface ExerciseResult {
   lift?: string;
   /** 5/3/1: the training max the sets were built from (`weightKg` is the heaviest set). */
   tmKg?: number;
+  /** Held for time: set `reps` are seconds. */
+  timed?: true;
+  /** Ladder step the sets were done at. */
+  step?: number;
+  scheme?: Scheme;
+  band?: { id: string; label: string };
+}
+
+/** One exercise of a session as the program resolves it (day, stage, alternating pair and 5/3/1 week applied). */
+export interface ResolvedSlot {
+  exercise: string;
+  lift: string;
+  scheme: Scheme;
+  progression: ProgressionModel;
+  stages?: Scheme[];
+  advanceAt?: number;
+  week?: number;
+  lastInWeek?: boolean;
+  ladder?: string;
+  step?: number;
+  group?: string;
 }
 
 export interface SessionLog {
@@ -108,6 +234,17 @@ export interface SessionLog {
   intensity?: number; // set when the day is a light/medium day
   /** Skipped 5/3/1 cycle ends: lift states from before the training max went up, so Undo can restore them. */
   restore?: Record<string, LiftState>;
+  /** Program the session belongs to; undefined for history from before several programs could run at once. */
+  programId?: string;
+  programName?: string;
+  /** The program's position this session was at. */
+  position?: number;
+  /** Draft only: the resolved exercises, so finishing never re-derives them from a changed program. */
+  slots?: ResolvedSlot[];
+  /** Set when the session eased back after a long break: the gap and the lift states from before. */
+  eased?: { gapDays: number; lifts: Record<string, LiftState> };
+  /** Id of the workout written to Apple Health or Health Connect. */
+  healthId?: string;
 }
 
 export interface PlateInventory {
@@ -115,18 +252,28 @@ export interface PlateInventory {
   platesKg: number[];
   barLb: number;
   platesLb: number[];
+  kettlebellsKg: number[];
+  kettlebellsLb: number[];
 }
 
 export interface AppState {
-  version: 2;
+  version: 3;
   unit: Unit;
   inventory: PlateInventory;
   minimalist: boolean;
   restSeconds: number;
   exercises: Record<string, Exercise>;
-  program: Program | null;
-  lifts: Record<string, LiftState>;
+  programs: ActiveProgram[];
+  customPlans: CustomPlan[];
+  /** Equipment the user has; empty means unknown (show everything). */
+  equipment: Equipment[];
+  /** Assistance bands, heaviest first. */
+  bands: { id: string; label: string }[];
+  /** Ease back after a long break. */
+  breakDeload: boolean;
+  healthSync: boolean;
   sessions: SessionLog[]; // finished or skipped, ascending n
+  /** Next session id. Reserved when a draft or a skip is created; never goes back, so ids never repeat. */
   nextSession: number;
   draft: SessionLog | null;
   needsWeightConfirm: boolean; // true after migrating v1 data
@@ -143,6 +290,8 @@ export const DEFAULT_INVENTORY: PlateInventory = {
   platesKg: [25, 20, 15, 10, 5, 2.5, 1.25],
   barLb: 45,
   platesLb: [45, 35, 25, 10, 5, 2.5],
+  kettlebellsKg: [8, 12, 16, 20, 24, 28, 32],
+  kettlebellsLb: [18, 26, 35, 44, 53, 62, 70],
 };
 export const OPTIONAL_PLATES = { kg: [0.5, 0.25], lb: [1.25, 0.5] };
 export const BAR_OPTIONS = { kg: [20, 15, 10], lb: [45, 35, 25] };
