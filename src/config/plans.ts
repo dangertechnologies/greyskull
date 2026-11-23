@@ -508,7 +508,7 @@ export const PLANS: PlanDefinition[] = [
     name: 'Recommended Routine',
     summary: '3 days a week · Three supersets of pull, push and legs, then a core circuit',
     description:
-      'One full-body bodyweight day, repeated three times a week. Pull-up and squat, dip and hinge, row and push-up are paired as supersets with 90 seconds of rest, then a core circuit of anti-extension, anti-rotation and back extension for three rounds. Every exercise sits on a ladder of harder variations: reach the top of the range on every set and the next session asks for one more rep, or the next variation once you are at the top. Based on the routine recommended by the r/bodyweightfitness community; the progressions and wording are our own.',
+      'One full-body bodyweight day, repeated three times a week. Pull-up and squat, dip and hinge, row and push-up are paired as supersets with 90 seconds of rest, then a core circuit of anti-extension, anti-rotation and back extension for three rounds. Every exercise sits on a ladder of harder variations: hit your target on every set and the next session asks for one more rep; once you hit the top of the range on every set, the next session starts the following variation back at the bottom of its range. Based on the routine recommended by the r/bodyweightfitness community; the progressions and wording are our own.',
     status: 'experimental',
     category: 'calisthenics',
     plugins: [],
@@ -545,7 +545,7 @@ export const PLANS: PlanDefinition[] = [
     name: 'Six Ladders',
     summary: '3 days · Push-up, pull-up, squat, leg raise, bridge and handstand push-up ladders',
     description:
-      'Six exercises, each with its own ten-step ladder from an easy variation up to a one-arm or one-leg version. The days rotate: push-up and leg raise, pull-up and squat, handstand push-up and bridge. Each step has its own rep range, so steps early on ask for more reps and later steps for fewer. Reach the top of the range on every set to add a rep, and at the top of the range you move up one step, never skipping one. Inspired by the ten-step progressions shared on r/bodyweightfitness; the steps and wording are our own.',
+      'Six exercises, each with its own ten-step ladder from an easy variation up to a one-arm or one-leg version. The days rotate: push-up and leg raise, pull-up and squat, handstand push-up and bridge. Each step has its own rep range, so steps early on ask for more reps and later steps for fewer. Hit your target on every set and the next session asks for one more rep; hit the top of the range on every set and you move up one step, never skipping one. Inspired by the ten-step progressions shared on r/bodyweightfitness; the steps and wording are our own.',
     status: 'experimental',
     category: 'calisthenics',
     plugins: [],
@@ -574,7 +574,7 @@ export const PLANS: PlanDefinition[] = [
     name: 'Skill Track',
     summary: '3 days · Handstand, front lever, L-sit, planche and muscle-up holds',
     description:
-      'A short skill session meant to run beside another program. Day A works the handstand, front lever and L-sit; day B works the handstand again, the planche and the muscle-up. Holds run for 10 to 30 seconds (shorter ranges on the hardest steps): reach the top of the range on every set and the hold target grows by five seconds, then you move to the next harder variation. Muscle-up steps count reps. Skills lean on community progressions such as those shared on r/bodyweightfitness; the steps and wording are our own.',
+      'A short skill session meant to run beside another program. Day A works the handstand, front lever and L-sit; day B works the handstand again, the planche and the muscle-up. Holds run for 10 to 30 seconds (shorter ranges on the hardest steps): hit your target on every set and the next session asks for five seconds more; hit the top of the range on every set and you move to the next harder variation. Muscle-up steps count reps. Skills lean on community progressions such as those shared on r/bodyweightfitness; the steps and wording are our own.',
     status: 'experimental',
     category: 'skills',
     plugins: [],
@@ -607,7 +607,7 @@ export const PLANS: PlanDefinition[] = [
     name: 'Hybrid',
     summary: 'A/B days · Squat or deadlift with pull-up, dip or row, push-up and a core ladder',
     description:
-      'Barbell and bodyweight in one program. Day A is the squat with pull-up, dip and anti-extension core ladders; day B is the deadlift with row, push-up and the same core ladder. The barbell lifts are two sets of five with the last set as many reps as possible: five or more adds weight, ten or more adds double. The bodyweight lifts climb their ladders, and the pull-up, dip and push-up ladders continue with added weight after their top step. Pairs a Greyskull-style barbell base with the bodyweight ladders popular on r/bodyweightfitness; the choice of exercises and wording are our own.',
+      'Barbell and bodyweight in one program. Day A is the squat with pull-up, dip and anti-extension core ladders; day B is the deadlift with row, push-up and the same core ladder. The barbell lifts are two sets of five with the last set as many reps as possible: five or more adds weight, ten or more adds double. The bodyweight lifts climb their ladders, and the pull-up, dip and push-up ladders continue with added weight after their top step. The core ladder is trained on both days, so it advances about twice as fast as the others. Pairs a Greyskull-style barbell base with the bodyweight ladders popular on r/bodyweightfitness; the choice of exercises and wording are our own.',
     status: 'experimental',
     category: 'calisthenics',
     plugins: [],

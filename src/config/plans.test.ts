@@ -206,3 +206,58 @@ describe('calisthenics plans', () => {
     }
   });
 });
+
+describe('ladder progression, as the plan descriptions say it', () => {
+  /** One all-success session: every set logged at its target. Returns the targets and the exercise. */
+  function sessionOf(exercise: string) {
+    const draft = startSession();
+    const { sets } = draft.results[exercise];
+    sets.forEach((set, j) => {
+      useStore.getState().logSet(exercise, j, set.target ?? 0);
+    });
+    useStore.getState().finishSession();
+    return sets.map((set) => set.target);
+  }
+
+  test('meeting every set raises the target by one rep, and only the top of the range unlocks the next step', () => {
+    useStore.setState({ ...initialState(), hydrated: true });
+    setProgram(getPlan('recommended-routine')!.program);
+    // The squat ladder uses the slot's 3x5-8 on every step.
+    const first = getLadder('rr_squat')!.steps;
+    const seen: [string, (number | null)[]][] = [];
+    for (let i = 0; i < 8; i++) {
+      const exercise = first[lifts().rr_squat?.step ?? 0].exercise;
+      seen.push([exercise, sessionOf(exercise)]);
+    }
+    const targets = (reps: number) => [reps, reps, reps];
+    expect(seen.map(([e, t]) => [e, t])).toEqual([
+      [first[0].exercise, targets(5)],
+      [first[0].exercise, targets(6)],
+      [first[0].exercise, targets(7)],
+      [first[0].exercise, targets(8)],
+      [first[1].exercise, targets(5)],
+      [first[1].exercise, targets(6)],
+      [first[1].exercise, targets(7)],
+      [first[1].exercise, targets(8)],
+    ]);
+  });
+
+  test('a hold target grows by five seconds up to the top of its range, then the next variation starts', () => {
+    useStore.setState({ ...initialState(), hydrated: true });
+    setProgram(getPlan('skill-track')!.program);
+    const steps = getLadder('skill_handstand')!.steps;
+    const seen: [string, number | null][] = [];
+    for (let i = 0; i < 6; i++) {
+      const exercise = steps[lifts().skill_handstand?.step ?? 0].exercise;
+      seen.push([exercise, sessionOf(exercise)[0]]);
+    }
+    expect(seen).toEqual([
+      [steps[0].exercise, 10],
+      [steps[0].exercise, 15],
+      [steps[0].exercise, 20],
+      [steps[0].exercise, 25],
+      [steps[0].exercise, 30],
+      [steps[1].exercise, 20],
+    ]);
+  });
+});
