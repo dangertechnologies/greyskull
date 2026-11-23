@@ -116,8 +116,9 @@ describe('persist migration', () => {
     expect(CATALOG_VERSION).toBeGreaterThan(0);
   });
 
-  test('garbage input migrates to a usable state', () => {
-    expect(migratePersisted(null, 1).unit).toBe('kg');
+  test('stored data that is not a state is refused; missing fields get defaults', () => {
+    // Replacing unrecognisable data with defaults would let the next save overwrite it.
+    for (const garbage of [null, 'x', [], 3]) expect(() => migratePersisted(garbage, 1)).toThrow(/damaged/);
     expect(
       migratePersisted({ unit: 'lb', inventory: { barKg: 15 } }, 2).inventory.platesKg.length,
     ).toBeGreaterThan(0);
@@ -193,4 +194,55 @@ test('optional engine fields and seven training days survive a backup round-trip
   state.programs[0].lifts['BARBELL_SQUAT@T2'].stage = 0;
   state.programs[0].sessionsPerWeek = 8;
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
+});
+
+describe('a damaged backup is refused, never thrown', () => {
+  const current = () => {
+    useStore.setState({ ...initialState(), hydrated: true });
+    setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
+    return JSON.parse(get().exportJson());
+  };
+  // biome-ignore lint/suspicious/noExplicitAny: tests mutate arbitrary JSON
+  test.each<[string, (s: any) => void]>([
+    ['a saved plan that is null', (s) => (s.customPlans = [null])],
+    ['a saved plan without a program', (s) => (s.customPlans = [{ id: 'x', name: 'X' }])],
+    ['a program without rules', (s) => delete s.programs[0].rules],
+    ['a program whose days are not a list', (s) => (s.programs[0].days = {})],
+    ['a day without slots', (s) => delete s.programs[0].days[0].slots],
+    ['a slot that is null', (s) => (s.programs[0].days[0].slots = [null])],
+    ['lifts that are a list', (s) => (s.programs[0].lifts = [])],
+    ['exercises with a null entry', (s) => (s.exercises.BENCH_PRESS = null)],
+    [
+      'a one-program backup whose program has no rules',
+      (s) => {
+        s.version = 2;
+        s.program = { ...s.programs[0], rules: undefined };
+        s.lifts = {};
+        delete s.programs;
+      },
+    ],
+  ])('%s', (_name, mutate) => {
+    const data = current();
+    mutate(data);
+    let result: ReturnType<typeof parseBackup> | undefined;
+    expect(() => {
+      result = parseBackup(JSON.stringify(data));
+    }).not.toThrow();
+    expect(result?.ok).toBe(false);
+  });
+});
+
+test("a one-program backup's built-in exercises take the shipped abbreviation", () => {
+  useStore.setState({ ...initialState(), hydrated: true });
+  setProgram(JSON.parse(JSON.stringify(TEMPLATES.base)) as Program);
+  const data = JSON.parse(get().exportJson());
+  data.version = 2;
+  data.program = data.programs[0];
+  data.lifts = data.programs[0].lifts;
+  delete data.programs;
+  data.exercises.BENCH_PRESS = { ...get().exercises.BENCH_PRESS, abbr: 'OLD', increment: { kg: 1, lb: 2 } };
+  const r = parseBackup(JSON.stringify(data));
+  if (!r.ok) throw new Error(r.error);
+  expect(r.state.exercises.BENCH_PRESS.abbr).toBe(get().exercises.BENCH_PRESS.abbr);
+  expect(r.state.exercises.BENCH_PRESS.increment).toEqual({ kg: 1, lb: 2 });
 });

@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { File } from 'expo-file-system';
 import {
   lifts,
   program,
@@ -477,8 +478,15 @@ describe('persistence and migration', () => {
     setProgram(baseProgram());
     await storage.flush();
     expect(files.get(stateFile().uri)).toBe('{"state": {broken');
-    // Restoring a backup is the way out; the unreadable file is kept aside.
-    get().importBackup({ ...initialState(), unit: 'lb' });
+    // Restoring a backup is the way out once the unreadable file is kept aside; if that copy fails, the
+    // recovery screen stays and nothing is written.
+    const copy = jest.spyOn(File.prototype, 'copy').mockRejectedValueOnce(new Error('disk full'));
+    await get().importBackup({ ...initialState(), unit: 'kg', minimalist: true });
+    await storage.flush();
+    expect(get().storageError).toMatch(/disk full/);
+    expect(files.get(stateFile().uri)).toBe('{"state": {broken');
+    copy.mockRestore();
+    await get().importBackup({ ...initialState(), unit: 'lb' });
     await storage.flush();
     expect(get().storageError).toBeNull();
     expect(stored()?.state.unit).toBe('lb');
