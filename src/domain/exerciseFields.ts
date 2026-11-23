@@ -62,7 +62,7 @@ export function withUserFields(shipped: Exercise, stored: Record<string, unknown
   );
   const out: Record<string, unknown> = { ...shipped };
   for (const f of USER_FIELDS) {
-    if (!(f in stored) || stored[f] === undefined) continue;
+    if (!Object.hasOwn(stored, f) || stored[f] === undefined) continue;
     const value = stored[f];
     if (value === null) delete out[f];
     else if (f === 'increment' && whole && shipped.kind === 'bodyweight' && isZeroIncrement(value)) continue;
