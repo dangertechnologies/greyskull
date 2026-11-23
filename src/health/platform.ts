@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { Linking, Platform } from 'react-native';
 import type { Permission } from './status';
 import type { HealthPlatform } from './sync';
@@ -12,6 +13,8 @@ function appleHealth(): HealthPlatform {
   const hk = () =>
     require('@kingstinct/react-native-healthkit') as typeof import('@kingstinct/react-native-healthkit');
   const permission = async (): Promise<Permission> => {
+    // A build made without the HealthKit entitlement must not call into HealthKit at all.
+    if (Constants.expoConfig?.extra?.healthKit === false) return 'unavailable';
     const m = hk();
     if (!m.isHealthDataAvailable()) return 'unavailable';
     // `AuthorizationStatus`: 0 not asked, 1 denied, 2 allowed (for write access this answer is exact).
