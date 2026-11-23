@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Ladder, ResolvedSlot, SessionLog } from '../domain';
 import { getLadder, stepIn } from '../domain';
@@ -38,6 +38,7 @@ export function LadderPanel({
   compact?: boolean;
 }) {
   const t = useTheme();
+  const { fontScale } = useWindowDimensions();
   const exercises = useStore((s) => s.exercises);
   const setLiftStep = useStore((s) => s.setLiftStep);
   const found = ladderSlot(draft, exerciseId);
@@ -53,8 +54,9 @@ export function LadderPanel({
 
   const buttons = (
     <View style={{ gap: t.space[2] }}>
-      <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-        <View style={{ flex: 1 }}>
+      {/* Side by side, stacked when large text would break the words. */}
+      <View style={{ flexDirection: fontScale > 1.3 ? 'column' : 'row', gap: t.space[3] }}>
+        <View style={{ flex: fontScale > 1.3 ? undefined : 1 }}>
           <Button
             title="Easier"
             icon="down"
@@ -65,7 +67,7 @@ export function LadderPanel({
             onPress={() => move(step - 1)}
           />
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: fontScale > 1.3 ? undefined : 1 }}>
           <Button
             title="Harder"
             icon="up"
