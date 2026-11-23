@@ -58,3 +58,10 @@ Support: https://dangertechnologies.github.io/greyskull/support.html
 
 ## What's new
 Fixed weights jumping to huge numbers. Edit any weight at any time. Correct Greyskull LP days and exercise order. New: custom rest timer, projections, custom exercises, minimalist mode, back and Finish buttons, home-screen widget. kg and lb both work with your real plates.
+
+## Privacy notes (Health)
+- Health sync is opt-in (Settings, Health). When on, each finished workout is written to Apple Health (iOS) or Health Connect (Android) on the device: start, end, title and type only.
+- Write-only: the app never reads from Health. iOS permission: workouts (write). Android permission: `android.permission.health.WRITE_EXERCISE`.
+- Nothing leaves the device because of it, so App Privacy stays "Data Not Collected" and Play Data safety stays "no data collected, none shared".
+- Play Console needs the Health Connect permissions declaration for `WRITE_EXERCISE`: purpose "save the user's finished workouts to Health Connect", no reads, no sharing. Privacy policy URL: https://dangertechnologies.github.io/greyskull/privacy.html
+- iOS usage strings (app.json): update "Greyskull saves your finished workouts to Apple Health."; share "Greyskull does not read your health data."
