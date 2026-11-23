@@ -1,19 +1,17 @@
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { AccessibilityInfo } from 'react-native';
 import { haptics } from '../design/haptics';
 import type { Group } from '../domain';
 import { nameOf } from '../format';
 import type { SessionApi, SessionItem } from '../hooks/useSession';
-import { cancelTimerAlerts, ensureRestAlertPermission, scheduleTimerAlerts } from '../restAlert';
+import { ensureRestAlertPermission } from '../restAlert';
 import { useStore } from '../store';
-import { endRestActivity, showTimerActivity } from '../widgets';
+import { targetText, timerStepLabel } from '../views/groupText';
 import {
-  boundaries,
   buzzes,
   end,
   isPaused,
-  nextBoundaryAt,
   pause,
   planOf,
   positionAt,
@@ -23,9 +21,9 @@ import {
   type TimerAnchor,
   type TimerPosition,
 } from './clock';
-import { anchorOf, useTimers } from './store';
+import { anchorOf, type TimerBlock, useTimers } from './store';
 
-const KEEP_AWAKE_TAG = 'workout-timer';
+export const KEEP_AWAKE_TAG = 'workout-timer';
 
 export interface GroupTimer {
   group: Group;
@@ -37,22 +35,18 @@ export interface GroupTimer {
   paused: boolean;
   /** Notifications are off: said once, the first time a timer starts. */
   deniedNotice: boolean;
-  start(): void;
+  start(): Promise<void>;
   pause(): void;
   resume(): void;
   skip(): void;
   end(): void;
 }
 
-/** "Minute 4 of 10", "Round 3 of 8". */
-export const stepLabel = (group: Group, step: number, steps: number): string =>
-  `${group.kind === 'emom' ? 'Minute' : 'Round'} ${step + 1} of ${steps}`;
-
 /**
- * An EMOM or interval timer for one group of the open workout. Its position comes from anchors persisted
- * outside the workout log (see ./store), so leaving the screen, a suspended app or a relaunch lands on the
- * same minute. While the screen is open: buzzes at every boundary, keeps the screen awake, and shows the
- * countdown in the Live Activity. In the background, local notifications mark the boundaries.
+ * An EMOM or interval timer for one group of the open workout, as the timer screen sees it. Its position comes
+ * from anchors persisted outside the workout log (see ./store), so leaving the screen, a suspended app or a
+ * relaunch lands on the same minute. While the screen is open it buzzes and announces every boundary and keeps
+ * the screen awake (not while paused). Alerts and the Live Activity belong to the app-level owner (./owner).
  */
 export function useGroupTimer(session: SessionApi, groupId: string): GroupTimer | null {
   const n = session.draft.n;
@@ -64,7 +58,6 @@ export function useGroupTimer(session: SessionApi, groupId: string): GroupTimer 
   );
   const anchor = useTimers((s) => anchorOf(s, n, groupId));
   const setAnchor = useTimers((s) => s.setAnchor);
-  const toldDenied = useTimers((s) => s.toldDenied);
   const exercises = useStore((s) => s.exercises);
   const [deniedNotice, setDeniedNotice] = useState(false);
 
@@ -78,12 +71,12 @@ export function useGroupTimer(session: SessionApi, groupId: string): GroupTimer 
   const position = anchor ? positionAt(plan, anchor, now) : null;
 
   const update = useCallback(
-    (next: (a: TimerAnchor | undefined, at: number) => TimerAnchor | undefined) => {
+    (next: (a: TimerAnchor | undefined, at: number) => TimerAnchor | undefined, block?: TimerBlock) => {
       const at = Date.now();
       setNow(at);
       const current = anchorOf(useTimers.getState(), n, groupId);
       const changed = next(current, at);
-      if (changed && changed !== current) setAnchor(n, groupId, changed);
+      if (changed && changed !== current) setAnchor(n, groupId, changed, block);
     },
     [n, groupId, setAnchor],
   );
@@ -94,83 +87,43 @@ export function useGroupTimer(session: SessionApi, groupId: string): GroupTimer 
     if (done) update((a, at) => (a ? end(a, at) : a));
   }, [done, update]);
 
-  // One buzz per boundary crossed while the screen is open; the first look after a relaunch stays quiet.
+  const name = (item: SessionItem | undefined) => (item ? nameOf(exercises, item.exerciseId) : '');
+  // One buzz and one spoken line per boundary crossed while the screen is open; a relaunch stays quiet.
   const last = useRef<TimerPosition | null>(null);
   useEffect(() => {
-    if (position && buzzes(last.current, position)) haptics.success();
+    if (position && buzzes(last.current, position)) {
+      haptics.success();
+      const item = steps[position.step]?.item;
+      const said = position.done
+        ? 'Timer done'
+        : position.phase === 'rest'
+          ? `Rest, ${position.remainingS} seconds`
+          : item?.group
+            ? `${timerStepLabel(item.group)}, ${name(item)}, ${targetText(item)}`
+            : '';
+      if (said) AccessibilityInfo.announceForAccessibility(said);
+    }
     last.current = position;
   });
 
-  // The screen stays awake while a timer screen is open and its timer has not ended.
-  const ended = anchor?.endedAt !== undefined;
+  // The screen stays awake while a timer screen is open and its timer runs (or has not started yet).
+  const awake = !anchor || running;
   useEffect(() => {
-    if (ended) return undefined;
+    if (!awake) return undefined;
     void activateKeepAwakeAsync(KEEP_AWAKE_TAG).catch(() => undefined);
     return () => void deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => undefined);
-  }, [ended]);
-
-  const name = (item: SessionItem | undefined) => (item ? nameOf(exercises, item.exerciseId) : '');
-  const step = position?.step ?? 0;
-  const current = steps[step]?.item;
-  const nextItem = steps[step + 1]?.item;
-  const kicker = group ? stepLabel(group, step, steps.length).toUpperCase() : '';
-  const resting = position?.phase === 'rest';
-  const label = resting
-    ? `Rest, then ${nextItem ? name(nextItem) : 'done'}`
-    : nextItem
-      ? `Next: ${name(nextItem)}`
-      : 'Last one';
-
-  // Live Activity: the countdown to the next boundary, refreshed at each boundary and on pause or resume.
-  const activityKey =
-    anchor && !ended ? `${step}:${position?.phase}:${isPaused(anchor)}:${anchor.skipMs}` : null;
-  const activityRef = useRef({ kicker, title: resting ? 'Rest' : name(current), label });
-  activityRef.current = { kicker, title: resting ? 'Rest' : name(current), label };
-  useEffect(() => {
-    const a = anchorOf(useTimers.getState(), n, groupId);
-    if (activityKey === null || !a) {
-      endRestActivity();
-      return;
-    }
-    const at = Date.now();
-    showTimerActivity({
-      ...activityRef.current,
-      startsAt: at,
-      endsAt: nextBoundaryAt(plan, a, at),
-      ...(isPaused(a) ? { pausedAt: at } : {}),
-    });
-  }, [activityKey, n, groupId, plan]);
-  useEffect(() => endRestActivity, []);
-
-  // Notifications at the boundaries only while the app is in the background; back in front they are cancelled.
-  const alertText = useRef<(b: ReturnType<typeof boundaries>[number]) => { title: string; body: string }>(
-    () => ({ title: '', body: '' }),
-  );
-  alertText.current = (b) => {
-    if (!group) return { title: '', body: '' };
-    if (b.phase === 'done') return { title: 'Timer done', body: 'On to the rest of your workout.' };
-    if (b.phase === 'rest') return { title: 'Rest', body: `${plan.restS} s` };
-    const item = steps[b.step]?.item;
-    return {
-      title: stepLabel(group, b.step, steps.length),
-      body: item
-        ? `${name(item)} · ${item.timed ? `${item.targetReps} s` : `${item.targetReps ?? 'max'} reps`}`
-        : '',
-    };
-  };
-  useEffect(() => {
-    void cancelTimerAlerts(); // stale ones from before a relaunch
-    const sub = AppState.addEventListener('change', (status) => {
-      const a = anchorOf(useTimers.getState(), n, groupId);
-      if (status === 'background' && a) {
-        const list = boundaries(plan, a, Date.now()).map((b) => ({ inS: b.inS, ...alertText.current(b) }));
-        if (list.length > 0) void scheduleTimerAlerts(list);
-      } else if (status === 'active') void cancelTimerAlerts();
-    });
-    return () => sub.remove();
-  }, [n, groupId, plan]);
+  }, [awake]);
 
   if (!group) return null;
+  const block: TimerBlock = {
+    kind: group.kind === 'emom' ? 'emom' : 'interval',
+    plan,
+    steps: steps.map(({ item }) => ({
+      label: item.group ? timerStepLabel(item.group) : '',
+      name: name(item),
+      target: targetText(item),
+    })),
+  };
   return {
     group,
     steps,
@@ -178,20 +131,18 @@ export function useGroupTimer(session: SessionApi, groupId: string): GroupTimer 
     position,
     paused: !!anchor && isPaused(anchor),
     deniedNotice,
-    start: () => {
-      update((a, at) => a ?? start(at));
-      void ensureRestAlertPermission().then((granted) => {
-        if (granted || toldDenied) return;
+    // Ask for notifications first, so the clock does not start behind the system dialog.
+    start: async () => {
+      const granted = await ensureRestAlertPermission();
+      if (!granted && !useTimers.getState().toldDenied) {
         setDeniedNotice(true);
         useTimers.getState().setToldDenied();
-      });
+      }
+      update((a, at) => a ?? start(at), block);
     },
     pause: () => update((a, at) => (a ? pause(a, at) : a)),
     resume: () => update((a, at) => (a ? resume(a, at) : a)),
     skip: () => update((a, at) => (a ? skip(plan, a, at) : a)),
-    end: () => {
-      void cancelTimerAlerts();
-      update((a, at) => end(a ?? start(at), at));
-    },
+    end: () => update((a, at) => end(a ?? start(at), at), block),
   };
 }

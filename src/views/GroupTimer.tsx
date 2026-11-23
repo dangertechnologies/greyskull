@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { Alert, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../design/theme';
 import { nameOf, weightLabel } from '../format';
 import type { SessionApi } from '../hooks/useSession';
 import { useStore } from '../store';
-import { stepLabel, useGroupTimer } from '../timers/useGroupTimer';
+import { useGroupTimer } from '../timers/useGroupTimer';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
 import { BottomBar, useGutter } from '../ui/layout';
 import { NumberStepper } from '../ui/NumberStepper';
 import { Card } from '../ui/Surface';
 import { Text } from '../ui/Text';
-import { groupTitle, targetText } from './groupText';
+import { groupTitle, targetText, timerStepLabel } from './groupText';
 import { clockLabel } from './HoldDial';
 
 const BASE_SIZE = 220;
@@ -48,7 +48,9 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
     ? current.item.reps
     : (current?.item.targetReps ?? current?.item.minReps ?? 5);
   const [reps, setReps] = useState(defaultReps);
-  useEffect(() => setReps(defaultReps), [defaultReps]);
+  // A new minute or round starts from its own target, even when it is the same number.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on every step
+  useEffect(() => setReps(defaultReps), [defaultReps, step]);
 
   if (!timer) return null;
   const { group, steps, position, paused } = timer;
@@ -56,6 +58,32 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
   const emom = group.kind === 'emom';
   const heading = emom ? `EMOM ${steps.length}` : `${group.workS ?? 0} s / ${group.restS ?? 0} s`;
   const name = (id: string) => nameOf(exercises, id);
+  const label = (i: number) => {
+    const g = steps[i]?.item.group;
+    return g ? timerStepLabel(g) : '';
+  };
+  const members = [...new Set(steps.map((s) => s.item.exerciseId))];
+  // Ending or skipping a block cannot be undone; skipping also keeps its exercises' progression as it is.
+  const confirm = (title: string, message: string, action: string, run: () => void) =>
+    Alert.alert(title, message, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: action, style: 'destructive', onPress: run },
+    ]);
+  const skipBlock = () =>
+    confirm(
+      'Skip this block?',
+      'Its sets stay empty and these exercises keep their progression as it is.',
+      'Skip block',
+      () => {
+        const { skipExercise } = useStore.getState();
+        for (const id of members) skipExercise(id);
+        timer.end();
+      },
+    );
+  const endEarly = () =>
+    confirm('End the timer now?', 'Sets you have not logged count as missed.', 'End early', timer.end);
+  // The rest of the workout first: the first open set outside this block.
+  const later = session.items.findIndex((i) => !i.logged && i.kind !== 'warmup' && i.group?.id !== groupId);
   const detail = (i: (typeof steps)[number]['item']) => {
     const weight = weightLabel(i.weightKg, exercises[i.exerciseId], unit).trim();
     return [targetText(i), weight].filter(Boolean).join(' · ');
@@ -88,7 +116,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
             {groupTitle(group, letter, steps.length)}
           </Text>
           <Text variant="title" accessibilityRole="header">
-            {emom ? `Every minute for ${steps.length} minutes` : `${steps.length} rounds`}
+            {emom ? `Every minute for ${steps.length} minutes` : `${group.rounds ?? steps.length} rounds`}
           </Text>
           <Text color="textMuted">
             {emom
@@ -96,7 +124,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
               : `Work ${group.workS ?? 0} s, rest ${group.restS ?? 0} s, every round. Log each round as you go.`}
           </Text>
           <Card style={{ gap: t.space[3] }}>
-            {[...new Set(steps.map((s) => s.item.exerciseId))].map((id) => {
+            {members.map((id) => {
               const first = steps.find((s) => s.item.exerciseId === id);
               return first ? (
                 <View key={id} style={{ flexDirection: 'row', gap: t.space[3], alignItems: 'baseline' }}>
@@ -117,7 +145,15 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
             testID="timer-start"
             onPress={timer.start}
           />
-          <Button title="Skip this block" variant="plain" testID="timer-skip-block" onPress={timer.end} />
+          {later >= 0 ? (
+            <Button
+              title="Do it later"
+              variant="secondary"
+              testID="timer-later"
+              onPress={() => session.select(later)}
+            />
+          ) : null}
+          <Button title="Skip this block" variant="plain" testID="timer-skip-block" onPress={skipBlock} />
         </BottomBar>
       </View>
     );
@@ -132,15 +168,15 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
   const nextLine = resting
     ? next
       ? {
-          lead: stepLabel(group, step + 1, steps.length),
+          lead: label(step + 1),
           rest: `${name(next.item.exerciseId)} · ${detail(next.item)}`,
         }
       : { lead: 'Done', rest: 'then the rest of your workout' }
     : !emom && (group.restS ?? 0) > 0
-      ? { lead: `Rest ${group.restS} s`, rest: next ? `then round ${step + 2}` : 'then done' }
+      ? { lead: `Rest ${group.restS} s`, rest: next ? `then ${name(next.item.exerciseId)}` : 'then done' }
       : next
         ? {
-            lead: `${stepLabel(group, step + 1, steps.length).split(' of ')[0]} · ${name(next.item.exerciseId)}`,
+            lead: `${label(step + 1).split(' of ')[0]} · ${name(next.item.exerciseId)}`,
             rest: detail(next.item),
           }
         : { lead: 'Last one', rest: 'then the rest of your workout' };
@@ -159,7 +195,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
       >
         <View style={{ alignItems: 'center', gap: t.space[2], paddingTop: t.space[4] }}>
           <Text variant="label" color="textMuted" testID="timer-step">
-            {stepLabel(group, step, steps.length)}
+            {label(step)}
           </Text>
           <Text variant="title" align="center" accessibilityRole="header">
             {resting ? 'Rest' : current ? name(current.item.exerciseId) : ''}
@@ -274,7 +310,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
               format={current.item.timed ? (v) => `${v} s` : String}
               onChange={setReps}
             />
-            <Button title="End early" variant="destructive" testID="timer-end" onPress={timer.end} />
+            <Button title="End early" variant="destructive" testID="timer-end" onPress={endEarly} />
           </View>
         ) : null}
       </ScrollView>

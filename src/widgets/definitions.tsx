@@ -59,7 +59,7 @@ function restLayout(props: TimerProps) {
     banner: (
       <VStack alignment="leading" spacing={2} modifiers={[padding({ all: 14 })]}>
         <Text modifiers={[font({ size: 12, weight: 'semibold' }), foregroundStyle('secondary')]}>
-          {kicker}
+          {props.pausedAt ? `${kicker} · PAUSED` : kicker}
         </Text>
         {props.title ? <Text modifiers={[font({ size: 17, weight: 'semibold' })]}>{props.title}</Text> : null}
         {timer(34)}

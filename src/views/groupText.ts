@@ -8,11 +8,12 @@ const KIND: Record<Group['kind'], string> = {
   interval: 'Interval',
 };
 
+/** "Minute 4 of 10" (an EMOM counts minutes), "Round 2 of 4" (every other kind counts rounds). */
+export const timerStepLabel = (g: ItemGroup): string =>
+  g.kind === 'emom' ? `Minute ${g.step + 1} of ${g.steps}` : `Round ${g.round} of ${g.rounds}`;
+
 /** "Superset · Round 2 of 3", "EMOM · Minute 4 of 10". */
-export const roundLabel = (g: ItemGroup): string =>
-  g.kind === 'emom'
-    ? `EMOM · Minute ${g.step + 1} of ${g.steps}`
-    : `${KIND[g.kind]} · Round ${g.kind === 'interval' ? g.step + 1 : g.round} of ${g.kind === 'interval' ? g.steps : g.rounds}`;
+export const roundLabel = (g: ItemGroup): string => `${KIND[g.kind]} · ${timerStepLabel(g)}`;
 
 /** The header above a group's exercises: "Superset A · rest 90 s after each round". */
 export function groupTitle(group: Group, letter: string, steps: number): string {
@@ -21,7 +22,7 @@ export function groupTitle(group: Group, letter: string, steps: number): string 
   if (group.kind === 'superset') return `${name} · ${rest} after each round`;
   if (group.kind === 'circuit') return `${name} · ${group.rounds ?? 0} rounds · ${rest} after each round`;
   if (group.kind === 'emom') return `${name} · ${steps} minutes, one set each minute`;
-  return `${name} · ${steps} rounds · ${group.workS ?? 0} s work, ${group.restS ?? 0} s rest`;
+  return `${name} · ${group.rounds ?? 0} rounds · ${group.workS ?? 0} s work, ${group.restS ?? 0} s rest`;
 }
 
 /** "12 reps", "30 s", "max reps". */

@@ -105,4 +105,5 @@ test('the same live activity shows an EMOM minute: exercise, minute x of n, coun
   ) as Record<string, Node>;
   expect((paused.compactTrailing.props.pauseTime as Date).getTime()).toBe(5000);
   expect(texts(paused.compactLeading)).toEqual(['Paused']);
+  expect(texts(paused.banner)[0]).toBe('MINUTE 4 OF 10 · PAUSED');
 });

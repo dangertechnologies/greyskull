@@ -75,7 +75,7 @@ export default function SessionScreen() {
   if (draftN === null && (n !== nextSession || !params.program)) return <Redirect href="/" />;
   if (!session || !timersReady) return null;
   if (shown && isTimerKind(shown.kind) && !timerEnded)
-    return <GroupTimer session={session} groupId={shown.id} onBack={() => goBackOr('/')} />;
+    return <GroupTimer key={shown.id} session={session} groupId={shown.id} onBack={() => goBackOr('/')} />;
 
   const Session = minimalist ? SessionMinimal : SessionImmersive;
   return (
