@@ -5,6 +5,7 @@ import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { AppIntentsBridge } from './Bridge';
 
+const mockPathname = jest.fn(() => '/');
 const mockModule = {
   isAvailable: jest.fn(() => true),
   setEntityCatalogAsync: jest.fn(async () => undefined),
@@ -15,13 +16,15 @@ const mockModule = {
 };
 jest.mock('expo-app-intents', () => mockModule);
 jest.mock('expo-router', () => ({
-  router: { push: jest.fn() },
+  router: { navigate: jest.fn(), push: jest.fn() },
   useRootNavigationState: () => ({ key: 'ready' }),
+  usePathname: () => mockPathname(),
 }));
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockModule.isAvailable.mockReturnValue(true);
+  mockPathname.mockReturnValue('/');
   useStore.setState({ ...initialState(), hydrated: true });
 });
 
@@ -48,8 +51,9 @@ describe('AppIntentsBridge', () => {
     await act(async () => {
       live(invocation);
     });
-    expect(router.push).toHaveBeenCalledTimes(1);
-    expect(router.push).toHaveBeenCalledWith('/generate/describe?text=dips');
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith('/generate/describe?text=dips');
     expect(mockModule.removePendingInvocationAsync).toHaveBeenCalledWith('i1');
   });
 
@@ -63,18 +67,56 @@ describe('AppIntentsBridge', () => {
   });
 
   test('publishes the next workout and the programs once the store has loaded, and again on a change', async () => {
-    render(<AppIntentsBridge />);
-    await act(async () => undefined);
-    expect(mockModule.setEntityCatalogAsync).toHaveBeenCalledWith('nextWorkout', expect.any(Array));
-    expect(mockModule.setEntityCatalogAsync).toHaveBeenCalledWith('program', []);
-    mockModule.setEntityCatalogAsync.mockClear();
-    await act(async () => {
-      useStore.setState({ programs: [active(TEMPLATES.base, 0, {})] });
+    jest.useFakeTimers();
+    try {
+      render(<AppIntentsBridge />);
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(0);
+      });
+      expect(mockModule.setEntityCatalogAsync).toHaveBeenCalledWith('nextWorkout', expect.any(Array));
+      expect(mockModule.setEntityCatalogAsync).toHaveBeenCalledWith('program', []);
+      mockModule.setEntityCatalogAsync.mockClear();
+      await act(async () => {
+        useStore.setState({ programs: [active(TEMPLATES.base, 0, {})] });
+        await jest.advanceTimersByTimeAsync(300);
+      });
+      expect(mockModule.setEntityCatalogAsync).toHaveBeenCalledWith(
+        'program',
+        expect.arrayContaining([expect.objectContaining({ title: 'Test program' })]),
+      );
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('two quick requests for the same session open it through navigate, never a second push', async () => {
+    useStore.setState({ programs: [active(TEMPLATES.base, 0, {})] });
+    const ask = (id: string) => ({
+      id,
+      name: 'startWorkout',
+      params: { programId: 'test' },
+      createdAt: Date.now(),
     });
-    expect(mockModule.setEntityCatalogAsync).toHaveBeenCalledWith(
-      'program',
-      expect.arrayContaining([expect.objectContaining({ title: 'Test program' })]),
-    );
+    render(<AppIntentsBridge />);
+    const live = mockModule.addAppIntentListener.mock.calls[0][0];
+    await act(async () => {
+      live(ask('1'));
+      live(ask('2'));
+    });
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith('/session/0?program=test');
+  });
+
+  test('already on that session: nothing is opened', async () => {
+    useStore.setState({ programs: [active(TEMPLATES.base, 0, {})] });
+    mockPathname.mockReturnValue('/session/0');
+    render(<AppIntentsBridge />);
+    const live = mockModule.addAppIntentListener.mock.calls[0][0];
+    await act(async () => {
+      live({ id: '1', name: 'startWorkout', params: { programId: 'test' }, createdAt: Date.now() });
+    });
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(mockModule.removePendingInvocationAsync).toHaveBeenCalledWith('1');
   });
 
   test('does nothing when the native module is unavailable', async () => {
