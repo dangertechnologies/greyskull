@@ -111,6 +111,8 @@ test('garbage values in v1 workouts and weights are skipped or zeroed, never NaN
   v.workoutPlan = [
     null,
     { ...done, id: 1, completed: 'yesterday' },
+    // Past the last date JavaScript can hold: skipped, not a thrown RangeError on every launch.
+    { ...done, id: 7, completed: 9e15 },
     { ...done, id: 2, exercises: 'none' },
     {
       ...done,

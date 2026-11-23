@@ -102,8 +102,10 @@ export function migrateV1(
 
   const sessions: SessionLog[] = [];
   for (const workout of workoutPlan) {
-    // Only finished workouts with a real date become history (v1 stored epoch milliseconds).
-    if (!workout || !Number.isFinite(workout.completed) || !workout.completed) continue;
+    // Only finished workouts with a real date become history (v1 stored epoch milliseconds). A number past the
+    // last date a Date can hold is not one: it would make toISOString throw.
+    const time = typeof workout?.completed === 'number' ? new Date(workout.completed).getTime() : Number.NaN;
+    if (!workout || !time) continue;
     const results: Record<string, ExerciseResult> = {};
     const order: string[] = [];
     for (const e of Array.isArray(workout.exercises) ? workout.exercises : []) {
@@ -114,7 +116,7 @@ export function migrateV1(
       results[e.definition] = { weightKg, sets: [{ target: null, reps }] };
       order.push(e.definition);
     }
-    const when = new Date(workout.completed as number).toISOString();
+    const when = new Date(time).toISOString();
     sessions.push({ n: workout.id, dayName: '', startedAt: when, finishedAt: when, results, order });
   }
   // v1 ids are kept; a missing, broken or repeated one gets a new id after the highest (see normaliseSessionIds).
