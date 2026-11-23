@@ -83,3 +83,17 @@ test('subtitle: muscles, then the equipment in lower case', () => {
   );
   expect(subtitleOf(plain)).toBe('');
 });
+
+test('search works for any script and keeps letters like ø inside one word', () => {
+  const named = (name: string): Exercise => ({ ...plain, name, shortName: name });
+  const hit = (name: string, query: string) =>
+    filterExercises([named(name)], { ...EMPTY_FILTERS, query }).length === 1;
+  expect(hit('Жим лёжа', 'жим')).toBe(true);
+  expect(hit('Жим лёжа', 'лежа')).toBe(true); // ё loses its mark like an accent
+  expect(hit('腕立て伏せ', '腕立て')).toBe(true);
+  expect(hit('Bøg press', 'bøg')).toBe(true);
+  expect(hit('Bøg press', 'g')).toBe(false); // ø is a letter: "bøg" is one word, not "b" and "g"
+  expect(hit('Écarté', 'ecarte')).toBe(true);
+  expect(hit('ﬁsh curl', 'fish')).toBe(true); // compatibility forms fold too
+  expect(hit('Curl 21s', '21')).toBe(true);
+});

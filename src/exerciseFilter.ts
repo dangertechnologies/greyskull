@@ -77,12 +77,13 @@ export const EMPTY_FILTERS: ExerciseFilters = {
 export const filterCount = (f: ExerciseFilters): number =>
   f.equipment.length + f.muscles.length + f.patterns.length + (f.timed ? 1 : 0) + (f.onlyMine ? 1 : 0);
 
+/** Lower-case words of letters and digits in any script, with accents and compatibility forms folded (ﬁ → fi, é → e). */
 const words = (text: string): string[] =>
   text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
     .toLowerCase()
-    .split(/[^a-z0-9]+/)
+    .split(/[^\p{L}\p{N}]+/u)
     .filter(Boolean);
 
 const haystacks = new WeakMap<Exercise, string>();
