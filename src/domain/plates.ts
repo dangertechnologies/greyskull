@@ -137,34 +137,69 @@ export function smallestStep(inv: PlateInventory, unit: Unit): number {
 
 export const DEFAULT_STEP = { kg: 2, lb: 5 };
 
+/** The inventory with the exercise's own bar (an EZ bar) in place of the gym bar. */
+export function inventoryFor(exercise: Exercise, inv: PlateInventory): PlateInventory {
+  return exercise.barKg ? { ...inv, barKg: exercise.barKg.kg, barLb: exercise.barKg.lb } : inv;
+}
+
+type Mode = 'nearest' | 'ceil' | 'floor';
+
+/** Whole number of `step`s for `value`; a value within float noise of a multiple keeps it. */
+function stepsOf(value: number, step: number, mode: Mode): number {
+  const ratio = value / step;
+  const snapped = Math.round(ratio);
+  if (Math.abs(ratio - snapped) <= 1e-9) return snapped;
+  return mode === 'ceil' ? Math.ceil(ratio) : mode === 'floor' ? Math.floor(ratio) : snapped;
+}
+
+/**
+ * Added load for a bodyweight exercise (dip belt, vest): a multiple of the smallest single plate, never below 0.
+ * Without plates there is nothing to round to, so the load is left as it is.
+ */
+export function roundAddedLoad(kg: number, inv: PlateInventory, unit: Unit, mode: Mode = 'nearest'): number {
+  const plates = platesOf(inv, unit).filter((p) => p > 0);
+  const smallest = plates[plates.length - 1];
+  if (smallest === undefined) return kg;
+  return toKg(Math.max(0, stepsOf(toUnit(kg, unit), smallest, mode)) * smallest, unit);
+}
+
+/** The owned kettlebell for a weight; ties go to the lighter bell. Undefined when none are owned. */
+function pickKettlebell(kg: number, inv: PlateInventory, unit: Unit, mode: Mode): number | undefined {
+  const sizes = [...(unit === 'kg' ? inv.kettlebellsKg : inv.kettlebellsLb)].sort((a, b) => a - b);
+  if (sizes.length === 0) return undefined;
+  const value = toUnit(kg, unit);
+  const up = sizes.find((s) => s >= value - EPS) ?? sizes[sizes.length - 1];
+  const down = [...sizes].reverse().find((s) => s <= value + EPS) ?? sizes[0];
+  const chosen = mode === 'ceil' ? up : mode === 'floor' ? down : value - down <= up - value ? down : up;
+  return toKg(chosen, unit);
+}
+
 /** Round a weight the way the exercise's equipment allows. */
 export function roundForExercise(
   kg: number,
   exercise: Exercise,
-  mode: 'nearest' | 'ceil' | 'floor',
+  mode: Mode,
   inv: PlateInventory,
   unit: Unit,
 ): number {
   switch (exercise.kind) {
     case 'bodyweight':
-      return kg;
+      return roundAddedLoad(kg, inv, unit, mode);
     case 'barbell':
-      return pick(kg, inv, unit, mode);
-    case 'dumbbell':
-    case 'kettlebell':
-    case 'machine': {
-      const step = (exercise.step ?? DEFAULT_STEP)[unit];
-      const ratio = toUnit(kg, unit) / step;
-      const snapped = Math.round(ratio);
-      const n =
-        Math.abs(ratio - snapped) <= 1e-9
-          ? snapped
-          : mode === 'ceil'
-            ? Math.ceil(ratio)
-            : mode === 'floor'
-              ? Math.floor(ratio)
-              : Math.round(ratio);
-      return toKg(Math.max(n, 1) * step, unit);
+      return pick(kg, inventoryFor(exercise, inv), unit, mode);
+    case 'kettlebell': {
+      const bell = pickKettlebell(kg, inv, unit, mode);
+      if (bell !== undefined) return bell;
+      // No owned sizes: round to the exercise's step like a dumbbell.
+      return stepRound(kg, exercise, mode, unit);
     }
+    case 'dumbbell':
+    case 'machine':
+      return stepRound(kg, exercise, mode, unit);
   }
+}
+
+function stepRound(kg: number, exercise: Exercise, mode: Mode, unit: Unit): number {
+  const step = (exercise.step ?? DEFAULT_STEP)[unit];
+  return toKg(Math.max(stepsOf(toUnit(kg, unit), step, mode), 1) * step, unit);
 }

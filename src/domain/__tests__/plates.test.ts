@@ -3,9 +3,11 @@ import {
   ceilLoadableKg,
   floorLoadableKg,
   formatPlates,
+  inventoryFor,
   loadable,
   nearestLoadableKg,
   platesPerSide,
+  roundAddedLoad,
   roundForExercise,
   smallestStep,
 } from '../plates';
@@ -84,14 +86,68 @@ test('loadable() memoises and lists bar first', () => {
 describe('roundForExercise', () => {
   const ex = builtInExercises();
   const dumbbell = { ...ex.CURLS, kind: 'dumbbell' as const };
-  test('barbell uses plates; bodyweight is untouched', () => {
+  test('barbell uses plates; bodyweight added load uses single plates', () => {
     expect(roundForExercise(61, ex.BENCH_PRESS, 'ceil', inv, 'kg')).toBe(62.5);
-    expect(roundForExercise(61, ex.CHINUPS, 'ceil', inv, 'kg')).toBe(61);
+    expect(roundForExercise(61, ex.CHINUPS, 'ceil', inv, 'kg')).toBe(61.25);
+    expect(roundForExercise(0, ex.CHINUPS, 'nearest', inv, 'kg')).toBe(0);
+  });
+
+  const bell = { ...ex.CURLS, kind: 'kettlebell' as const };
+  type Bell = [string, Unit, number, 'nearest' | 'ceil' | 'floor', number, PlateInventory?];
+  const bells: Bell[] = [
+    ['nearest owned size', 'kg', 17, 'nearest', 16],
+    ['ties go to the lighter bell', 'kg', 18, 'nearest', 16],
+    ['ceil', 'kg', 17, 'ceil', 20],
+    ['floor', 'kg', 19, 'floor', 16],
+    ['an owned size stays', 'kg', 24, 'ceil', 24],
+    ['above the heaviest bell', 'kg', 40, 'ceil', 32],
+    ['below the lightest bell', 'kg', 5, 'floor', 8],
+    ['pounds nearest', 'lb', 30, 'nearest', 26],
+    ['pounds ceil', 'lb', 30, 'ceil', 35],
+    ['pounds floor', 'lb', 50, 'floor', 44],
+    ['only the bells you own', 'kg', 20, 'nearest', 24, withPlates({ kettlebellsKg: [12, 24] })],
+  ];
+  test.each(bells)('kettlebell: %s', (_name, unit, input, mode, want, i = inv) => {
+    expect(toUnit(roundForExercise(toKg(input, unit), bell, mode, i, unit), unit)).toBeCloseTo(want, 9);
+  });
+  test('kettlebell without owned sizes falls back to its rounding step', () => {
+    const noBells = withPlates({ kettlebellsKg: [], kettlebellsLb: [] });
+    expect(roundForExercise(17, bell, 'nearest', noBells, 'kg')).toBe(18);
+  });
+
+  test('an exercise bar (EZ bar 10 kg / 25 lb) replaces the gym bar', () => {
+    const ez = { ...ex.BENCH_PRESS, barKg: { kg: 10, lb: 25 } };
+    expect(roundForExercise(5, ez, 'nearest', inv, 'kg')).toBe(10);
+    expect(roundForExercise(13, ez, 'nearest', inv, 'kg')).toBe(12.5);
+    expect(roundForExercise(13, ex.BENCH_PRESS, 'nearest', inv, 'kg')).toBe(20);
+    expect(toUnit(roundForExercise(toKg(31, 'lb'), ez, 'nearest', inv, 'lb'), 'lb')).toBeCloseTo(30, 9);
+    expect(inventoryFor(ez, inv)).toMatchObject({ barKg: 10, barLb: 25 });
+    expect(inventoryFor(ex.BENCH_PRESS, inv)).toBe(inv);
   });
   test('dumbbell rounds to step in display unit', () => {
     expect(roundForExercise(11, dumbbell, 'ceil', inv, 'kg')).toBe(12);
     expect(roundForExercise(11, dumbbell, 'floor', inv, 'kg')).toBe(10);
     expect(roundForExercise(12, dumbbell, 'ceil', inv, 'kg')).toBe(12);
     expect(toUnit(roundForExercise(toKg(22, 'lb'), dumbbell, 'ceil', inv, 'lb'), 'lb')).toBeCloseTo(25, 9);
+  });
+});
+
+describe('roundAddedLoad (single plates on a dip belt)', () => {
+  type Row = [string, Unit, number, 'nearest' | 'ceil' | 'floor' | undefined, number, PlateInventory?];
+  const rows: Row[] = [
+    ['nearest multiple of the smallest plate', 'kg', 3, undefined, 2.5],
+    ['rounds up past the half', 'kg', 3.2, undefined, 3.75],
+    ['ceil', 'kg', 2.6, 'ceil', 3.75],
+    ['floor', 'kg', 3.7, 'floor', 2.5],
+    ['zero stays zero', 'kg', 0, undefined, 0],
+    ['never negative', 'kg', -3, 'floor', 0],
+    ['pounds', 'lb', 7, undefined, 7.5],
+    ['with 0.5 kg plates', 'kg', 3.2, undefined, 3, half],
+  ];
+  test.each(rows)('%s', (_name, unit, input, mode, want, i = inv) => {
+    expect(toUnit(roundAddedLoad(toKg(input, unit), i, unit, mode), unit)).toBeCloseTo(want, 9);
+  });
+  test('no plates leaves the load as it is', () => {
+    expect(roundAddedLoad(3.3, none, 'kg')).toBe(3.3);
   });
 });
