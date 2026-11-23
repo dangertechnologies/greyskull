@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useTheme } from '../../design/theme';
 import type { GroupKind, GroupSettings } from '../../domain';
-import { GROUP_LABELS } from '../../domain';
+import { GROUP_LABELS, snapMinutes } from '../../domain';
 import { Button } from '../../ui/Button';
 import { NumberStepper } from '../../ui/NumberStepper';
 import { Sheet } from '../../ui/Sheet';
@@ -57,7 +57,7 @@ export function GroupSheet({
         {kind === 'emom' ? (
           <NumberStepper
             label="Minutes"
-            value={s.minutes ?? count}
+            value={snapMinutes(s.minutes ?? count, count)}
             step={count}
             min={count}
             max={Math.max(60, count)}

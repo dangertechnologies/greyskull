@@ -119,7 +119,14 @@ function Builder({ seed, isNew }: { seed: Seed; isNew: boolean }) {
   });
   const save = () => {
     try {
-      useStore.getState().saveCustomPlan(plan());
+      // Another saved program may already have this name; this one then gets the next free number.
+      const others = useStore
+        .getState()
+        .customPlans.filter((p) => p.id !== seed.planId)
+        .map((p) => p.name);
+      const unique = uniqueProgramName(name.trim(), others);
+      setName(unique);
+      useStore.getState().saveCustomPlan({ ...plan(), name: unique });
       snackbar.show({ message: 'Program saved' });
     } catch (e) {
       Alert.alert('Cannot save', e instanceof Error ? e.message : String(e));
@@ -181,7 +188,7 @@ function Builder({ seed, isNew }: { seed: Seed; isNew: boolean }) {
           />
         </Section>
         <Section label="Days">
-          <DaysEditor program={program} onChange={setProgram} errors={errors} />
+          <DaysEditor program={program} onChange={setProgram} />
         </Section>
         <Section label="Rules">
           <RulesEditor card rules={program.rules} onChange={(rules) => setProgram({ ...program, rules })} />

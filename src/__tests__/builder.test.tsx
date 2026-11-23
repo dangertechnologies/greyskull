@@ -4,8 +4,8 @@ import { router } from 'expo-router';
 import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
 import { programId, setProgram } from '../__fixtures__/oneProgram';
-import { TEMPLATES } from '../domain';
-import { exportPlan } from '../planShare';
+import { blankProgram, TEMPLATES } from '../domain';
+import { exportPlan, MAX_IMPORT_CHARS } from '../planShare';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 
@@ -54,7 +54,7 @@ test('build a program from nothing, group two exercises, give one a ladder and a
   fireEvent.press(await screen.findByLabelText('Select Plank'));
   fireEvent.press(screen.getByRole('button', { name: 'Superset' }));
   fireEvent.press(await screen.findByText('Make Superset'));
-  expect(await screen.findByText('SUPERSET · REST 90 S')).toBeTruthy();
+  expect(await screen.findByText('Superset · rest 90 s')).toBeTruthy();
   expect(screen.getByText('A1')).toBeTruthy();
   expect(screen.getByText('A2')).toBeTruthy();
 
@@ -127,9 +127,9 @@ test('ungroup frees the exercises again', async () => {
   fireEvent.press(await screen.findByLabelText('Select Plank'));
   fireEvent.press(screen.getByRole('button', { name: 'EMOM' }));
   fireEvent.press(await screen.findByText('Make EMOM'));
-  expect(await screen.findByText('EMOM · 10 MIN')).toBeTruthy();
+  expect(await screen.findByText('EMOM · 10 min')).toBeTruthy();
   fireEvent.press(screen.getByLabelText('Ungroup EMOM A'));
-  await waitFor(() => expect(screen.queryByText('EMOM · 10 MIN')).toBeNull());
+  await waitFor(() => expect(screen.queryByText('EMOM · 10 min')).toBeNull());
 });
 
 test('Duplicate & edit copies a running program into a new custom one', async () => {
@@ -239,5 +239,72 @@ describe('share and import', () => {
     expect(alert.mock.calls[0][0]).toMatch(/^Delete Shared one/);
     alert.mockRestore();
     expect(get().customPlans).toHaveLength(1);
+  });
+});
+
+test('an error is shown under the day it belongs to even when two days share a name', async () => {
+  await renderRouter(allRoutes(), { initialUrl: '/builder/new' });
+  fireEvent.press(await screen.findByText('Add day'));
+  fireEvent.changeText(await screen.findByLabelText('Name of day 2'), 'Day 1');
+  // Both days are empty and called "Day 1": each shows its own message.
+  await waitFor(() => expect(screen.getAllByText('Day 1 has no exercises.')).toHaveLength(2));
+  expect(screen.getByTestId('day-error-0').props.children).toBe('Day 1 has no exercises.');
+  expect(screen.getByTestId('day-error-1').props.children).toBe('Day 1 has no exercises.');
+});
+
+test('the day name box stops at 100 letters, and Add day stops at 14 days', async () => {
+  await renderRouter(allRoutes(), { initialUrl: '/builder/new' });
+  expect((await screen.findByLabelText('Name of day 1')).props.maxLength).toBe(100);
+  for (let i = 0; i < 13; i++) fireEvent.press(screen.getByText('Add day'));
+  await screen.findByLabelText('Name of day 14');
+  expect(screen.getByRole('button', { name: 'Add day' }).props.accessibilityState.disabled).toBe(true);
+});
+
+test('error messages are announced when they appear', async () => {
+  await renderRouter(allRoutes(), { initialUrl: '/builder/new' });
+  expect((await screen.findByText('Day 1 has no exercises.')).props.accessibilityLiveRegion).toBe('polite');
+});
+
+test('saving under a name another saved program has keeps both, with the new one numbered', async () => {
+  await renderRouter(allRoutes(), { initialUrl: '/builder/new' });
+  fireEvent.changeText(await screen.findByLabelText('Program name'), 'Mine');
+  await addExercise('Plank');
+  fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+  await waitFor(() => expect(get().customPlans.map((p) => p.name)).toEqual(['Mine']));
+  act(() => router.push('/builder/new'));
+  const names = await screen.findAllByLabelText('Program name');
+  fireEvent.changeText(names[names.length - 1], ' mine ');
+  await addExercise('Plank');
+  fireEvent.press(screen.getAllByRole('button', { name: 'Save' }).at(-1) as never);
+  await waitFor(() => expect(get().customPlans.map((p) => p.name)).toEqual(['Mine', 'mine 2']));
+});
+
+test('renaming a saved program to another saved name is numbered too', async () => {
+  get().saveCustomPlan({
+    id: 'a',
+    name: 'Alpha',
+    program: { ...blankProgram(), days: [{ name: 'A', slots: [{ exercise: 'DEADLIFT', scheme: '1x5+' }] }] },
+  });
+  get().saveCustomPlan({
+    id: 'b',
+    name: 'Beta',
+    program: { ...blankProgram(), days: [{ name: 'A', slots: [{ exercise: 'DEADLIFT', scheme: '1x5+' }] }] },
+  });
+  await renderRouter(allRoutes(), { initialUrl: '/builder/b' });
+  fireEvent.changeText(await screen.findByLabelText('Program name'), 'Alpha');
+  fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+  await waitFor(() => expect(get().customPlans.find((p) => p.id === 'b')?.name).toBe('Alpha 2'));
+  expect(get().customPlans.find((p) => p.id === 'a')?.name).toBe('Alpha');
+  // Saving it again under its own name changes nothing.
+  expect((await screen.findByLabelText('Program name')).props.value).toBe('Alpha 2');
+});
+
+describe('importing from the clipboard', () => {
+  test('text over the size limit is cut before it fills the box, and the cut is announced', async () => {
+    (Clipboard.getStringAsync as jest.Mock).mockResolvedValueOnce('x'.repeat(MAX_IMPORT_CHARS + 5000));
+    await renderRouter(allRoutes(), { initialUrl: '/builder/import' });
+    fireEvent.press(await screen.findByText('Paste from clipboard'));
+    expect(await screen.findByText(/longer than the limit/)).toBeTruthy();
+    expect((await screen.findByLabelText('Shared program')).props.value).toHaveLength(MAX_IMPORT_CHARS);
   });
 });

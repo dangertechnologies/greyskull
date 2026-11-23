@@ -62,7 +62,7 @@ export default function Days() {
       <ScreenScroll withBottomBar gap={6}>
         {editing ? <Text color="textMuted">Your history and current weights are kept.</Text> : null}
         <View style={{ height: t.space[4] }} />
-        <DaysEditor program={program} onChange={setLocal} errors={errors} />
+        <DaysEditor program={program} onChange={setLocal} />
       </ScreenScroll>
       <BottomBar>
         {editing ? (

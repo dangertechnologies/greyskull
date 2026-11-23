@@ -43,8 +43,17 @@ export default function ImportPlan() {
 
   const paste = async () => {
     try {
-      setText(await Clipboard.getStringAsync());
-      setError(null);
+      const clip = await Clipboard.getStringAsync();
+      if (clip.length > MAX_IMPORT_CHARS) {
+        // Cut before it reaches the box, so a huge clipboard never freezes the field.
+        setText(clip.slice(0, MAX_IMPORT_CHARS));
+        setError(
+          `The clipboard text is longer than the limit (${MAX_IMPORT_CHARS / 1000} kB), so only the first part was pasted. A program is much shorter than that.`,
+        );
+      } else {
+        setText(clip);
+        setError(null);
+      }
     } catch (e) {
       setError(`The clipboard could not be read: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -82,6 +91,7 @@ export default function ImportPlan() {
             setError(null);
           }}
           multiline
+          maxLength={MAX_IMPORT_CHARS}
           autoCorrect={false}
           autoCapitalize="none"
           placeholder='{"format": "greyskull-plan", ...}'

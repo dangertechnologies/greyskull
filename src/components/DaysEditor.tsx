@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Day, Group, GroupKind, GroupSettings, Program, Slot } from '../domain';
@@ -14,6 +14,9 @@ import {
   getLadder,
   groupLabel,
   groupSlots,
+  MAX_DAYS,
+  MAX_SLOTS,
+  MAX_TEXT,
   moveSlot,
   moveSlotTo,
   removeDay,
@@ -24,6 +27,7 @@ import {
   setSlotScheme,
   ungroup,
   updateGroup,
+  validateProgramByDay,
 } from '../domain';
 import { nameOf, schemeLabel } from '../format';
 import { useStore } from '../store';
@@ -99,17 +103,9 @@ function SelectBox({ checked, label, onPress }: { checked: boolean; label: strin
 /**
  * The days of a program: add, remove, reorder and rename exercises, set each one's sets, reps or seconds and its
  * progression (including ladders), and group neighbouring exercises into supersets, circuits, EMOMs and
- * intervals. `errors` (from `validateProgram`) are shown under the day they belong to.
+ * intervals. What `validateProgram` finds is shown under the day it belongs to.
  */
-export function DaysEditor({
-  program,
-  onChange,
-  errors,
-}: {
-  program: Program;
-  onChange(program: Program): void;
-  errors: string[];
-}) {
+export function DaysEditor({ program, onChange }: { program: Program; onChange(program: Program): void }) {
   const t = useTheme();
   const exercises = useStore((s) => s.exercises);
   const [picking, setPicking] = useState<Picking>(null);
@@ -135,14 +131,13 @@ export function DaysEditor({
   };
   const dayIds = picking ? exerciseIdsOf({ ...program, days: [program.days[picking.day]] }) : [];
 
-  // Each message goes under the first day it names; the rest (program-wide) go at the bottom.
+  // Each message goes under its own day (by position, whatever the day is called); the rest are program-wide.
+  const found = useMemo(() => validateProgramByDay(program, exercises), [program, exercises]);
   const byDay = program.days.map(() => [] as string[]);
   const general: string[] = [];
-  for (const e of errors) {
-    const d = program.days.findIndex(
-      (day) => e.startsWith(`${day.name}:`) || e.startsWith(`${day.name} has no`),
-    );
-    (d >= 0 ? byDay[d] : general).push(e);
+  for (const [i, e] of found.errors.entries()) {
+    const d = found.days[i];
+    (d === null ? general : byDay[d]).push(e);
   }
 
   // Open panels and the selection are by position, so any reordering closes them.
@@ -324,8 +319,13 @@ export function DaysEditor({
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: t.space[2] }}>
-          <Text variant="label" color="accent" style={{ flexGrow: 1, flexBasis: 180 }}>
-            {groupLabel(block.group).toUpperCase()}
+          <Text
+            variant="label"
+            color="accent"
+            style={{ flexGrow: 1, flexBasis: 180, textTransform: 'uppercase' }}
+            accessibilityLabel={groupLabel(block.group)}
+          >
+            {groupLabel(block.group)}
           </Text>
           <Button
             title="Edit"
@@ -377,6 +377,7 @@ export function DaysEditor({
                 <View style={{ flex: 1 }}>
                   <TextField
                     label={`Name of day ${d + 1}`}
+                    maxLength={MAX_TEXT}
                     value={day.name}
                     onChangeText={(name) => onChange(renameDay(program, d, name))}
                   />
@@ -396,7 +397,13 @@ export function DaysEditor({
               {blocksOf(day).map((block) => renderBlock(d, block))}
 
               {byDay[d].map((e) => (
-                <Text key={e} variant="callout" color="danger">
+                <Text
+                  key={e}
+                  variant="callout"
+                  color="danger"
+                  accessibilityLiveRegion="polite"
+                  testID={`day-error-${d}`}
+                >
                   {e}
                 </Text>
               ))}
@@ -424,11 +431,13 @@ export function DaysEditor({
                   <Button
                     title="Add exercise"
                     variant="secondary"
+                    disabled={day.slots.length >= MAX_SLOTS}
                     onPress={() => setPicking({ day: d, mode: 'single' })}
                   />
                   <Button
                     title="Add alternating pair"
                     variant="plain"
+                    disabled={day.slots.length >= MAX_SLOTS}
                     onPress={() => setPicking({ day: d, mode: 'pair' })}
                   />
                   {day.slots.length > 0 ? (
@@ -450,9 +459,14 @@ export function DaysEditor({
       </View>
 
       <View style={{ height: t.space[2] }} />
-      <Button title="Add day" variant="secondary" onPress={() => onChange(addDay(program))} />
+      <Button
+        title="Add day"
+        variant="secondary"
+        disabled={program.days.length >= MAX_DAYS}
+        onPress={() => onChange(addDay(program))}
+      />
       {general.map((e) => (
-        <Text key={e} variant="callout" color="danger">
+        <Text key={e} variant="callout" color="danger" accessibilityLiveRegion="polite">
           {e}
         </Text>
       ))}
