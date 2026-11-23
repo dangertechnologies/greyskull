@@ -12,6 +12,7 @@ import {
   formatWeight,
   incrementFor,
   liftKeyOf,
+  own as ownOf,
   smallestStep,
   stepIn,
   toKg,
@@ -39,8 +40,8 @@ export default function LiftDetail() {
   const program = useProgramById(programParam);
   const programId = program?.id;
   const exercises = useStore((s) => s.exercises);
-  const ladder = ladderAt(id, program?.lifts[id], exercises);
-  const exercise = ladder ? ladder.exercise : exercises[exerciseOfLift(id)];
+  const ladder = ladderAt(id, ownOf(program?.lifts, id), exercises);
+  const exercise = ladder ? ladder.exercise : ownOf(exercises, exerciseOfLift(id));
   const lift = useLift(programId, id);
   const sessions = useStore((s) => s.sessions);
   const unit = useUnit();
@@ -181,7 +182,7 @@ export default function LiftDetail() {
 }
 
 function LiftControls({ id, programId }: { id: string; programId: string }) {
-  const exercise = useStore((s) => s.exercises[exerciseOfLift(id)]);
+  const exercise = useStore((s) => ownOf(s.exercises, exerciseOfLift(id)));
   const current = useLift(programId, id);
   const unit = useUnit();
   const inventory = useInventory();
