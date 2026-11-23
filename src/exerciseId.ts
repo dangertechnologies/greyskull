@@ -7,8 +7,8 @@ export function customId(name: string, existing: Record<string, unknown>): strin
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
   const base = `custom_${slug || 'exercise'}`;
-  if (!(base in existing)) return base;
+  if (!Object.hasOwn(existing, base)) return base;
   let i = 2;
-  while (`${base}_${i}` in existing) i++;
+  while (Object.hasOwn(existing, `${base}_${i}`)) i++;
   return `${base}_${i}`;
 }
