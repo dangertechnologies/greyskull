@@ -1,11 +1,13 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import type { LiftState, Outcome, ResolvedSlot, SessionLog } from '../domain';
+import type { Group, GroupKind, LiftState, Outcome, ResolvedSlot, SessionLog } from '../domain';
 import { isPersonalRecord, parseScheme, sessionFor, warmups } from '../domain';
+import { setOrder } from '../domain/groups';
 import { startRoute } from '../programStart';
 import { cancelRestAlert, ensureRestAlertPermission, scheduleRestAlert } from '../restAlert';
 import { useStore } from '../store';
+import { anchorOf, useTimers } from '../timers/store';
 import { endRestActivity, startRestActivity } from '../widgets';
 
 export interface SessionItem {
@@ -25,7 +27,28 @@ export interface SessionItem {
   reps: number;
   /** Held for time: targets and reps are seconds. */
   timed?: boolean;
+  /** Work sets of a superset, circuit, EMOM or interval. */
+  group?: ItemGroup;
 }
+
+export interface ItemGroup {
+  id: string;
+  kind: GroupKind;
+  /** "A1": the group's letter in the day and the exercise's place in it. */
+  label: string;
+  /** 1-based round (minute of an EMOM) and how many the group has. */
+  round: number;
+  rounds: number;
+  /** Rest after this set: set on the last set of a round; none between the exercises of a round. */
+  restAfterS?: number;
+  /** Index of this set among the group's sets (the EMOM minute, the interval round), for the timer. */
+  step: number;
+  /** How many sets the group has in all (the timer's length in steps). */
+  steps: number;
+}
+
+/** Groups run by a clock rather than by the Done button. */
+export const isTimerKind = (kind: GroupKind): boolean => kind === 'emom' || kind === 'interval';
 
 export interface FinishedExercise {
   exerciseId: string;
@@ -52,6 +75,8 @@ export interface SessionApi {
   selectedIndex: number;
   /** Show another item (a logged set to edit, or the open one). */
   select(itemIndex: number): void;
+  /** The day's groups (supersets, circuits, EMOMs, intervals). */
+  groups: Group[];
   restRemaining: number | null;
   /** Length of the current rest in seconds, including ±30 s adjustments (for the progress bar). */
   restTotal: number;
@@ -106,9 +131,18 @@ export function useSession(n: number, programId?: string): SessionApi | null {
   const [picked, setPicked] = useState<number | null>(null);
   const [doneWarmups, setDoneWarmups] = useState<ReadonlySet<string>>(new Set());
 
+  const groups = useMemo<Group[]>(
+    () =>
+      ready && program
+        ? (sessionFor({ ...program, position: draft.position ?? program.position }).groups ?? [])
+        : [],
+    [ready, program, draft?.position],
+  );
+
   const items = useMemo<SessionItem[]>(() => {
     if (!ready || !program) return [];
-    const slots = new Map(slotsOf(draft, program).map((s) => [s.exercise, s]));
+    const resolved = slotsOf(draft, program);
+    const slots = new Map(resolved.map((s) => [s.exercise, s]));
     const out: SessionItem[] = [];
     // Warm-ups are not persisted: they count as done once real work exists for the lift or any later lift.
     const laterLogged = new Set<string>();
@@ -117,18 +151,16 @@ export function useSession(n: number, programId?: string): SessionApi | null {
       if (seenLogged) laterLogged.add(id);
       if (draft.results[id]?.sets.some((x) => x.reps > 0)) seenLogged = true;
     }
-    for (const id of draft.order) {
+    const warmupsOf = (id: string): SessionItem[] => {
       const result = draft.results[id];
       const exercise = exercises[id];
       const scheme = slots.get(id)?.scheme;
-      if (!result || !exercise || !scheme) continue;
+      if (!result || !exercise || !scheme || !program.rules.warmups) return [];
       const anyLogged = result.sets.some((s) => s.reps > 0);
-      const warm = program.rules.warmups
-        ? warmups(result.sets[0]?.kg ?? result.weightKg, scheme, exercise, inventory, unit)
-        : [];
-      warm.forEach((w, i) => {
+      const warm = warmups(result.sets[0]?.kg ?? result.weightKg, scheme, exercise, inventory, unit);
+      return warm.map((w, i) => {
         const logged = anyLogged || laterLogged.has(id) || doneWarmups.has(`${id}:${i}`);
-        out.push({
+        return {
           exerciseId: id,
           kind: 'warmup',
           setIndex: null,
@@ -138,33 +170,77 @@ export function useSession(n: number, programId?: string): SessionApi | null {
           weightKg: w.kg,
           logged,
           reps: logged ? w.reps : 0,
-        });
+        };
       });
+    };
+    // Grouped sets interleave (superset A1, A2, rest, A1, A2...); every other exercise goes set by set.
+    const known = resolved.filter((s) => draft.results[s.exercise] && exercises[s.exercise]);
+    const counts = Object.fromEntries(known.map((s) => [s.exercise, draft.results[s.exercise].sets.length]));
+    const steps = setOrder({ dayName: draft.dayName, intensity: 1, slots: known, groups }, counts);
+    const letters = new Map(
+      [...new Set(known.flatMap((s) => (s.group === undefined ? [] : [s.group])))]
+        .filter((id) => groups.some((g) => g.id === id))
+        .map((id, i) => [id, String.fromCharCode(65 + i)]),
+    );
+    for (const [k, step] of steps.entries()) {
+      const id = step.exercise;
+      const result = draft.results[id];
+      const set = result.sets[step.set];
+      if (step.set === 0) out.push(...warmupsOf(id));
       const week = slots.get(id)?.week ?? 0;
-      result.sets.forEach((set, i) => {
-        out.push({
-          exerciseId: id,
-          kind: set.target === null ? 'amrap' : 'work',
-          setIndex: i,
-          position: i + 1,
-          total: result.sets.length,
-          targetReps: set.target,
-          weightKg: set.kg ?? result.weightKg,
-          minReps:
-            set.kg !== undefined ? (week === 2 ? 1 : week === 1 ? 3 : 5) : (parseScheme(scheme).reps ?? 5),
-          ...(set.kg === undefined ? {} : { perSetWeight: true }),
-          ...(result.timed ? { timed: true } : {}),
-          logged: set.reps > 0,
-          reps: set.reps,
-        });
+      const scheme = slots.get(id)?.scheme;
+      const group = step.group === undefined ? undefined : groups.find((g) => g.id === step.group);
+      const members = group ? known.filter((s) => s.group === group.id) : [];
+      const groupSteps = group ? steps.filter((x) => x.group === group.id) : [];
+      out.push({
+        exerciseId: id,
+        kind: set.target === null ? 'amrap' : 'work',
+        setIndex: step.set,
+        position: step.set + 1,
+        total: result.sets.length,
+        targetReps: set.target,
+        weightKg: set.kg ?? result.weightKg,
+        minReps:
+          set.kg !== undefined
+            ? week === 2
+              ? 1
+              : week === 1
+                ? 3
+                : 5
+            : ((scheme && parseScheme(scheme).reps) ?? 5),
+        ...(set.kg === undefined ? {} : { perSetWeight: true }),
+        ...(result.timed ? { timed: true } : {}),
+        logged: set.reps > 0,
+        reps: set.reps,
+        ...(group
+          ? {
+              group: {
+                id: group.id,
+                kind: group.kind,
+                label: `${letters.get(group.id)}${members.findIndex((s) => s.exercise === id) + 1}`,
+                round: step.set + 1,
+                rounds: Math.max(...members.map((s) => counts[s.exercise])),
+                ...(step.restAfterS === undefined ? {} : { restAfterS: step.restAfterS }),
+                step: groupSteps.indexOf(steps[k]),
+                steps: groupSteps.length,
+              },
+            }
+          : {}),
       });
     }
     return out;
-  }, [ready, draft, program, exercises, inventory, unit, doneWarmups]);
+  }, [ready, draft, program, exercises, inventory, unit, doneWarmups, groups]);
 
-  const firstOpen = items.findIndex((i) => !i.logged);
+  // Sets of an EMOM or interval whose timer has ended are behind you: unlogged ones stay missed (0 reps).
+  const anchors = useTimers((s) => (s.n === n ? s.anchors : undefined));
+  const passed = (i: SessionItem) =>
+    !!i.group &&
+    isTimerKind(i.group.kind) &&
+    anchorOf({ n, anchors: anchors ?? {} }, n, i.group.id)?.endedAt !== undefined;
+  const firstOpen = items.findIndex((i) => !i.logged && !passed(i));
   const activeIndex = firstOpen === -1 ? items.length : firstOpen;
-  const isComplete = ready && items.length > 0 && items.every((i) => i.kind === 'warmup' || i.logged);
+  const isComplete =
+    ready && items.length > 0 && items.every((i) => i.kind === 'warmup' || i.logged || passed(i));
 
   // Rest timer: a single interval while resting, cleared on unmount or when rest ends.
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
@@ -221,13 +297,20 @@ export function useSession(n: number, programId?: string): SessionApi | null {
       } else if (item.setIndex !== null) {
         logSet(item.exerciseId, item.setIndex, Math.max(1, reps));
       }
-      // Rest only after a *new* work set: warm-ups and edits of an already logged set do not start one.
-      if (item.kind !== 'warmup' && !wasLogged && restSeconds > 0 && itemIndex < items.length - 1) {
+      // Rest only after a *new* work set: warm-ups and edits of an already logged set do not start one. A
+      // grouped set rests the group's time after its round (none between the exercises of a round); an EMOM
+      // or interval keeps its own clock.
+      const rest = !item.group
+        ? restSeconds
+        : isTimerKind(item.group.kind)
+          ? 0
+          : (item.group.restAfterS ?? 0);
+      if (item.kind !== 'warmup' && !wasLogged && rest > 0 && itemIndex < items.length - 1) {
         void ensureRestAlertPermission();
         const start = Date.now();
         setNow(start);
-        setRestTotal(restSeconds);
-        setRestEndsAt(start + restSeconds * 1000);
+        setRestTotal(rest);
+        setRestEndsAt(start + rest * 1000);
       }
     },
     [items, logSet, restSeconds],
@@ -285,6 +368,7 @@ export function useSession(n: number, programId?: string): SessionApi | null {
     setWeight: setDraftWeight,
     selectedIndex,
     select: setPicked,
+    groups,
     restRemaining,
     restTotal,
     skipRest: () => setRestEndsAt(null),

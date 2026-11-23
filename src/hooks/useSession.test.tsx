@@ -207,3 +207,68 @@ test('a workout finished elsewhere is not started again by an open session scree
   expect(useStore.getState().draft).toBeNull();
   expect(result.current).toBeNull();
 });
+
+describe('grouped sets', () => {
+  const groupedProgram = () => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { doubleAt: 10, deloadPct: 0.1, failsBeforeDeload: 1, warmups: false },
+    days: [
+      {
+        name: 'A',
+        slots: [
+          { exercise: 'CAL_PUSHUP_WALL', scheme: '3x8' as const },
+          { exercise: 'CAL_SCAPULAR_PULL', scheme: '2x5' as const, group: 's' },
+          { exercise: 'CAL_SUPPORT_HOLD', scheme: '2x5' as const, group: 's' },
+          { exercise: 'CAL_PLANK', scheme: '2x30s' as const, progression: 'linear' as const, group: 'e' },
+          { exercise: 'CAL_ASSISTED_SQUAT', scheme: '2x10' as const, group: 'e' },
+        ],
+        groups: [
+          { id: 's', kind: 'superset' as const, restS: 45 },
+          { id: 'e', kind: 'emom' as const, minutes: 4 },
+        ],
+      },
+    ],
+  });
+  const order = (s: ReturnType<typeof useSession>) =>
+    s!.items.map((i) => `${i.exerciseId.slice(4, 8)}${i.position}${i.group ? `:${i.group.label}` : ''}`);
+
+  beforeEach(() => setProgram(groupedProgram() as typeof TEMPLATES.base));
+
+  test('walks a superset A1, A2 per round and an EMOM minute by minute, with rounds and labels', () => {
+    const { result } = renderHook(() => useSession(0, programId()));
+    expect(order(result.current)).toEqual([
+      'PUSH1',
+      'PUSH2',
+      'PUSH3',
+      'SCAP1:A1',
+      'SUPP1:A2',
+      'SCAP2:A1',
+      'SUPP2:A2',
+      'PLAN1:B1',
+      'ASSI1:B2',
+      'PLAN2:B1',
+      'ASSI2:B2',
+    ]);
+    const a2 = result.current!.items[6].group;
+    expect(a2).toMatchObject({ kind: 'superset', round: 2, rounds: 2, restAfterS: 45 });
+    expect(result.current!.items[3].group?.restAfterS).toBeUndefined();
+    expect(result.current!.items[9].group).toMatchObject({ kind: 'emom', step: 2, steps: 4 });
+  });
+
+  test('no rest between the exercises of a round; the group rest after it; global rest elsewhere', () => {
+    const { result } = renderHook(() => useSession(0, programId()));
+    act(() => result.current!.record(0, 8));
+    expect(result.current!.restRemaining).toBe(90);
+    act(() => result.current!.skipRest());
+    act(() => result.current!.record(3, 5));
+    expect(result.current!.restRemaining).toBeNull();
+    act(() => result.current!.record(4, 5));
+    expect(result.current!.restRemaining).toBe(45);
+    expect(result.current!.restTotal).toBe(45);
+    act(() => result.current!.skipRest());
+    // EMOM sets keep their own clock: no rest timer.
+    act(() => result.current!.record(7, 30));
+    expect(result.current!.restRemaining).toBeNull();
+  });
+});
