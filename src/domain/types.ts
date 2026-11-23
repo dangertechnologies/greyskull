@@ -186,6 +186,11 @@ export interface LiftState {
   reps?: number; // double progression: current rep target inside the scheme's range
   step?: number; // ladder: index of the current step
   bandId?: string; // ladder: assistance band in use
+  /**
+   * When the user or the app last set this state outside normal progression (created, edited, or stored from a
+   * session eased after a break), ISO. A state set after the lift was last trained is not eased again.
+   */
+  touchedAt?: string;
 }
 
 export interface SetResult {

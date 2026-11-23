@@ -1,5 +1,5 @@
 import { builtInExercises } from '../../catalog';
-import { easeBack, gapDays, lastTrained } from '../breakDeload';
+import { easeBack, gapDays, lastTrained, touchedSince } from '../breakDeload';
 import { DEFAULT_INVENTORY, type LiftState, type SessionLog } from '../types';
 
 const ex = builtInExercises();
@@ -63,6 +63,24 @@ describe('lastTrained', () => {
       log(2, { CAL_PULLUP: done(5) }),
     ];
     expect(lastTrained(sessions, 'rr_pullup')).toBe(sessions[0].finishedAt);
+  });
+
+  test('a log with an unreadable date is ignored', () => {
+    const sessions = [
+      log(20, { BENCH_PRESS: done(5) }),
+      log(0, { BENCH_PRESS: done(5) }, { startedAt: 'yesterday', finishedAt: 'not a date' }),
+    ];
+    expect(lastTrained(sessions, 'BENCH_PRESS')).toBe(sessions[0].finishedAt);
+    expect(lastTrained([sessions[1]], 'BENCH_PRESS')).toBeNull();
+  });
+
+  test('a lift set after its last training (new program, retest, edit) is not eased', () => {
+    const last = new Date(NOW - 30 * DAY).toISOString();
+    expect(touchedSince(lift(), last)).toBe(false);
+    expect(touchedSince(lift({ touchedAt: last }), last)).toBe(false);
+    expect(touchedSince(lift({ touchedAt: new Date(NOW - 40 * DAY).toISOString() }), last)).toBe(false);
+    expect(touchedSince(lift({ touchedAt: new Date(NOW - DAY).toISOString() }), last)).toBe(true);
+    expect(touchedSince(lift({ touchedAt: 'garbage' }), last)).toBe(true);
   });
 
   test('gapDays counts whole days', () => {
@@ -152,6 +170,27 @@ describe('easeBack', () => {
       ladder: 'rr_pullup',
     });
     expect(out).toMatchObject({ weightKg: 7.5, step: 5 });
+  });
+
+  test('an unknown gap never eases', () => {
+    expect(easeBack(lift(), Number.NaN, squat)).toBeNull();
+  });
+
+  test('a fractional stored step steps down from its whole step', () => {
+    const out = easeBack(lift({ weightKg: 0, step: 2.5 }), 28, {
+      exercise: ex.CAL_PULLUP_NEGATIVE,
+      inv,
+      unit: 'kg',
+      scheme: '3x5-8',
+      progression: 'ladder',
+      ladder: 'rr_pullup',
+    });
+    expect(out?.step).toBe(1);
+  });
+
+  test('only resetting misses is no ease', () => {
+    const chin = { exercise: ex.CHINUPS, inv, unit: 'kg' as const, scheme: '2xAMRAP' as const };
+    expect(easeBack(lift({ weightKg: 0, fails: 1 }), 30, chin)).toBeNull();
   });
 
   test('nothing to ease returns null', () => {
