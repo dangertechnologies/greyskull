@@ -66,3 +66,32 @@ test('NaN, Infinity, negative, huge and prototype names are refused with the rea
     error: 'Exercise 3 is not an exercise.',
   });
 });
+
+test('stored data keeps what older versions saved, and still refuses what cannot be used', () => {
+  const stored = { stored: true };
+  const old = {
+    ...front,
+    name: 'n'.repeat(150),
+    goodForm: Array.from({ length: 25 }, () => 'g'.repeat(400)),
+    increment: { kg: 150, lb: 300 },
+    url: 'youtube.com/x',
+    video: 'javascript:alert(1)',
+    pictogram: 'squat',
+    background: 'gym',
+    icon: '__proto__',
+    muscles: ['quadriceps', 'wings'],
+    pattern: 'flying',
+  };
+  const r = sanitizeExercise(old, 'X', stored);
+  if (!r.ok) throw new Error(r.error);
+  // Links are kept as the user typed them: openLink opens only http(s) addresses.
+  expect(r.exercise).toMatchObject({ name: old.name, goodForm: old.goodForm, url: 'youtube.com/x' });
+  expect(r.exercise).toMatchObject({ video: 'javascript:alert(1)', pictogram: 'squat', background: 'gym' });
+  expect(r.exercise).not.toHaveProperty('icon');
+  expect(r.exercise).not.toHaveProperty('pattern');
+  expect(r.exercise.muscles).toEqual(['quadriceps']);
+  // The same exercise from a shared plan is refused.
+  expect(sanitizeExercise(old).ok).toBe(false);
+  for (const bad of [{ increment: { kg: 1e9, lb: 1 } }, { name: 'n'.repeat(10_001) }, { kind: 'rocket' }])
+    expect(sanitizeExercise({ ...front, ...bad }, 'X', stored).ok).toBe(false);
+});
