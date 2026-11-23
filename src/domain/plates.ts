@@ -137,6 +137,16 @@ export function smallestStep(inv: PlateInventory, unit: Unit): number {
 
 export const DEFAULT_STEP = { kg: 2, lb: 5 };
 
+/** Weight a new lift starts at: the exercise's own bar, the smallest step, or no added load. */
+export function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: Unit): number {
+  if (exercise.kind === 'bodyweight') return 0;
+  if (exercise.kind === 'barbell') {
+    const own = inventoryFor(exercise, inv);
+    return toKg(unit === 'kg' ? own.barKg : own.barLb, unit);
+  }
+  return toKg((exercise.step ?? DEFAULT_STEP)[unit], unit);
+}
+
 /** The inventory with the exercise's own bar (an EZ bar) in place of the gym bar. */
 export function inventoryFor(exercise: Exercise, inv: PlateInventory): PlateInventory {
   return exercise.barKg ? { ...inv, barKg: exercise.barKg.kg, barLb: exercise.barKg.lb } : inv;

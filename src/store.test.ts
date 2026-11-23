@@ -602,3 +602,153 @@ test('undoSkip takes back only the latest skip; Undo never rewinds the session i
   expect(useStore.getState().sessions).toHaveLength(1);
   expect(useStore.getState().sessions[0].n).toBe(2);
 });
+
+describe('easing back after a break', () => {
+  const DAY = 86_400_000;
+  const ago = (days: number) => new Date(Date.now() - days * DAY).toISOString();
+  /** A finished log `days` ago with every listed exercise done for `reps`. */
+  const past = (days: number, ids: string[], reps = 5, patch: Partial<SessionLog> = {}): SessionLog => ({
+    n: 100 + days,
+    dayName: 'Old',
+    startedAt: ago(days),
+    finishedAt: ago(days),
+    results: Object.fromEntries(ids.map((id) => [id, { weightKg: 50, sets: [{ target: 5, reps }] }])),
+    order: ids,
+    ...patch,
+  });
+  const history = (...logs: SessionLog[]) => useStore.setState({ sessions: logs });
+
+  beforeEach(() => {
+    setProgram(baseProgram());
+    setLift('BARBELL_SQUAT', { weightKg: 100 });
+  });
+
+  test('20 days off: the draft starts 10 % lighter, the stored lift is untouched, finish progresses from it', () => {
+    history(past(20, ['BARBELL_SQUAT', 'MILITARY_PRESS']));
+    const draft = startSession();
+    expect(draft.results.BARBELL_SQUAT.weightKg).toBe(90);
+    expect(draft.eased).toMatchObject({ gapDays: 20, lifts: { BARBELL_SQUAT: { weightKg: 90, fails: 0 } } });
+    expect(lifts().BARBELL_SQUAT.weightKg).toBe(100);
+    draft.results.BARBELL_SQUAT.sets.forEach((_s, i) => {
+      get().logSet('BARBELL_SQUAT', i, 5);
+    });
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT.weightKg).toBe(92.5);
+  });
+
+  test('switched off, or trained recently in another program, nothing eases', () => {
+    history(past(20, ['BARBELL_SQUAT']));
+    get().setBreakDeload(false);
+    expect(startSession().results.BARBELL_SQUAT.weightKg).toBe(100);
+    get().discardDraft();
+    get().setBreakDeload(true);
+    history(past(20, ['BARBELL_SQUAT']), past(3, ['BARBELL_SQUAT'], 5, { programId: 'another' }));
+    expect(startSession().eased).toBeUndefined();
+  });
+
+  test('a light day counts as training; a session with no reps does not', () => {
+    history(past(20, ['BARBELL_SQUAT']), past(3, ['BARBELL_SQUAT'], 5, { intensity: 0.8 }));
+    expect(startSession().results.BARBELL_SQUAT.weightKg).toBe(100);
+    get().discardDraft();
+    history(past(20, ['BARBELL_SQUAT']), past(3, ['BARBELL_SQUAT'], 0));
+    expect(startSession().results.BARBELL_SQUAT.weightKg).toBe(90);
+  });
+
+  test('undoEase rebuilds the draft from the stored lifts, only before a set is logged', () => {
+    history(past(30, ['BARBELL_SQUAT']));
+    const draft = startSession();
+    expect(draft.results.BARBELL_SQUAT.weightKg).toBe(80);
+    get().undoEase();
+    expect(get().draft).toMatchObject({ n: draft.n, startedAt: draft.startedAt });
+    expect(get().draft?.eased).toBeUndefined();
+    expect(get().draft?.results.BARBELL_SQUAT.weightKg).toBe(100);
+    expect(get().nextSession).toBe(draft.n + 1);
+    get().discardDraft();
+    startSession();
+    get().logSet('BARBELL_SQUAT', 0, 5);
+    get().undoEase();
+    expect(get().draft?.results.BARBELL_SQUAT.weightKg).toBe(80);
+  });
+
+  test('a 5/3/1 training max eased after a break stays lowered after a week-1 finish', () => {
+    get().reset();
+    setProgram(getPlan('531-beginners')!.program);
+    setLift('BARBELL_SQUAT', { weightKg: 100 });
+    history(past(30, ['BARBELL_SQUAT']));
+    const draft = startSession();
+    expect(draft.results.BARBELL_SQUAT.tmKg).toBe(80);
+    draft.results.BARBELL_SQUAT.sets.forEach((_s, i) => {
+      get().logSet('BARBELL_SQUAT', i, 5);
+    });
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 80, fails: 0 });
+  });
+});
+
+describe('ladder lifts in the store', () => {
+  const BANDS = [
+    { id: 'heavy', label: 'Heavy band' },
+    { id: 'light', label: 'Light band' },
+  ];
+  const ladderProgram = (): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { doubleAt: 10, deloadPct: 0.1, failsBeforeDeload: 1, warmups: true },
+    days: [{ name: 'A', slots: [{ exercise: 'CAL_SCAPULAR_PULL', scheme: '3x5-8', ladder: 'rr_pullup' }] }],
+  });
+
+  beforeEach(() => {
+    setProgram(ladderProgram());
+    get().setBands(BANDS);
+  });
+
+  test('the ladder id is an unweighted lift key', () => {
+    expect(lifts().rr_pullup).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+    setLift('rr_pullup', { weightKg: 0, step: 2 });
+    expect(lifts().rr_pullup.step).toBe(2);
+  });
+
+  test('results record step, scheme, timed and band; finishing climbs through the bands', () => {
+    setLift('rr_pullup', { step: 1 });
+    const hang = startSession().results.CAL_ARCH_HANG;
+    expect(hang).toMatchObject({ lift: 'rr_pullup', step: 1, scheme: '3x10-30s', timed: true });
+    get().discardDraft();
+    setLift('rr_pullup', { step: 3, reps: 8, bandId: 'heavy' });
+    const draft = startSession();
+    const banded = draft.results.CAL_PULLUP_BAND_ASSISTED;
+    expect(banded).toMatchObject({ step: 3, scheme: '3x5-8', band: { id: 'heavy', label: 'Heavy band' } });
+    expect(banded.timed).toBeUndefined();
+    banded.sets.forEach((_s, i) => {
+      get().logSet('CAL_PULLUP_BAND_ASSISTED', i, 8);
+    });
+    get().finishSession();
+    expect(lifts().rr_pullup).toMatchObject({ step: 3, bandId: 'light' });
+  });
+
+  test('after 30 days off a ladder goes one step down for the session, onto the heaviest band', () => {
+    setLift('rr_pullup', { step: 4, reps: 7 });
+    useStore.setState({
+      sessions: [
+        {
+          n: 50,
+          dayName: 'A',
+          startedAt: new Date(Date.now() - 30 * 86_400_000).toISOString(),
+          results: { CAL_PULLUP: { weightKg: 0, sets: [{ target: 7, reps: 7 }], lift: 'rr_pullup' } },
+          order: ['CAL_PULLUP'],
+        },
+      ],
+    });
+    const draft = startSession();
+    expect(draft.order).toEqual(['CAL_PULLUP_BAND_ASSISTED']);
+    expect(draft.results.CAL_PULLUP_BAND_ASSISTED).toMatchObject({ step: 3, band: { id: 'heavy' } });
+    expect(draft.results.CAL_PULLUP_BAND_ASSISTED.sets[0].target).toBe(5);
+    expect(lifts().rr_pullup).toMatchObject({ step: 4, reps: 7 });
+  });
+});
+
+test('an EZ-bar lift starts at its own bar', () => {
+  const p = baseProgram();
+  p.days[0].slots.push({ exercise: 'EZ_BAR_CURL', scheme: '3x8' });
+  setProgram(p);
+  expect(lifts().EZ_BAR_CURL.weightKg).toBe(10);
+});
