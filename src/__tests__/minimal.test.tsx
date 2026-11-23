@@ -13,8 +13,11 @@ function seed(minimalist: boolean) {
   s.setSettings({ minimalist, restSeconds: 0 });
 }
 
+/** Lift states without `touchedAt` (when each was created differs between the two runs). */
 const lifts = () =>
-  JSON.parse(JSON.stringify(useStore.getState().programs[0].lifts)) as Record<string, unknown>;
+  JSON.parse(
+    JSON.stringify(useStore.getState().programs[0].lifts, (k, v) => (k === 'touchedAt' ? undefined : v)),
+  ) as Record<string, unknown>;
 
 test('circles: tap logs the target, tap again counts down to empty, long-press edits reps', async () => {
   seed(true);

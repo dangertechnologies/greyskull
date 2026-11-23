@@ -46,7 +46,8 @@ const badLifts = (lifts: unknown): boolean =>
       !isObject(l) ||
       !isNum(l.weightKg) ||
       l.weightKg < 0 ||
-      (l.stage !== undefined && (!Number.isInteger(l.stage) || (l.stage as number) < 0)),
+      (l.stage !== undefined && (!Number.isInteger(l.stage) || (l.stage as number) < 0)) ||
+      (l.touchedAt !== undefined && typeof l.touchedAt !== 'string'),
   );
 
 /**

@@ -22,7 +22,8 @@ describe('bodyweight extras of the built-in plans never change (no added load, s
       );
     const before = bodyweight();
     expect(Object.keys(before)).toEqual(expect.arrayContaining(['CHINUPS', 'DIPS']));
-    for (const state of Object.values(before)) expect(state).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+    for (const state of Object.values(before))
+      expect(state).toMatchObject({ weightKg: 0, startKg: 0, fails: 0 });
     for (let i = 0; i < 120; i++) {
       const draft = startSession();
       draft.order.forEach((id, k) => {

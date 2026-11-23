@@ -192,6 +192,11 @@ test('optional engine fields and seven training days survive a backup round-trip
   state.programs[0].lifts['BARBELL_SQUAT@T2'].stage = -1;
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
   state.programs[0].lifts['BARBELL_SQUAT@T2'].stage = 0;
+  expect(typeof state.programs[0].lifts['BARBELL_SQUAT@T2'].touchedAt).toBe('string');
+  state.programs[0].lifts['BARBELL_SQUAT@T2'].touchedAt = 5;
+  expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
+  delete state.programs[0].lifts['BARBELL_SQUAT@T2'].touchedAt;
+  expect(parseBackup(JSON.stringify(state)).ok).toBe(true);
   state.programs[0].sessionsPerWeek = 8;
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
 });

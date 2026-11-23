@@ -5,6 +5,7 @@ import {
   program,
   programId,
   setLift,
+  setPosition,
   setProgram,
   skipSession,
   startSession,
@@ -13,7 +14,7 @@ import {
 import { CATALOG_VERSION } from './catalog';
 import { getPlan } from './config/plans';
 import fixture from './dev/v1-imperial.json';
-import type { AppState, Program, SessionLog } from './domain';
+import type { AppState, LiftState, Program, SessionLog } from './domain';
 import { isLoadable, PLUGINS, TEMPLATES, toKg } from './domain';
 import { stateFile } from './storage';
 import { initialState, initStore, LEGACY_KEY, STORAGE_KEY, snapshot, storage, useStore } from './store';
@@ -52,12 +53,22 @@ describe('actions', () => {
   beforeEach(() => setProgram(baseProgram()));
 
   test('addProgram creates starting lifts (barbells at the bar, bodyweight at 0 kg) and validates', () => {
-    expect(lifts().BARBELL_SQUAT).toEqual({ weightKg: 20, startKg: 20, fails: 0 });
+    expect(lifts().BARBELL_SQUAT).toEqual({
+      weightKg: 20,
+      startKg: 20,
+      fails: 0,
+      touchedAt: expect.any(String),
+    });
     get().reset();
     const id = get().addProgram({ ...PLUGINS.chins.apply(TEMPLATES.base), name: 'With chins' });
     expect(get().programs[0]).toMatchObject({ id, name: 'With chins', position: 0, template: 'base' });
     expect(id).toMatch(/^base-/);
-    expect(get().programs[0].lifts.CHINUPS).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+    expect(get().programs[0].lifts.CHINUPS).toEqual({
+      weightKg: 0,
+      startKg: 0,
+      fails: 0,
+      touchedAt: expect.any(String),
+    });
     expect(() => get().addProgram({ ...baseProgram(), days: [], name: 'x' })).toThrow();
     const bad = baseProgram();
     bad.days[0].slots.push({ exercise: 'NOPE', scheme: '2x5+' });
@@ -206,7 +217,7 @@ describe('actions', () => {
   test('setLift validates and creates missing lifts', () => {
     expect(() => setLift('BARBELL_SQUAT', { weightKg: 0 })).toThrow();
     setLift('CURLS', { weightKg: 12.5 });
-    expect(lifts().CURLS).toEqual({ weightKg: 12.5, startKg: 12.5, fails: 0 });
+    expect(lifts().CURLS).toEqual({ weightKg: 12.5, startKg: 12.5, fails: 0, touchedAt: expect.any(String) });
     expect(() => get().setLift('nope', 'CURLS', { weightKg: 10 })).toThrow();
     get().setLiftStep(programId(), 'CURLS', 2);
     expect(lifts().CURLS.step).toBe(2);
@@ -603,6 +614,18 @@ test('undoSkip takes back only the latest skip; Undo never rewinds the session i
   expect(useStore.getState().sessions[0].n).toBe(2);
 });
 
+/** A lift state stored without `touchedAt` (as before it existed), so a break can ease it. */
+function stale(key: string, patch: Partial<LiftState> = {}) {
+  useStore.setState((s) => ({
+    programs: s.programs.map((p, i) => {
+      if (i !== 0) return p;
+      const fresh: LiftState = { weightKg: 0, startKg: 0, fails: 0 };
+      const { touchedAt: _t, ...rest } = { ...(p.lifts[key] ?? fresh), ...patch };
+      return { ...p, lifts: { ...p.lifts, [key]: rest } };
+    }),
+  }));
+}
+
 describe('easing back after a break', () => {
   const DAY = 86_400_000;
   const ago = (days: number) => new Date(Date.now() - days * DAY).toISOString();
@@ -617,10 +640,14 @@ describe('easing back after a break', () => {
     ...patch,
   });
   const history = (...logs: SessionLog[]) => useStore.setState({ sessions: logs });
+  const logAll = (id: string, reps: number) =>
+    get().draft?.results[id].sets.forEach((_s, i) => {
+      get().logSet(id, i, reps);
+    });
 
   beforeEach(() => {
     setProgram(baseProgram());
-    setLift('BARBELL_SQUAT', { weightKg: 100 });
+    stale('BARBELL_SQUAT', { weightKg: 100 });
   });
 
   test('20 days off: the draft starts 10 % lighter, the stored lift is untouched, finish progresses from it', () => {
@@ -629,11 +656,10 @@ describe('easing back after a break', () => {
     expect(draft.results.BARBELL_SQUAT.weightKg).toBe(90);
     expect(draft.eased).toMatchObject({ gapDays: 20, lifts: { BARBELL_SQUAT: { weightKg: 90, fails: 0 } } });
     expect(lifts().BARBELL_SQUAT.weightKg).toBe(100);
-    draft.results.BARBELL_SQUAT.sets.forEach((_s, i) => {
-      get().logSet('BARBELL_SQUAT', i, 5);
-    });
+    logAll('BARBELL_SQUAT', 5);
     get().finishSession();
     expect(lifts().BARBELL_SQUAT.weightKg).toBe(92.5);
+    expect(lifts().BARBELL_SQUAT.touchedAt).toBe(get().sessions.find((l) => l.n === draft.n)?.finishedAt);
   });
 
   test('switched off, or trained recently in another program, nothing eases', () => {
@@ -670,18 +696,124 @@ describe('easing back after a break', () => {
     expect(get().draft?.results.BARBELL_SQUAT.weightKg).toBe(80);
   });
 
-  test('a 5/3/1 training max eased after a break stays lowered after a week-1 finish', () => {
+  test('an eased session finished with no reps keeps the stored lift, so the next one eases once, not twice', () => {
+    history(past(30, ['BARBELL_SQUAT']));
+    expect(startSession().results.BARBELL_SQUAT.weightKg).toBe(80);
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 100, fails: 0 });
+    expect(lifts().BARBELL_SQUAT.touchedAt).toBeUndefined();
+    setPosition(0);
+    expect(startSession().results.BARBELL_SQUAT.weightKg).toBe(80);
+  });
+
+  test('a light day: eased state kept only when trained', () => {
+    setProgram({
+      ...baseProgram(),
+      template: 'custom',
+      days: [{ name: 'Light', intensity: 0.8, slots: [{ exercise: 'BARBELL_SQUAT', scheme: '2x5+' }] }],
+    });
+    stale('BARBELL_SQUAT', { weightKg: 100 });
+    history(past(30, ['BARBELL_SQUAT']));
+    startSession();
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT.weightKg).toBe(100);
+    startSession();
+    logAll('BARBELL_SQUAT', 5);
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT.weightKg).toBe(80);
+  });
+
+  test('a GZCLP stage does not advance on an eased session with no reps', () => {
+    setProgram({
+      ...baseProgram(),
+      template: 'custom',
+      rules: { ...baseProgram().rules, progression: 'stages' },
+      days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '5x3+', stages: ['5x3+', '6x2+'] }] }],
+    });
+    stale('BARBELL_SQUAT', { weightKg: 100, stage: 0 });
+    history(past(30, ['BARBELL_SQUAT']));
+    startSession();
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 100, stage: 0 });
+  });
+
+  test('a 5/3/1 training max eased after a break stays lowered after a week-1 finish, not after an empty one', () => {
     get().reset();
     setProgram(getPlan('531-beginners')!.program);
-    setLift('BARBELL_SQUAT', { weightKg: 100 });
+    stale('BARBELL_SQUAT', { weightKg: 100 });
     history(past(30, ['BARBELL_SQUAT']));
+    startSession();
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT.weightKg).toBe(100);
+    setPosition(0);
     const draft = startSession();
     expect(draft.results.BARBELL_SQUAT.tmKg).toBe(80);
-    draft.results.BARBELL_SQUAT.sets.forEach((_s, i) => {
-      get().logSet('BARBELL_SQUAT', i, 5);
-    });
+    logAll('BARBELL_SQUAT', 5);
     get().finishSession();
     expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 80, fails: 0 });
+  });
+
+  test('bodyweight added load eases, and an empty finish keeps it', () => {
+    setProgram(PLUGINS.chins.apply(TEMPLATES.base));
+    stale('CHINUPS', { weightKg: 10 });
+    history(past(30, ['CHINUPS']));
+    expect(startSession().results.CHINUPS.weightKg).toBe(7.5);
+    get().finishSession();
+    expect(lifts().CHINUPS.weightKg).toBe(10);
+  });
+
+  test('a lift set after the break (a new program, a retest) is not eased', () => {
+    get().reset();
+    useStore.setState({ sessions: [past(60, ['BARBELL_SQUAT'], 5, { programId: 'old' })] });
+    setProgram(getPlan('531-beginners')!.program);
+    setLift('BARBELL_SQUAT', { weightKg: 100 });
+    expect(startSession().results.BARBELL_SQUAT.tmKg).toBe(100);
+    get().discardDraft();
+    stale('BARBELL_SQUAT');
+    expect(startSession().results.BARBELL_SQUAT.tmKg).toBe(70);
+  });
+
+  test('editing a lift during an eased workout drops its ease: the edit wins at finish', () => {
+    history(past(30, ['BARBELL_SQUAT']));
+    startSession();
+    setLift('BARBELL_SQUAT', { weightKg: 110 });
+    expect(get().draft?.eased?.lifts.BARBELL_SQUAT).toBeUndefined();
+    expect(get().draft?.results.BARBELL_SQUAT.weightKg).toBe(110);
+    get().finishSession();
+    expect(lifts().BARBELL_SQUAT.weightKg).toBe(110);
+  });
+
+  test('a stale lift with only a miss to reset makes no ease', () => {
+    setProgram(PLUGINS.chins.apply(TEMPLATES.base));
+    setLift('BARBELL_SQUAT', { weightKg: 100 });
+    stale('CHINUPS', { weightKg: 0, fails: 1 });
+    history(past(30, ['CHINUPS', 'BARBELL_SQUAT']));
+    expect(startSession().eased).toBeUndefined();
+  });
+
+  test('switching to lb snaps the eased states; finishing stores loadable lb weights', () => {
+    history(past(30, ['BARBELL_SQUAT']));
+    startSession();
+    get().setUnit('lb');
+    const eased = get().draft?.eased?.lifts.BARBELL_SQUAT;
+    expect(isLoadable(eased?.weightKg ?? 0, get().inventory, 'lb')).toBe(true);
+    expect(isLoadable(eased?.startKg ?? 0, get().inventory, 'lb')).toBe(true);
+    logAll('BARBELL_SQUAT', 5);
+    get().finishSession();
+    expect(isLoadable(lifts().BARBELL_SQUAT.weightKg, get().inventory, 'lb')).toBe(true);
+    expect(isLoadable(lifts().BARBELL_SQUAT.startKg, get().inventory, 'lb')).toBe(true);
+  });
+
+  test('new and edited lift states record when they were set', () => {
+    expect(lifts().MILITARY_PRESS.touchedAt).toEqual(expect.any(String));
+    useStore.setState((s) => ({
+      programs: s.programs.map((p) => ({
+        ...p,
+        lifts: { ...p.lifts, DEADLIFT: { weightKg: 60, startKg: 20, fails: 0 } },
+      })),
+    }));
+    get().setLiftStep(programId(), 'DEADLIFT', 0);
+    expect(lifts().DEADLIFT.touchedAt).toEqual(expect.any(String));
   });
 });
 
@@ -703,7 +835,7 @@ describe('ladder lifts in the store', () => {
   });
 
   test('the ladder id is an unweighted lift key', () => {
-    expect(lifts().rr_pullup).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+    expect(lifts().rr_pullup).toEqual({ weightKg: 0, startKg: 0, fails: 0, touchedAt: expect.any(String) });
     setLift('rr_pullup', { weightKg: 0, step: 2 });
     expect(lifts().rr_pullup.step).toBe(2);
   });
@@ -726,7 +858,7 @@ describe('ladder lifts in the store', () => {
   });
 
   test('after 30 days off a ladder goes one step down for the session, onto the heaviest band', () => {
-    setLift('rr_pullup', { step: 4, reps: 7 });
+    stale('rr_pullup', { step: 4, reps: 7 });
     useStore.setState({
       sessions: [
         {
@@ -751,4 +883,23 @@ test('an EZ-bar lift starts at its own bar', () => {
   p.days[0].slots.push({ exercise: 'EZ_BAR_CURL', scheme: '3x8' });
   setProgram(p);
   expect(lifts().EZ_BAR_CURL.weightKg).toBe(10);
+});
+
+test('confirmed weights record when they were set', () => {
+  setProgram(baseProgram());
+  stale('BARBELL_SQUAT');
+  get().confirmWeights({ BARBELL_SQUAT: 80 });
+  expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 80, touchedAt: expect.any(String) });
+});
+
+test('switching units snaps a ladder lift’s added load to single plates', () => {
+  setProgram({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { doubleAt: 10, deloadPct: 0.1, failsBeforeDeload: 1, warmups: true },
+    days: [{ name: 'A', slots: [{ exercise: 'CAL_SCAPULAR_PULL', scheme: '3x5-8', ladder: 'rr_pullup' }] }],
+  });
+  setLift('rr_pullup', { weightKg: 10, step: 5 });
+  get().setUnit('lb');
+  expect(toKg(22.5, 'lb')).toBeCloseTo(lifts().rr_pullup.weightKg, 9);
 });

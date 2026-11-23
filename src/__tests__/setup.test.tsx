@@ -36,7 +36,7 @@ test("full flow with Phrak's: Day A = chins, press, squat; session 1 = B with de
   expect(program?.days.map((d) => d.name)).toEqual(['A', 'B']);
   expect(program?.days[1].slots.map((s) => [s.exercise, s.scheme]).at(-1)).toEqual(['DEADLIFT', '1x5+']);
   expect(lifts.DEADLIFT.weightKg).toBe(20);
-  expect(lifts.CHINUPS).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+  expect(lifts.CHINUPS).toMatchObject({ weightKg: 0, startKg: 0, fails: 0 });
   expect(screen.getAllByText(/Chin/).length).toBeGreaterThan(0);
 });
 

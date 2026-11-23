@@ -25,6 +25,7 @@ import {
   exerciseOfLift,
   fiveThreeOneSets,
   gapDays,
+  getLadder,
   lastTrained,
   liftKeysOf,
   migrateV1,
@@ -35,6 +36,7 @@ import {
   setTargets,
   startingWeightKg,
   toKg,
+  touchedSince,
   tryParseScheme,
   validateProgram,
 } from './domain';
@@ -221,14 +223,37 @@ function startingLifts(
   existing: Record<string, LiftState> = {},
 ): Record<string, LiftState> {
   const out = { ...existing };
+  const touchedAt = new Date().toISOString();
   const ladders = ladderKeys(program);
   for (const key of liftKeysOf(program)) {
     if (out[key]) continue;
     const exercise = exercises[exerciseOfLift(key)];
     const kg = ladders.has(key) || !exercise ? 0 : startingWeightKg(exercise, inv, unit);
-    out[key] = { weightKg: kg, startKg: kg, fails: 0 };
+    out[key] = { weightKg: kg, startKg: kg, fails: 0, touchedAt };
   }
   return out;
+}
+
+/**
+ * The draft once the user changed lift `key` of `programId` (now in `programs`): that lift is no longer eased, so
+ * the change wins at finish. Before any set is logged the workout is rebuilt to use it, as `undoEase` does.
+ */
+function withoutEase(
+  s: AppState,
+  programs: ActiveProgram[],
+  programId: string,
+  key: string,
+): SessionLog | null {
+  const d = s.draft;
+  if (d?.programId !== programId || !d.eased?.lifts[key]) return d;
+  const { [key]: _dropped, ...lifts } = d.eased.lifts;
+  const { eased, ...rest } = d;
+  const kept: SessionLog = Object.keys(lifts).length > 0 ? { ...rest, eased: { ...eased, lifts } } : rest;
+  const program = programs.find((p) => p.id === programId);
+  if (!program || Object.values(d.results).some((r) => r.sets.some((x) => x.reps !== 0))) return kept;
+  const at = { ...program, position: d.position ?? program.position };
+  const rebuilt = draftFor(s, at, { ...program.lifts, ...lifts }, d.n, Date.parse(d.startedAt));
+  return kept.eased ? { ...rebuilt, eased: kept.eased } : rebuilt;
 }
 
 /** Bodyweight and ladder lifts are unweighted: 0 kg is a valid weight for them. */
@@ -466,21 +491,24 @@ export const useStore = create<Store>()(
           if (unit === s.unit) return {};
           // Weights are stored in kg, but a bar loaded in lb is not a whole number of kg: move every
           // working weight to the nearest weight that is loadable in the new unit.
+          // A ladder key names no exercise; its load is added load, which every bodyweight step rounds alike.
           const snap = (id: string, kg: number): number => {
-            const exercise = s.exercises[exerciseOfLift(id)];
+            const ladder = getLadder(id);
+            const exercise =
+              s.exercises[ladder ? ladder.steps[ladder.steps.length - 1].exercise : exerciseOfLift(id)];
             return exercise && kg > 0 ? roundForExercise(kg, exercise, 'nearest', s.inventory, unit) : kg;
           };
-          const programs = s.programs.map((p) => ({
-            ...p,
-            lifts: Object.fromEntries(
-              Object.entries(p.lifts).map(([id, l]) => [
+          const snapLifts = (lifts: Record<string, LiftState>) =>
+            Object.fromEntries(
+              Object.entries(lifts).map(([id, l]) => [
                 id,
                 { ...l, weightKg: snap(id, l.weightKg), startKg: snap(id, l.startKg) },
               ]),
-            ),
-          }));
+            );
+          const programs = s.programs.map((p) => ({ ...p, lifts: snapLifts(p.lifts) }));
           const draft = s.draft && {
             ...s.draft,
+            ...(s.draft.eased ? { eased: { ...s.draft.eased, lifts: snapLifts(s.draft.eased.lifts) } } : {}),
             results: Object.fromEntries(
               Object.entries(s.draft.results).map(([id, r]) => [
                 id,
@@ -578,10 +606,11 @@ export const useStore = create<Store>()(
         const kg = patch.weightKg;
         if (kg !== undefined && !(kg > 0) && !(kg === 0 && zeroOk))
           throw new Error('Weight must be positive');
-        set((s) => ({
-          programs: mapProgram(s.programs, programId, (p) => {
+        const touchedAt = new Date().toISOString();
+        set((s) => {
+          const programs = mapProgram(s.programs, programId, (p) => {
             const existing = p.lifts[key];
-            if (existing) return { ...p, lifts: { ...p.lifts, [key]: { ...existing, ...patch } } };
+            if (existing) return { ...p, lifts: { ...p.lifts, [key]: { ...existing, ...patch, touchedAt } } };
             const exercise = s.exercises[exerciseOfLift(key)];
             const start = exercise
               ? startingWeightKg(exercise, s.inventory, s.unit)
@@ -589,23 +618,26 @@ export const useStore = create<Store>()(
             const weightKg = patch.weightKg ?? (zeroOk ? 0 : start);
             return {
               ...p,
-              lifts: { ...p.lifts, [key]: { weightKg, startKg: weightKg, fails: 0, ...patch } },
+              lifts: { ...p.lifts, [key]: { weightKg, startKg: weightKg, fails: 0, ...patch, touchedAt } },
             };
-          }),
-        }));
+          });
+          return { programs, draft: withoutEase(s, programs, programId, key) };
+        });
       },
 
       setLiftStep: (programId, key, step) => {
         if (!Number.isInteger(step) || step < 0) throw new Error('Invalid step');
-        set((s) => ({
-          programs: mapProgram(s.programs, programId, (p) => ({
+        const touchedAt = new Date().toISOString();
+        set((s) => {
+          const programs = mapProgram(s.programs, programId, (p) => ({
             ...p,
             lifts: {
               ...p.lifts,
-              [key]: { ...(p.lifts[key] ?? { weightKg: 0, startKg: 0, fails: 0 }), step },
+              [key]: { ...(p.lifts[key] ?? { weightKg: 0, startKg: 0, fails: 0 }), step, touchedAt },
             },
-          })),
-        }));
+          }));
+          return { programs, draft: withoutEase(s, programs, programId, key) };
+        });
       },
 
       startSession: (programId) => {
@@ -626,7 +658,8 @@ export const useStore = create<Store>()(
             const lift = program.lifts[slot.lift];
             const exercise = exercises[slot.exercise];
             const last = lastTrained(sessions, slot.lift);
-            if (!lift || !exercise || !last || eased[slot.lift]) continue;
+            // A state set since the last training (a new program, a retest, an earlier eased session) is current.
+            if (!lift || !exercise || !last || eased[slot.lift] || touchedSince(lift, last)) continue;
             const days = gapDays(last, now);
             const next = easeBack(lift, days, { ...slot, exercise, inv: inventory, unit, bands });
             if (!next) continue;
@@ -683,6 +716,7 @@ export const useStore = create<Store>()(
         const { lifts } = program;
         const outcomes: Record<string, Outcome> = {};
         const nextLifts = { ...lifts };
+        const finishedAt = new Date().toISOString();
         // Drafts carry their resolved exercises; only a draft from before that was stored lacks them.
         const slots =
           draft.slots ?? sessionFor({ ...program, position: draft.position ?? program.position }).slots;
@@ -702,14 +736,19 @@ export const useStore = create<Store>()(
             bands,
           });
           outcomes[id] = outcome;
-          // An eased lift keeps its eased state even when the session does not move it (a 5/3/1 week or a light
-          // day), so a lowered training max does not spring back.
-          if (outcome.change !== 'none') nextLifts[key] = outcome.next;
-          else if (eased) nextLifts[key] = eased;
+          if (!eased) {
+            if (outcome.change !== 'none') nextLifts[key] = outcome.next;
+            continue;
+          }
+          // An eased lift is stored only once the user trained it; then it keeps its eased state even when the
+          // session does not move it (a 5/3/1 week or a light day), so a lowered training max does not spring
+          // back, and `touchedAt` marks the ease as applied.
+          if (!result.sets.some((set) => set.reps > 0)) continue;
+          nextLifts[key] = { ...(outcome.change === 'none' ? eased : outcome.next), touchedAt: finishedAt };
         }
         const { slots: _slots, ...log } = draft;
         set((s) => ({
-          sessions: insertLog(s.sessions, { ...log, finishedAt: new Date().toISOString() }),
+          sessions: insertLog(s.sessions, { ...log, finishedAt }),
           programs: mapProgram(s.programs, program.id, (p) => ({
             ...p,
             lifts: nextLifts,
@@ -854,9 +893,14 @@ export const useStore = create<Store>()(
             programs: target
               ? mapProgram(s.programs, target, (p) => {
                   const lifts = { ...p.lifts };
+                  const touchedAt = new Date().toISOString();
                   for (const [id, kg] of Object.entries(weights)) {
                     if (!(kg > 0)) continue;
-                    lifts[id] = { ...(lifts[id] ?? { weightKg: kg, startKg: kg, fails: 0 }), weightKg: kg };
+                    lifts[id] = {
+                      ...(lifts[id] ?? { weightKg: kg, startKg: kg, fails: 0 }),
+                      weightKg: kg,
+                      touchedAt,
+                    };
                   }
                   return { ...p, lifts };
                 })
