@@ -1,6 +1,14 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Linking, Platform, TextInput, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  AppState,
+  Linking,
+  Platform,
+  TextInput,
+  View,
+} from 'react-native';
 import { Pill } from '../../src/components/ProgramBits';
 import { useTheme } from '../../src/design/theme';
 import type { CustomPlan } from '../../src/domain';
@@ -13,7 +21,7 @@ import {
   type ModelStatus,
 } from '../../src/generate/model';
 import { MAX_TEXT } from '../../src/generate/prompt';
-import { DEFAULT_ANSWERS, decodeAnswers, GOAL_LABELS } from '../../src/generate/recommend';
+import { answersFrom, GOAL_LABELS } from '../../src/generate/recommend';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Icon } from '../../src/ui/Icon';
@@ -67,6 +75,32 @@ const FAILURES: Record<Exclude<Failure, 'cancelled'>, { title: string; body: str
   error: { title: 'Something went wrong', body: 'The on-device model could not finish.' },
 };
 
+/** What the unavailable card says, and what a screen reader announces for it. */
+function unavailableText(status: Exclude<ModelStatus, { kind: 'ready' }>, progress: number | null): string {
+  if (status.kind === 'disabled')
+    return 'Apple Intelligence is turned off. Turn it on in system Settings, under Apple Intelligence and Siri, to describe a program in your own words.';
+  if (status.kind === 'unsupported') return unsupportedText(status.reason);
+  const shown = progress ?? status.progress;
+  return `The on-device model is still downloading${shown === null ? '' : ` (${Math.round(shown * 100)} %)`}. You can use it once it is ready.`;
+}
+
+const failureText = (phase: Extract<Phase, { kind: 'failed' }>): string =>
+  phase.failure === 'error' && phase.errors[0] ? phase.errors[0] : FAILURES[phase.failure].body;
+
+/** The line a screen reader hears when the screen moves to `phase` (VoiceOver ignores live regions). */
+function announcement(phase: Phase, progress: number | null): string | null {
+  if (phase.kind === 'generating')
+    return 'Writing your program on this phone. This can take up to 30 seconds.';
+  if (phase.kind === 'done') return `${phase.plan.name} is ready. Review it in the builder, or discard it.`;
+  if (phase.kind === 'failed') {
+    const { title } = FAILURES[phase.failure];
+    const list = phase.failure === 'invalid' ? ` ${phase.errors.join(' ')}` : '';
+    return `${title}. ${failureText(phase)}${list}`;
+  }
+  if (phase.kind === 'model' && phase.status.kind !== 'ready') return unavailableText(phase.status, progress);
+  return null;
+}
+
 /** The text box, on-device model only: drafts a custom program, checks it, and opens it in the builder. */
 export default function GenerateDescribe() {
   const t = useTheme();
@@ -76,7 +110,7 @@ export default function GenerateDescribe() {
   const customPlans = useStore((s) => s.customPlans);
   const programs = useStore((s) => s.programs);
   const saveCustomPlan = useStore((s) => s.saveCustomPlan);
-  const [answers] = useState(() => (a ? decodeAnswers(a) : { ...DEFAULT_ANSWERS, equipment: [...owned] }));
+  const [answers] = useState(() => answersFrom(a, owned));
   const [text, setText] = useState('');
   const [phase, setPhase] = useState<Phase>({ kind: 'checking' });
   const [progress, setProgress] = useState<number | null>(null);
@@ -88,6 +122,12 @@ export default function GenerateDescribe() {
     setPhase({ kind: 'checking' });
     setPhase({ kind: 'model', status: await checkModel() });
   }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: announce phase changes only, not download progress
+  useEffect(() => {
+    const line = announcement(phase, progress);
+    if (line) AccessibilityInfo.announceForAccessibility(line);
+  }, [phase]);
 
   useEffect(() => {
     void check();
@@ -103,6 +143,8 @@ export default function GenerateDescribe() {
   }, [check]);
 
   const generate = async () => {
+    // A double tap or a second Generate never leaves the first request running.
+    abort.current?.abort();
     const controller = new AbortController();
     abort.current = controller;
     setPhase({ kind: 'generating' });
@@ -175,7 +217,7 @@ export default function GenerateDescribe() {
           </Text>
         ) : null}
         {ready ? (
-          <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             <Pill label="Model ready" tone="success" />
             <Pill label="On-device" />
           </View>
@@ -230,7 +272,11 @@ export default function GenerateDescribe() {
             progress={progress}
             onCheck={check}
             onDownload={async () => {
-              setPhase({ kind: 'model', status: await downloadModel(setProgress) });
+              const next = await downloadModel(setProgress);
+              // A download can outlast the card: once the user has moved on (checked again, generating), keep that.
+              const now = phaseRef.current;
+              if (now.kind === 'model' && now.status.kind === 'downloading')
+                setPhase({ kind: 'model', status: next });
             }}
           />
         ) : null}
@@ -253,11 +299,7 @@ export default function GenerateDescribe() {
           <Card>
             <View style={{ gap: t.space[2] }} accessibilityLiveRegion="polite">
               <Text variant="headline">{FAILURES[phase.failure].title}</Text>
-              <Text>
-                {phase.failure === 'error' && phase.errors[0]
-                  ? phase.errors[0]
-                  : FAILURES[phase.failure].body}
-              </Text>
+              <Text>{failureText(phase)}</Text>
               {phase.failure === 'invalid'
                 ? phase.errors.map((e) => (
                     <Text key={e} variant="callout" color="textMuted">
@@ -287,6 +329,7 @@ export default function GenerateDescribe() {
         ) : ready ? (
           <Button
             title={phase.kind === 'failed' ? 'Try again' : 'Generate'}
+            icon="sparkles"
             size="lg"
             testID="describe-generate"
             disabled={text.trim().length === 0}
@@ -323,13 +366,7 @@ function Unavailable({
   onDownload(): void;
 }) {
   const t = useTheme();
-  const shown = status.kind === 'downloading' ? (progress ?? status.progress) : null;
-  const body =
-    status.kind === 'disabled'
-      ? 'Apple Intelligence is turned off. Turn it on in system Settings, under Apple Intelligence and Siri, to describe a program in your own words.'
-      : status.kind === 'downloading'
-        ? `The on-device model is still downloading${shown === null ? '' : ` (${Math.round(shown * 100)} %)`}. You can use it once it is ready.`
-        : unsupportedText(status.reason);
+  const body = unavailableText(status, progress);
   return (
     <Card>
       <View style={{ gap: t.space[3] }} accessibilityLiveRegion="polite">
@@ -371,8 +408,8 @@ function Preview({
   const exercises = useStore((s) => s.exercises);
   const label = (slot: CustomPlan['program']['days'][number]['slots'][number]) => {
     if (slot.ladder) return getLadder(slot.ladder)?.name ?? slot.ladder;
-    const id = typeof slot.exercise === 'string' ? slot.exercise : slot.exercise[0];
-    return exercises[id]?.name ?? id;
+    const name = (id: string) => (Object.hasOwn(exercises, id) ? exercises[id].name : id);
+    return typeof slot.exercise === 'string' ? name(slot.exercise) : slot.exercise.map(name).join(' / ');
   };
   const checks = [
     'Every exercise exists in the library',
@@ -383,7 +420,7 @@ function Preview({
     <View style={{ flex: 1 }}>
       <Stack.Screen options={{ title: plan.name }} />
       <ScreenScroll withBottomBar gap={6}>
-        <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
           <Pill label={goal} />
           <Pill label="Made on this device" tone="success" />
         </View>

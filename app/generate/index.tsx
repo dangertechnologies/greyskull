@@ -6,17 +6,19 @@ import type { Equipment } from '../../src/domain';
 import { EQUIPMENT_LABELS } from '../../src/exerciseFilter';
 import {
   type Answers,
-  DEFAULT_ANSWERS,
+  answersFrom,
   EXPERIENCE,
   EXPERIENCE_LABELS,
   encodeAnswers,
   GOAL_LABELS,
   GOALS,
+  knownEquipment,
   MINUTES,
 } from '../../src/generate/recommend';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Chip } from '../../src/ui/Chip';
+import { Icon } from '../../src/ui/Icon';
 import { ListRow } from '../../src/ui/ListRow';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
@@ -45,8 +47,10 @@ function Chips({ children }: { children: ReactNode }) {
 
 /** Five questions that work on every device; the answers lead to built-in programs or to "Describe it". */
 export default function GenerateQuestions() {
-  const owned = useStore((s) => s.equipment);
-  const [answers, setAnswers] = useState<Answers>(() => ({ ...DEFAULT_ANSWERS, equipment: [...owned] }));
+  const saved = useStore((s) => s.equipment);
+  // Stored equipment is checked too: a restored file could carry values the app does not know.
+  const owned = knownEquipment(saved);
+  const [answers, setAnswers] = useState<Answers>(() => answersFrom(undefined, saved));
   const set = (patch: Partial<Answers>) => setAnswers((a) => ({ ...a, ...patch }));
   const equipmentChips = [...OFFERED, ...owned.filter((e) => e !== 'none' && !OFFERED.includes(e))];
   const toggle = (e: Equipment) =>
@@ -128,6 +132,7 @@ export default function GenerateQuestions() {
         <ListRow
           title="Describe it instead"
           subtitle="In your own words, with the on-device model"
+          leading={<Icon name="sparkles" color="accent" />}
           accessory="chevron"
           testID="generate-describe"
           onPress={() => router.push(`/generate/describe${query}`)}

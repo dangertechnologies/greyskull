@@ -2,7 +2,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
-import { decodeAnswers, type Pick, recommend } from '../../src/generate/recommend';
+import { answersFrom, encodeAnswers, type Pick, recommend } from '../../src/generate/recommend';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ListRow } from '../../src/ui/ListRow';
@@ -31,7 +31,8 @@ export default function GenerateResults() {
   const { a } = useLocalSearchParams<{ a?: string }>();
   const t = useTheme();
   const exercises = useStore((s) => s.exercises);
-  const answers = decodeAnswers(a);
+  const owned = useStore((s) => s.equipment);
+  const answers = answersFrom(a, owned);
   const { picks, addOn } = recommend(answers, exercises);
 
   return (
@@ -60,8 +61,9 @@ export default function GenerateResults() {
       <View style={{ gap: t.space[2] }}>
         <Button
           title="Describe it instead"
+          icon="sparkles"
           variant="secondary"
-          onPress={() => router.push(`/generate/describe?a=${encodeURIComponent(a ?? '')}`)}
+          onPress={() => router.push(`/generate/describe?a=${encodeURIComponent(encodeAnswers(answers))}`)}
         />
         <Button title="Build my own" variant="plain" onPress={() => open('custom')} />
       </View>

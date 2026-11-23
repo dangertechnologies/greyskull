@@ -2,7 +2,7 @@ import { act } from '@testing-library/react-native';
 import { generateAsync, getAvailabilityAsync, prepareAsync } from 'expo-ai';
 import { useLocalSearchParams } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
-import { Linking, Text } from 'react-native';
+import { AccessibilityInfo, Linking, Text } from 'react-native';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
 import { DEFAULT_ANSWERS, encodeAnswers } from './recommend';
@@ -259,5 +259,96 @@ describe('Describe it: the model is ready', () => {
     expect(screen.getAllByText(/NOPE/).length).toBeGreaterThan(0);
     expect(generate).toHaveBeenCalledTimes(2);
     expect(useStore.getState().customPlans).toEqual([]);
+  });
+});
+
+describe('fix round', () => {
+  test('VoiceOver hears the reason the model is unavailable', async () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility');
+    availability.mockResolvedValue({ status: 'unavailable', reason: 'intelligence-disabled' });
+    await renderRouter(appRoutes(), { initialUrl: describeUrl });
+    await screen.findByTestId('describe-reason');
+    expect(announce).toHaveBeenLastCalledWith(expect.stringMatching(/Apple Intelligence is turned off/));
+    announce.mockRestore();
+  });
+
+  test('VoiceOver hears generating, the failure with its reason, and the result', async () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility');
+    ready();
+    generate.mockRejectedValueOnce(fail('ERR_TIMEOUT')).mockResolvedValueOnce({ value: good });
+    await describeWith();
+    fireEvent.press(screen.getByTestId('describe-generate'));
+    await screen.findByText('Timed out');
+    expect(announce).toHaveBeenCalledWith(expect.stringMatching(/Writing your program/));
+    expect(announce).toHaveBeenLastCalledWith(expect.stringMatching(/Timed out.*30 seconds/));
+    fireEvent.press(screen.getByText('Try again'));
+    await screen.findByText('Made on this device');
+    expect(announce).toHaveBeenLastCalledWith(expect.stringMatching(/Rings and Squats is ready/));
+    announce.mockRestore();
+  });
+
+  test('a second Generate aborts the first request', async () => {
+    ready();
+    const signals: AbortSignal[] = [];
+    generate.mockImplementation((_p: string, options: { signal: AbortSignal }) => {
+      signals.push(options.signal);
+      return new Promise(() => undefined);
+    });
+    await describeWith();
+    // A fast double tap: both presses reach the handler before the button re-renders as Cancel.
+    type Node = { props: { onPress?: () => void }; parent: Node | null };
+    let node = screen.getByTestId('describe-generate') as unknown as Node | null;
+    while (node && !node.props.onPress) node = node.parent;
+    const press = node?.props.onPress as () => void;
+    await act(async () => {
+      press();
+      press();
+    });
+    expect(signals).toHaveLength(2);
+    expect(signals[0].aborted).toBe(true);
+    expect(signals[1].aborted).toBe(false);
+  });
+
+  test('a slow download does not overwrite a running generation', async () => {
+    let finishDownload: (v: unknown) => void = () => undefined;
+    availability.mockResolvedValueOnce({ status: 'downloadable', progress: null });
+    prepare.mockImplementation(() => new Promise((resolve) => (finishDownload = resolve)));
+    generate.mockImplementation(() => new Promise(() => undefined));
+    await renderRouter(appRoutes(), { initialUrl: describeUrl });
+    fireEvent.press(await screen.findByText('Download the model'));
+    ready();
+    fireEvent.press(screen.getByText('Check again'));
+    await screen.findByText('Model ready');
+    fireEvent.changeText(screen.getByTestId('describe-text'), 'Rings.');
+    fireEvent.press(screen.getByTestId('describe-generate'));
+    expect(await screen.findByTestId('describe-cancel')).toBeTruthy();
+    await act(async () => finishDownload({ status: 'available' }));
+    await act(async () => undefined);
+    expect(screen.getByTestId('describe-cancel')).toBeTruthy();
+  });
+
+  test('results opened without answers use the saved equipment', async () => {
+    useStore.setState({ equipment: ['barbell', 'bench', 'pull-up-bar', 'dip-bars', 'dumbbell'] });
+    await renderRouter(appRoutes(), { initialUrl: '/generate/results' });
+    expect((await screen.findAllByText(/fits your equipment/)).length).toBeGreaterThan(0);
+  });
+
+  test('prototype names in the equipment of a link are ignored', async () => {
+    useStore.setState({ equipment: ['barbell', 'bench'] });
+    const hostile = encodeURIComponent(
+      JSON.stringify({ goal: 'strength', equipment: ['toString', '__proto__', 'constructor'] }),
+    );
+    await renderRouter(appRoutes(), { initialUrl: `/generate/results?a=${hostile}` });
+    expect(await screen.findByTestId('recommend-base')).toBeTruthy();
+    expect(screen.queryAllByText(/fits your equipment/)).toEqual([]);
+  });
+
+  test('the questions screen survives stored equipment with prototype names', async () => {
+    useStore.setState({ equipment: ['rings', 'toString', 'constructor'] as never });
+    await renderRouter(appRoutes(), { initialUrl: '/generate' });
+    expect((await screen.findByRole('checkbox', { name: 'Rings' })).props.accessibilityState).toEqual({
+      checked: true,
+    });
+    expect(screen.queryByRole('checkbox', { name: /function|toString|constructor/ })).toBeNull();
   });
 });

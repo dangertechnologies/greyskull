@@ -13,6 +13,7 @@ import { useSetup } from '../../src/setup/SetupContext';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Chip } from '../../src/ui/Chip';
+import { Icon } from '../../src/ui/Icon';
 import { IconButton } from '../../src/ui/IconButton';
 import { ListRow } from '../../src/ui/ListRow';
 import { BottomBar, ScreenScroll, useGutter } from '../../src/ui/layout';
@@ -260,6 +261,7 @@ export default function PlanStep() {
           <ListRow
             title="Generate a program"
             subtitle="Answer a few questions, or describe it in your own words"
+            leading={<Icon name="sparkles" color="accent" />}
             accessory="chevron"
             testID="setup-generate"
             onPress={() => router.push('/generate')}
