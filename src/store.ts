@@ -803,7 +803,7 @@ export const useStore = create<Store>()(
 export async function initStore(): Promise<void> {
   const load = ++loads;
   hydrationError = null;
-  useStore.setState({ storageError: null });
+  // A retry keeps the recovery screen up until the data has loaded, so the app never shows an empty state.
   await useStore.persist.rehydrate();
   // A later call started over (zustand drops the earlier hydration): that call reports the outcome.
   if (load !== loads) return;
@@ -822,7 +822,7 @@ export async function initStore(): Promise<void> {
   } catch {
     // Unreadable v1 data: start without it.
   }
-  useStore.setState({ legacyChecked: true, hydrated: true });
+  useStore.setState({ legacyChecked: true, hydrated: true, storageError: null });
 }
 
 /** The program with `id`; without an id, the first program that is not paused. */

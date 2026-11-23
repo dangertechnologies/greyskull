@@ -85,9 +85,11 @@ export function useSession(n: number, programId?: string): SessionApi | null {
   const ready = draft !== null && draft.n === n;
   const hasDraft = draft !== null;
   const startId = program?.id;
+  // Only the next session id starts a workout: a stale route (its workout finished or dropped) never does.
+  const isNext = useStore((s) => s.nextSession === n);
   useEffect(() => {
-    if (!ready && !finished && !hasDraft && startId) startSession(startId);
-  }, [ready, finished, hasDraft, startId, startSession]);
+    if (!ready && !finished && !hasDraft && isNext && startId) startSession(startId);
+  }, [ready, finished, hasDraft, isNext, startId, startSession]);
 
   const [picked, setPicked] = useState<number | null>(null);
   const [doneWarmups, setDoneWarmups] = useState<ReadonlySet<string>>(new Set());
