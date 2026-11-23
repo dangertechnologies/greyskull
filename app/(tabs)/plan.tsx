@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { CategoryPill, Pill, ProgramBadge } from '../../src/components/ProgramBits';
 import { useTheme } from '../../src/design/theme';
 import type { ActiveProgram, CustomPlan } from '../../src/domain';
@@ -8,6 +8,7 @@ import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { EmptyState } from '../../src/ui/EmptyState';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
+import { Icon } from '../../src/ui/Icon';
 import { ListRow } from '../../src/ui/ListRow';
 import { ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
@@ -20,24 +21,40 @@ function ProgramRow({ program }: { program: ActiveProgram }) {
   const subtitle = program.paused
     ? `Paused · ${day} next`
     : `${day} next · ${program.sessionsPerWeek} a week`;
+  const open = draft?.programId === program.id;
   return (
-    <ListRow
-      title={program.name}
-      subtitle={subtitle}
-      leading={<ProgramBadge program={program} />}
-      accessibilityLabel={`${program.name}, ${subtitle}${draft?.programId === program.id ? ', workout open' : ''}`}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${program.name}, ${subtitle}${open ? ', workout open' : ''}`}
       onPress={() => router.push(`/program/${program.id}`)}
-      accessory={
-        <View style={{ alignItems: 'flex-end', gap: t.space[1] }}>
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        paddingVertical: 14,
+        backgroundColor: pressed ? t.color.border : 'transparent',
+      })}
+    >
+      <ProgramBadge program={program} />
+      <View style={{ flex: 1, gap: t.space[2] }}>
+        <View style={{ gap: 2 }}>
+          <Text variant="bodyStrong">{program.name}</Text>
+          <Text variant="callout" color="textMuted">
+            {subtitle}
+          </Text>
+        </View>
+        {/* Under the text, so large text never squeezes the name into a narrow column. */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
           <CategoryPill program={program} />
-          {draft?.programId === program.id ? (
+          {open ? (
             <Pill label="Draft open" tone="warning" />
           ) : program.paused ? null : (
             <Pill label="Active" tone="success" />
           )}
         </View>
-      }
-    />
+      </View>
+      <Icon name="chevron" size={18} color="textMuted" />
+    </Pressable>
   );
 }
 
@@ -57,6 +74,7 @@ function CustomPlanRow({ plan }: { plan: CustomPlan }) {
 }
 
 export default function Programs() {
+  const t = useTheme();
   const programs = useStore((s) => s.programs);
   const customPlans = useStore((s) => s.customPlans);
   const active = programs.filter((p) => !p.paused);
@@ -64,8 +82,16 @@ export default function Programs() {
 
   return (
     <ScreenScroll headerless gap={10}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text variant="title" accessibilityRole="header" style={{ flexShrink: 1 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: t.space[3],
+        }}
+      >
+        <Text variant="title" accessibilityRole="header">
           Programs
         </Text>
         <View style={{ minWidth: 120 }}>

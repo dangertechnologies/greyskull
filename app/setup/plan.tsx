@@ -7,11 +7,13 @@ import { getPlan, PLANS } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
 import type { PluginId, Program } from '../../src/domain';
 import { DEFAULT_RULES, PLUGINS } from '../../src/domain';
+import { goBackOr } from '../../src/navigation';
 import { CATEGORIES, type Category, categoryOf, equipmentFit, fitLabel } from '../../src/programPicker';
 import { useSetup } from '../../src/setup/SetupContext';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Chip } from '../../src/ui/Chip';
+import { IconButton } from '../../src/ui/IconButton';
 import { ListRow } from '../../src/ui/ListRow';
 import { BottomBar, ScreenScroll, useGutter } from '../../src/ui/layout';
 import { NumberStepper } from '../../src/ui/NumberStepper';
@@ -213,7 +215,13 @@ export default function PlanStep() {
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
       <Stack.Screen
-        options={{ title: changing ? 'Change plan' : adding ? 'Add a program' : 'Pick a program' }}
+        options={{
+          title: changing ? 'Change plan' : adding ? 'Add a program' : 'Pick a program',
+          // Opened from a tab, this is the first screen of the setup stack: it has no back button of its own.
+          ...(changing || adding
+            ? { headerLeft: () => <IconButton icon="back" label="Back" onPress={() => goBackOr('/')} /> }
+            : {}),
+        }}
       />
       <ScreenScroll withBottomBar gap={4}>
         {changing || adding ? null : (

@@ -90,7 +90,15 @@ function ProgramCard({ program }: { program: ActiveProgram }) {
         {ids.map((id) => nameOf(exercises, id, true)).join(' · ')}
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space[3] }}>
-        <View style={{ flexGrow: 1, flexBasis: 120 }}>
+        <View
+          style={{
+            flexGrow: 1,
+            flexBasis: 140,
+            borderRadius: t.radius.lg,
+            borderWidth: 1,
+            borderColor: t.color.borderStrong,
+          }}
+        >
           <Button
             title="Start"
             variant="secondary"
@@ -99,7 +107,7 @@ function ProgramCard({ program }: { program: ActiveProgram }) {
             onPress={() => startWorkout(program)}
           />
         </View>
-        <View style={{ flexBasis: 96 }}>
+        <View style={{ flexShrink: 0 }}>
           <Button
             title="Skip"
             variant="plain"
