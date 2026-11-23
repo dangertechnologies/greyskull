@@ -398,10 +398,12 @@ skip; restores `restore` lifts, decrements that program's `position`, rewinds `n
   keep the field optional for old data). Every `n - startN` computation (week labels in `format.ts`, alternating
   pairs, 5/3/1 week) uses `position`.
 - **Storage moves to a file** (owner decision). `src/storage.ts`: a zustand `StateStorage` over `expo-file-system`
-  (`File`/`Paths` API): `Paths.document/state.json`; write = write `state.json.tmp` then move over `state.json`
-  (atomic on one volume); writes debounced 500 ms and flushed on `AppState` → `background`; one write in flight at a
-  time. Read order on launch: `state.json` → else AsyncStorage `gslp-v2` (copy it to the file, keep the key) → else
-  fresh. **Hydration failure** (unreadable or unparsable file): never fall back to writing defaults
+  (`File`/`Paths` API): `Paths.document/state.json`; write = write `state.json.tmp`, move `state.json` to
+  `state.prev.json`, then move the tmp file to `state.json` (the last move never overwrites, so a whole file always
+  exists); writes debounced 500 ms and flushed on `AppState` → `background`; one write in flight at a time. Read
+  order on launch: a whole `state.json.tmp` (finishes the interrupted save) → `state.json` → `state.prev.json`;
+  AsyncStorage `gslp-v2` only while no state file holds anything newer (first launch after the upgrade), otherwise
+  a missing file is an error → recovery screen, never older data. **Hydration failure** (unreadable or unparsable file): never fall back to writing defaults
   (`store.ts:434-437` does today). Set `storageError`, block every write, show a recovery screen (retry, export the
   raw file via the share sheet, restore a backup). Before the v3→v4 migration runs, copy the raw v3 data to
   `state.v3.json` once.
