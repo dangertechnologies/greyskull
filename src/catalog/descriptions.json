@@ -1,0 +1,2495 @@
+{
+  "3_4_SIT_UP": {
+    "description": "3/4 Sit-Up: no equipment; works abdominals; beginner."
+  },
+  "90_90_HAMSTRING": {
+    "description": "90/90 Hamstring: no equipment; works hamstrings; beginner."
+  },
+  "AB_CRUNCH_MACHINE": {
+    "description": "Ab Crunch Machine: machine; works abdominals; intermediate."
+  },
+  "AB_ROLLER": {
+    "description": "Ab Roller: no equipment; works abdominals; intermediate."
+  },
+  "ADDUCTOR": {
+    "description": "Adductor: foam roll; works adductors; intermediate."
+  },
+  "ADDUCTOR_GROIN": {
+    "description": "Adductor/Groin: no equipment; works adductors; intermediate."
+  },
+  "ADVANCED_KETTLEBELL_WINDMILL": {
+    "description": "Advanced Kettlebell Windmill: kettlebell; works abdominals; intermediate."
+  },
+  "AIR_BIKE": {
+    "description": "Air Bike: no equipment; works abdominals; beginner."
+  },
+  "ALL_FOURS_QUAD_STRETCH": {
+    "description": "All Fours Quad Stretch: no equipment; works quadriceps; intermediate."
+  },
+  "ALTERNATE_HAMMER_CURL": {
+    "description": "Alternate Hammer Curl: dumbbell; works biceps; beginner."
+  },
+  "ALTERNATE_HEEL_TOUCHERS": {
+    "description": "Alternate Heel Touchers: no equipment; works abdominals; beginner."
+  },
+  "ALTERNATE_INCLINE_DUMBBELL_CURL": {
+    "description": "Alternate Incline Dumbbell Curl: dumbbell; works biceps; beginner."
+  },
+  "ALTERNATE_LEG_DIAGONAL_BOUND": {
+    "description": "Alternate Leg Diagonal Bound: no equipment; works quadriceps; beginner."
+  },
+  "ALTERNATING_CABLE_SHOULDER_PRESS": {
+    "description": "Alternating Cable Shoulder Press: cable; works shoulders; beginner."
+  },
+  "ALTERNATING_DELTOID_RAISE": {
+    "description": "Alternating Deltoid Raise: dumbbell; works shoulders; beginner."
+  },
+  "ALTERNATING_FLOOR_PRESS": {
+    "description": "Alternating Floor Press: kettlebell; works chest; beginner."
+  },
+  "ALTERNATING_HANG_CLEAN": {
+    "description": "Alternating Hang Clean: kettlebell; works hamstrings; intermediate."
+  },
+  "ALTERNATING_KETTLEBELL_PRESS": {
+    "description": "Alternating Kettlebell Press: kettlebell; works shoulders; intermediate."
+  },
+  "ALTERNATING_KETTLEBELL_ROW": {
+    "description": "Alternating Kettlebell Row: kettlebell; works middle back; intermediate."
+  },
+  "ALTERNATING_RENEGADE_ROW": {
+    "description": "Alternating Renegade Row: kettlebell; works middle back; expert."
+  },
+  "ANKLE_CIRCLES": {
+    "description": "Ankle Circles: no equipment; works calves; beginner."
+  },
+  "ANKLE_ON_THE_KNEE": {
+    "description": "Ankle On The Knee: no equipment; works glutes; beginner."
+  },
+  "ANTERIOR_TIBIALIS_SMR": {
+    "description": "Anterior Tibialis-SMR: no equipment; works calves; intermediate."
+  },
+  "ANTI_GRAVITY_PRESS": {
+    "description": "Anti-Gravity Press: barbell; works shoulders; beginner."
+  },
+  "ARM_CIRCLES": {
+    "description": "Arm Circles: no equipment; works shoulders; beginner."
+  },
+  "ARNOLD_DUMBBELL_PRESS": {
+    "description": "Arnold Dumbbell Press: dumbbell; works shoulders; intermediate."
+  },
+  "AROUND_THE_WORLDS": {
+    "description": "Around The Worlds: dumbbell; works chest; intermediate."
+  },
+  "BACK_FLYES_WITH_BANDS": {
+    "description": "Back Flyes - With Bands: bands; works shoulders; beginner."
+  },
+  "BACKWARD_MEDICINE_BALL_THROW": {
+    "description": "Backward Medicine Ball Throw: medicine ball; works shoulders; beginner."
+  },
+  "BALANCE_BOARD": {
+    "description": "Balance Board: no equipment; works calves; beginner."
+  },
+  "BALL_LEG_CURL": {
+    "description": "Ball Leg Curl: exercise ball; works hamstrings; beginner."
+  },
+  "BAND_ASSISTED_PULL_UP": {
+    "description": "Band Assisted Pull-Up: pull up bar; works lats; beginner."
+  },
+  "BAND_GOOD_MORNING": {
+    "description": "Band Good Morning: bands; works hamstrings; beginner."
+  },
+  "BAND_GOOD_MORNING_PULL_THROUGH": {
+    "description": "Band Good Morning (Pull Through): bands; works hamstrings; beginner."
+  },
+  "BAND_HIP_ADDUCTIONS": {
+    "description": "Band Hip Adductions: bands; works adductors; beginner."
+  },
+  "BAND_PULL_APART": {
+    "description": "Band Pull Apart: bands; works shoulders; beginner."
+  },
+  "BAND_SKULL_CRUSHER": {
+    "description": "Band Skull Crusher: bands; works triceps; beginner."
+  },
+  "BARBELL_AB_ROLLOUT": {
+    "description": "Barbell Ab Rollout: barbell; works abdominals; intermediate."
+  },
+  "BARBELL_AB_ROLLOUT_ON_KNEES": {
+    "description": "Barbell Ab Rollout - On Knees: barbell; works abdominals; expert."
+  },
+  "BARBELL_BENCH_PRESS_MEDIUM_GRIP": {
+    "description": "Barbell Bench Press - Medium Grip: barbell, bench; works chest; beginner."
+  },
+  "BARBELL_CURLS_LYING_AGAINST_AN_INCLINE": {
+    "description": "Barbell Curls Lying Against An Incline: barbell; works biceps; beginner."
+  },
+  "BARBELL_DEADLIFT": {
+    "description": "Barbell Deadlift: barbell; works lower back; intermediate."
+  },
+  "BARBELL_FULL_SQUAT": {
+    "description": "Barbell Full Squat: barbell; works quadriceps; intermediate."
+  },
+  "BARBELL_GLUTE_BRIDGE": {
+    "description": "Barbell Glute Bridge: barbell; works glutes; intermediate."
+  },
+  "BARBELL_GUILLOTINE_BENCH_PRESS": {
+    "description": "Barbell Guillotine Bench Press: barbell, bench; works chest; intermediate."
+  },
+  "BARBELL_HACK_SQUAT": {
+    "description": "Barbell Hack Squat: barbell; works quadriceps; intermediate."
+  },
+  "BARBELL_HIP_THRUST": {
+    "description": "Barbell Hip Thrust: barbell; works glutes; intermediate."
+  },
+  "BARBELL_INCLINE_BENCH_PRESS_MEDIUM_GRIP": {
+    "description": "Barbell Incline Bench Press - Medium Grip: barbell, bench; works chest; beginner."
+  },
+  "BARBELL_INCLINE_SHOULDER_RAISE": {
+    "description": "Barbell Incline Shoulder Raise: barbell; works shoulders; beginner."
+  },
+  "BARBELL_LUNGE": {
+    "description": "Barbell Lunge: barbell; works quadriceps; intermediate."
+  },
+  "BARBELL_REAR_DELT_ROW": {
+    "description": "Barbell Rear Delt Row: barbell; works shoulders; beginner."
+  },
+  "BARBELL_ROLLOUT_FROM_BENCH": {
+    "description": "Barbell Rollout from Bench: barbell, bench; works abdominals; intermediate."
+  },
+  "BARBELL_SEATED_CALF_RAISE": {
+    "description": "Barbell Seated Calf Raise: barbell; works calves; beginner."
+  },
+  "BARBELL_SHOULDER_PRESS": {
+    "description": "Barbell Shoulder Press: barbell; works shoulders; intermediate."
+  },
+  "BARBELL_SHRUG": {
+    "description": "Barbell Shrug: barbell; works traps; beginner."
+  },
+  "BARBELL_SHRUG_BEHIND_THE_BACK": {
+    "description": "Barbell Shrug Behind The Back: barbell; works traps; beginner."
+  },
+  "BARBELL_SIDE_BEND": {
+    "description": "Barbell Side Bend: barbell; works abdominals; beginner."
+  },
+  "BARBELL_SIDE_SPLIT_SQUAT": {
+    "description": "Barbell Side Split Squat: barbell; works quadriceps; beginner."
+  },
+  "BARBELL_SQUAT_TO_A_BENCH": {
+    "description": "Barbell Squat To A Bench: barbell, bench; works quadriceps; expert."
+  },
+  "BARBELL_STEP_UPS": {
+    "description": "Barbell Step Ups: barbell; works quadriceps; intermediate."
+  },
+  "BARBELL_WALKING_LUNGE": {
+    "description": "Barbell Walking Lunge: barbell; works quadriceps; beginner."
+  },
+  "BATTLING_ROPES": {
+    "description": "Battling Ropes: no equipment; works shoulders; beginner."
+  },
+  "BEHIND_HEAD_CHEST_STRETCH": {
+    "description": "Behind Head Chest Stretch: no equipment; works chest; expert."
+  },
+  "BENCH_DIPS": {
+    "description": "Bench Dips: bench; works triceps; beginner."
+  },
+  "BENCH_JUMP": {
+    "description": "Bench Jump: no equipment, bench; works quadriceps; intermediate."
+  },
+  "BENCH_PRESS_POWERLIFTING": {
+    "description": "Bench Press - Powerlifting: barbell, bench; works triceps; intermediate."
+  },
+  "BENCH_PRESS_WITH_BANDS": {
+    "description": "Bench Press - With Bands: bands, bench; works chest; beginner."
+  },
+  "BENCH_PRESS_WITH_CHAINS": {
+    "description": "Bench Press with Chains: barbell, bench; works triceps; expert."
+  },
+  "BENCH_SPRINT": {
+    "description": "Bench Sprint: no equipment, bench; works quadriceps; beginner."
+  },
+  "BENT_OVER_BARBELL_ROW": {
+    "description": "Bent Over Barbell Row: barbell; works middle back; beginner."
+  },
+  "BENT_OVER_DUMBBELL_REAR_DELT_RAISE_WITH_HEAD_ON_BENCH": {
+    "description": "Bent Over Dumbbell Rear Delt Raise With Head On Bench: dumbbell, bench; works shoulders; beginner."
+  },
+  "BENT_OVER_LOW_PULLEY_SIDE_LATERAL": {
+    "description": "Bent Over Low-Pulley Side Lateral: cable; works shoulders; beginner."
+  },
+  "BENT_OVER_ONE_ARM_LONG_BAR_ROW": {
+    "description": "Bent Over One-Arm Long Bar Row: barbell; works middle back; beginner."
+  },
+  "BENT_OVER_TWO_ARM_LONG_BAR_ROW": {
+    "description": "Bent Over Two-Arm Long Bar Row: barbell; works middle back; intermediate."
+  },
+  "BENT_OVER_TWO_DUMBBELL_ROW": {
+    "description": "Bent Over Two-Dumbbell Row: dumbbell; works middle back; beginner."
+  },
+  "BENT_OVER_TWO_DUMBBELL_ROW_WITH_PALMS_IN": {
+    "description": "Bent Over Two-Dumbbell Row With Palms In: dumbbell; works middle back; beginner."
+  },
+  "BENT_PRESS": {
+    "description": "Bent Press: kettlebell; works abdominals; expert."
+  },
+  "BENT_ARM_BARBELL_PULLOVER": {
+    "description": "Bent-Arm Barbell Pullover: barbell; works lats; intermediate."
+  },
+  "BENT_ARM_DUMBBELL_PULLOVER": {
+    "description": "Bent-Arm Dumbbell Pullover: dumbbell; works chest; intermediate."
+  },
+  "BENT_KNEE_HIP_RAISE": {
+    "description": "Bent-Knee Hip Raise: no equipment; works abdominals; beginner."
+  },
+  "BOARD_PRESS": {
+    "description": "Board Press: barbell; works triceps; intermediate."
+  },
+  "BODY_TRICEP_PRESS": {
+    "description": "Body Tricep Press: no equipment; works triceps; beginner."
+  },
+  "BODY_UP": {
+    "description": "Body-Up: no equipment; works triceps; intermediate."
+  },
+  "BODYWEIGHT_FLYES": {
+    "description": "Bodyweight Flyes: ez bar; works chest; intermediate."
+  },
+  "BODYWEIGHT_MID_ROW": {
+    "description": "Bodyweight Mid Row: no equipment; works middle back; intermediate."
+  },
+  "BODYWEIGHT_SQUAT": {
+    "description": "Bodyweight Squat: no equipment; works quadriceps; beginner."
+  },
+  "BODYWEIGHT_WALKING_LUNGE": {
+    "description": "Bodyweight Walking Lunge: no equipment; works quadriceps; beginner."
+  },
+  "BOSU_BALL_CABLE_CRUNCH_WITH_SIDE_BENDS": {
+    "description": "Bosu Ball Cable Crunch With Side Bends: cable; works abdominals; beginner."
+  },
+  "BOTTOMS_UP": {
+    "description": "Bottoms Up: no equipment; works abdominals; beginner."
+  },
+  "BOTTOMS_UP_CLEAN_FROM_THE_HANG_POSITION": {
+    "description": "Bottoms-Up Clean From The Hang Position: kettlebell; works forearms; intermediate."
+  },
+  "BOX_JUMP_MULTIPLE_RESPONSE": {
+    "description": "Box Jump (Multiple Response): no equipment; works hamstrings; beginner."
+  },
+  "BOX_SKIP": {
+    "description": "Box Skip: no equipment; works hamstrings; beginner."
+  },
+  "BOX_SQUAT": {
+    "description": "Box Squat: barbell; works quadriceps; intermediate."
+  },
+  "BOX_SQUAT_WITH_BANDS": {
+    "description": "Box Squat with Bands: barbell; works quadriceps; expert."
+  },
+  "BOX_SQUAT_WITH_CHAINS": {
+    "description": "Box Squat with Chains: barbell; works quadriceps; expert."
+  },
+  "BRACHIALIS_SMR": {
+    "description": "Brachialis-SMR: foam roll; works biceps; intermediate."
+  },
+  "BRADFORD_ROCKY_PRESSES": {
+    "description": "Bradford/Rocky Presses: barbell; works shoulders; beginner."
+  },
+  "BUTT_LIFT_BRIDGE": {
+    "description": "Butt Lift (Bridge): no equipment; works glutes; beginner."
+  },
+  "BUTT_UPS": {
+    "description": "Butt-Ups: no equipment; works abdominals; beginner."
+  },
+  "BUTTERFLY": {
+    "description": "Butterfly: machine; works chest; beginner."
+  },
+  "CABLE_CHEST_PRESS": {
+    "description": "Cable Chest Press: cable; works chest; beginner."
+  },
+  "CABLE_CROSSOVER": {
+    "description": "Cable Crossover: cable; works chest; beginner."
+  },
+  "CABLE_CRUNCH": {
+    "description": "Cable Crunch: cable; works abdominals; beginner."
+  },
+  "CABLE_DEADLIFTS": {
+    "description": "Cable Deadlifts: cable; works quadriceps; beginner."
+  },
+  "CABLE_HAMMER_CURLS_ROPE_ATTACHMENT": {
+    "description": "Cable Hammer Curls - Rope Attachment: cable; works biceps; beginner."
+  },
+  "CABLE_HIP_ADDUCTION": {
+    "description": "Cable Hip Adduction: cable; works quadriceps; beginner."
+  },
+  "CABLE_INCLINE_PUSHDOWN": {
+    "description": "Cable Incline Pushdown: cable; works lats; beginner."
+  },
+  "CABLE_INCLINE_TRICEPS_EXTENSION": {
+    "description": "Cable Incline Triceps Extension: cable; works triceps; beginner."
+  },
+  "CABLE_INTERNAL_ROTATION": {
+    "description": "Cable Internal Rotation: cable; works shoulders; beginner."
+  },
+  "CABLE_IRON_CROSS": {
+    "description": "Cable Iron Cross: cable; works chest; beginner."
+  },
+  "CABLE_JUDO_FLIP": {
+    "description": "Cable Judo Flip: cable; works abdominals; beginner."
+  },
+  "CABLE_LYING_TRICEPS_EXTENSION": {
+    "description": "Cable Lying Triceps Extension: cable; works triceps; beginner."
+  },
+  "CABLE_ONE_ARM_TRICEP_EXTENSION": {
+    "description": "Cable One Arm Tricep Extension: cable; works triceps; beginner."
+  },
+  "CABLE_PREACHER_CURL": {
+    "description": "Cable Preacher Curl: cable; works biceps; beginner."
+  },
+  "CABLE_REAR_DELT_FLY": {
+    "description": "Cable Rear Delt Fly: cable; works shoulders; beginner."
+  },
+  "CABLE_REVERSE_CRUNCH": {
+    "description": "Cable Reverse Crunch: cable; works abdominals; beginner."
+  },
+  "CABLE_ROPE_OVERHEAD_TRICEPS_EXTENSION": {
+    "description": "Cable Rope Overhead Triceps Extension: cable; works triceps; beginner."
+  },
+  "CABLE_ROPE_REAR_DELT_ROWS": {
+    "description": "Cable Rope Rear-Delt Rows: cable; works shoulders; beginner."
+  },
+  "CABLE_RUSSIAN_TWISTS": {
+    "description": "Cable Russian Twists: cable; works abdominals; beginner."
+  },
+  "CABLE_SEATED_CRUNCH": {
+    "description": "Cable Seated Crunch: cable; works abdominals; beginner."
+  },
+  "CABLE_SEATED_LATERAL_RAISE": {
+    "description": "Cable Seated Lateral Raise: cable; works shoulders; beginner."
+  },
+  "CABLE_SHOULDER_PRESS": {
+    "description": "Cable Shoulder Press: cable; works shoulders; beginner."
+  },
+  "CABLE_SHRUGS": {
+    "description": "Cable Shrugs: cable; works traps; beginner."
+  },
+  "CABLE_WRIST_CURL": {
+    "description": "Cable Wrist Curl: cable; works forearms; beginner."
+  },
+  "CALF_PRESS": {
+    "description": "Calf Press: machine; works calves; beginner."
+  },
+  "CALF_PRESS_ON_THE_LEG_PRESS_MACHINE": {
+    "description": "Calf Press On The Leg Press Machine: machine; works calves; beginner."
+  },
+  "CALF_RAISE_ON_A_DUMBBELL": {
+    "description": "Calf Raise On A Dumbbell: dumbbell; works calves; intermediate."
+  },
+  "CALF_RAISES_WITH_BANDS": {
+    "description": "Calf Raises - With Bands: bands; works calves; beginner."
+  },
+  "CALF_STRETCH_ELBOWS_AGAINST_WALL": {
+    "description": "Calf Stretch Elbows Against Wall: no equipment; works calves; beginner."
+  },
+  "CALF_STRETCH_HANDS_AGAINST_WALL": {
+    "description": "Calf Stretch Hands Against Wall: no equipment; works calves; beginner."
+  },
+  "CALF_MACHINE_SHOULDER_SHRUG": {
+    "description": "Calf-Machine Shoulder Shrug: machine; works traps; beginner."
+  },
+  "CALVES_SMR": {
+    "description": "Calves-SMR: foam roll; works calves; intermediate."
+  },
+  "CAR_DRIVERS": {
+    "description": "Car Drivers: barbell; works shoulders; beginner."
+  },
+  "CARIOCA_QUICK_STEP": {
+    "description": "Carioca Quick Step: no equipment; works adductors; beginner."
+  },
+  "CAT_STRETCH": {
+    "description": "Cat Stretch: no equipment; works lower back; beginner."
+  },
+  "CATCH_AND_OVERHEAD_THROW": {
+    "description": "Catch and Overhead Throw: medicine ball; works lats; beginner."
+  },
+  "CHAIN_HANDLE_EXTENSION": {
+    "description": "Chain Handle Extension: no equipment; works triceps; intermediate."
+  },
+  "CHAIN_PRESS": {
+    "description": "Chain Press: no equipment; works chest; intermediate."
+  },
+  "CHAIR_LEG_EXTENDED_STRETCH": {
+    "description": "Chair Leg Extended Stretch: no equipment; works hamstrings; beginner."
+  },
+  "CHAIR_LOWER_BACK_STRETCH": {
+    "description": "Chair Lower Back Stretch: no equipment; works lats; beginner."
+  },
+  "CHAIR_SQUAT": {
+    "description": "Chair Squat: machine; works quadriceps; beginner."
+  },
+  "CHAIR_UPPER_BODY_STRETCH": {
+    "description": "Chair Upper Body Stretch: no equipment; works shoulders; beginner."
+  },
+  "CHEST_AND_FRONT_OF_SHOULDER_STRETCH": {
+    "description": "Chest And Front Of Shoulder Stretch: no equipment; works chest; beginner."
+  },
+  "CHEST_PUSH_FROM_3_POINT_STANCE": {
+    "description": "Chest Push from 3 point stance: medicine ball; works chest; beginner."
+  },
+  "CHEST_PUSH_MULTIPLE_RESPONSE": {
+    "description": "Chest Push (multiple response): medicine ball; works chest; beginner."
+  },
+  "CHEST_PUSH_SINGLE_RESPONSE": {
+    "description": "Chest Push (single response): medicine ball; works chest; beginner."
+  },
+  "CHEST_PUSH_WITH_RUN_RELEASE": {
+    "description": "Chest Push with Run Release: medicine ball; works chest; beginner."
+  },
+  "CHEST_STRETCH_ON_STABILITY_BALL": {
+    "description": "Chest Stretch on Stability Ball: exercise ball; works chest; beginner."
+  },
+  "CHILDS_POSE": {
+    "description": "Child's Pose: no equipment; works lower back; beginner."
+  },
+  "CHIN_TO_CHEST_STRETCH": {
+    "description": "Chin To Chest Stretch: no equipment; works neck; beginner."
+  },
+  "CLEAN": {
+    "description": "Clean: barbell; works hamstrings; intermediate."
+  },
+  "CLEAN_AND_JERK": {
+    "description": "Clean and Jerk: barbell; works shoulders; expert."
+  },
+  "CLEAN_AND_PRESS": {
+    "description": "Clean and Press: barbell; works shoulders; intermediate."
+  },
+  "CLEAN_DEADLIFT": {
+    "description": "Clean Deadlift: barbell; works hamstrings; beginner."
+  },
+  "CLEAN_FROM_BLOCKS": {
+    "description": "Clean from Blocks: barbell; works quadriceps; intermediate."
+  },
+  "CLEAN_PULL": {
+    "description": "Clean Pull: barbell; works quadriceps; intermediate."
+  },
+  "CLEAN_SHRUG": {
+    "description": "Clean Shrug: barbell; works traps; beginner."
+  },
+  "CLOCK_PUSH_UP": {
+    "description": "Clock Push-Up: no equipment; works chest; intermediate."
+  },
+  "CLOSE_GRIP_BARBELL_BENCH_PRESS": {
+    "description": "Close-Grip Barbell Bench Press: barbell, bench; works triceps; beginner."
+  },
+  "CLOSE_GRIP_DUMBBELL_PRESS": {
+    "description": "Close-Grip Dumbbell Press: dumbbell; works triceps; beginner."
+  },
+  "CLOSE_GRIP_EZ_BAR_CURL": {
+    "description": "Close-Grip EZ Bar Curl: barbell; works biceps; beginner."
+  },
+  "CLOSE_GRIP_EZ_BAR_CURL_WITH_BAND": {
+    "description": "Close-Grip EZ-Bar Curl with Band: ez bar; works biceps; beginner."
+  },
+  "CLOSE_GRIP_EZ_BAR_PRESS": {
+    "description": "Close-Grip EZ-Bar Press: ez bar; works triceps; beginner."
+  },
+  "CLOSE_GRIP_FRONT_LAT_PULLDOWN": {
+    "description": "Close-Grip Front Lat Pulldown: cable; works lats; beginner."
+  },
+  "CLOSE_GRIP_PUSH_UP_OFF_OF_A_DUMBBELL": {
+    "description": "Close-Grip Push-Up off of a Dumbbell: no equipment; works triceps; intermediate."
+  },
+  "CLOSE_GRIP_STANDING_BARBELL_CURL": {
+    "description": "Close-Grip Standing Barbell Curl: barbell; works biceps; beginner."
+  },
+  "COCOONS": {
+    "description": "Cocoons: no equipment; works abdominals; beginner."
+  },
+  "CONCENTRATION_CURLS": {
+    "description": "Concentration Curls: dumbbell; works biceps; beginner."
+  },
+  "CROSS_BODY_HAMMER_CURL": {
+    "description": "Cross Body Hammer Curl: dumbbell; works biceps; beginner."
+  },
+  "CROSS_OVER_WITH_BANDS": {
+    "description": "Cross Over - With Bands: bands; works chest; beginner."
+  },
+  "CROSS_BODY_CRUNCH": {
+    "description": "Cross-Body Crunch: no equipment; works abdominals; beginner."
+  },
+  "CROSSOVER_REVERSE_LUNGE": {
+    "description": "Crossover Reverse Lunge: no equipment; works lower back; intermediate."
+  },
+  "CRUNCH_HANDS_OVERHEAD": {
+    "description": "Crunch - Hands Overhead: no equipment; works abdominals; beginner."
+  },
+  "CRUNCH_LEGS_ON_EXERCISE_BALL": {
+    "description": "Crunch - Legs On Exercise Ball: no equipment; works abdominals; beginner."
+  },
+  "CUBAN_PRESS": {
+    "description": "Cuban Press: dumbbell; works shoulders; intermediate."
+  },
+  "DANCERS_STRETCH": {
+    "description": "Dancer's Stretch: no equipment; works lower back; beginner."
+  },
+  "DEAD_BUG": {
+    "description": "Dead Bug: no equipment; works abdominals; beginner."
+  },
+  "DEADLIFT_WITH_BANDS": {
+    "description": "Deadlift with Bands: barbell; works lower back; expert."
+  },
+  "DEADLIFT_WITH_CHAINS": {
+    "description": "Deadlift with Chains: barbell; works lower back; expert."
+  },
+  "DECLINE_BARBELL_BENCH_PRESS": {
+    "description": "Decline Barbell Bench Press: barbell, bench; works chest; beginner."
+  },
+  "DECLINE_CLOSE_GRIP_BENCH_TO_SKULL_CRUSHER": {
+    "description": "Decline Close-Grip Bench To Skull Crusher: barbell, bench; works triceps; intermediate."
+  },
+  "DECLINE_CRUNCH": {
+    "description": "Decline Crunch: no equipment; works abdominals; intermediate."
+  },
+  "DECLINE_DUMBBELL_BENCH_PRESS": {
+    "description": "Decline Dumbbell Bench Press: dumbbell, bench; works chest; beginner."
+  },
+  "DECLINE_DUMBBELL_FLYES": {
+    "description": "Decline Dumbbell Flyes: dumbbell; works chest; beginner."
+  },
+  "DECLINE_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Decline Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "DECLINE_EZ_BAR_TRICEPS_EXTENSION": {
+    "description": "Decline EZ Bar Triceps Extension: barbell; works triceps; beginner."
+  },
+  "DECLINE_OBLIQUE_CRUNCH": {
+    "description": "Decline Oblique Crunch: no equipment; works abdominals; beginner."
+  },
+  "DECLINE_PUSH_UP": {
+    "description": "Decline Push-Up: no equipment; works chest; beginner."
+  },
+  "DECLINE_REVERSE_CRUNCH": {
+    "description": "Decline Reverse Crunch: no equipment; works abdominals; beginner."
+  },
+  "DECLINE_SMITH_PRESS": {
+    "description": "Decline Smith Press: machine; works chest; beginner."
+  },
+  "DEFICIT_DEADLIFT": {
+    "description": "Deficit Deadlift: barbell; works lower back; intermediate."
+  },
+  "DEPTH_JUMP_LEAP": {
+    "description": "Depth Jump Leap: no equipment; works quadriceps; beginner."
+  },
+  "DIP_MACHINE": {
+    "description": "Dip Machine: machine; works triceps; beginner."
+  },
+  "DIPS_CHEST_VERSION": {
+    "description": "Dips - Chest Version: no equipment; works chest; intermediate."
+  },
+  "DIPS_TRICEPS_VERSION": {
+    "description": "Dips - Triceps Version: dip bars; works triceps; beginner."
+  },
+  "DONKEY_CALF_RAISES": {
+    "description": "Donkey Calf Raises: no equipment; works calves; intermediate."
+  },
+  "DOUBLE_KETTLEBELL_ALTERNATING_HANG_CLEAN": {
+    "description": "Double Kettlebell Alternating Hang Clean: kettlebell; works hamstrings; intermediate."
+  },
+  "DOUBLE_KETTLEBELL_JERK": {
+    "description": "Double Kettlebell Jerk: kettlebell; works shoulders; intermediate."
+  },
+  "DOUBLE_KETTLEBELL_PUSH_PRESS": {
+    "description": "Double Kettlebell Push Press: kettlebell; works shoulders; intermediate."
+  },
+  "DOUBLE_KETTLEBELL_SNATCH": {
+    "description": "Double Kettlebell Snatch: kettlebell; works shoulders; expert."
+  },
+  "DOUBLE_KETTLEBELL_WINDMILL": {
+    "description": "Double Kettlebell Windmill: kettlebell; works abdominals; intermediate."
+  },
+  "DOUBLE_LEG_BUTT_KICK": {
+    "description": "Double Leg Butt Kick: no equipment; works quadriceps; beginner."
+  },
+  "DOWNWARD_FACING_BALANCE": {
+    "description": "Downward Facing Balance: exercise ball; works glutes; intermediate."
+  },
+  "DRAG_CURL": {
+    "description": "Drag Curl: barbell; works biceps; intermediate."
+  },
+  "DROP_PUSH": {
+    "description": "Drop Push: no equipment; works chest; intermediate."
+  },
+  "DUMBBELL_ALTERNATE_BICEP_CURL": {
+    "description": "Dumbbell Alternate Bicep Curl: dumbbell; works biceps; beginner."
+  },
+  "DUMBBELL_BENCH_PRESS": {
+    "description": "Dumbbell Bench Press: dumbbell, bench; works chest; beginner."
+  },
+  "DUMBBELL_BENCH_PRESS_WITH_NEUTRAL_GRIP": {
+    "description": "Dumbbell Bench Press with Neutral Grip: dumbbell, bench; works chest; beginner."
+  },
+  "DUMBBELL_BICEP_CURL": {
+    "description": "Dumbbell Bicep Curl: dumbbell; works biceps; beginner."
+  },
+  "DUMBBELL_CLEAN": {
+    "description": "Dumbbell Clean: dumbbell; works hamstrings; intermediate."
+  },
+  "DUMBBELL_FLOOR_PRESS": {
+    "description": "Dumbbell Floor Press: dumbbell; works triceps; intermediate."
+  },
+  "DUMBBELL_FLYES": {
+    "description": "Dumbbell Flyes: dumbbell; works chest; beginner."
+  },
+  "DUMBBELL_INCLINE_ROW": {
+    "description": "Dumbbell Incline Row: dumbbell; works middle back; beginner."
+  },
+  "DUMBBELL_INCLINE_SHOULDER_RAISE": {
+    "description": "Dumbbell Incline Shoulder Raise: dumbbell; works shoulders; beginner."
+  },
+  "DUMBBELL_LUNGES": {
+    "description": "Dumbbell Lunges: dumbbell; works quadriceps; beginner."
+  },
+  "DUMBBELL_LYING_ONE_ARM_REAR_LATERAL_RAISE": {
+    "description": "Dumbbell Lying One-Arm Rear Lateral Raise: dumbbell; works shoulders; intermediate."
+  },
+  "DUMBBELL_LYING_PRONATION": {
+    "description": "Dumbbell Lying Pronation: dumbbell; works forearms; intermediate."
+  },
+  "DUMBBELL_LYING_REAR_LATERAL_RAISE": {
+    "description": "Dumbbell Lying Rear Lateral Raise: dumbbell; works shoulders; intermediate."
+  },
+  "DUMBBELL_LYING_SUPINATION": {
+    "description": "Dumbbell Lying Supination: dumbbell; works forearms; intermediate."
+  },
+  "DUMBBELL_ONE_ARM_SHOULDER_PRESS": {
+    "description": "Dumbbell One-Arm Shoulder Press: dumbbell; works shoulders; intermediate."
+  },
+  "DUMBBELL_ONE_ARM_TRICEPS_EXTENSION": {
+    "description": "Dumbbell One-Arm Triceps Extension: dumbbell; works triceps; intermediate."
+  },
+  "DUMBBELL_ONE_ARM_UPRIGHT_ROW": {
+    "description": "Dumbbell One-Arm Upright Row: dumbbell; works shoulders; intermediate."
+  },
+  "DUMBBELL_PRONE_INCLINE_CURL": {
+    "description": "Dumbbell Prone Incline Curl: dumbbell; works biceps; intermediate."
+  },
+  "DUMBBELL_RAISE": {
+    "description": "Dumbbell Raise: dumbbell; works shoulders; beginner."
+  },
+  "DUMBBELL_REAR_LUNGE": {
+    "description": "Dumbbell Rear Lunge: dumbbell; works quadriceps; intermediate."
+  },
+  "DUMBBELL_SCAPTION": {
+    "description": "Dumbbell Scaption: dumbbell; works shoulders; beginner."
+  },
+  "DUMBBELL_SEATED_BOX_JUMP": {
+    "description": "Dumbbell Seated Box Jump: dumbbell; works quadriceps; intermediate."
+  },
+  "DUMBBELL_SEATED_ONE_LEG_CALF_RAISE": {
+    "description": "Dumbbell Seated One-Leg Calf Raise: dumbbell; works calves; beginner."
+  },
+  "DUMBBELL_SHRUG": {
+    "description": "Dumbbell Shrug: dumbbell; works traps; beginner."
+  },
+  "DUMBBELL_SIDE_BEND": {
+    "description": "Dumbbell Side Bend: dumbbell; works abdominals; beginner."
+  },
+  "DUMBBELL_SQUAT": {
+    "description": "Dumbbell Squat: dumbbell; works quadriceps; beginner."
+  },
+  "DUMBBELL_SQUAT_TO_A_BENCH": {
+    "description": "Dumbbell Squat To A Bench: dumbbell, bench; works quadriceps; intermediate."
+  },
+  "DUMBBELL_STEP_UPS": {
+    "description": "Dumbbell Step Ups: dumbbell; works quadriceps; intermediate."
+  },
+  "DUMBBELL_TRICEP_EXTENSION_PRONATED_GRIP": {
+    "description": "Dumbbell Tricep Extension -Pronated Grip: dumbbell; works triceps; beginner."
+  },
+  "DYNAMIC_BACK_STRETCH": {
+    "description": "Dynamic Back Stretch: no equipment; works lats; beginner."
+  },
+  "DYNAMIC_CHEST_STRETCH": {
+    "description": "Dynamic Chest Stretch: no equipment; works chest; beginner."
+  },
+  "ELBOW_CIRCLES": {
+    "description": "Elbow Circles: no equipment; works shoulders; beginner."
+  },
+  "ELBOW_TO_KNEE": {
+    "description": "Elbow to Knee: no equipment; works abdominals; beginner."
+  },
+  "ELBOWS_BACK": {
+    "description": "Elbows Back: no equipment; works chest; beginner."
+  },
+  "ELEVATED_BACK_LUNGE": {
+    "description": "Elevated Back Lunge: barbell; works quadriceps; intermediate."
+  },
+  "ELEVATED_CABLE_ROWS": {
+    "description": "Elevated Cable Rows: cable; works lats; intermediate."
+  },
+  "EXERCISE_BALL_CRUNCH": {
+    "description": "Exercise Ball Crunch: exercise ball; works abdominals; beginner."
+  },
+  "EXERCISE_BALL_PULL_IN": {
+    "description": "Exercise Ball Pull-In: exercise ball; works abdominals; beginner."
+  },
+  "EXTENDED_RANGE_ONE_ARM_KETTLEBELL_FLOOR_PRESS": {
+    "description": "Extended Range One-Arm Kettlebell Floor Press: kettlebell; works chest; beginner."
+  },
+  "EXTERNAL_ROTATION": {
+    "description": "External Rotation: dumbbell; works shoulders; beginner."
+  },
+  "EXTERNAL_ROTATION_WITH_BAND": {
+    "description": "External Rotation with Band: bands; works shoulders; beginner."
+  },
+  "EXTERNAL_ROTATION_WITH_CABLE": {
+    "description": "External Rotation with Cable: cable; works shoulders; beginner."
+  },
+  "EZ_BAR_CURL": {
+    "description": "EZ-Bar Curl: ez bar; works biceps; beginner."
+  },
+  "EZ_BAR_SKULLCRUSHER": {
+    "description": "EZ-Bar Skullcrusher: ez bar; works triceps; beginner."
+  },
+  "FACE_PULL": {
+    "description": "Face Pull: cable; works shoulders; intermediate."
+  },
+  "FAST_SKIPPING": {
+    "description": "Fast Skipping: no equipment; works quadriceps; beginner."
+  },
+  "FINGER_CURLS": {
+    "description": "Finger Curls: barbell; works forearms; beginner."
+  },
+  "FLAT_BENCH_CABLE_FLYES": {
+    "description": "Flat Bench Cable Flyes: cable, bench; works chest; intermediate."
+  },
+  "FLAT_BENCH_LEG_PULL_IN": {
+    "description": "Flat Bench Leg Pull-In: no equipment, bench; works abdominals; beginner."
+  },
+  "FLAT_BENCH_LYING_LEG_RAISE": {
+    "description": "Flat Bench Lying Leg Raise: no equipment, bench; works abdominals; beginner."
+  },
+  "FLEXOR_INCLINE_DUMBBELL_CURLS": {
+    "description": "Flexor Incline Dumbbell Curls: dumbbell; works biceps; beginner."
+  },
+  "FLOOR_GLUTE_HAM_RAISE": {
+    "description": "Floor Glute-Ham Raise: no equipment; works hamstrings; intermediate."
+  },
+  "FLOOR_PRESS": {
+    "description": "Floor Press: barbell; works triceps; intermediate."
+  },
+  "FLOOR_PRESS_WITH_CHAINS": {
+    "description": "Floor Press with Chains: barbell; works triceps; intermediate."
+  },
+  "FLUTTER_KICKS": {
+    "description": "Flutter Kicks: no equipment; works glutes; beginner."
+  },
+  "FOOT_SMR": {
+    "description": "Foot-SMR: no equipment; works calves; intermediate."
+  },
+  "FRANKENSTEIN_SQUAT": {
+    "description": "Frankenstein Squat: barbell; works quadriceps; intermediate."
+  },
+  "FREEHAND_JUMP_SQUAT": {
+    "description": "Freehand Jump Squat: no equipment; works quadriceps; intermediate."
+  },
+  "FROG_HOPS": {
+    "description": "Frog Hops: no equipment; works quadriceps; intermediate."
+  },
+  "FROG_SIT_UPS": {
+    "description": "Frog Sit-Ups: no equipment; works abdominals; intermediate."
+  },
+  "FRONT_BARBELL_SQUAT": {
+    "description": "Front Barbell Squat: barbell; works quadriceps; expert."
+  },
+  "FRONT_BARBELL_SQUAT_TO_A_BENCH": {
+    "description": "Front Barbell Squat To A Bench: barbell, bench; works quadriceps; expert."
+  },
+  "FRONT_BOX_JUMP": {
+    "description": "Front Box Jump: no equipment; works hamstrings; beginner."
+  },
+  "FRONT_CABLE_RAISE": {
+    "description": "Front Cable Raise: cable; works shoulders; beginner."
+  },
+  "FRONT_CONE_HOPS_OR_HURDLE_HOPS": {
+    "description": "Front Cone Hops (or hurdle hops): no equipment; works quadriceps; beginner."
+  },
+  "FRONT_DUMBBELL_RAISE": {
+    "description": "Front Dumbbell Raise: dumbbell; works shoulders; beginner."
+  },
+  "FRONT_INCLINE_DUMBBELL_RAISE": {
+    "description": "Front Incline Dumbbell Raise: dumbbell; works shoulders; beginner."
+  },
+  "FRONT_LEG_RAISES": {
+    "description": "Front Leg Raises: no equipment; works hamstrings; beginner."
+  },
+  "FRONT_PLATE_RAISE": {
+    "description": "Front Plate Raise: no equipment; works shoulders; intermediate."
+  },
+  "FRONT_RAISE_AND_PULLOVER": {
+    "description": "Front Raise And Pullover: barbell; works chest; beginner."
+  },
+  "FRONT_SQUAT_CLEAN_GRIP": {
+    "description": "Front Squat (Clean Grip): barbell; works quadriceps; intermediate."
+  },
+  "FRONT_SQUATS_WITH_TWO_KETTLEBELLS": {
+    "description": "Front Squats With Two Kettlebells: kettlebell; works quadriceps; intermediate."
+  },
+  "FRONT_TWO_DUMBBELL_RAISE": {
+    "description": "Front Two-Dumbbell Raise: dumbbell; works shoulders; beginner."
+  },
+  "FULL_RANGE_OF_MOTION_LAT_PULLDOWN": {
+    "description": "Full Range-Of-Motion Lat Pulldown: cable; works lats; intermediate."
+  },
+  "GIRONDA_STERNUM_CHINS": {
+    "description": "Gironda Sternum Chins: no equipment; works lats; intermediate."
+  },
+  "GLUTE_HAM_RAISE": {
+    "description": "Glute Ham Raise: machine; works hamstrings; intermediate."
+  },
+  "GLUTE_KICKBACK": {
+    "description": "Glute Kickback: no equipment; works glutes; beginner."
+  },
+  "GOBLET_SQUAT": {
+    "description": "Goblet Squat: kettlebell; works quadriceps; beginner."
+  },
+  "GOOD_MORNING": {
+    "description": "Good Morning: barbell; works hamstrings; intermediate."
+  },
+  "GOOD_MORNING_OFF_PINS": {
+    "description": "Good Morning off Pins: barbell; works hamstrings; intermediate."
+  },
+  "GORILLA_CHIN_CRUNCH": {
+    "description": "Gorilla Chin/Crunch: no equipment; works abdominals; intermediate."
+  },
+  "GROIN_AND_BACK_STRETCH": {
+    "description": "Groin and Back Stretch: no equipment; works adductors; intermediate."
+  },
+  "GROINERS": {
+    "description": "Groiners: no equipment; works adductors; intermediate."
+  },
+  "HACK_SQUAT": {
+    "description": "Hack Squat: machine; works quadriceps; beginner."
+  },
+  "HAMMER_CURLS": {
+    "description": "Hammer Curls: dumbbell; works biceps; beginner."
+  },
+  "HAMMER_GRIP_INCLINE_DB_BENCH_PRESS": {
+    "description": "Hammer Grip Incline DB Bench Press: dumbbell, bench; works chest; beginner."
+  },
+  "HAMSTRING_STRETCH": {
+    "description": "Hamstring Stretch: no equipment; works hamstrings; beginner."
+  },
+  "HAMSTRING_SMR": {
+    "description": "Hamstring-SMR: foam roll; works hamstrings; beginner."
+  },
+  "HANDSTAND_PUSH_UPS": {
+    "description": "Handstand Push-Ups: no equipment; works shoulders; expert."
+  },
+  "HANG_CLEAN": {
+    "description": "Hang Clean: barbell; works quadriceps; intermediate."
+  },
+  "HANG_CLEAN_BELOW_THE_KNEES": {
+    "description": "Hang Clean - Below the Knees: barbell; works quadriceps; intermediate."
+  },
+  "HANG_SNATCH": {
+    "description": "Hang Snatch: barbell; works hamstrings; expert."
+  },
+  "HANG_SNATCH_BELOW_KNEES": {
+    "description": "Hang Snatch - Below Knees: barbell; works hamstrings; expert."
+  },
+  "HANGING_BAR_GOOD_MORNING": {
+    "description": "Hanging Bar Good Morning: barbell; works hamstrings; intermediate."
+  },
+  "HANGING_LEG_RAISE": {
+    "description": "Hanging Leg Raise: no equipment; works abdominals; expert."
+  },
+  "HANGING_PIKE": {
+    "description": "Hanging Pike: no equipment; works abdominals; expert."
+  },
+  "HEAVING_SNATCH_BALANCE": {
+    "description": "Heaving Snatch Balance: barbell; works quadriceps; intermediate."
+  },
+  "HEAVY_BAG_THRUST": {
+    "description": "Heavy Bag Thrust: no equipment; works chest; beginner."
+  },
+  "HIGH_CABLE_CURLS": {
+    "description": "High Cable Curls: cable; works biceps; intermediate."
+  },
+  "HIP_CIRCLES_PRONE": {
+    "description": "Hip Circles (prone): no equipment; works abductors; beginner."
+  },
+  "HIP_EXTENSION_WITH_BANDS": {
+    "description": "Hip Extension with Bands: bands; works glutes; beginner."
+  },
+  "HIP_FLEXION_WITH_BAND": {
+    "description": "Hip Flexion with Band: bands; works quadriceps; beginner."
+  },
+  "HIP_LIFT_WITH_BAND": {
+    "description": "Hip Lift with Band: bands; works glutes; beginner."
+  },
+  "HUG_A_BALL": {
+    "description": "Hug A Ball: exercise ball; works lower back; beginner."
+  },
+  "HUG_KNEES_TO_CHEST": {
+    "description": "Hug Knees To Chest: no equipment; works lower back; beginner."
+  },
+  "HURDLE_HOPS": {
+    "description": "Hurdle Hops: no equipment; works hamstrings; beginner."
+  },
+  "HYPEREXTENSIONS_BACK_EXTENSIONS": {
+    "description": "Hyperextensions (Back Extensions): no equipment; works lower back; beginner."
+  },
+  "HYPEREXTENSIONS_WITH_NO_HYPEREXTENSION_BENCH": {
+    "description": "Hyperextensions With No Hyperextension Bench: no equipment, bench; works lower back; intermediate."
+  },
+  "ILIOTIBIAL_TRACT_SMR": {
+    "description": "Iliotibial Tract-SMR: foam roll; works abductors; intermediate."
+  },
+  "INCHWORM": {
+    "description": "Inchworm: no equipment; works hamstrings; beginner."
+  },
+  "INCLINE_BARBELL_TRICEPS_EXTENSION": {
+    "description": "Incline Barbell Triceps Extension: barbell; works triceps; intermediate."
+  },
+  "INCLINE_BENCH_PULL": {
+    "description": "Incline Bench Pull: barbell, bench; works middle back; beginner."
+  },
+  "INCLINE_CABLE_CHEST_PRESS": {
+    "description": "Incline Cable Chest Press: cable; works chest; beginner."
+  },
+  "INCLINE_CABLE_FLYE": {
+    "description": "Incline Cable Flye: cable; works chest; intermediate."
+  },
+  "INCLINE_DUMBBELL_BENCH_WITH_PALMS_FACING_IN": {
+    "description": "Incline Dumbbell Bench With Palms Facing In: dumbbell, bench; works chest; beginner."
+  },
+  "INCLINE_DUMBBELL_CURL": {
+    "description": "Incline Dumbbell Curl: dumbbell; works biceps; beginner."
+  },
+  "INCLINE_DUMBBELL_FLYES": {
+    "description": "Incline Dumbbell Flyes: dumbbell; works chest; beginner."
+  },
+  "INCLINE_DUMBBELL_FLYES_WITH_A_TWIST": {
+    "description": "Incline Dumbbell Flyes - With A Twist: dumbbell; works chest; beginner."
+  },
+  "INCLINE_DUMBBELL_PRESS": {
+    "description": "Incline Dumbbell Press: dumbbell; works chest; beginner."
+  },
+  "INCLINE_HAMMER_CURLS": {
+    "description": "Incline Hammer Curls: dumbbell; works biceps; beginner."
+  },
+  "INCLINE_INNER_BICEPS_CURL": {
+    "description": "Incline Inner Biceps Curl: dumbbell; works biceps; beginner."
+  },
+  "INCLINE_PUSH_UP": {
+    "description": "Incline Push-Up: no equipment; works chest; beginner."
+  },
+  "INCLINE_PUSH_UP_CLOSE_GRIP": {
+    "description": "Incline Push-Up Close-Grip: no equipment; works triceps; beginner."
+  },
+  "INCLINE_PUSH_UP_DEPTH_JUMP": {
+    "description": "Incline Push-Up Depth Jump: no equipment; works chest; beginner."
+  },
+  "INCLINE_PUSH_UP_MEDIUM": {
+    "description": "Incline Push-Up Medium: no equipment; works chest; beginner."
+  },
+  "INCLINE_PUSH_UP_REVERSE_GRIP": {
+    "description": "Incline Push-Up Reverse Grip: no equipment; works chest; beginner."
+  },
+  "INCLINE_PUSH_UP_WIDE": {
+    "description": "Incline Push-Up Wide: no equipment; works chest; beginner."
+  },
+  "INTERMEDIATE_GROIN_STRETCH": {
+    "description": "Intermediate Groin Stretch: no equipment; works hamstrings; intermediate."
+  },
+  "INTERMEDIATE_HIP_FLEXOR_AND_QUAD_STRETCH": {
+    "description": "Intermediate Hip Flexor and Quad Stretch: no equipment; works quadriceps; intermediate."
+  },
+  "INTERNAL_ROTATION_WITH_BAND": {
+    "description": "Internal Rotation with Band: bands; works shoulders; beginner."
+  },
+  "INVERTED_ROW": {
+    "description": "Inverted Row: no equipment; works middle back; beginner."
+  },
+  "INVERTED_ROW_WITH_STRAPS": {
+    "description": "Inverted Row with Straps: no equipment; works middle back; beginner."
+  },
+  "IRON_CROSS": {
+    "description": "Iron Cross: dumbbell; works shoulders; intermediate."
+  },
+  "IRON_CROSSES_STRETCH": {
+    "description": "Iron Crosses (stretch): no equipment; works quadriceps; intermediate."
+  },
+  "ISOMETRIC_CHEST_SQUEEZES": {
+    "description": "Isometric Chest Squeezes: no equipment; works chest; beginner."
+  },
+  "ISOMETRIC_NECK_EXERCISE_FRONT_AND_BACK": {
+    "description": "Isometric Neck Exercise - Front And Back: no equipment; works neck; beginner."
+  },
+  "ISOMETRIC_NECK_EXERCISE_SIDES": {
+    "description": "Isometric Neck Exercise - Sides: no equipment; works neck; beginner."
+  },
+  "ISOMETRIC_WIPERS": {
+    "description": "Isometric Wipers: no equipment; works chest; beginner."
+  },
+  "IT_BAND_AND_GLUTE_STRETCH": {
+    "description": "IT Band and Glute Stretch: no equipment; works abductors; intermediate."
+  },
+  "JACKKNIFE_SIT_UP": {
+    "description": "Jackknife Sit-Up: no equipment; works abdominals; beginner."
+  },
+  "JANDA_SIT_UP": {
+    "description": "Janda Sit-Up: no equipment; works abdominals; beginner."
+  },
+  "JEFFERSON_SQUATS": {
+    "description": "Jefferson Squats: barbell; works quadriceps; intermediate."
+  },
+  "JERK_BALANCE": {
+    "description": "Jerk Balance: barbell; works shoulders; intermediate."
+  },
+  "JERK_DIP_SQUAT": {
+    "description": "Jerk Dip Squat: barbell; works quadriceps; intermediate."
+  },
+  "JM_PRESS": {
+    "description": "JM Press: barbell; works triceps; beginner."
+  },
+  "KETTLEBELL_ARNOLD_PRESS": {
+    "description": "Kettlebell Arnold Press: kettlebell; works shoulders; intermediate."
+  },
+  "KETTLEBELL_DEAD_CLEAN": {
+    "description": "Kettlebell Dead Clean: kettlebell; works hamstrings; intermediate."
+  },
+  "KETTLEBELL_FIGURE_8": {
+    "description": "Kettlebell Figure 8: kettlebell; works abdominals; intermediate."
+  },
+  "KETTLEBELL_HALO": {
+    "description": "Kettlebell Halo: kettlebell; works shoulders; beginner."
+  },
+  "KETTLEBELL_HALO_WITH_OVERHEAD_EXTENSION": {
+    "description": "Kettlebell Halo with Overhead Extension: kettlebell; works shoulders, triceps; intermediate."
+  },
+  "KETTLEBELL_HANG_CLEAN": {
+    "description": "Kettlebell Hang Clean: kettlebell; works hamstrings; intermediate."
+  },
+  "KETTLEBELL_ONE_LEGGED_DEADLIFT": {
+    "description": "Kettlebell One-Legged Deadlift: kettlebell; works hamstrings; intermediate."
+  },
+  "KETTLEBELL_OVERHEAD_TRICEPS_EXTENSION": {
+    "description": "Kettlebell Overhead Triceps Extension: kettlebell; works triceps; beginner."
+  },
+  "KETTLEBELL_PASS_BETWEEN_THE_LEGS": {
+    "description": "Kettlebell Pass Between The Legs: kettlebell; works abdominals; intermediate."
+  },
+  "KETTLEBELL_PIRATE_SHIPS": {
+    "description": "Kettlebell Pirate Ships: kettlebell; works shoulders; beginner."
+  },
+  "KETTLEBELL_PISTOL_SQUAT": {
+    "description": "Kettlebell Pistol Squat: kettlebell; works quadriceps; expert."
+  },
+  "KETTLEBELL_SEATED_PRESS": {
+    "description": "Kettlebell Seated Press: kettlebell; works shoulders; intermediate."
+  },
+  "KETTLEBELL_SEESAW_PRESS": {
+    "description": "Kettlebell Seesaw Press: kettlebell; works shoulders; intermediate."
+  },
+  "KETTLEBELL_SUMO_HIGH_PULL": {
+    "description": "Kettlebell Sumo High Pull: kettlebell; works traps; intermediate."
+  },
+  "KETTLEBELL_THRUSTER": {
+    "description": "Kettlebell Thruster: kettlebell; works shoulders; intermediate."
+  },
+  "KETTLEBELL_TURKISH_GET_UP_LUNGE_STYLE": {
+    "description": "Kettlebell Turkish Get-Up (Lunge style): kettlebell; works shoulders; intermediate."
+  },
+  "KETTLEBELL_TURKISH_GET_UP_SQUAT_STYLE": {
+    "description": "Kettlebell Turkish Get-Up (Squat style): kettlebell; works shoulders; intermediate."
+  },
+  "KETTLEBELL_WINDMILL": {
+    "description": "Kettlebell Windmill: kettlebell; works abdominals; intermediate."
+  },
+  "KIPPING_MUSCLE_UP": {
+    "description": "Kipping Muscle Up: no equipment; works lats; intermediate."
+  },
+  "KNEE_ACROSS_THE_BODY": {
+    "description": "Knee Across The Body: no equipment; works glutes; beginner."
+  },
+  "KNEE_CIRCLES": {
+    "description": "Knee Circles: no equipment; works calves; beginner."
+  },
+  "KNEE_HIP_RAISE_ON_PARALLEL_BARS": {
+    "description": "Knee/Hip Raise On Parallel Bars: no equipment; works abdominals; beginner."
+  },
+  "KNEE_TUCK_JUMP": {
+    "description": "Knee Tuck Jump: no equipment; works hamstrings; beginner."
+  },
+  "KNEELING_ARM_DRILL": {
+    "description": "Kneeling Arm Drill: no equipment; works shoulders; beginner."
+  },
+  "KNEELING_CABLE_CRUNCH_WITH_ALTERNATING_OBLIQUE_TWISTS": {
+    "description": "Kneeling Cable Crunch With Alternating Oblique Twists: cable; works abdominals; beginner."
+  },
+  "KNEELING_CABLE_TRICEPS_EXTENSION": {
+    "description": "Kneeling Cable Triceps Extension: cable; works triceps; intermediate."
+  },
+  "KNEELING_FOREARM_STRETCH": {
+    "description": "Kneeling Forearm Stretch: no equipment; works forearms; beginner."
+  },
+  "KNEELING_HIGH_PULLEY_ROW": {
+    "description": "Kneeling High Pulley Row: cable; works lats; beginner."
+  },
+  "KNEELING_HIP_FLEXOR": {
+    "description": "Kneeling Hip Flexor: no equipment; works quadriceps; beginner."
+  },
+  "KNEELING_JUMP_SQUAT": {
+    "description": "Kneeling Jump Squat: barbell; works glutes; expert."
+  },
+  "KNEELING_SINGLE_ARM_HIGH_PULLEY_ROW": {
+    "description": "Kneeling Single-Arm High Pulley Row: cable; works lats; beginner."
+  },
+  "KNEELING_SQUAT": {
+    "description": "Kneeling Squat: barbell; works glutes; intermediate."
+  },
+  "LANDMINE_180S": {
+    "description": "Landmine 180's: barbell; works abdominals; beginner."
+  },
+  "LANDMINE_LINEAR_JAMMER": {
+    "description": "Landmine Linear Jammer: barbell; works shoulders; intermediate."
+  },
+  "LATERAL_BOUND": {
+    "description": "Lateral Bound: no equipment; works adductors; beginner."
+  },
+  "LATERAL_BOX_JUMP": {
+    "description": "Lateral Box Jump: no equipment; works adductors; beginner."
+  },
+  "LATERAL_CONE_HOPS": {
+    "description": "Lateral Cone Hops: no equipment; works adductors; beginner."
+  },
+  "LATERAL_RAISE_WITH_BANDS": {
+    "description": "Lateral Raise - With Bands: bands; works shoulders; beginner."
+  },
+  "LATISSIMUS_DORSI_SMR": {
+    "description": "Latissimus Dorsi-SMR: foam roll; works lats; beginner."
+  },
+  "LEG_EXTENSIONS": {
+    "description": "Leg Extensions: machine; works quadriceps; beginner."
+  },
+  "LEG_LIFT": {
+    "description": "Leg Lift: no equipment; works glutes; beginner."
+  },
+  "LEG_PULL_IN": {
+    "description": "Leg Pull-In: no equipment; works abdominals; beginner."
+  },
+  "LEG_OVER_FLOOR_PRESS": {
+    "description": "Leg-Over Floor Press: kettlebell; works chest; intermediate."
+  },
+  "LEG_UP_HAMSTRING_STRETCH": {
+    "description": "Leg-Up Hamstring Stretch: no equipment; works hamstrings; beginner."
+  },
+  "LEVERAGE_CHEST_PRESS": {
+    "description": "Leverage Chest Press: machine; works chest; beginner."
+  },
+  "LEVERAGE_DEADLIFT": {
+    "description": "Leverage Deadlift: machine; works quadriceps; beginner."
+  },
+  "LEVERAGE_DECLINE_CHEST_PRESS": {
+    "description": "Leverage Decline Chest Press: machine; works chest; beginner."
+  },
+  "LEVERAGE_HIGH_ROW": {
+    "description": "Leverage High Row: machine; works middle back; beginner."
+  },
+  "LEVERAGE_INCLINE_CHEST_PRESS": {
+    "description": "Leverage Incline Chest Press: machine; works chest; beginner."
+  },
+  "LEVERAGE_ISO_ROW": {
+    "description": "Leverage Iso Row: machine; works lats; beginner."
+  },
+  "LEVERAGE_SHOULDER_PRESS": {
+    "description": "Leverage Shoulder Press: machine; works shoulders; beginner."
+  },
+  "LEVERAGE_SHRUG": {
+    "description": "Leverage Shrug: machine; works traps; beginner."
+  },
+  "LINEAR_3_PART_START_TECHNIQUE": {
+    "description": "Linear 3-Part Start Technique: no equipment; works hamstrings; beginner."
+  },
+  "LINEAR_ACCELERATION_WALL_DRILL": {
+    "description": "Linear Acceleration Wall Drill: no equipment; works hamstrings; beginner."
+  },
+  "LINEAR_DEPTH_JUMP": {
+    "description": "Linear Depth Jump: no equipment; works quadriceps; intermediate."
+  },
+  "LONDON_BRIDGES": {
+    "description": "London Bridges: no equipment; works lats; intermediate."
+  },
+  "LOOKING_AT_CEILING": {
+    "description": "Looking At Ceiling: no equipment; works quadriceps; beginner."
+  },
+  "LOW_CABLE_CROSSOVER": {
+    "description": "Low Cable Crossover: cable; works chest; beginner."
+  },
+  "LOW_CABLE_TRICEPS_EXTENSION": {
+    "description": "Low Cable Triceps Extension: cable; works triceps; beginner."
+  },
+  "LOW_PULLEY_ROW_TO_NECK": {
+    "description": "Low Pulley Row To Neck: cable; works shoulders; beginner."
+  },
+  "LOWER_BACK_CURL": {
+    "description": "Lower Back Curl: no equipment; works abdominals; beginner."
+  },
+  "LOWER_BACK_SMR": {
+    "description": "Lower Back-SMR: foam roll; works lower back; beginner."
+  },
+  "LUNGE_PASS_THROUGH": {
+    "description": "Lunge Pass Through: kettlebell; works hamstrings; intermediate."
+  },
+  "LUNGE_SPRINT": {
+    "description": "Lunge Sprint: machine; works quadriceps; intermediate."
+  },
+  "LYING_BENT_LEG_GROIN": {
+    "description": "Lying Bent Leg Groin: no equipment; works adductors; expert."
+  },
+  "LYING_CABLE_CURL": {
+    "description": "Lying Cable Curl: cable; works biceps; intermediate."
+  },
+  "LYING_CAMBERED_BARBELL_ROW": {
+    "description": "Lying Cambered Barbell Row: barbell; works middle back; beginner."
+  },
+  "LYING_CLOSE_GRIP_BAR_CURL_ON_HIGH_PULLEY": {
+    "description": "Lying Close-Grip Bar Curl On High Pulley: cable; works biceps; beginner."
+  },
+  "LYING_CLOSE_GRIP_BARBELL_TRICEPS_EXTENSION_BEHIND_THE_HEAD": {
+    "description": "Lying Close-Grip Barbell Triceps Extension Behind The Head: barbell; works triceps; intermediate."
+  },
+  "LYING_CLOSE_GRIP_BARBELL_TRICEPS_PRESS_TO_CHIN": {
+    "description": "Lying Close-Grip Barbell Triceps Press To Chin: ez bar; works triceps; intermediate."
+  },
+  "LYING_CROSSOVER": {
+    "description": "Lying Crossover: no equipment; works abductors; expert."
+  },
+  "LYING_DUMBBELL_TRICEP_EXTENSION": {
+    "description": "Lying Dumbbell Tricep Extension: dumbbell; works triceps; intermediate."
+  },
+  "LYING_FACE_DOWN_PLATE_NECK_RESISTANCE": {
+    "description": "Lying Face Down Plate Neck Resistance: no equipment; works neck; intermediate."
+  },
+  "LYING_FACE_UP_PLATE_NECK_RESISTANCE": {
+    "description": "Lying Face Up Plate Neck Resistance: no equipment; works neck; intermediate."
+  },
+  "LYING_GLUTE": {
+    "description": "Lying Glute: no equipment; works glutes; expert."
+  },
+  "LYING_HAMSTRING": {
+    "description": "Lying Hamstring: no equipment; works hamstrings; expert."
+  },
+  "LYING_HIGH_BENCH_BARBELL_CURL": {
+    "description": "Lying High Bench Barbell Curl: barbell, bench; works biceps; intermediate."
+  },
+  "LYING_LEG_CURLS": {
+    "description": "Lying Leg Curls: machine; works hamstrings; beginner."
+  },
+  "LYING_MACHINE_SQUAT": {
+    "description": "Lying Machine Squat: machine; works quadriceps; intermediate."
+  },
+  "LYING_ONE_ARM_LATERAL_RAISE": {
+    "description": "Lying One-Arm Lateral Raise: dumbbell; works shoulders; intermediate."
+  },
+  "LYING_PRONE_QUADRICEPS": {
+    "description": "Lying Prone Quadriceps: no equipment; works quadriceps; expert."
+  },
+  "LYING_REAR_DELT_RAISE": {
+    "description": "Lying Rear Delt Raise: dumbbell; works shoulders; intermediate."
+  },
+  "LYING_SUPINE_DUMBBELL_CURL": {
+    "description": "Lying Supine Dumbbell Curl: dumbbell; works biceps; beginner."
+  },
+  "LYING_T_BAR_ROW": {
+    "description": "Lying T-Bar Row: machine; works middle back; intermediate."
+  },
+  "LYING_TRICEPS_PRESS": {
+    "description": "Lying Triceps Press: ez bar; works triceps; intermediate."
+  },
+  "MACHINE_BENCH_PRESS": {
+    "description": "Machine Bench Press: machine, bench; works chest; beginner."
+  },
+  "MACHINE_BICEP_CURL": {
+    "description": "Machine Bicep Curl: machine; works biceps; beginner."
+  },
+  "MACHINE_PREACHER_CURLS": {
+    "description": "Machine Preacher Curls: machine; works biceps; beginner."
+  },
+  "MACHINE_SHOULDER_MILITARY_PRESS": {
+    "description": "Machine Shoulder (Military) Press: machine; works shoulders; beginner."
+  },
+  "MACHINE_TRICEPS_EXTENSION": {
+    "description": "Machine Triceps Extension: machine; works triceps; beginner."
+  },
+  "MEDICINE_BALL_CHEST_PASS": {
+    "description": "Medicine Ball Chest Pass: medicine ball; works chest; beginner."
+  },
+  "MEDICINE_BALL_FULL_TWIST": {
+    "description": "Medicine Ball Full Twist: medicine ball; works abdominals; beginner."
+  },
+  "MEDICINE_BALL_SCOOP_THROW": {
+    "description": "Medicine Ball Scoop Throw: medicine ball; works shoulders; beginner."
+  },
+  "MIDDLE_BACK_SHRUG": {
+    "description": "Middle Back Shrug: dumbbell; works middle back; intermediate."
+  },
+  "MIDDLE_BACK_STRETCH": {
+    "description": "Middle Back Stretch: no equipment; works middle back; beginner."
+  },
+  "MIXED_GRIP_CHIN": {
+    "description": "Mixed Grip Chin: no equipment; works middle back; expert."
+  },
+  "MONSTER_WALK": {
+    "description": "Monster Walk: bands; works abductors; beginner."
+  },
+  "MOUNTAIN_CLIMBERS": {
+    "description": "Mountain Climbers: no equipment; works quadriceps; beginner."
+  },
+  "MOVING_CLAW_SERIES": {
+    "description": "Moving Claw Series: no equipment; works hamstrings; beginner."
+  },
+  "MUSCLE_SNATCH": {
+    "description": "Muscle Snatch: barbell; works hamstrings; intermediate."
+  },
+  "MUSCLE_UP": {
+    "description": "Muscle Up: no equipment; works lats; intermediate."
+  },
+  "NARROW_STANCE_HACK_SQUATS": {
+    "description": "Narrow Stance Hack Squats: machine; works quadriceps; intermediate."
+  },
+  "NARROW_STANCE_LEG_PRESS": {
+    "description": "Narrow Stance Leg Press: machine; works quadriceps; intermediate."
+  },
+  "NARROW_STANCE_SQUATS": {
+    "description": "Narrow Stance Squats: barbell; works quadriceps; intermediate."
+  },
+  "NATURAL_GLUTE_HAM_RAISE": {
+    "description": "Natural Glute Ham Raise: no equipment; works hamstrings; intermediate."
+  },
+  "NECK_PRESS": {
+    "description": "Neck Press: barbell; works chest; intermediate."
+  },
+  "NECK_SMR": {
+    "description": "Neck-SMR: no equipment; works neck; intermediate."
+  },
+  "OBLIQUE_CRUNCHES": {
+    "description": "Oblique Crunches: no equipment; works abdominals; beginner."
+  },
+  "OBLIQUE_CRUNCHES_ON_THE_FLOOR": {
+    "description": "Oblique Crunches - On The Floor: no equipment; works abdominals; beginner."
+  },
+  "OLYMPIC_SQUAT": {
+    "description": "Olympic Squat: barbell; works quadriceps; intermediate."
+  },
+  "ON_YOUR_SIDE_QUAD_STRETCH": {
+    "description": "On Your Side Quad Stretch: no equipment; works quadriceps; beginner."
+  },
+  "ON_YOUR_BACK_QUAD_STRETCH": {
+    "description": "On-Your-Back Quad Stretch: no equipment; works quadriceps; beginner."
+  },
+  "ONE_ARM_AGAINST_WALL": {
+    "description": "One Arm Against Wall: no equipment; works lats; beginner."
+  },
+  "ONE_ARM_CHIN_UP": {
+    "description": "One Arm Chin-Up: pull up bar; works middle back; expert."
+  },
+  "ONE_ARM_DUMBBELL_BENCH_PRESS": {
+    "description": "One Arm Dumbbell Bench Press: dumbbell, bench; works chest; beginner."
+  },
+  "ONE_ARM_DUMBBELL_PREACHER_CURL": {
+    "description": "One Arm Dumbbell Preacher Curl: dumbbell; works biceps; beginner."
+  },
+  "ONE_ARM_FLOOR_PRESS": {
+    "description": "One Arm Floor Press: barbell; works triceps; intermediate."
+  },
+  "ONE_ARM_LAT_PULLDOWN": {
+    "description": "One Arm Lat Pulldown: cable; works lats; beginner."
+  },
+  "ONE_ARM_PRONATED_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "One Arm Pronated Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "ONE_ARM_SUPINATED_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "One Arm Supinated Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "ONE_HALF_LOCUST": {
+    "description": "One Half Locust: no equipment; works quadriceps; beginner."
+  },
+  "ONE_HANDED_HANG": {
+    "description": "One Handed Hang: no equipment; works lats; beginner."
+  },
+  "ONE_KNEE_TO_CHEST": {
+    "description": "One Knee To Chest: no equipment; works glutes; beginner."
+  },
+  "ONE_LEG_BARBELL_SQUAT": {
+    "description": "One Leg Barbell Squat: barbell; works quadriceps; expert."
+  },
+  "ONE_ARM_FLAT_BENCH_DUMBBELL_FLYE": {
+    "description": "One-Arm Flat Bench Dumbbell Flye: dumbbell, bench; works chest; beginner."
+  },
+  "ONE_ARM_HIGH_PULLEY_CABLE_SIDE_BENDS": {
+    "description": "One-Arm High-Pulley Cable Side Bends: cable; works abdominals; beginner."
+  },
+  "ONE_ARM_INCLINE_LATERAL_RAISE": {
+    "description": "One-Arm Incline Lateral Raise: dumbbell; works shoulders; beginner."
+  },
+  "ONE_ARM_KETTLEBELL_CLEAN": {
+    "description": "One-Arm Kettlebell Clean: kettlebell; works hamstrings; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_CLEAN_AND_JERK": {
+    "description": "One-Arm Kettlebell Clean and Jerk: kettlebell; works shoulders; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_FLOOR_PRESS": {
+    "description": "One-Arm Kettlebell Floor Press: kettlebell; works chest; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_JERK": {
+    "description": "One-Arm Kettlebell Jerk: kettlebell; works shoulders; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_MILITARY_PRESS_TO_THE_SIDE": {
+    "description": "One-Arm Kettlebell Military Press To The Side: kettlebell; works shoulders; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_PARA_PRESS": {
+    "description": "One-Arm Kettlebell Para Press: kettlebell; works shoulders; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_PUSH_PRESS": {
+    "description": "One-Arm Kettlebell Push Press: kettlebell; works shoulders; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_ROW": {
+    "description": "One-Arm Kettlebell Row: kettlebell; works middle back; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_SNATCH": {
+    "description": "One-Arm Kettlebell Snatch: kettlebell; works shoulders; expert."
+  },
+  "ONE_ARM_KETTLEBELL_SPLIT_JERK": {
+    "description": "One-Arm Kettlebell Split Jerk: kettlebell; works shoulders; intermediate."
+  },
+  "ONE_ARM_KETTLEBELL_SPLIT_SNATCH": {
+    "description": "One-Arm Kettlebell Split Snatch: kettlebell; works shoulders; expert."
+  },
+  "ONE_ARM_KETTLEBELL_SWINGS": {
+    "description": "One-Arm Kettlebell Swings: kettlebell; works hamstrings; intermediate."
+  },
+  "ONE_ARM_LONG_BAR_ROW": {
+    "description": "One-Arm Long Bar Row: barbell; works middle back; beginner."
+  },
+  "ONE_ARM_MEDICINE_BALL_SLAM": {
+    "description": "One-Arm Medicine Ball Slam: medicine ball; works abdominals; beginner."
+  },
+  "ONE_ARM_OPEN_PALM_KETTLEBELL_CLEAN": {
+    "description": "One-Arm Open Palm Kettlebell Clean: kettlebell; works hamstrings; intermediate."
+  },
+  "ONE_ARM_OVERHEAD_KETTLEBELL_SQUATS": {
+    "description": "One-Arm Overhead Kettlebell Squats: kettlebell; works quadriceps; expert."
+  },
+  "ONE_ARM_SIDE_DEADLIFT": {
+    "description": "One-Arm Side Deadlift: barbell; works quadriceps; expert."
+  },
+  "ONE_ARM_SIDE_LATERALS": {
+    "description": "One-Arm Side Laterals: dumbbell; works shoulders; beginner."
+  },
+  "ONE_LEGGED_CABLE_KICKBACK": {
+    "description": "One-Legged Cable Kickback: cable; works glutes; intermediate."
+  },
+  "OPEN_PALM_KETTLEBELL_CLEAN": {
+    "description": "Open Palm Kettlebell Clean: kettlebell; works hamstrings; expert."
+  },
+  "OTIS_UP": {
+    "description": "Otis-Up: no equipment; works abdominals; beginner."
+  },
+  "OVERHEAD_CABLE_CURL": {
+    "description": "Overhead Cable Curl: cable; works biceps; intermediate."
+  },
+  "OVERHEAD_LAT": {
+    "description": "Overhead Lat: no equipment; works lats; expert."
+  },
+  "OVERHEAD_SLAM": {
+    "description": "Overhead Slam: medicine ball; works lats; beginner."
+  },
+  "OVERHEAD_SQUAT": {
+    "description": "Overhead Squat: barbell; works quadriceps; expert."
+  },
+  "OVERHEAD_STRETCH": {
+    "description": "Overhead Stretch: no equipment; works abdominals; beginner."
+  },
+  "OVERHEAD_TRICEPS": {
+    "description": "Overhead Triceps: no equipment; works triceps; expert."
+  },
+  "PALLOF_PRESS": {
+    "description": "Pallof Press: cable; works abdominals; beginner."
+  },
+  "PALLOF_PRESS_WITH_ROTATION": {
+    "description": "Pallof Press With Rotation: cable; works abdominals; beginner."
+  },
+  "PALMS_DOWN_DUMBBELL_WRIST_CURL_OVER_A_BENCH": {
+    "description": "Palms-Down Dumbbell Wrist Curl Over A Bench: dumbbell, bench; works forearms; beginner."
+  },
+  "PALMS_DOWN_WRIST_CURL_OVER_A_BENCH": {
+    "description": "Palms-Down Wrist Curl Over A Bench: barbell, bench; works forearms; beginner."
+  },
+  "PALMS_UP_BARBELL_WRIST_CURL_OVER_A_BENCH": {
+    "description": "Palms-Up Barbell Wrist Curl Over A Bench: barbell, bench; works forearms; beginner."
+  },
+  "PALMS_UP_DUMBBELL_WRIST_CURL_OVER_A_BENCH": {
+    "description": "Palms-Up Dumbbell Wrist Curl Over A Bench: dumbbell, bench; works forearms; beginner."
+  },
+  "PARALLEL_BAR_DIP": {
+    "description": "Parallel Bar Dip: no equipment; works triceps; beginner."
+  },
+  "PELVIC_TILT_INTO_BRIDGE": {
+    "description": "Pelvic Tilt Into Bridge: no equipment; works lower back; intermediate."
+  },
+  "PERONEALS_STRETCH": {
+    "description": "Peroneals Stretch: no equipment; works calves; intermediate."
+  },
+  "PERONEALS_SMR": {
+    "description": "Peroneals-SMR: foam roll; works calves; intermediate."
+  },
+  "PHYSIOBALL_HIP_BRIDGE": {
+    "description": "Physioball Hip Bridge: exercise ball; works glutes; beginner."
+  },
+  "PIN_PRESSES": {
+    "description": "Pin Presses: barbell; works triceps; intermediate."
+  },
+  "PIRIFORMIS_SMR": {
+    "description": "Piriformis-SMR: foam roll; works glutes; intermediate."
+  },
+  "PLANK": {
+    "description": "Plank: no equipment; works abdominals; beginner."
+  },
+  "PLATE_PINCH": {
+    "description": "Plate Pinch: no equipment; works forearms; intermediate."
+  },
+  "PLATE_TWIST": {
+    "description": "Plate Twist: no equipment; works abdominals; intermediate."
+  },
+  "PLATFORM_HAMSTRING_SLIDES": {
+    "description": "Platform Hamstring Slides: no equipment; works hamstrings; beginner."
+  },
+  "PLIE_DUMBBELL_SQUAT": {
+    "description": "Plie Dumbbell Squat: dumbbell; works quadriceps; beginner."
+  },
+  "PLYO_KETTLEBELL_PUSHUPS": {
+    "description": "Plyo Kettlebell Pushups: kettlebell; works chest; expert."
+  },
+  "PLYO_PUSH_UP": {
+    "description": "Plyo Push-up: no equipment; works chest; beginner."
+  },
+  "POSTERIOR_TIBIALIS_STRETCH": {
+    "description": "Posterior Tibialis Stretch: no equipment; works calves; intermediate."
+  },
+  "POWER_CLEAN": {
+    "description": "Power Clean: barbell; works hamstrings; intermediate."
+  },
+  "POWER_CLEAN_FROM_BLOCKS": {
+    "description": "Power Clean from Blocks: barbell; works hamstrings; intermediate."
+  },
+  "POWER_JERK": {
+    "description": "Power Jerk: barbell; works quadriceps; expert."
+  },
+  "POWER_PARTIALS": {
+    "description": "Power Partials: dumbbell; works shoulders; beginner."
+  },
+  "POWER_SNATCH": {
+    "description": "Power Snatch: barbell; works hamstrings; expert."
+  },
+  "POWER_SNATCH_FROM_BLOCKS": {
+    "description": "Power Snatch from Blocks: barbell; works quadriceps; intermediate."
+  },
+  "PREACHER_CURL": {
+    "description": "Preacher Curl: barbell; works biceps; beginner."
+  },
+  "PREACHER_HAMMER_DUMBBELL_CURL": {
+    "description": "Preacher Hammer Dumbbell Curl: dumbbell; works biceps; beginner."
+  },
+  "PRESS_SIT_UP": {
+    "description": "Press Sit-Up: barbell; works abdominals; expert."
+  },
+  "PRONE_MANUAL_HAMSTRING": {
+    "description": "Prone Manual Hamstring: no equipment; works hamstrings; beginner."
+  },
+  "PULL_THROUGH": {
+    "description": "Pull Through: cable; works glutes; beginner."
+  },
+  "PULLUPS": {
+    "description": "Pullups: pull up bar; works lats; beginner."
+  },
+  "PUSH_PRESS": {
+    "description": "Push Press: barbell; works shoulders; expert."
+  },
+  "PUSH_PRESS_BEHIND_THE_NECK": {
+    "description": "Push Press - Behind the Neck: barbell; works shoulders; intermediate."
+  },
+  "PUSH_UP_TO_SIDE_PLANK": {
+    "description": "Push Up to Side Plank: no equipment; works chest; beginner."
+  },
+  "PUSH_UP_WIDE": {
+    "description": "Push-Up Wide: no equipment; works chest; beginner."
+  },
+  "PUSH_UPS_CLOSE_TRICEPS_POSITION": {
+    "description": "Push-Ups - Close Triceps Position: no equipment; works triceps; intermediate."
+  },
+  "PUSH_UPS_WITH_FEET_ELEVATED": {
+    "description": "Push-Ups With Feet Elevated: no equipment; works chest; beginner."
+  },
+  "PUSH_UPS_WITH_FEET_ON_AN_EXERCISE_BALL": {
+    "description": "Push-Ups With Feet On An Exercise Ball: exercise ball; works chest; intermediate."
+  },
+  "PUSHUPS": {
+    "description": "Pushups: no equipment; works chest; beginner."
+  },
+  "PUSHUPS_CLOSE_AND_WIDE_HAND_POSITIONS": {
+    "description": "Pushups (Close and Wide Hand Positions): no equipment; works chest; beginner."
+  },
+  "PYRAMID": {
+    "description": "Pyramid: exercise ball; works lower back; beginner."
+  },
+  "QUAD_STRETCH": {
+    "description": "Quad Stretch: no equipment; works quadriceps; intermediate."
+  },
+  "QUADRICEPS_SMR": {
+    "description": "Quadriceps-SMR: foam roll; works quadriceps; intermediate."
+  },
+  "QUICK_LEAP": {
+    "description": "Quick Leap: no equipment; works quadriceps; beginner."
+  },
+  "RACK_DELIVERY": {
+    "description": "Rack Delivery: barbell; works shoulders; intermediate."
+  },
+  "RACK_PULL_WITH_BANDS": {
+    "description": "Rack Pull with Bands: barbell; works lower back; intermediate."
+  },
+  "RACK_PULLS": {
+    "description": "Rack Pulls: barbell; works lower back; intermediate."
+  },
+  "REAR_LEG_RAISES": {
+    "description": "Rear Leg Raises: no equipment; works quadriceps; beginner."
+  },
+  "RETURN_PUSH_FROM_STANCE": {
+    "description": "Return Push from Stance: medicine ball; works shoulders; beginner."
+  },
+  "REVERSE_BAND_BENCH_PRESS": {
+    "description": "Reverse Band Bench Press: barbell, bench; works triceps; intermediate."
+  },
+  "REVERSE_BAND_BOX_SQUAT": {
+    "description": "Reverse Band Box Squat: barbell; works quadriceps; intermediate."
+  },
+  "REVERSE_BAND_DEADLIFT": {
+    "description": "Reverse Band Deadlift: barbell; works lower back; expert."
+  },
+  "REVERSE_BAND_POWER_SQUAT": {
+    "description": "Reverse Band Power Squat: barbell; works quadriceps; expert."
+  },
+  "REVERSE_BAND_SUMO_DEADLIFT": {
+    "description": "Reverse Band Sumo Deadlift: barbell; works hamstrings; expert."
+  },
+  "REVERSE_BARBELL_CURL": {
+    "description": "Reverse Barbell Curl: barbell; works biceps; beginner."
+  },
+  "REVERSE_BARBELL_PREACHER_CURLS": {
+    "description": "Reverse Barbell Preacher Curls: ez bar; works biceps; intermediate."
+  },
+  "REVERSE_CABLE_CURL": {
+    "description": "Reverse Cable Curl: cable; works biceps; beginner."
+  },
+  "REVERSE_CRUNCH": {
+    "description": "Reverse Crunch: no equipment; works abdominals; beginner."
+  },
+  "REVERSE_FLYES": {
+    "description": "Reverse Flyes: dumbbell; works shoulders; beginner."
+  },
+  "REVERSE_FLYES_WITH_EXTERNAL_ROTATION": {
+    "description": "Reverse Flyes With External Rotation: dumbbell; works shoulders; intermediate."
+  },
+  "REVERSE_GRIP_BENT_OVER_ROWS": {
+    "description": "Reverse Grip Bent-Over Rows: barbell; works middle back; intermediate."
+  },
+  "REVERSE_GRIP_TRICEPS_PUSHDOWN": {
+    "description": "Reverse Grip Triceps Pushdown: cable; works triceps; beginner."
+  },
+  "REVERSE_HYPEREXTENSION": {
+    "description": "Reverse Hyperextension: machine; works hamstrings; intermediate."
+  },
+  "REVERSE_MACHINE_FLYES": {
+    "description": "Reverse Machine Flyes: machine; works shoulders; beginner."
+  },
+  "REVERSE_PLATE_CURLS": {
+    "description": "Reverse Plate Curls: no equipment; works biceps; beginner."
+  },
+  "REVERSE_TRICEPS_BENCH_PRESS": {
+    "description": "Reverse Triceps Bench Press: barbell, bench; works triceps; intermediate."
+  },
+  "RHOMBOIDS_SMR": {
+    "description": "Rhomboids-SMR: foam roll; works middle back; intermediate."
+  },
+  "RING_DIPS": {
+    "description": "Ring Dips: no equipment; works triceps; intermediate."
+  },
+  "ROCKET_JUMP": {
+    "description": "Rocket Jump: no equipment; works quadriceps; beginner."
+  },
+  "ROCKING_STANDING_CALF_RAISE": {
+    "description": "Rocking Standing Calf Raise: barbell; works calves; beginner."
+  },
+  "ROCKY_PULL_UPS_PULLDOWNS": {
+    "description": "Rocky Pull-Ups/Pulldowns: pull up bar; works lats; intermediate."
+  },
+  "ROMANIAN_DEADLIFT_FROM_DEFICIT": {
+    "description": "Romanian Deadlift from Deficit: barbell; works hamstrings; intermediate."
+  },
+  "ROPE_CLIMB": {
+    "description": "Rope Climb: no equipment; works lats; intermediate."
+  },
+  "ROPE_CRUNCH": {
+    "description": "Rope Crunch: cable; works abdominals; beginner."
+  },
+  "ROPE_STRAIGHT_ARM_PULLDOWN": {
+    "description": "Rope Straight-Arm Pulldown: cable; works lats; beginner."
+  },
+  "ROUND_THE_WORLD_SHOULDER_STRETCH": {
+    "description": "Round The World Shoulder Stretch: no equipment; works shoulders; beginner."
+  },
+  "RUNNERS_STRETCH": {
+    "description": "Runner's Stretch: no equipment; works hamstrings; beginner."
+  },
+  "RUSSIAN_TWIST": {
+    "description": "Russian Twist: no equipment; works abdominals; intermediate."
+  },
+  "SCAPULAR_PULL_UP": {
+    "description": "Scapular Pull-Up: pull up bar; works traps; beginner."
+  },
+  "SCISSOR_KICK": {
+    "description": "Scissor Kick: no equipment; works abdominals; beginner."
+  },
+  "SCISSORS_JUMP": {
+    "description": "Scissors Jump: no equipment; works quadriceps; beginner."
+  },
+  "SEATED_BAND_HAMSTRING_CURL": {
+    "description": "Seated Band Hamstring Curl: no equipment; works hamstrings; beginner."
+  },
+  "SEATED_BARBELL_MILITARY_PRESS": {
+    "description": "Seated Barbell Military Press: barbell; works shoulders; intermediate."
+  },
+  "SEATED_BARBELL_TWIST": {
+    "description": "Seated Barbell Twist: barbell; works abdominals; beginner."
+  },
+  "SEATED_BENT_OVER_ONE_ARM_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Seated Bent-Over One-Arm Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "SEATED_BENT_OVER_REAR_DELT_RAISE": {
+    "description": "Seated Bent-Over Rear Delt Raise: dumbbell; works shoulders; intermediate."
+  },
+  "SEATED_BENT_OVER_TWO_ARM_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Seated Bent-Over Two-Arm Dumbbell Triceps Extension: dumbbell; works triceps; intermediate."
+  },
+  "SEATED_BICEPS": {
+    "description": "Seated Biceps: no equipment; works biceps; expert."
+  },
+  "SEATED_CABLE_ROWS": {
+    "description": "Seated Cable Rows: cable; works middle back; beginner."
+  },
+  "SEATED_CABLE_SHOULDER_PRESS": {
+    "description": "Seated Cable Shoulder Press: cable; works shoulders; beginner."
+  },
+  "SEATED_CALF_RAISE": {
+    "description": "Seated Calf Raise: machine; works calves; beginner."
+  },
+  "SEATED_CALF_STRETCH": {
+    "description": "Seated Calf Stretch: no equipment; works calves; beginner."
+  },
+  "SEATED_CLOSE_GRIP_CONCENTRATION_BARBELL_CURL": {
+    "description": "Seated Close-Grip Concentration Barbell Curl: barbell; works biceps; intermediate."
+  },
+  "SEATED_DUMBBELL_CURL": {
+    "description": "Seated Dumbbell Curl: dumbbell; works biceps; beginner."
+  },
+  "SEATED_DUMBBELL_INNER_BICEPS_CURL": {
+    "description": "Seated Dumbbell Inner Biceps Curl: dumbbell; works biceps; beginner."
+  },
+  "SEATED_DUMBBELL_PALMS_DOWN_WRIST_CURL": {
+    "description": "Seated Dumbbell Palms-Down Wrist Curl: dumbbell; works forearms; beginner."
+  },
+  "SEATED_DUMBBELL_PALMS_UP_WRIST_CURL": {
+    "description": "Seated Dumbbell Palms-Up Wrist Curl: dumbbell; works forearms; beginner."
+  },
+  "SEATED_DUMBBELL_PRESS": {
+    "description": "Seated Dumbbell Press: dumbbell; works shoulders; beginner."
+  },
+  "SEATED_FLAT_BENCH_LEG_PULL_IN": {
+    "description": "Seated Flat Bench Leg Pull-In: no equipment, bench; works abdominals; beginner."
+  },
+  "SEATED_FLOOR_HAMSTRING_STRETCH": {
+    "description": "Seated Floor Hamstring Stretch: no equipment; works hamstrings; beginner."
+  },
+  "SEATED_FRONT_DELTOID": {
+    "description": "Seated Front Deltoid: no equipment; works shoulders; expert."
+  },
+  "SEATED_GLUTE": {
+    "description": "Seated Glute: no equipment; works glutes; expert."
+  },
+  "SEATED_GOOD_MORNINGS": {
+    "description": "Seated Good Mornings: barbell; works lower back; intermediate."
+  },
+  "SEATED_HAMSTRING": {
+    "description": "Seated Hamstring: no equipment; works hamstrings; expert."
+  },
+  "SEATED_HAMSTRING_AND_CALF_STRETCH": {
+    "description": "Seated Hamstring and Calf Stretch: no equipment; works hamstrings; intermediate."
+  },
+  "SEATED_HEAD_HARNESS_NECK_RESISTANCE": {
+    "description": "Seated Head Harness Neck Resistance: no equipment; works neck; intermediate."
+  },
+  "SEATED_LEG_CURL": {
+    "description": "Seated Leg Curl: machine; works hamstrings; beginner."
+  },
+  "SEATED_LEG_TUCKS": {
+    "description": "Seated Leg Tucks: no equipment; works abdominals; beginner."
+  },
+  "SEATED_ONE_ARM_CABLE_PULLEY_ROWS": {
+    "description": "Seated One-arm Cable Pulley Rows: cable; works middle back; intermediate."
+  },
+  "SEATED_ONE_ARM_DUMBBELL_PALMS_DOWN_WRIST_CURL": {
+    "description": "Seated One-Arm Dumbbell Palms-Down Wrist Curl: dumbbell; works forearms; intermediate."
+  },
+  "SEATED_ONE_ARM_DUMBBELL_PALMS_UP_WRIST_CURL": {
+    "description": "Seated One-Arm Dumbbell Palms-Up Wrist Curl: dumbbell; works forearms; beginner."
+  },
+  "SEATED_OVERHEAD_STRETCH": {
+    "description": "Seated Overhead Stretch: no equipment; works abdominals; beginner."
+  },
+  "SEATED_PALM_UP_BARBELL_WRIST_CURL": {
+    "description": "Seated Palm-Up Barbell Wrist Curl: barbell; works forearms; beginner."
+  },
+  "SEATED_PALMS_DOWN_BARBELL_WRIST_CURL": {
+    "description": "Seated Palms-Down Barbell Wrist Curl: barbell; works forearms; beginner."
+  },
+  "SEATED_SIDE_LATERAL_RAISE": {
+    "description": "Seated Side Lateral Raise: dumbbell; works shoulders; beginner."
+  },
+  "SEATED_TRICEPS_PRESS": {
+    "description": "Seated Triceps Press: dumbbell; works triceps; beginner."
+  },
+  "SEATED_TWO_ARM_PALMS_UP_LOW_PULLEY_WRIST_CURL": {
+    "description": "Seated Two-Arm Palms-Up Low-Pulley Wrist Curl: cable; works forearms; beginner."
+  },
+  "SEE_SAW_PRESS_ALTERNATING_SIDE_PRESS": {
+    "description": "See-Saw Press (Alternating Side Press): dumbbell; works shoulders; intermediate."
+  },
+  "SHOTGUN_ROW": {
+    "description": "Shotgun Row: cable; works lats; beginner."
+  },
+  "SHOULDER_CIRCLES": {
+    "description": "Shoulder Circles: no equipment; works shoulders; beginner."
+  },
+  "SHOULDER_PRESS_WITH_BANDS": {
+    "description": "Shoulder Press - With Bands: bands; works shoulders; beginner."
+  },
+  "SHOULDER_RAISE": {
+    "description": "Shoulder Raise: no equipment; works shoulders; beginner."
+  },
+  "SHOULDER_STRETCH": {
+    "description": "Shoulder Stretch: no equipment; works shoulders; beginner."
+  },
+  "SIDE_BRIDGE": {
+    "description": "Side Bridge: no equipment; works abdominals; beginner."
+  },
+  "SIDE_HOP_SPRINT": {
+    "description": "Side Hop-Sprint: no equipment; works quadriceps; beginner."
+  },
+  "SIDE_JACKKNIFE": {
+    "description": "Side Jackknife: no equipment; works abdominals; beginner."
+  },
+  "SIDE_LATERAL_RAISE": {
+    "description": "Side Lateral Raise: dumbbell; works shoulders; beginner."
+  },
+  "SIDE_LATERALS_TO_FRONT_RAISE": {
+    "description": "Side Laterals to Front Raise: dumbbell; works shoulders; beginner."
+  },
+  "SIDE_LEG_RAISES": {
+    "description": "Side Leg Raises: no equipment; works adductors; beginner."
+  },
+  "SIDE_LYING_GROIN_STRETCH": {
+    "description": "Side Lying Groin Stretch: no equipment; works adductors; beginner."
+  },
+  "SIDE_NECK_STRETCH": {
+    "description": "Side Neck Stretch: no equipment; works neck; beginner."
+  },
+  "SIDE_STANDING_LONG_JUMP": {
+    "description": "Side Standing Long Jump: no equipment; works quadriceps; beginner."
+  },
+  "SIDE_TO_SIDE_BOX_SHUFFLE": {
+    "description": "Side to Side Box Shuffle: no equipment; works quadriceps; beginner."
+  },
+  "SIDE_TO_SIDE_CHINS": {
+    "description": "Side To Side Chins: no equipment; works lats; intermediate."
+  },
+  "SIDE_WRIST_PULL": {
+    "description": "Side Wrist Pull: no equipment; works shoulders; beginner."
+  },
+  "SIDE_LYING_FLOOR_STRETCH": {
+    "description": "Side-Lying Floor Stretch: no equipment; works lats; beginner."
+  },
+  "SINGLE_DUMBBELL_RAISE": {
+    "description": "Single Dumbbell Raise: dumbbell; works shoulders; beginner."
+  },
+  "SINGLE_LEG_BUTT_KICK": {
+    "description": "Single Leg Butt Kick: no equipment; works quadriceps; beginner."
+  },
+  "SINGLE_LEG_GLUTE_BRIDGE": {
+    "description": "Single Leg Glute Bridge: no equipment; works glutes; beginner."
+  },
+  "SINGLE_LEG_PUSH_OFF": {
+    "description": "Single Leg Push-off: no equipment; works quadriceps; beginner."
+  },
+  "SINGLE_ARM_CABLE_CROSSOVER": {
+    "description": "Single-Arm Cable Crossover: cable; works chest; beginner."
+  },
+  "SINGLE_ARM_LINEAR_JAMMER": {
+    "description": "Single-Arm Linear Jammer: barbell; works shoulders; intermediate."
+  },
+  "SINGLE_ARM_PUSH_UP": {
+    "description": "Single-Arm Push-Up: no equipment; works chest; intermediate."
+  },
+  "SINGLE_CONE_SPRINT_DRILL": {
+    "description": "Single-Cone Sprint Drill: no equipment; works quadriceps; beginner."
+  },
+  "SINGLE_LEG_HIGH_BOX_SQUAT": {
+    "description": "Single-Leg High Box Squat: no equipment; works quadriceps; beginner."
+  },
+  "SINGLE_LEG_HOP_PROGRESSION": {
+    "description": "Single-Leg Hop Progression: no equipment; works quadriceps; beginner."
+  },
+  "SINGLE_LEG_LATERAL_HOP": {
+    "description": "Single-Leg Lateral Hop: no equipment; works quadriceps; beginner."
+  },
+  "SINGLE_LEG_LEG_EXTENSION": {
+    "description": "Single-Leg Leg Extension: machine; works quadriceps; beginner."
+  },
+  "SINGLE_LEG_STRIDE_JUMP": {
+    "description": "Single-Leg Stride Jump: no equipment; works quadriceps; beginner."
+  },
+  "SIT_SQUATS": {
+    "description": "Sit Squats: no equipment; works quadriceps; beginner."
+  },
+  "SIT_UP": {
+    "description": "Sit-Up: no equipment; works abdominals; beginner."
+  },
+  "SLED_OVERHEAD_BACKWARD_WALK": {
+    "description": "Sled Overhead Backward Walk: no equipment; works shoulders; beginner."
+  },
+  "SLED_OVERHEAD_TRICEPS_EXTENSION": {
+    "description": "Sled Overhead Triceps Extension: no equipment; works triceps; beginner."
+  },
+  "SLED_REVERSE_FLYE": {
+    "description": "Sled Reverse Flye: no equipment; works shoulders; beginner."
+  },
+  "SLED_ROW": {
+    "description": "Sled Row: no equipment; works middle back; beginner."
+  },
+  "SLEDGEHAMMER_SWINGS": {
+    "description": "Sledgehammer Swings: no equipment; works abdominals; beginner."
+  },
+  "SMITH_INCLINE_SHOULDER_RAISE": {
+    "description": "Smith Incline Shoulder Raise: barbell; works shoulders; beginner."
+  },
+  "SMITH_MACHINE_BEHIND_THE_BACK_SHRUG": {
+    "description": "Smith Machine Behind the Back Shrug: machine; works traps; beginner."
+  },
+  "SMITH_MACHINE_BENCH_PRESS": {
+    "description": "Smith Machine Bench Press: machine, bench; works chest; beginner."
+  },
+  "SMITH_MACHINE_BENT_OVER_ROW": {
+    "description": "Smith Machine Bent Over Row: machine; works middle back; beginner."
+  },
+  "SMITH_MACHINE_CALF_RAISE": {
+    "description": "Smith Machine Calf Raise: machine; works calves; beginner."
+  },
+  "SMITH_MACHINE_CLOSE_GRIP_BENCH_PRESS": {
+    "description": "Smith Machine Close-Grip Bench Press: machine, bench; works triceps; beginner."
+  },
+  "SMITH_MACHINE_DECLINE_PRESS": {
+    "description": "Smith Machine Decline Press: machine; works chest; beginner."
+  },
+  "SMITH_MACHINE_HANG_POWER_CLEAN": {
+    "description": "Smith Machine Hang Power Clean: machine; works hamstrings; intermediate."
+  },
+  "SMITH_MACHINE_HIP_RAISE": {
+    "description": "Smith Machine Hip Raise: machine; works abdominals; beginner."
+  },
+  "SMITH_MACHINE_INCLINE_BENCH_PRESS": {
+    "description": "Smith Machine Incline Bench Press: machine, bench; works chest; beginner."
+  },
+  "SMITH_MACHINE_LEG_PRESS": {
+    "description": "Smith Machine Leg Press: machine; works quadriceps; intermediate."
+  },
+  "SMITH_MACHINE_ONE_ARM_UPRIGHT_ROW": {
+    "description": "Smith Machine One-Arm Upright Row: machine; works shoulders; beginner."
+  },
+  "SMITH_MACHINE_OVERHEAD_SHOULDER_PRESS": {
+    "description": "Smith Machine Overhead Shoulder Press: machine; works shoulders; beginner."
+  },
+  "SMITH_MACHINE_PISTOL_SQUAT": {
+    "description": "Smith Machine Pistol Squat: machine; works quadriceps; intermediate."
+  },
+  "SMITH_MACHINE_REVERSE_CALF_RAISES": {
+    "description": "Smith Machine Reverse Calf Raises: machine; works calves; beginner."
+  },
+  "SMITH_MACHINE_SQUAT": {
+    "description": "Smith Machine Squat: machine; works quadriceps; beginner."
+  },
+  "SMITH_MACHINE_STIFF_LEGGED_DEADLIFT": {
+    "description": "Smith Machine Stiff-Legged Deadlift: machine; works hamstrings; beginner."
+  },
+  "SMITH_MACHINE_UPRIGHT_ROW": {
+    "description": "Smith Machine Upright Row: machine; works traps; beginner."
+  },
+  "SMITH_SINGLE_LEG_SPLIT_SQUAT": {
+    "description": "Smith Single-Leg Split Squat: machine; works quadriceps; beginner."
+  },
+  "SNATCH": {
+    "description": "Snatch: barbell; works quadriceps; intermediate."
+  },
+  "SNATCH_BALANCE": {
+    "description": "Snatch Balance: barbell; works quadriceps; intermediate."
+  },
+  "SNATCH_DEADLIFT": {
+    "description": "Snatch Deadlift: barbell; works hamstrings; intermediate."
+  },
+  "SNATCH_FROM_BLOCKS": {
+    "description": "Snatch from Blocks: barbell; works quadriceps; expert."
+  },
+  "SNATCH_PULL": {
+    "description": "Snatch Pull: barbell; works hamstrings; intermediate."
+  },
+  "SNATCH_SHRUG": {
+    "description": "Snatch Shrug: barbell; works traps; intermediate."
+  },
+  "SPEED_BAND_OVERHEAD_TRICEPS": {
+    "description": "Speed Band Overhead Triceps: bands; works triceps; beginner."
+  },
+  "SPEED_BOX_SQUAT": {
+    "description": "Speed Box Squat: barbell; works quadriceps; intermediate."
+  },
+  "SPEED_SQUATS": {
+    "description": "Speed Squats: barbell; works quadriceps; expert."
+  },
+  "SPELL_CASTER": {
+    "description": "Spell Caster: dumbbell; works abdominals; beginner."
+  },
+  "SPIDER_CRAWL": {
+    "description": "Spider Crawl: no equipment; works abdominals; beginner."
+  },
+  "SPIDER_CURL": {
+    "description": "Spider Curl: ez bar; works biceps; beginner."
+  },
+  "SPINAL_STRETCH": {
+    "description": "Spinal Stretch: no equipment; works middle back; beginner."
+  },
+  "SPLIT_CLEAN": {
+    "description": "Split Clean: barbell; works quadriceps; intermediate."
+  },
+  "SPLIT_JERK": {
+    "description": "Split Jerk: barbell; works quadriceps; intermediate."
+  },
+  "SPLIT_JUMP": {
+    "description": "Split Jump: no equipment; works quadriceps; beginner."
+  },
+  "SPLIT_SNATCH": {
+    "description": "Split Snatch: barbell; works hamstrings; expert."
+  },
+  "SPLIT_SQUAT_WITH_DUMBBELLS": {
+    "description": "Split Squat with Dumbbells: dumbbell; works quadriceps; beginner."
+  },
+  "SPLIT_SQUATS": {
+    "description": "Split Squats: no equipment; works hamstrings; intermediate."
+  },
+  "SQUAT_JERK": {
+    "description": "Squat Jerk: barbell; works quadriceps; expert."
+  },
+  "SQUAT_WITH_BANDS": {
+    "description": "Squat with Bands: barbell; works quadriceps; intermediate."
+  },
+  "SQUAT_WITH_CHAINS": {
+    "description": "Squat with Chains: barbell; works quadriceps; intermediate."
+  },
+  "SQUAT_WITH_PLATE_MOVERS": {
+    "description": "Squat with Plate Movers: barbell; works quadriceps; intermediate."
+  },
+  "SQUATS_WITH_BANDS": {
+    "description": "Squats - With Bands: bands; works quadriceps; beginner."
+  },
+  "STANDING_ALTERNATING_DUMBBELL_PRESS": {
+    "description": "Standing Alternating Dumbbell Press: dumbbell; works shoulders; beginner."
+  },
+  "STANDING_BARBELL_CALF_RAISE": {
+    "description": "Standing Barbell Calf Raise: barbell; works calves; beginner."
+  },
+  "STANDING_BARBELL_PRESS_BEHIND_NECK": {
+    "description": "Standing Barbell Press Behind Neck: barbell; works shoulders; intermediate."
+  },
+  "STANDING_BENT_OVER_ONE_ARM_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Standing Bent-Over One-Arm Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "STANDING_BENT_OVER_TWO_ARM_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Standing Bent-Over Two-Arm Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "STANDING_BICEPS_CABLE_CURL": {
+    "description": "Standing Biceps Cable Curl: cable; works biceps; beginner."
+  },
+  "STANDING_BICEPS_STRETCH": {
+    "description": "Standing Biceps Stretch: no equipment; works biceps; beginner."
+  },
+  "STANDING_BRADFORD_PRESS": {
+    "description": "Standing Bradford Press: barbell; works shoulders; beginner."
+  },
+  "STANDING_CABLE_CHEST_PRESS": {
+    "description": "Standing Cable Chest Press: cable; works chest; beginner."
+  },
+  "STANDING_CABLE_LIFT": {
+    "description": "Standing Cable Lift: cable; works abdominals; beginner."
+  },
+  "STANDING_CABLE_WOOD_CHOP": {
+    "description": "Standing Cable Wood Chop: cable; works abdominals; beginner."
+  },
+  "STANDING_CALF_RAISES": {
+    "description": "Standing Calf Raises: machine; works calves; beginner."
+  },
+  "STANDING_CONCENTRATION_CURL": {
+    "description": "Standing Concentration Curl: dumbbell; works biceps; beginner."
+  },
+  "STANDING_DUMBBELL_CALF_RAISE": {
+    "description": "Standing Dumbbell Calf Raise: dumbbell; works calves; intermediate."
+  },
+  "STANDING_DUMBBELL_PRESS": {
+    "description": "Standing Dumbbell Press: dumbbell; works shoulders; beginner."
+  },
+  "STANDING_DUMBBELL_REVERSE_CURL": {
+    "description": "Standing Dumbbell Reverse Curl: dumbbell; works biceps; intermediate."
+  },
+  "STANDING_DUMBBELL_STRAIGHT_ARM_FRONT_DELT_RAISE_ABOVE_HEAD": {
+    "description": "Standing Dumbbell Straight-Arm Front Delt Raise Above Head: dumbbell; works shoulders; intermediate."
+  },
+  "STANDING_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Standing Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "STANDING_DUMBBELL_UPRIGHT_ROW": {
+    "description": "Standing Dumbbell Upright Row: dumbbell; works traps; beginner."
+  },
+  "STANDING_ELEVATED_QUAD_STRETCH": {
+    "description": "Standing Elevated Quad Stretch: no equipment; works quadriceps; beginner."
+  },
+  "STANDING_FRONT_BARBELL_RAISE_OVER_HEAD": {
+    "description": "Standing Front Barbell Raise Over Head: barbell; works shoulders; intermediate."
+  },
+  "STANDING_GASTROCNEMIUS_CALF_STRETCH": {
+    "description": "Standing Gastrocnemius Calf Stretch: no equipment; works calves; beginner."
+  },
+  "STANDING_HAMSTRING_AND_CALF_STRETCH": {
+    "description": "Standing Hamstring and Calf Stretch: no equipment; works hamstrings; beginner."
+  },
+  "STANDING_HIP_CIRCLES": {
+    "description": "Standing Hip Circles: no equipment; works abductors; beginner."
+  },
+  "STANDING_HIP_FLEXORS": {
+    "description": "Standing Hip Flexors: no equipment; works quadriceps; beginner."
+  },
+  "STANDING_INNER_BICEPS_CURL": {
+    "description": "Standing Inner-Biceps Curl: dumbbell; works biceps; intermediate."
+  },
+  "STANDING_LATERAL_STRETCH": {
+    "description": "Standing Lateral Stretch: no equipment; works abdominals; beginner."
+  },
+  "STANDING_LEG_CURL": {
+    "description": "Standing Leg Curl: machine; works hamstrings; beginner."
+  },
+  "STANDING_LONG_JUMP": {
+    "description": "Standing Long Jump: no equipment; works quadriceps; beginner."
+  },
+  "STANDING_LOW_PULLEY_DELTOID_RAISE": {
+    "description": "Standing Low-Pulley Deltoid Raise: cable; works shoulders; beginner."
+  },
+  "STANDING_LOW_PULLEY_ONE_ARM_TRICEPS_EXTENSION": {
+    "description": "Standing Low-Pulley One-Arm Triceps Extension: cable; works triceps; intermediate."
+  },
+  "STANDING_MILITARY_PRESS": {
+    "description": "Standing Military Press: barbell; works shoulders; beginner."
+  },
+  "STANDING_OLYMPIC_PLATE_HAND_SQUEEZE": {
+    "description": "Standing Olympic Plate Hand Squeeze: no equipment; works forearms; beginner."
+  },
+  "STANDING_ONE_ARM_CABLE_CURL": {
+    "description": "Standing One-Arm Cable Curl: cable; works biceps; intermediate."
+  },
+  "STANDING_ONE_ARM_DUMBBELL_CURL_OVER_INCLINE_BENCH": {
+    "description": "Standing One-Arm Dumbbell Curl Over Incline Bench: dumbbell, bench; works biceps; beginner."
+  },
+  "STANDING_ONE_ARM_DUMBBELL_TRICEPS_EXTENSION": {
+    "description": "Standing One-Arm Dumbbell Triceps Extension: dumbbell; works triceps; beginner."
+  },
+  "STANDING_OVERHEAD_BARBELL_TRICEPS_EXTENSION": {
+    "description": "Standing Overhead Barbell Triceps Extension: barbell; works triceps; beginner."
+  },
+  "STANDING_PALM_IN_ONE_ARM_DUMBBELL_PRESS": {
+    "description": "Standing Palm-In One-Arm Dumbbell Press: dumbbell; works shoulders; beginner."
+  },
+  "STANDING_PALMS_IN_DUMBBELL_PRESS": {
+    "description": "Standing Palms-In Dumbbell Press: dumbbell; works shoulders; intermediate."
+  },
+  "STANDING_PALMS_UP_BARBELL_BEHIND_THE_BACK_WRIST_CURL": {
+    "description": "Standing Palms-Up Barbell Behind The Back Wrist Curl: barbell; works forearms; beginner."
+  },
+  "STANDING_PELVIC_TILT": {
+    "description": "Standing Pelvic Tilt: no equipment; works lower back; beginner."
+  },
+  "STANDING_ROPE_CRUNCH": {
+    "description": "Standing Rope Crunch: cable; works abdominals; beginner."
+  },
+  "STANDING_SOLEUS_AND_ACHILLES_STRETCH": {
+    "description": "Standing Soleus And Achilles Stretch: no equipment; works calves; beginner."
+  },
+  "STANDING_TOE_TOUCHES": {
+    "description": "Standing Toe Touches: no equipment; works hamstrings; beginner."
+  },
+  "STANDING_TOWEL_TRICEPS_EXTENSION": {
+    "description": "Standing Towel Triceps Extension: no equipment; works triceps; beginner."
+  },
+  "STANDING_TWO_ARM_OVERHEAD_THROW": {
+    "description": "Standing Two-Arm Overhead Throw: medicine ball; works shoulders; beginner."
+  },
+  "STAR_JUMP": {
+    "description": "Star Jump: no equipment; works quadriceps; beginner."
+  },
+  "STEP_UP_WITH_KNEE_RAISE": {
+    "description": "Step-up with Knee Raise: no equipment; works glutes; beginner."
+  },
+  "STIFF_LEG_BARBELL_GOOD_MORNING": {
+    "description": "Stiff Leg Barbell Good Morning: barbell; works lower back; beginner."
+  },
+  "STIFF_LEGGED_BARBELL_DEADLIFT": {
+    "description": "Stiff-Legged Barbell Deadlift: barbell; works hamstrings; intermediate."
+  },
+  "STIFF_LEGGED_DUMBBELL_DEADLIFT": {
+    "description": "Stiff-Legged Dumbbell Deadlift: dumbbell; works hamstrings; beginner."
+  },
+  "STOMACH_VACUUM": {
+    "description": "Stomach Vacuum: no equipment; works abdominals; beginner."
+  },
+  "STRAIGHT_BAR_BENCH_MID_ROWS": {
+    "description": "Straight Bar Bench Mid Rows: barbell, bench; works middle back; beginner."
+  },
+  "STRAIGHT_RAISES_ON_INCLINE_BENCH": {
+    "description": "Straight Raises on Incline Bench: barbell, bench; works shoulders; beginner."
+  },
+  "STRAIGHT_ARM_DUMBBELL_PULLOVER": {
+    "description": "Straight-Arm Dumbbell Pullover: dumbbell; works chest; intermediate."
+  },
+  "STRAIGHT_ARM_PULLDOWN": {
+    "description": "Straight-Arm Pulldown: cable; works lats; beginner."
+  },
+  "STRIDE_JUMP_CROSSOVER": {
+    "description": "Stride Jump Crossover: no equipment; works quadriceps; beginner."
+  },
+  "SUMO_DEADLIFT": {
+    "description": "Sumo Deadlift: barbell; works hamstrings; intermediate."
+  },
+  "SUMO_DEADLIFT_WITH_BANDS": {
+    "description": "Sumo Deadlift with Bands: barbell; works hamstrings; intermediate."
+  },
+  "SUMO_DEADLIFT_WITH_CHAINS": {
+    "description": "Sumo Deadlift with Chains: barbell; works hamstrings; intermediate."
+  },
+  "SUPERMAN": {
+    "description": "Superman: no equipment; works lower back; beginner."
+  },
+  "SUPINE_CHEST_THROW": {
+    "description": "Supine Chest Throw: medicine ball; works triceps; beginner."
+  },
+  "SUPINE_ONE_ARM_OVERHEAD_THROW": {
+    "description": "Supine One-Arm Overhead Throw: medicine ball; works abdominals; beginner."
+  },
+  "SUPINE_TWO_ARM_OVERHEAD_THROW": {
+    "description": "Supine Two-Arm Overhead Throw: medicine ball; works abdominals; beginner."
+  },
+  "SUSPENDED_FALLOUT": {
+    "description": "Suspended Fallout: no equipment; works abdominals; intermediate."
+  },
+  "SUSPENDED_PUSH_UP": {
+    "description": "Suspended Push-Up: no equipment; works chest; beginner."
+  },
+  "SUSPENDED_REVERSE_CRUNCH": {
+    "description": "Suspended Reverse Crunch: no equipment; works abdominals; beginner."
+  },
+  "SUSPENDED_ROW": {
+    "description": "Suspended Row: no equipment; works middle back; beginner."
+  },
+  "SUSPENDED_SPLIT_SQUAT": {
+    "description": "Suspended Split Squat: no equipment; works quadriceps; intermediate."
+  },
+  "SVEND_PRESS": {
+    "description": "Svend Press: no equipment; works chest; beginner."
+  },
+  "T_BAR_ROW_WITH_HANDLE": {
+    "description": "T-Bar Row with Handle: barbell; works middle back; beginner."
+  },
+  "TATE_PRESS": {
+    "description": "Tate Press: dumbbell; works triceps; intermediate."
+  },
+  "THE_STRADDLE": {
+    "description": "The Straddle: no equipment; works hamstrings; beginner."
+  },
+  "THIGH_ABDUCTOR": {
+    "description": "Thigh Abductor: machine; works abductors; beginner."
+  },
+  "THIGH_ADDUCTOR": {
+    "description": "Thigh Adductor: machine; works adductors; beginner."
+  },
+  "TOE_TOUCHERS": {
+    "description": "Toe Touchers: no equipment; works abdominals; beginner."
+  },
+  "TORSO_ROTATION": {
+    "description": "Torso Rotation: exercise ball; works abdominals; beginner."
+  },
+  "TRAP_BAR_DEADLIFT": {
+    "description": "Trap Bar Deadlift: no equipment; works quadriceps; beginner."
+  },
+  "TRICEP_DUMBBELL_KICKBACK": {
+    "description": "Tricep Dumbbell Kickback: dumbbell; works triceps; beginner."
+  },
+  "TRICEP_SIDE_STRETCH": {
+    "description": "Tricep Side Stretch: no equipment; works triceps; beginner."
+  },
+  "TRICEPS_OVERHEAD_EXTENSION_WITH_ROPE": {
+    "description": "Triceps Overhead Extension with Rope: cable; works triceps; beginner."
+  },
+  "TRICEPS_PUSHDOWN_ROPE_ATTACHMENT": {
+    "description": "Triceps Pushdown - Rope Attachment: cable; works triceps; beginner."
+  },
+  "TRICEPS_PUSHDOWN_V_BAR_ATTACHMENT": {
+    "description": "Triceps Pushdown - V-Bar Attachment: cable; works triceps; beginner."
+  },
+  "TRICEPS_STRETCH": {
+    "description": "Triceps Stretch: no equipment; works triceps; beginner."
+  },
+  "TUCK_CRUNCH": {
+    "description": "Tuck Crunch: no equipment; works abdominals; beginner."
+  },
+  "TWO_ARM_DUMBBELL_PREACHER_CURL": {
+    "description": "Two-Arm Dumbbell Preacher Curl: dumbbell; works biceps; beginner."
+  },
+  "TWO_ARM_KETTLEBELL_CLEAN": {
+    "description": "Two-Arm Kettlebell Clean: kettlebell; works shoulders; intermediate."
+  },
+  "TWO_ARM_KETTLEBELL_JERK": {
+    "description": "Two-Arm Kettlebell Jerk: kettlebell; works shoulders; intermediate."
+  },
+  "TWO_ARM_KETTLEBELL_MILITARY_PRESS": {
+    "description": "Two-Arm Kettlebell Military Press: kettlebell; works shoulders; intermediate."
+  },
+  "TWO_ARM_KETTLEBELL_ROW": {
+    "description": "Two-Arm Kettlebell Row: kettlebell; works middle back; intermediate."
+  },
+  "UNDERHAND_CABLE_PULLDOWNS": {
+    "description": "Underhand Cable Pulldowns: cable; works lats; beginner."
+  },
+  "UPPER_BACK_STRETCH": {
+    "description": "Upper Back Stretch: no equipment; works middle back; beginner."
+  },
+  "UPPER_BACK_LEG_GRAB": {
+    "description": "Upper Back-Leg Grab: no equipment; works hamstrings; beginner."
+  },
+  "UPRIGHT_BARBELL_ROW": {
+    "description": "Upright Barbell Row: barbell; works shoulders; beginner."
+  },
+  "UPRIGHT_CABLE_ROW": {
+    "description": "Upright Cable Row: cable; works traps; intermediate."
+  },
+  "UPRIGHT_ROW_WITH_BANDS": {
+    "description": "Upright Row - With Bands: bands; works traps; beginner."
+  },
+  "UPWARD_STRETCH": {
+    "description": "Upward Stretch: no equipment; works shoulders; beginner."
+  },
+  "V_BAR_PULLDOWN": {
+    "description": "V-Bar Pulldown: cable; works lats; intermediate."
+  },
+  "V_BAR_PULLUP": {
+    "description": "V-Bar Pullup: pull up bar; works lats; beginner."
+  },
+  "VERTICAL_SWING": {
+    "description": "Vertical Swing: dumbbell; works hamstrings; beginner."
+  },
+  "WEIGHTED_BALL_HYPEREXTENSION": {
+    "description": "Weighted Ball Hyperextension: exercise ball; works lower back; intermediate."
+  },
+  "WEIGHTED_BALL_SIDE_BEND": {
+    "description": "Weighted Ball Side Bend: exercise ball; works abdominals; intermediate."
+  },
+  "WEIGHTED_BENCH_DIP": {
+    "description": "Weighted Bench Dip: no equipment, bench; works triceps; intermediate."
+  },
+  "WEIGHTED_JUMP_SQUAT": {
+    "description": "Weighted Jump Squat: barbell; works quadriceps; intermediate."
+  },
+  "WEIGHTED_PULL_UPS": {
+    "description": "Weighted Pull Ups: pull up bar; works lats; intermediate."
+  },
+  "WEIGHTED_SISSY_SQUAT": {
+    "description": "Weighted Sissy Squat: barbell; works quadriceps; expert."
+  },
+  "WEIGHTED_SIT_UPS_WITH_BANDS": {
+    "description": "Weighted Sit-Ups - With Bands: no equipment; works abdominals; intermediate."
+  },
+  "WEIGHTED_SQUAT": {
+    "description": "Weighted Squat: no equipment; works quadriceps; intermediate."
+  },
+  "WIDE_STANCE_BARBELL_SQUAT": {
+    "description": "Wide Stance Barbell Squat: barbell; works quadriceps; intermediate."
+  },
+  "WIDE_STANCE_STIFF_LEGS": {
+    "description": "Wide Stance Stiff Legs: barbell; works hamstrings; intermediate."
+  },
+  "WIDE_GRIP_BARBELL_BENCH_PRESS": {
+    "description": "Wide-Grip Barbell Bench Press: barbell, bench; works chest; intermediate."
+  },
+  "WIDE_GRIP_DECLINE_BARBELL_BENCH_PRESS": {
+    "description": "Wide-Grip Decline Barbell Bench Press: barbell, bench; works chest; intermediate."
+  },
+  "WIDE_GRIP_DECLINE_BARBELL_PULLOVER": {
+    "description": "Wide-Grip Decline Barbell Pullover: barbell; works chest; intermediate."
+  },
+  "WIDE_GRIP_LAT_PULLDOWN": {
+    "description": "Wide-Grip Lat Pulldown: cable; works lats; beginner."
+  },
+  "WIDE_GRIP_PULLDOWN_BEHIND_THE_NECK": {
+    "description": "Wide-Grip Pulldown Behind The Neck: cable; works lats; intermediate."
+  },
+  "WIDE_GRIP_REAR_PULL_UP": {
+    "description": "Wide-Grip Rear Pull-Up: pull up bar; works lats; intermediate."
+  },
+  "WIDE_GRIP_STANDING_BARBELL_CURL": {
+    "description": "Wide-Grip Standing Barbell Curl: barbell; works biceps; beginner."
+  },
+  "WIND_SPRINTS": {
+    "description": "Wind Sprints: no equipment; works abdominals; beginner."
+  },
+  "WINDMILLS": {
+    "description": "Windmills: no equipment; works abductors; intermediate."
+  },
+  "WORLDS_GREATEST_STRETCH": {
+    "description": "World's Greatest Stretch: no equipment; works hamstrings; intermediate."
+  },
+  "WRIST_CIRCLES": {
+    "description": "Wrist Circles: no equipment; works forearms; beginner."
+  },
+  "WRIST_ROLLER": {
+    "description": "Wrist Roller: no equipment; works forearms; beginner."
+  },
+  "WRIST_ROTATIONS_WITH_STRAIGHT_BAR": {
+    "description": "Wrist Rotations with Straight Bar: barbell; works forearms; beginner."
+  },
+  "ZERCHER_SQUATS": {
+    "description": "Zercher Squats: barbell; works quadriceps; expert."
+  },
+  "ZOTTMAN_CURL": {
+    "description": "Zottman Curl: dumbbell; works biceps; intermediate."
+  },
+  "ZOTTMAN_PREACHER_CURL": {
+    "description": "Zottman Preacher Curl: dumbbell; works biceps; intermediate."
+  }
+}
