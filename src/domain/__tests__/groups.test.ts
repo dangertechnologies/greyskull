@@ -108,10 +108,10 @@ describe('validateProgram with groups', () => {
         s('CHINUPS', '3x5', 'a'),
         s('DIPS', '3x5', 'a'),
         s('CRUNCHES', '3x8-12', 'c'),
-        s('CAL_PLANK', '3x10-30s', 'c'),
+        { ...s('CAL_PLANK', '3x10-30s', 'c'), progression: 'double' },
         s('BARBELL_SQUAT', '3x5', 'e'),
         s('BENCH_PRESS', '3x5', 'e'),
-        s('CAL_SUPPORT_HOLD', '4x20s', 'i'),
+        { ...s('CAL_SUPPORT_HOLD', '4x20s', 'i'), progression: 'linear' },
       ],
       [
         { id: 'a', kind: 'superset', restS: 90 },

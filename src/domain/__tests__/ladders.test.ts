@@ -84,6 +84,8 @@ describe('sessionFor resolves ladder slots', () => {
     ['a banded step', 3, 'CAL_PULLUP_BAND_ASSISTED', '3x5-8', 3],
     ['past the end clamps to the last step', 99, 'CAL_LSIT_PULLUP', '3x5-8', 5],
     ['below zero clamps to the first step', -2, 'CAL_SCAPULAR_PULL', '3x5-8', 0],
+    ['a fractional step is cut to a whole one', 1.5, 'CAL_ARCH_HANG', '3x10-30s', 1],
+    ['a step that is not a number starts at the first step', Number.NaN, 'CAL_SCAPULAR_PULL', '3x5-8', 0],
   ];
   test.each(rows)('%s', (_name, step, exercise, scheme, resolved) => {
     const lifts: Record<string, LiftState> = step === undefined ? {} : { rr_pullup: lift({ step }) };
@@ -199,12 +201,44 @@ describe('ladder progression', () => {
       'deload',
     ],
     [
-      'a deload keeps the band and the added load',
+      'a deload on a band step moves to the next heavier band',
       'rr_pullup',
-      { step: 3, reps: 7, fails: 1, bandId: 'medium', weightKg: 0 },
+      { step: 3, reps: 7, fails: 1, bandId: 'medium' },
       0,
-      { step: 3, bandId: 'medium', fails: 0 },
+      { step: 3, bandId: 'heavy', fails: 0 },
       'deload',
+    ],
+    [
+      'a deload with the heaviest band keeps it',
+      'rr_pullup',
+      { step: 3, reps: 7, fails: 1, bandId: 'heavy' },
+      0,
+      { step: 3, bandId: 'heavy', fails: 0 },
+      'deload',
+    ],
+    [
+      'a deload on the weighted top step takes load off, rounded down to single plates',
+      'rr_dip',
+      { step: 2, reps: 7, fails: 1, weightKg: 20 },
+      0,
+      { step: 2, weightKg: 17.5, fails: 0 },
+      'deload',
+    ],
+    [
+      'a stale band at the top restarts at the heaviest band and keeps the step',
+      'rr_pullup',
+      { step: 3, reps: 8, bandId: 'deleted' },
+      'hit',
+      { step: 3, bandId: 'heavy' },
+      'same',
+    ],
+    [
+      'a band step without a band restarts at the heaviest band once bands exist',
+      'rr_pullup',
+      { step: 3, reps: 8 },
+      'hit',
+      { step: 3, bandId: 'heavy' },
+      'same',
     ],
   ];
   test.each(rows)('%s', (_name, ladder, before, reps, after, change) => {
@@ -234,6 +268,36 @@ describe('ladder progression', () => {
       { progression: 'ladder', ladder: 'rr_antiextension', step: 0, scheme: '3x30s' },
     );
     expect(timed.next).toEqual(lift({ step: 1 }));
+  });
+
+  test('a stored step that is fractional or not a number is made whole before climbing', () => {
+    const climb = (step: number) =>
+      nextLift(
+        lift({ step, reps: 8 }),
+        { weightKg: 0, sets: [8, 8, 8].map((reps) => ({ target: 8, reps })) },
+        DEFAULT_RULES,
+        ex.CAL_SCAPULAR_PULL,
+        inv,
+        'kg',
+        { progression: 'ladder', ladder: 'rr_squat', scheme: '3x5-8' },
+      ).next.step;
+    expect(climb(1.5)).toBe(2);
+    expect(climb(Number.NaN)).toBe(1);
+    expect(climb(Number.POSITIVE_INFINITY)).toBe(1);
+  });
+
+  test('a ladder that is not in the catalog leaves the lift alone', () => {
+    const state = lift({ weightKg: 10 });
+    const o = nextLift(
+      state,
+      { weightKg: 10, sets: [8, 8, 8].map((reps) => ({ target: 5, reps })) },
+      DEFAULT_RULES,
+      ex.CAL_PULLUP,
+      inv,
+      'kg',
+      { progression: 'ladder', ladder: 'nope', scheme: '3x5-8' },
+    );
+    expect(o).toEqual({ next: state, change: 'none' });
   });
 
   test('a light day never moves a ladder', () => {

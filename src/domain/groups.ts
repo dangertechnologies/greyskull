@@ -70,7 +70,8 @@ export interface SetStep {
 /**
  * The order a session is walked in. Ungrouped exercises go set by set; supersets and circuits do one set of
  * each exercise per round and rest after the round; an EMOM does exercise k mod n in minute k; an interval
- * works `workS` then rests `restS` for each set. `sets` is the number of sets per exercise id.
+ * works `workS` then rests `restS` after every set, the last one included, so a timer runs plain work/rest pairs.
+ * `sets` is the number of sets per exercise id.
  */
 export function setOrder(session: ResolvedSession, sets: Record<string, number>): SetStep[] {
   const out: SetStep[] = [];

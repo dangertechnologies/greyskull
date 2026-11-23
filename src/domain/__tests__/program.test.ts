@@ -213,3 +213,91 @@ describe('parseProgram', () => {
     if (!parsed.ok) expect(parsed.error).toEqual(expect.any(String));
   });
 });
+
+describe('validateProgram: rule ranges and timed schemes', () => {
+  const withRules = (patch: Partial<Program['rules']>): Program => ({
+    ...TEMPLATES.base,
+    rules: { ...TEMPLATES.base.rules, ...patch },
+  });
+  type Row = [string, Partial<Program['rules']>, RegExp | null];
+  const rows: Row[] = [
+    ['doubleAt 1', { doubleAt: 1 }, null],
+    ['doubleAt 50', { doubleAt: 50 }, null],
+    ['doubleAt 0', { doubleAt: 0 }, /double-jump reps/i],
+    ['doubleAt 51', { doubleAt: 51 }, /double-jump reps/i],
+    ['doubleAt 7.5', { doubleAt: 7.5 }, /double-jump reps/i],
+    ['deloadPct 0', { deloadPct: 0 }, null],
+    ['deloadPct 0.5', { deloadPct: 0.5 }, null],
+    ['deloadPct -0.1', { deloadPct: -0.1 }, /deload/],
+    ['deloadPct 0.6', { deloadPct: 0.6 }, /deload/],
+    ['deloadPct NaN', { deloadPct: Number.NaN }, /deload/],
+    ['failsBeforeDeload 0', { failsBeforeDeload: 0 }, null],
+    ['failsBeforeDeload 10', { failsBeforeDeload: 10 }, null],
+    ['failsBeforeDeload 11', { failsBeforeDeload: 11 }, /misses/i],
+    ['failsBeforeDeload 1.5', { failsBeforeDeload: 1.5 }, /misses/i],
+    ['failsBeforeDeload -1', { failsBeforeDeload: -1 }, /misses/i],
+    ['increment 0 and 100', { increments: { BENCH_PRESS: { kg: 0, lb: 100 } } }, null],
+    ['increment above 100', { increments: { BENCH_PRESS: { kg: 101, lb: 5 } } }, /increment/],
+    ['negative increment', { increments: { BENCH_PRESS: { kg: 2.5, lb: -5 } } }, /increment/],
+    [
+      'infinite increment',
+      { increments: { BENCH_PRESS: { kg: Number.POSITIVE_INFINITY, lb: 5 } } },
+      /increment/,
+    ],
+  ];
+  test.each(rows)('%s', (_name, patch, error) => {
+    const errors = validateProgram(withRules(patch), ex).join('\n');
+    if (error) expect(errors).toMatch(error);
+    else expect(errors).toBe('');
+  });
+
+  const plank = (
+    progression?: Program['rules']['progression'],
+    scheme: Program['days'][0]['slots'][0]['scheme'] = '3x30s',
+  ) =>
+    ({
+      template: 'custom',
+      sessionsPerWeek: 3,
+      rules: DEFAULT_RULES,
+      days: [
+        { name: 'A', slots: [{ exercise: 'CAL_PLANK', scheme, ...(progression ? { progression } : {}) }] },
+      ],
+    }) as Program;
+  test('a timed scheme is rejected under AMRAP, 5/3/1 and stages', () => {
+    expect(validateProgram(plank(), ex).join()).toMatch(/timed scheme 3x30s cannot use amrap/);
+    expect(validateProgram(plank('amrap'), ex).join()).toMatch(/cannot use amrap/);
+    expect(validateProgram(plank('531'), ex).join()).toMatch(/cannot use 531/);
+    expect(
+      validateProgram({ ...plank(), rules: { ...DEFAULT_RULES, progression: 'amrap' } }, ex).join(),
+    ).toMatch(/cannot use amrap/);
+  });
+  test('a timed scheme is allowed under linear (fixed hold), double (range) and ladders', () => {
+    expect(validateProgram(plank('linear'), ex)).toEqual([]);
+    expect(validateProgram(plank('double', '3x10-30s'), ex)).toEqual([]);
+    expect(
+      validateProgram(
+        {
+          ...plank(),
+          days: [
+            { name: 'A', slots: [{ exercise: 'CAL_PLANK', scheme: '3x5-8', ladder: 'rr_antiextension' }] },
+          ],
+        },
+        ex,
+      ),
+    ).toEqual([]);
+  });
+});
+
+test('parseProgram keeps only known rule and increment fields', () => {
+  const junk = 'x'.repeat(100_000);
+  const input = {
+    ...JSON.parse(JSON.stringify(TEMPLATES.base)),
+    junk,
+    rules: { ...DEFAULT_RULES, junk, increments: { BENCH_PRESS: { kg: 2.5, lb: 5, junk } } },
+  };
+  const parsed = parseProgram(input);
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) return;
+  expect(JSON.stringify(parsed.program)).not.toContain('xxxx');
+  expect(parsed.program.rules).toEqual({ ...DEFAULT_RULES, increments: { BENCH_PRESS: { kg: 2.5, lb: 5 } } });
+});

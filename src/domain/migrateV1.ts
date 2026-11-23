@@ -79,6 +79,11 @@ export function migrateV1(
     if (!(id in catalog) || typeof w.current !== 'number') continue;
     const initial = typeof w.initial === 'number' ? w.initial : 0;
     initials[id] = initial;
+    // Bodyweight lifts start without added load; v1 stored a weight for them that never meant one.
+    if (catalog[id].kind === 'bodyweight') {
+      lifts[id] = { weightKg: 0, startKg: 0, fails: 0 };
+      continue;
+    }
     if (looksWrong(w.current, initial)) {
       suspects.push(id);
       const safe = initial > 0 ? initial : DEFAULT_INVENTORY.barKg;

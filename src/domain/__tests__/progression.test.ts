@@ -8,6 +8,7 @@ import {
   type Exercise,
   type LiftState,
   type PlateInventory,
+  type ProgressionModel,
   type Scheme,
   type Unit,
 } from '../types';
@@ -61,43 +62,47 @@ test.each(rows)(
   },
 );
 
-describe('bodyweight progresses reps, then added load', () => {
+describe('bodyweight: only a rep range under double progression (or a ladder) adds load', () => {
   const chin = ex.CHINUPS;
   const go = (
     weight: number,
     reps: number[],
-    progression: 'amrap' | 'linear' | 'double',
+    progression: ProgressionModel,
     scheme: Scheme,
     patch: Partial<LiftState> = {},
     unit: Unit = 'kg',
+    e: Exercise = chin,
   ) => {
     const weightKg = toKg(weight, unit);
     const lift: LiftState = { weightKg, startKg: 0, fails: 0, ...patch };
     const targets = setTargets(scheme, lift.reps);
     const sets = reps.map((r, i) => ({ target: targets[i] ?? null, reps: r }));
-    const o = nextLift(lift, { weightKg, sets }, DEFAULT_RULES, chin, inv, unit, { progression, scheme });
-    return { ...o, shown: toUnit(o.next.weightKg, unit) };
+    const context = { progression, scheme, week: 2, lastInWeek: true, stages: [scheme, scheme] };
+    const o = nextLift(lift, { weightKg, sets }, DEFAULT_RULES, e, inv, unit, context);
+    return { ...o, lift, shown: toUnit(o.next.weightKg, unit) };
   };
+
+  // Every model and scheme the built-in plans use for bodyweight extras stays exactly as before: no change.
+  type Unchanged = [string, ReturnType<typeof go>];
+  const unchanged: Unchanged[] = [
+    ['AMRAP (GSLP chin-ups)', go(0, [5, 15], 'amrap', '2xAMRAP')],
+    ['AMRAP with a minimum', go(0, [5, 15], 'amrap', '2x5+')],
+    ['AMRAP miss', go(0, [5, 2], 'amrap', '2x5+', { fails: 1 })],
+    ['linear (StrongLifts dips)', go(0, [12, 12], 'linear', '2xAMRAP')],
+    ['linear fixed reps', go(0, [5, 5, 5], 'linear', '3x5')],
+    ['double without a range (5/3/1 dips)', go(0, [20, 20, 20, 20, 20], 'double', '5xAMRAP')],
+    ['double with fixed reps', go(0, [5, 5, 5], 'double', '3x5')],
+    ['5/3/1', go(0, [5, 3, 1], '531', '3x5+')],
+    ['stages', go(0, [1, 1, 1], 'stages', '3x5')],
+    ['added load kept as it is', go(10, [5, 15], 'amrap', '2xAMRAP')],
+  ];
+  test.each(unchanged)('%s: none', (_name, o) => {
+    expect(o.change).toBe('none');
+    expect(o.next).toBe(o.lift);
+  });
+
   type Row = [string, ReturnType<typeof go>, number, string, Partial<LiftState>];
   const rows: Row[] = [
-    ['AMRAP below the double-jump reps holds', go(0, [5, 7], 'amrap', '2x5+'), 0, 'same', { fails: 0 }],
-    ['AMRAP at the double-jump reps adds load', go(0, [5, 15], 'amrap', '2x5+'), 2.5, 'up', { fails: 0 }],
-    ['AMRAP adds load in pounds', go(0, [5, 10], 'amrap', '2x5+', {}, 'lb'), 5, 'up', {}],
-    ['AMRAP miss counts a fail', go(0, [5, 3], 'amrap', '2x5+'), 0, 'same', { fails: 1 }],
-    [
-      'AMRAP second miss without load stays',
-      go(0, [5, 3], 'amrap', '2x5+', { fails: 1 }),
-      0,
-      'same',
-      { fails: 0 },
-    ],
-    [
-      'AMRAP second miss with load deloads',
-      go(10, [5, 3], 'amrap', '2x5+', { fails: 1 }),
-      8.75,
-      'deload',
-      {},
-    ],
     [
       'double adds a rep inside the range',
       go(0, [6, 6, 6], 'double', '3x5-8', { reps: 6 }),
@@ -106,12 +111,83 @@ describe('bodyweight progresses reps, then added load', () => {
       { reps: 7 },
     ],
     ['double at the top adds load', go(0, [8, 8, 8], 'double', '3x5-8', { reps: 8 }), 2.5, 'up', { reps: 5 }],
-    ['linear adds load', go(5, [5, 5, 5], 'linear', '3x5'), 7.5, 'up', {}],
+    ['double adds load in pounds', go(0, [8, 8], 'double', '2x5-8', { reps: 8 }, 'lb'), 5, 'up', { reps: 5 }],
+    ['double miss counts a fail', go(0, [4, 4], 'double', '2x5-8'), 0, 'same', { fails: 1 }],
+    [
+      'double second miss with load deloads',
+      go(10, [4, 4], 'double', '2x5-8', { fails: 1 }),
+      8.75,
+      'deload',
+      { reps: 5 },
+    ],
+    [
+      'double second miss without load has nothing to take off',
+      go(0, [4, 4], 'double', '2x5-8', { fails: 1, reps: 7 }),
+      0,
+      'same',
+      { fails: 0, reps: 5 },
+    ],
   ];
   test.each(rows)('%s', (_name, o, weight, change, patch) => {
     expect(o.shown).toBeCloseTo(weight, 9);
     expect(o.change).toBe(change);
     expect(o.next).toMatchObject(patch);
+  });
+
+  describe('timed sets are judged by their target seconds only', () => {
+    const plank = ex.CAL_PLANK;
+    const carry: Exercise = { ...ex.CURLS, kind: 'dumbbell', timed: true, step: { kg: 2, lb: 5 } };
+    const short = [30, 30, 12];
+    test.each(['amrap', 'linear', 'double'] as const)(
+      'a bodyweight plank under %s stays as it is',
+      (model) => {
+        expect(go(0, short, model, '3x30s', {}, 'kg', plank).change).toBe('none');
+      },
+    );
+    test('a plank on a ladder misses with a short hold', () => {
+      const o = nextLift(
+        { weightKg: 0, startKg: 0, fails: 0 },
+        { weightKg: 0, sets: short.map((reps) => ({ target: 30, reps })) },
+        DEFAULT_RULES,
+        plank,
+        inv,
+        'kg',
+        { progression: 'ladder', ladder: 'rr_antiextension', step: 0, scheme: '3x30s' },
+      );
+      expect(o.change).toBe('same');
+      expect(o.next.fails).toBe(1);
+    });
+    test.each(['amrap', 'linear', 'double'] as const)(
+      'a loaded hold under %s misses with a short hold',
+      (model) => {
+        const o = go(10, short, model, '3x30s', {}, 'kg', carry);
+        expect(o.change).toBe('same');
+        expect(o.next).toMatchObject({ weightKg: 10, fails: 1 });
+      },
+    );
+    test('a long hold under AMRAP adds one increment, never the double jump', () => {
+      const o = go(10, [60, 60, 60], 'amrap', '3x30s', {}, 'kg', carry);
+      expect(o.change).toBe('up');
+      expect(o.shown).toBe(12);
+    });
+  });
+});
+
+describe('an increase that cannot change the weight is not an increase', () => {
+  test('increment 0', () => {
+    const o = run(inc(0, 0), 'kg', 60, 8, 0);
+    expect(o.change).toBe('same');
+    expect(o.next).toEqual({ weightKg: 60, startKg: 60, fails: 0 });
+  });
+  test('a kettlebell already at the heaviest owned size', () => {
+    const bell: Exercise = { ...ex.CURLS, kind: 'kettlebell' };
+    const lift: LiftState = { weightKg: 32, startKg: 16, fails: 0 };
+    const sets = [5, 5, 5].map((reps) => ({ target: 5, reps }));
+    const o = nextLift(lift, { weightKg: 32, sets }, DEFAULT_RULES, bell, inv, 'kg', {
+      progression: 'linear',
+    });
+    expect(o.change).toBe('same');
+    expect(o.next).toEqual(lift);
   });
 });
 

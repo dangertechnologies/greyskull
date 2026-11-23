@@ -67,3 +67,13 @@ test('returns null for garbage, other shapes and unfinished setups', () => {
   v.configuration.initialSetupComplete = false;
   expect(migrateV1(JSON.stringify(v), catalog)).toBeNull();
 });
+
+test('bodyweight lifts migrate without added load, whatever v1 stored', () => {
+  const v = JSON.parse(raw);
+  v.configuration.weights.CHINUPS = { initial: 0, current: 999 };
+  v.configuration.weights.DIPS = { initial: 10, current: 12.5 };
+  const m = migrateV1(JSON.stringify(v), catalog)!;
+  expect(m.patch.lifts.CHINUPS).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+  expect(m.patch.lifts.DIPS).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+  expect(m.suspects).not.toContain('CHINUPS');
+});

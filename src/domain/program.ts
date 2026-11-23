@@ -1,7 +1,7 @@
 import type { PluginId } from '../config/plans';
 import { PLANS } from '../config/plans';
 import { groupErrors } from './groups';
-import { getLadder } from './ladders';
+import { getLadder, stepIn } from './ladders';
 import type {
   ActiveProgram,
   Day,
@@ -144,7 +144,7 @@ export function sessionFor(
     program.days[at % len].slots.map((slot) => {
       const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
       if (ladder) {
-        const step = Math.max(0, Math.min(ladder.steps.length - 1, lifts[ladder.id]?.step ?? 0));
+        const step = stepIn(ladder, lifts[ladder.id]?.step);
         const { exercise, scheme } = ladder.steps[step];
         return {
           ...slot,
@@ -210,6 +210,15 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
   const models = ['amrap', 'linear', 'double', 'stages', '531', 'ladder'];
   if (p.rules.progression !== undefined && !models.includes(p.rules.progression))
     errors.push('Unknown progression model.');
+  const { doubleAt, deloadPct, failsBeforeDeload, increments } = p.rules;
+  if (!(Number.isInteger(doubleAt) && doubleAt >= 1 && doubleAt <= 50))
+    errors.push('Double-jump reps must be a whole number from 1 to 50.');
+  if (!(deloadPct >= 0 && deloadPct <= 0.5)) errors.push('The deload must be between 0 and 50 %.');
+  if (!(Number.isInteger(failsBeforeDeload) && failsBeforeDeload >= 0 && failsBeforeDeload <= 10))
+    errors.push('Misses before a deload must be a whole number from 0 to 10.');
+  for (const [id, inc] of Object.entries(increments ?? {}))
+    if (![inc?.kg, inc?.lb].every((v) => Number.isFinite(v) && v >= 0 && v <= 100))
+      errors.push(`The increment for ${catalog?.[id]?.name ?? id} must be 0 to 100.`);
   const liftExercises = new Map<string, string>();
   const pairOrder = new Map<string, string>();
   for (const day of p.days) {
@@ -227,6 +236,14 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
         errors.push(`${day.name}: a ladder slot uses ladder progression.`);
       if (slot.ladder === undefined && (slot.progression ?? p.rules.progression) === 'ladder')
         errors.push(`${day.name}: ladder progression needs a ladder.`);
+      // Seconds are judged against their targets: AMRAP reps, 5/3/1 and stages have no meaning for a hold.
+      const model = slot.progression ?? p.rules.progression ?? 'amrap';
+      if (slot.ladder === undefined && model !== 'linear' && model !== 'double')
+        for (const scheme of [slot.scheme, ...(Array.isArray(slot.stages) ? slot.stages : [])])
+          if (tryParseScheme(scheme)?.timed)
+            errors.push(
+              `${day.name}: timed scheme ${scheme} cannot use ${model} progression; use linear (a fixed hold), double (a range of seconds) or a ladder.`,
+            );
       // A ladder can reach any of its steps, and a session keeps one result per exercise.
       for (const id of ladder ? ladder.steps.map((s) => s.exercise) : slotIds(slot)) {
         const name = catalog?.[id]?.name ?? id;
@@ -382,18 +399,29 @@ function rulesOf(v: unknown): Rules {
   const { doubleAt, deloadPct, failsBeforeDeload, warmups } = v;
   check(isNumber(doubleAt) && isNumber(deloadPct) && isNumber(failsBeforeDeload), 'Invalid rules.');
   check(typeof warmups === 'boolean', 'Invalid rules.');
-  const increment = (i: unknown) => isObject(i) && isNumber(i.kg) && isNumber(i.lb);
-  const increments = (m: unknown) =>
-    isObject(m) &&
-    Object.keys(m).length <= 200 &&
-    Object.entries(m).every(([k, i]) => isText(k) && increment(i));
+  const { increments } = v;
+  check(
+    increments === undefined || (isObject(increments) && Object.keys(increments).length <= 200),
+    'Rules: invalid increments.',
+  );
+  // Rebuilt entry by entry so only `kg` and `lb` of each increment are kept.
+  const incrementsOf = (m: Json) =>
+    Object.fromEntries(
+      Object.entries(m).map(([id, i]) => {
+        check(
+          isText(id) && isObject(i) && isNumber(i.kg) && isNumber(i.lb),
+          `Rules: invalid increment ${id}.`,
+        );
+        return [id, { kg: i.kg, lb: i.lb }];
+      }),
+    );
   return {
     doubleAt,
     deloadPct,
     failsBeforeDeload,
     warmups,
     ...optional(v, ['progression'], isText, 'Rules'),
-    ...optional(v, ['increments'], increments, 'Rules'),
+    ...(increments === undefined ? {} : { increments: incrementsOf(increments) }),
   };
 }
 
