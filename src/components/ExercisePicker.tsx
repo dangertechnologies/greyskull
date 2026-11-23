@@ -213,7 +213,7 @@ export function ExercisePicker({
           horizontal
           showsHorizontalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          style={{ flexGrow: 0, marginHorizontal: -gutter }}
+          style={{ flexGrow: 0, flexShrink: 0, marginHorizontal: -gutter }}
           contentContainerStyle={{ gap: t.space[2], paddingHorizontal: gutter }}
         >
           <SheetChip
