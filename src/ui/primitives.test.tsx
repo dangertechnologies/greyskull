@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import * as Haptics from 'expo-haptics';
-import { Text as RNText } from 'react-native';
+import { Text as RNText, StyleSheet } from 'react-native';
 import { builtInExercises } from '../catalog';
 import { Button } from './Button';
 import { Chip } from './Chip';
@@ -130,4 +130,9 @@ test('Snackbar shows a message with an action and goes away after it runs', () =
   fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
   expect(onUndo).toHaveBeenCalled();
   expect(screen.queryByText('Workout skipped')).toBeNull();
+});
+
+test('Button centres a title that wraps', () => {
+  render(<Button title="Resume workout" onPress={() => undefined} />);
+  expect(StyleSheet.flatten(screen.getByText('Resume workout').props.style).textAlign).toBe('center');
 });
