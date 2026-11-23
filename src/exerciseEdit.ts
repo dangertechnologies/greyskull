@@ -119,3 +119,17 @@ export function exerciseFromForm(
     custom: true,
   };
 }
+
+/** Why a link cannot be saved, or null when it is empty or an http(s) address. */
+export function linkProblem(text: string): string | null {
+  const link = text.trim();
+  if (!link) return null;
+  try {
+    const url = new URL(link);
+    if ((url.protocol === 'http:' || url.protocol === 'https:') && url.hostname && !/\s/.test(link))
+      return null;
+  } catch {
+    // not a web address
+  }
+  return 'Use a link that starts with http:// or https://';
+}

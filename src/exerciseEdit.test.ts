@@ -1,6 +1,6 @@
 import { builtInExercises } from './catalog';
 import { USER_FIELDS } from './domain/exerciseFields';
-import { exerciseFromForm, formFrom } from './exerciseEdit';
+import { exerciseFromForm, formFrom, linkProblem } from './exerciseEdit';
 
 const catalog = builtInExercises();
 
@@ -85,4 +85,15 @@ test('dumbbell, machine and kettlebell exercises carry a weight step; an own bar
   expect(
     exerciseFromForm({ ...base, kind: 'dumbbell', ownBar: true }, undefined, () => 'a').barKg,
   ).toBeUndefined();
+});
+
+test('a link must be empty or an http(s) address', () => {
+  expect(linkProblem('')).toBeNull();
+  expect(linkProblem('  ')).toBeNull();
+  expect(linkProblem('https://www.youtube.com/watch?v=abc')).toBeNull();
+  expect(linkProblem(' http://example.com/a b'.trim())).not.toBeNull();
+  expect(linkProblem('javascript:alert(1)')).not.toBeNull();
+  expect(linkProblem('youtube.com/watch')).not.toBeNull();
+  expect(linkProblem('file:///etc/passwd')).not.toBeNull();
+  expect(linkProblem('https://')).not.toBeNull();
 });
