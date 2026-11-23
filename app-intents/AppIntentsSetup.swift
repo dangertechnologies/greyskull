@@ -1,3 +1,4 @@
+import AppIntents
 internal import ExpoAppIntents
 internal import ExpoModulesCore
 
@@ -6,5 +7,18 @@ internal import ExpoModulesCore
 final class AppIntentsSetup: Module {
   public func definition() -> ExpoModulesCore.ModuleDefinition {
     Name("AppIntentsSetup")
+
+    OnCreate {
+      Task {
+        await AppIntentDispatcher.shared.setShortcutsRefreshHandler {
+          GreyskullShortcuts.updateAppShortcutParameters()
+        }
+        GreyskullShortcuts.updateAppShortcutParameters()
+      }
+      // Program names only go into Spotlight (iOS 18 and later).
+      if #available(iOS 18.0, *) {
+        AppEntityIdentifierRegistry.shared.registerIndexed(SnapshotKind.program, as: ProgramEntity.self)
+      }
+    }
   }
 }
