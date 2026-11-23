@@ -100,11 +100,13 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
   const doneSets = ownIndices.filter((i) => items[i].logged).length;
   const light = intensityLabel(draft.dayName, draft.intensity ?? 1);
   const next = items.find((i, index) => index > selectedIndex && !i.logged);
+  // After the rest comes the open set on screen (logging moved the view to it), not the one after it.
+  const upNext = items.find((i, index) => index >= selectedIndex && !i.logged);
   const nextText =
-    next && exercises[next.exerciseId]
-      ? `${nameOf(exercises, next.exerciseId, true)} · ${supertitle(next)} · ${
-          weightLabel(next.weightKg, exercises[next.exerciseId], unit).trim() || 'bodyweight'
-        } × ${next.targetReps ?? 'max'}${next.timed ? ' s' : ''}`
+    upNext && exercises[upNext.exerciseId]
+      ? `${nameOf(exercises, upNext.exerciseId, true)} · ${supertitle(upNext)} · ${
+          weightLabel(upNext.weightKg, exercises[upNext.exerciseId], unit).trim() || 'bodyweight'
+        } × ${upNext.targetReps ?? 'max'}${upNext.timed ? ' s' : ''}`
       : undefined;
   // A paused hold fills in the seconds; the stepper can still correct them.
   const shownReps = timed && watch.seconds > 0 && !watch.running ? watch.seconds : reps;
@@ -166,8 +168,6 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
           {item && exercise ? (
             <>
               <EaseBanner draft={draft} />
-
-              {ladder ? <LadderPanel draft={draft} exerciseId={item.exerciseId} /> : null}
 
               {roundOf ? (
                 <View style={{ gap: t.space[3] }} testID="round-card">
@@ -234,6 +234,8 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
                   ) : null}
                 </View>
               ) : null}
+
+              {ladder ? <LadderPanel draft={draft} exerciseId={item.exerciseId} /> : null}
 
               <View style={{ gap: t.space[4] }}>
                 <Pressable

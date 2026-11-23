@@ -47,6 +47,8 @@ test('a superset shows A1 and A2 together, rests only after the pair, for the gr
   fireEvent.press(screen.getByText('Done A2 · start rest'));
   expect(screen.getByTestId('rest-skip')).toBeTruthy();
   expect(screen.getByText('0:45')).toBeTruthy();
+  // After the rest comes A1 of round 2, the set on screen.
+  expect(screen.getByText(/Scapular pull · Superset · Round 2 of 2/)).toBeTruthy();
   expect(get().draft?.results.CAL_ASSISTED_SQUAT.sets[0].reps).toBe(10);
   fireEvent.press(screen.getByTestId('rest-skip'));
   expect(screen.getByText('Superset · Round 2 of 2')).toBeTruthy();

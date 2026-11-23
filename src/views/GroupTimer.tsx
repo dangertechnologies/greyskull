@@ -38,7 +38,9 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
   const gutter = useGutter();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
-  const size = Math.round(BASE_SIZE * Math.min(1.4, Math.max(1, fontScale)));
+  // The ring keeps its size with large text (the time shrinks to fit), so the countdown stays above the bar.
+  const size = BASE_SIZE;
+  const basis = 140 * Math.max(1, fontScale);
 
   const step = timer?.position?.step ?? 0;
   const current = timer?.steps[step];
@@ -263,7 +265,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
         ) : null}
 
         {current ? (
-          <View style={{ alignSelf: 'stretch' }}>
+          <View style={{ alignSelf: 'stretch', gap: t.space[6] }}>
             <NumberStepper
               label={current.item.timed ? 'Seconds' : 'Reps'}
               value={reps}
@@ -272,6 +274,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
               format={current.item.timed ? (v) => `${v} s` : String}
               onChange={setReps}
             />
+            <Button title="End early" variant="destructive" testID="timer-end" onPress={timer.end} />
           </View>
         ) : null}
       </ScrollView>
@@ -280,9 +283,11 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
         {current ? (
           <Button
             title={
-              current.item.logged
-                ? `Logged ${current.item.reps} ${unitWord} · update to ${reps}`
-                : `Log ${reps} ${unitWord}`
+              !current.item.logged
+                ? `Log ${reps} ${unitWord}`
+                : reps === current.item.reps
+                  ? `Logged ${reps} ${unitWord}`
+                  : `Update to ${reps} ${unitWord}`
             }
             size="lg"
             testID="timer-log"
@@ -290,7 +295,7 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
           />
         ) : null}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
-          <View style={{ flexGrow: 1, flexBasis: 96 }}>
+          <View style={{ flexGrow: 1, flexBasis: basis }}>
             <Button
               title={paused ? 'Resume' : 'Pause'}
               icon="timer"
@@ -299,11 +304,8 @@ export function GroupTimer({ session, groupId, onBack }: Props) {
               onPress={paused ? timer.resume : timer.pause}
             />
           </View>
-          <View style={{ flexGrow: 1, flexBasis: 96 }}>
+          <View style={{ flexGrow: 1, flexBasis: basis }}>
             <Button title="Skip" icon="skip" variant="secondary" testID="timer-skip" onPress={timer.skip} />
-          </View>
-          <View style={{ flexGrow: 1, flexBasis: 96 }}>
-            <Button title="End early" variant="destructive" testID="timer-end" onPress={timer.end} />
           </View>
         </View>
       </BottomBar>
