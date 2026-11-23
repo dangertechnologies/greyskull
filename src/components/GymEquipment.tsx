@@ -39,17 +39,28 @@ const LABELS: Record<Equipment, string> = {
   ...EQUIPMENT_LABELS,
   barbell: 'Barbell and plates',
   bands: 'Resistance bands',
-  'foam-roll': 'Foam roller',
 };
 
 type Band = { id: string; label: string };
 
-/** A band id no other band uses: `band_1`, `band_2`, … the smallest free number. Ids never change after. */
+/**
+ * A band id that was never used: lift states and past workouts refer to bands by id, so a deleted band's id must
+ * not come back for a new one. The time makes it new, the random part separates two bands made in one tick.
+ */
 export function newBandId(bands: Band[]): string {
   const taken = new Set(bands.map((b) => b.id));
+  for (;;) {
+    const id = `band_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6).padEnd(4, '0')}`;
+    if (!taken.has(id)) return id;
+  }
+}
+
+/** "Band 1", "Band 2", … the first one no band is called already. */
+export function defaultBandLabel(bands: Band[]): string {
+  const used = new Set(bands.map((b) => b.label.trim().toLowerCase()));
   let n = 1;
-  while (taken.has(`band_${n}`)) n++;
-  return `band_${n}`;
+  while (used.has(`band ${n}`)) n++;
+  return `Band ${n}`;
 }
 
 /** Moves the band at `from` to `to` (both inside the list); returns a new list. */
@@ -114,12 +125,19 @@ function BandRow({
   onDelete(): void;
 }) {
   const t = useTheme();
+  // The text box keeps what is typed, but only a name with letters in it reaches the settings.
+  const [draft, setDraft] = useState(band.label);
+  const name = band.label.trim() || `Band ${index + 1}`;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[1], minHeight: 64 }}>
       <TextInput
         accessibilityLabel={`Band ${index + 1} name`}
-        value={band.label}
-        onChangeText={onRename}
+        value={draft}
+        onChangeText={(text) => {
+          setDraft(text);
+          if (text.trim()) onRename(text.trim());
+        }}
+        onBlur={() => setDraft(band.label)}
         placeholder="Name"
         placeholderTextColor={t.color.textMuted}
         maxFontSizeMultiplier={1.6}
@@ -127,17 +145,17 @@ function BandRow({
       />
       <IconButton
         icon="up"
-        label={`Move ${band.label} up`}
+        label={`Move ${name} up`}
         disabled={index === 0}
         onPress={() => onMove(index - 1)}
       />
       <IconButton
         icon="down"
-        label={`Move ${band.label} down`}
+        label={`Move ${name} down`}
         disabled={index === count - 1}
         onPress={() => onMove(index + 1)}
       />
-      <IconButton icon="delete" label={`Delete ${band.label}`} tone="danger" onPress={onDelete} />
+      <IconButton icon="delete" label={`Delete ${name}`} tone="danger" onPress={onDelete} />
     </View>
   );
 }
@@ -179,7 +197,7 @@ export function GymEquipment({
   const rename = (id: string, label: string) =>
     setBands(bands.map((b) => (b.id === id ? { ...b, label } : b)));
   const askDelete = (band: Band) =>
-    Alert.alert(`Delete ${band.label || 'this band'}?`, 'Past workouts keep the band they used.', [
+    Alert.alert(`Delete ${band.label.trim() || 'this band'}?`, 'Past workouts keep the band they used.', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
@@ -209,9 +227,7 @@ export function GymEquipment({
             <Button
               title="Add band"
               variant="plain"
-              onPress={() =>
-                setBands([...bands, { id: newBandId(bands), label: `Band ${bands.length + 1}` }])
-              }
+              onPress={() => setBands([...bands, { id: newBandId(bands), label: defaultBandLabel(bands) }])}
             />
           </View>
           {bands.length > 0 ? (

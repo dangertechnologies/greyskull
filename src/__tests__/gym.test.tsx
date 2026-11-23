@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
-import { moveBand, newBandId } from '../components/GymEquipment';
+import { defaultBandLabel, moveBand, newBandId } from '../components/GymEquipment';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
@@ -14,14 +14,28 @@ beforeEach(() => {
   state().addProgram({ ...TEMPLATES.base, name: 'Test program' });
 });
 
-test('band ids are the smallest free number and moving keeps the others in order', () => {
-  expect(newBandId([])).toBe('band_1');
-  expect(newBandId([{ id: 'band_1', label: 'a' }])).toBe('band_2');
-  expect(newBandId([{ id: 'band_2', label: 'a' }])).toBe('band_1');
-  const list = ['a', 'b', 'c'].map((id) => ({ id, label: id }));
-  expect(moveBand(list, 0, 2).map((b) => b.id)).toEqual(['b', 'c', 'a']);
-  expect(moveBand(list, 1, -1)).toBe(list);
-  expect(moveBand(list, 2, 3)).toBe(list);
+test('a new band id is never one that was used before; moving keeps the others in order', () => {
+  const seen = new Set<string>();
+  let list: { id: string; label: string }[] = [];
+  for (let i = 0; i < 50; i++) {
+    const id = newBandId(list);
+    expect(seen.has(id)).toBe(false);
+    seen.add(id);
+    list = [...list, { id, label: `b${i}` }];
+    if (i % 2 === 0) list = list.slice(1); // deleting never frees an id
+  }
+  expect(newBandId([{ id: 'band_1', label: 'old' }])).not.toBe('band_1'); // ids from before stay as they are
+  expect(defaultBandLabel([])).toBe('Band 1');
+  expect(
+    defaultBandLabel([
+      { id: 'x', label: 'Band 1' },
+      { id: 'y', label: 'band 3' },
+    ]),
+  ).toBe('Band 2');
+  const moving = ['a', 'b', 'c'].map((id) => ({ id, label: id }));
+  expect(moveBand(moving, 0, 2).map((b) => b.id)).toEqual(['b', 'c', 'a']);
+  expect(moveBand(moving, 1, -1)).toBe(moving);
+  expect(moveBand(moving, 2, 3)).toBe(moving);
 });
 
 test('settings: tick equipment, and bands and kettlebells appear when ticked', async () => {
@@ -40,29 +54,34 @@ test('settings: tick equipment, and bands and kettlebells appear when ticked', a
   expect(state().equipment).toEqual(['bands', 'kettlebell']);
 });
 
-test('settings: add, rename, reorder and delete bands; ids stay put', async () => {
+test('settings: add, rename, reorder and delete bands; a deleted band id is not reused', async () => {
   state().setEquipment(['bands']);
   await renderRouter(routes(), { initialUrl: '/settings' });
   fireEvent.press(await screen.findByText('Add band'));
   fireEvent.press(screen.getByText('Add band'));
-  expect(state().bands).toEqual([
-    { id: 'band_1', label: 'Band 1' },
-    { id: 'band_2', label: 'Band 2' },
-  ]);
-  fireEvent.changeText(screen.getByLabelText('Band 1 name'), 'Red');
+  const [first, second] = state().bands;
+  expect([first.label, second.label]).toEqual(['Band 1', 'Band 2']);
+  expect(first.id).not.toBe(second.id);
+
+  fireEvent.changeText(screen.getByLabelText('Band 1 name'), '  Red ');
+  expect(state().bands[0].label).toBe('Red');
+  fireEvent.changeText(screen.getByLabelText('Band 1 name'), '   ');
+  expect(state().bands[0].label).toBe('Red'); // an empty name is never stored
+  fireEvent(screen.getByLabelText('Band 1 name'), 'blur');
+  expect(screen.getByLabelText('Band 1 name').props.value).toBe('Red');
+
   fireEvent.press(screen.getByLabelText('Move Red down'));
-  expect(state().bands).toEqual([
-    { id: 'band_2', label: 'Band 2' },
-    { id: 'band_1', label: 'Red' },
-  ]);
+  expect(state().bands.map((b) => b.id)).toEqual([second.id, first.id]);
   const alert = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
     buttons?.find((b) => b.style === 'destructive')?.onPress?.();
   });
   fireEvent.press(screen.getByLabelText('Delete Red'));
-  expect(state().bands).toEqual([{ id: 'band_2', label: 'Band 2' }]);
+  expect(state().bands).toEqual([second]);
   alert.mockRestore();
   fireEvent.press(screen.getByText('Add band'));
-  expect(state().bands.map((b) => b.id)).toEqual(['band_2', 'band_1']); // a freed id may be reused, never a taken one
+  const added = state().bands[1];
+  expect(added.id).not.toBe(first.id);
+  expect(added.label).toBe('Band 1');
 });
 
 test('settings: kettlebell sizes toggle and a new size is added in order', async () => {
@@ -94,10 +113,17 @@ test('setup: the gym step has the equipment checklist', async () => {
   expect(screen.getByText('Ease back after a break')).toBeTruthy();
 });
 
-test('credits name free-exercise-db and its licence, and say descriptions are generated', async () => {
+test('credits: dataset declares the Unlicense, no photos ship, backgrounds are credited separately and honestly', async () => {
   await renderRouter(withCredits(), { initialUrl: '/credits' });
   expect(await screen.findByText('free-exercise-db')).toBeTruthy();
   expect(screen.getByText('Unlicense')).toBeTruthy();
+  expect(screen.getByText(/declares the Unlicense/)).toBeTruthy();
+  expect(screen.queryByText(/public domain/)).toBeNull();
   expect(screen.getByText(/generated from those facts/)).toBeTruthy();
+  expect(screen.getByText(/No exercise photos ship/)).toBeTruthy();
+  expect(screen.getByText(/earlier versions of this app/)).toBeTruthy();
+  expect(screen.queryByText(/its own/)).toBeNull();
+  expect(screen.getByText('Screen backgrounds')).toBeTruthy();
+  expect(screen.getByText(/not documented yet/)).toBeTruthy();
   act(() => router.back());
 });
