@@ -30,6 +30,10 @@ test('the ease banner says what the ease changed', () => {
   expect(easeSummary({ gapDays: 23, lifts: { A: lift(90) } }, { A: lift(100) })).toBe(
     '23 days since you last trained · weights eased back 10 %',
   );
+  // Each lift's own drop from the real weights: 10 % on 100 kg, 25 % on +10 kg added load rounded to plates.
+  expect(
+    easeSummary({ gapDays: 30, lifts: { A: lift(90), D: lift(7.5) } }, { A: lift(100), D: lift(10) }),
+  ).toBe('30 days since you last trained · weights eased back up to 25 %');
   expect(easeSummary({ gapDays: 30, lifts: { L: lift(0, 2) } }, { L: lift(0, 3) })).toBe(
     '30 days since you last trained · ladders one step back',
   );

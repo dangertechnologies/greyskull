@@ -34,22 +34,23 @@ export function unlockRule(ladder: Ladder, step: number, slotScheme?: Scheme): s
   return ladder.after === 'weighted' ? `${top}, then add load` : `${top} · top of the ladder`;
 }
 
-// ponytail: mirrors the table in `easeBack` (src/domain/breakDeload.ts); export it from there if it ever changes.
-const easedPct = (gapDays: number): number => (gapDays >= 56 ? 30 : gapDays >= 28 ? 20 : 10);
-
-/**
- * "23 days since you last trained · weights eased back 10 %": what the ease after a break changed, comparing the
- * eased states with the stored ones (weights, ladder steps, or only rep targets).
- */
 export function easeSummary(
   eased: { gapDays: number; lifts: Record<string, LiftState> },
   stored: Record<string, LiftState>,
 ): string {
   const changes = Object.entries(eased.lifts).map(([key, e]) => ({ e, s: stored[key] }));
+  // Each lift eases by its own gap and rounds to loadable weights: show the real drops, the largest as "up to".
+  const drops = [
+    ...new Set(
+      changes.flatMap(({ e, s }) =>
+        s && s.weightKg > 0 && e.weightKg < s.weightKg
+          ? [Math.round((1 - e.weightKg / s.weightKg) * 100)]
+          : [],
+      ),
+    ),
+  ];
   const parts = [
-    changes.some(({ e, s }) => s && e.weightKg < s.weightKg)
-      ? `weights eased back ${easedPct(eased.gapDays)} %`
-      : null,
+    drops.length > 0 ? `weights eased back ${drops.length > 1 ? 'up to ' : ''}${Math.max(...drops)} %` : null,
     changes.some(({ e, s }) => s && (e.step ?? 0) < (s.step ?? 0)) ? 'ladders one step back' : null,
   ].filter(Boolean);
   const days = `${eased.gapDays} ${eased.gapDays === 1 ? 'day' : 'days'} since you last trained`;
