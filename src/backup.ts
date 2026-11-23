@@ -1,7 +1,7 @@
 import type { AppState, Exercise, Program, SessionLog } from './domain';
 import { tryParseScheme, validateProgram } from './domain';
 import type { OneProgramState } from './store';
-import { migratePersisted, restoreExercises, upgradeOneProgramState } from './store';
+import { migratePersisted, restoreExercises, stateProblem, upgradeOneProgramState } from './store';
 
 export interface BackupSummary {
   sessions: number;
@@ -55,6 +55,15 @@ const badLifts = (lifts: unknown): boolean =>
  * data from that version; missing newer fields fall back to defaults.
  */
 export function parseBackup(raw: string): BackupResult {
+  try {
+    return parse(raw);
+  } catch (e) {
+    // Every structural check should catch damage first; this keeps a missed case from crashing the import.
+    return { ok: false, error: `The backup is damaged: ${e instanceof Error ? e.message : String(e)}.` };
+  }
+}
+
+function parse(raw: string): BackupResult {
   let data: unknown;
   try {
     data = JSON.parse(raw.trim());
@@ -101,14 +110,16 @@ export function parseBackup(raw: string): BackupResult {
       return { ok: false, error: 'An exercise is malformed.' };
     }
   }
+  const problem = stateProblem(data);
+  if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
 
-  // Built-ins come from this app's catalog with the user's own fields from the backup on top.
-  const exercises = restoreExercises(data.exercises as Record<string, Exercise>);
   // A half-finished workout is not worth restoring across devices.
   const converted = onePlan
     ? upgradeOneProgramState({ ...(data as unknown as OneProgramState), draft: null })
     : migratePersisted({ ...data, draft: null }, 4);
-  const state: AppState = { ...converted, exercises };
+  // Built-ins come from this app's catalog with the user's own fields from the backup on top (a one-program
+  // backup's built-ins were refreshed by the conversion, so their stale content does not count as the user's).
+  const state: AppState = { ...converted, exercises: restoreExercises(converted.exercises) };
 
   const programs: Program[] = [...state.programs, ...state.customPlans.map((p) => p.program)];
   for (const program of programs) {

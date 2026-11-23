@@ -125,7 +125,7 @@ interface Actions {
   confirmWeights(weights: Record<string, number>, programId?: string): void;
   exportJson(): string;
   /** Replace everything with a validated backup (see `parseBackup`). */
-  importBackup(state: AppState): void;
+  importBackup(state: AppState): Promise<void>;
   reset(): void;
   /** Import v1 data from `raw`, or from the legacy key when omitted (read-only; the key is never written). */
   importLegacy(raw?: string): Promise<boolean>;
@@ -180,6 +180,9 @@ const userFieldsOf = (e: Exercise): Exercise => {
 
 /** The full exercise map from stored entries: shipped built-ins with the user's fields on top, plus custom ones. */
 export function restoreExercises(stored: Record<string, Exercise> | undefined): Record<string, Exercise> {
+  for (const [id, e] of Object.entries(stored ?? {})) {
+    if (!isRecord(e)) throw new Error(`The saved exercise ${id} is damaged`);
+  }
   const out = refreshCatalog(stored ?? {});
   const shipped = builtInExercises();
   for (const [id, e] of Object.entries(stored ?? {})) {
@@ -292,7 +295,9 @@ export function upgradeOneProgramState(old: Partial<OneProgramState>): AppState 
     ...rest,
     version: 3,
     inventory: { ...base.inventory, ...rest.inventory },
-    exercises: rest.exercises ?? base.exercises,
+    // This version stored every built-in exercise whole, content included: refresh the content (abbreviation,
+    // bodyweight increments, …) from the bundle so only the user's own changes carry over.
+    exercises: rest.exercises ? refreshCatalog(rest.exercises) : base.exercises,
     programs,
     customPlans: rest.customPlans ?? [],
     nextSession: next,
@@ -301,6 +306,67 @@ export function upgradeOneProgramState(old: Partial<OneProgramState>): AppState 
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+/** An object that is not an array. */
+const isRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !Array.isArray(v);
+
+function programProblem(p: unknown, label: string): string | null {
+  if (!isRecord(p)) return `${label} is not a program`;
+  if (!isRecord(p.rules)) return `${label} has no rules`;
+  if (
+    !Array.isArray(p.days) ||
+    p.days.some((d) => !isRecord(d) || !Array.isArray(d.slots) || d.slots.some((slot) => !isRecord(slot)))
+  )
+    return `${label} has damaged days`;
+  return null;
+}
+
+/**
+ * What is structurally wrong with stored or backed-up state (one-program or several-program shape), or null.
+ * Loading refuses such data instead of replacing the broken parts with defaults.
+ */
+export function stateProblem(s: Record<string, unknown>): string | null {
+  if (s.sessions !== undefined && (!Array.isArray(s.sessions) || s.sessions.some((l) => !isRecord(l))))
+    return 'the history is damaged';
+  if (
+    s.exercises !== undefined &&
+    (!isRecord(s.exercises) || Object.values(s.exercises).some((e) => !isRecord(e)))
+  )
+    return 'an exercise is damaged';
+  if (s.program !== undefined && s.program !== null) {
+    const problem = programProblem(s.program, 'the program');
+    if (problem) return problem;
+  }
+  if (s.lifts !== undefined && !isRecord(s.lifts)) return 'the lifts are damaged';
+  if (s.programs !== undefined) {
+    if (!Array.isArray(s.programs)) return 'the programs are damaged';
+    for (const [i, p] of s.programs.entries()) {
+      const problem = programProblem(p, `program ${i + 1}`);
+      if (problem) return problem;
+      const { id, position, lifts } = p as Record<string, unknown>;
+      if (
+        typeof id !== 'string' ||
+        !Number.isInteger(position) ||
+        (position as number) < 0 ||
+        !isRecord(lifts)
+      )
+        return `program ${i + 1} is damaged`;
+    }
+  }
+  if (s.customPlans !== undefined) {
+    if (!Array.isArray(s.customPlans)) return 'the saved plans are damaged';
+    for (const [i, plan] of s.customPlans.entries()) {
+      if (!isRecord(plan) || typeof plan.id !== 'string') return `saved plan ${i + 1} is damaged`;
+      const problem = programProblem(plan.program, `saved plan ${i + 1}`);
+      if (problem) return problem;
+    }
+  }
+  return null;
+}
+
+const assertState = (s: Record<string, unknown>): void => {
+  const problem = stateProblem(s);
+  if (problem) throw new Error(`The saved data is damaged: ${problem}`);
+};
 
 /**
  * Bring a persisted snapshot from any earlier store version up to date. Up to version 3 the state held one
@@ -308,10 +374,11 @@ const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
  * `initialState`.
  */
 export function migratePersisted(persistedState: unknown, fromVersion: number): AppState {
-  const old = isObject(persistedState) ? persistedState : {};
-  if (fromVersion < 4 || !Array.isArray(old.programs)) {
-    return upgradeOneProgramState(old as Partial<OneProgramState>);
-  }
+  if (!isRecord(persistedState)) throw new Error('The saved data is damaged: it is not app data');
+  const old = persistedState;
+  assertState(old);
+  if (fromVersion < 4) return upgradeOneProgramState(old as Partial<OneProgramState>);
+  if (!Array.isArray(old.programs)) throw new Error('The saved data is damaged: the programs are missing');
   const base = initialState();
   const state = old as Partial<AppState>;
   return {
@@ -746,9 +813,20 @@ export const useStore = create<Store>()(
 
       exportJson: () => JSON.stringify(persisted(get()), null, 2),
 
-      importBackup: (state) => {
-        // Restoring a backup is how the user recovers from unreadable data: it may replace the file.
-        if (get().storageError) storage.allowWrites();
+      importBackup: async (state) => {
+        // Restoring a backup is how the user recovers from unreadable data: it replaces the file only once the
+        // unreadable file has been kept aside.
+        if (get().storageError) {
+          try {
+            await storage.allowWrites();
+          } catch (e) {
+            const why = e instanceof Error ? e.message : String(e);
+            set({
+              storageError: `The unreadable data could not be kept aside, so nothing was replaced: ${why}`,
+            });
+            return;
+          }
+        }
         set({ ...snapshot(state), legacyChecked: true, storageError: null });
       },
 
@@ -759,15 +837,11 @@ export const useStore = create<Store>()(
         const migrated = data === null ? null : migrateV1(data, get().exercises);
         if (!migrated) return false;
         const current = snapshot(get());
-        set(
-          upgradeOneProgramState({
-            ...current,
-            version: 2,
-            ...migrated.patch,
-            draft: null,
-            exercises: current.exercises,
-          }),
-        );
+        set({
+          ...upgradeOneProgramState({ ...current, version: 2, ...migrated.patch, draft: null }),
+          // The exercises in memory are already this version's (the conversion would refresh them as stored ones).
+          exercises: current.exercises,
+        });
         return true;
       },
     }),
@@ -784,6 +858,8 @@ export const useStore = create<Store>()(
         hydrationError = error ?? null;
       },
       merge: (stored, current) => {
+        // Damaged data fails the load (storageError, nothing written) instead of being filled with defaults.
+        if (stored !== undefined) assertState(isRecord(stored) ? stored : { programs: null });
         const state = (stored ?? {}) as Partial<AppState>;
         // Nothing stored (a first launch): keep the exercises already in memory.
         return {
@@ -815,14 +891,21 @@ export async function initStore(): Promise<void> {
     });
     return;
   }
-  try {
-    const s = useStore.getState();
-    if ((s.catalogVersion ?? 0) < CATALOG_VERSION) useStore.setState({ catalogVersion: CATALOG_VERSION });
-    if (!s.legacyChecked && s.programs.length === 0 && s.sessions.length === 0) await s.importLegacy();
-  } catch {
-    // Unreadable v1 data: start without it.
+  // Loaded, migrated and merged: only now may anything be written. Save once so migrated data reaches the file.
+  storage.enableWrites();
+  useStore.setState({});
+  const s = useStore.getState();
+  if ((s.catalogVersion ?? 0) < CATALOG_VERSION) useStore.setState({ catalogVersion: CATALOG_VERSION });
+  let legacyChecked = true;
+  if (!s.legacyChecked && s.programs.length === 0 && s.sessions.length === 0) {
+    try {
+      await s.importLegacy();
+    } catch {
+      // The first version's entry could not be read (it is only ever read): try again on the next launch.
+      legacyChecked = false;
+    }
   }
-  useStore.setState({ legacyChecked: true, hydrated: true, storageError: null });
+  useStore.setState({ legacyChecked, hydrated: true, storageError: null });
 }
 
 /** The program with `id`; without an id, the first program that is not paused. */

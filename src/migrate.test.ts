@@ -12,6 +12,7 @@ import {
   initStore,
   LEGACY_KEY,
   migratePersisted,
+  restoreExercises,
   STORAGE_KEY,
   storage,
   useStore,
@@ -163,4 +164,66 @@ test('history from before the move counts for the moved program from its start o
   const own: SessionLog = { ...state.sessions[0], programId: program.id, position: 3 };
   expect(logPosition(own, program)).toBe(3);
   expect(logPosition({ ...own, programId: 'other' }, program)).toBeNull();
+});
+
+describe('a load that fails never leads to a write', () => {
+  const noDays = JSON.stringify({
+    state: {
+      ...load('plan-base').persisted.state,
+      program: { template: 'base', sessionsPerWeek: 3, rules: {} },
+    },
+    version: 3,
+  });
+  const nullExercise = JSON.stringify({
+    state: { ...initialState(), exercises: { BENCH_PRESS: null } },
+    version: 4,
+  });
+  test.each([
+    ['the migration fails (a program without days)', noDays],
+    ['the merge fails (an exercise that is null)', nullExercise],
+  ])('%s: the file stays byte for byte and the error is shown', async (_name, raw) => {
+    jest.useFakeTimers();
+    try {
+      files.set(stateFile().uri, raw);
+      await initStore();
+      expect(get().storageError).toBeTruthy();
+      expect(get().hydrated).toBe(true);
+      useStore.setState({ unit: 'lb' });
+      await jest.advanceTimersByTimeAsync(1000);
+      await storage.flush();
+      expect(files.get(stateFile().uri)).toBe(raw);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('an unreadable first-version entry is tried again on the next launch', async () => {
+    await AsyncStorage.setItem(LEGACY_KEY, JSON.stringify(legacyV1));
+    // The first launch reads the store entry (empty), then the first version's entry, which fails.
+    // (Queued once-only results on the mock itself: restoring a spy on it would drop its implementation.)
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(null).mockRejectedValueOnce(new Error('busy'));
+    await initStore();
+    expect(get().storageError).toBeNull();
+    expect(get().legacyChecked).toBe(false);
+    expect(get().programs).toEqual([]);
+    await storage.flush();
+    useStore.setState({ ...initialState(), hydrated: false });
+    await initStore();
+    expect(get().storageError).toBeNull();
+    expect(get().programs).toHaveLength(1);
+    expect(get().legacyChecked).toBe(true);
+  });
+});
+
+test('built-in exercises from a one-program snapshot take the shipped content (abbr, bodyweight increment)', () => {
+  const { persisted } = load('plan-base');
+  const old = persisted.state;
+  old.exercises.BENCH_PRESS = { ...old.exercises.BENCH_PRESS, abbr: 'OLD', increment: { kg: 1, lb: 2 } };
+  old.exercises.CHINUPS = { ...old.exercises.CHINUPS, increment: { kg: 0, lb: 0 } };
+  useStore.setState({ ...migratePersisted(JSON.parse(JSON.stringify(old)), 3), hydrated: true });
+  const restored = restoreExercises(migratePersisted(JSON.parse(JSON.stringify(old)), 3).exercises);
+  expect(restored.BENCH_PRESS.abbr).toBe(builtInExercises().BENCH_PRESS.abbr);
+  // The user's own increment stays.
+  expect(restored.BENCH_PRESS.increment).toEqual({ kg: 1, lb: 2 });
+  expect(restored.CHINUPS.increment).toEqual(builtInExercises().CHINUPS.increment);
 });
