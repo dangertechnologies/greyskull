@@ -8,7 +8,7 @@ export interface HealthPlatform {
   permission(): Promise<Permission>;
   /** Asks for permission to write workouts (never to read anything). */
   request(): Promise<Permission>;
-  /** Writes the workout, replacing an earlier write of the same id with a lower version. */
+  /** Writes the workout so that the platform ends with exactly one entry for its id (replacing an earlier write). */
   write(workout: HealthWorkout): Promise<void>;
   /** Opens the system screen where the user can allow Health access again. */
   openSettings(): void;

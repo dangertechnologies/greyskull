@@ -24,7 +24,9 @@ describe('iOS Apple Health', () => {
     isHealthDataAvailable: jest.fn(() => true),
     authorizationStatusFor: jest.fn(() => 0),
     requestAuthorization: jest.fn(async () => true),
+    deleteObjects: jest.fn(async () => 1),
     saveWorkoutSample: jest.fn(async () => ({ dispose: jest.fn() })),
+    ComparisonPredicateOperator: { equalTo: 4 },
     WorkoutActivityType: { traditionalStrengthTraining: 50, functionalStrengthTraining: 20 },
   };
   beforeEach(() => {
@@ -69,6 +71,35 @@ describe('iOS Apple Health', () => {
       HKSyncIdentifier: 'greyskull-2026-11-20T08:00:00.000Z-7',
       HKSyncVersion: 1_795_000_000_000,
     });
+  });
+
+  it('removes its earlier write of the same id before saving, without reading', async () => {
+    const p = load('ios').createPlatform();
+    const order: string[] = [];
+    hk.deleteObjects.mockImplementationOnce(async () => {
+      order.push('delete');
+      return 1;
+    });
+    hk.saveWorkoutSample.mockImplementationOnce(async () => {
+      order.push('save');
+      return { dispose: jest.fn() };
+    });
+    await p?.write(workout());
+    expect(order).toEqual(['delete', 'save']);
+    expect(hk.deleteObjects).toHaveBeenCalledWith('HKWorkoutTypeIdentifier', {
+      metadata: {
+        withMetadataKey: 'HKSyncIdentifier',
+        operatorType: 4,
+        value: 'greyskull-2026-11-20T08:00:00.000Z-7',
+      },
+    });
+  });
+
+  it('does not save when removing the earlier write failed', async () => {
+    const p = load('ios').createPlatform();
+    hk.deleteObjects.mockRejectedValueOnce(new Error('no access'));
+    await expect(p?.write(workout())).rejects.toThrow('no access');
+    expect(hk.saveWorkoutSample).not.toHaveBeenCalled();
   });
 
   it('uses functional strength training for the functional activity', async () => {

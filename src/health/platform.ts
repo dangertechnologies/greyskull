@@ -31,7 +31,17 @@ function appleHealth(): HealthPlatform {
         w.activity === 'functional'
           ? m.WorkoutActivityType.functionalStrengthTraining
           : m.WorkoutActivityType.traditionalStrengthTraining;
-      // HealthKit replaces a sample that has the same sync identifier and a lower sync version.
+      // HealthKit does not replace a workout that has the same sync identifier and a higher version (checked on
+      // iOS 26: both stay), so remove this app's earlier write of the same id first, then save. Deleting by
+      // metadata needs no read access and only ever touches samples this app saved. A crash between the two
+      // steps leaves no copy, and the next attempt saves it.
+      await m.deleteObjects(WORKOUT_TYPE, {
+        metadata: {
+          withMetadataKey: 'HKSyncIdentifier',
+          operatorType: m.ComparisonPredicateOperator.equalTo,
+          value: w.id,
+        },
+      });
       const saved = await m.saveWorkoutSample(type, [], w.start, w.end, undefined, {
         HKSyncIdentifier: w.id,
         HKSyncVersion: w.version,
