@@ -135,7 +135,7 @@ export function SessionImmersive({ session, onBack, onFinish }: Props) {
                       <Icon name="edit" size={20} color="textMuted" />
                     )}
                   </View>
-                  {bodyweight || exercise.kind !== 'barbell' ? null : <PlateStack kg={item.weightKg} />}
+                  {bodyweight || exercise.kind !== 'barbell' ? null : <PlateStack kg={item.weightKg} exercise={exercise} />}
                 </Pressable>
                 {last && !bodyweight ? (
                   <Text variant="callout" color="textMuted">

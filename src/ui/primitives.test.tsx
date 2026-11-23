@@ -78,6 +78,11 @@ test('PlateStack draws one rect per plate and describes them in text', () => {
   expect(screen.getByText('bar only')).toBeTruthy();
 });
 
+test('PlateStack counts from the exercise’s own bar (EZ bar 10 kg)', () => {
+  render(<PlateStack kg={20} unit="kg" exercise={builtInExercises().EZ_BAR_CURL} />);
+  expect(screen.getByText('per side: 5')).toBeTruthy();
+});
+
 test('plate colours follow the IWF convention for kg and are neutral for lb', () => {
   expect(plateStyle(25, 'kg').color).toBe('#D32F2F');
   expect(plateStyle(20, 'kg').color).toBe('#1565C0');

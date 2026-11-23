@@ -97,7 +97,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
             <Text variant="caption" color={item.logged ? 'background' : 'textMuted'}>
               {formatWeight(item.weightKg, unit)}
             </Text>
-            {exercises[exerciseId]?.kind === 'barbell' ? <PlateStack kg={item.weightKg} size="sm" /> : null}
+            {exercises[exerciseId]?.kind === 'barbell' ? <PlateStack kg={item.weightKg} size="sm" exercise={exercises[exerciseId]} /> : null}
           </>
         ) : null}
       </Pressable>
@@ -198,7 +198,7 @@ export function SessionMinimal({ session, onBack, onFinish }: Props) {
                 </Pressable>
               </View>
               {bodyweight || perSetWeight || exercise.kind !== 'barbell' ? null : (
-                <PlateStack kg={result.weightKg} size="sm" />
+                <PlateStack kg={result.weightKg} size="sm" exercise={exercise} />
               )}
               {warm.length > 0 ? (
                 <View style={{ gap: t.space[2] }}>

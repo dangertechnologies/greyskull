@@ -76,7 +76,7 @@ export default function EditSession() {
                       kg={result.weightKg}
                       onChange={(kg) => setResults((r) => ({ ...r, [id]: { ...r[id], weightKg: kg } }))}
                     />
-                    {exercise.kind === 'barbell' ? <PlateStack kg={result.weightKg} /> : null}
+                    {exercise.kind === 'barbell' ? <PlateStack kg={result.weightKg} exercise={exercise} /> : null}
                   </>
                 ) : null}
                 {result.sets.map((set, i) => (

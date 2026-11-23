@@ -146,7 +146,7 @@ function LiftControls({ id, programId }: { id: string; programId: string }) {
             kg={current.weightKg}
             onChange={(kg) => setLift(id, { weightKg: kg })}
           />
-          {exercise.kind === 'barbell' ? <PlateStack kg={current.weightKg} /> : null}
+          {exercise.kind === 'barbell' ? <PlateStack kg={current.weightKg} exercise={exercise} /> : null}
         </View>
       </Section>
 

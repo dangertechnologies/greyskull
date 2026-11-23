@@ -68,7 +68,7 @@ export default function ConfirmWeights() {
                 kg={weights[id]}
                 onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))}
               />
-              {exercises[exerciseOfLift(id)].kind === 'barbell' ? <PlateStack kg={weights[id]} /> : null}
+              {exercises[exerciseOfLift(id)].kind === 'barbell' ? <PlateStack kg={weights[id]} exercise={exercises[exerciseOfLift(id)]} /> : null}
             </Card>
           ))}
         </View>

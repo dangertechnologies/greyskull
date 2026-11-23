@@ -41,7 +41,7 @@ export function LiftRow({
             <View key={i} style={{ alignItems: 'flex-end' }}>
               <Text variant="callout">{`${unit ? formatWeight(set.kg ?? kg, unit) : (set.kg ?? kg)} × ${set.target ?? 'AMRAP'}`}</Text>
               {exercise.kind === 'barbell' ? (
-                <PlateStack kg={set.kg ?? kg} size="sm" unit={unit} inventory={inventory} />
+                <PlateStack kg={set.kg ?? kg} size="sm" unit={unit} inventory={inventory} exercise={exercise} />
               ) : null}
             </View>
           ))
@@ -51,7 +51,7 @@ export function LiftRow({
           </Text>
         )}
         {bodyweight || perSet || exercise.kind !== 'barbell' ? null : (
-          <PlateStack kg={kg} size="sm" unit={unit} inventory={inventory} />
+          <PlateStack kg={kg} size="sm" unit={unit} inventory={inventory} exercise={exercise} />
         )}
       </View>
     </View>
