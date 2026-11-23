@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise } from '../domain';
 import { subtitleOf } from '../exerciseFilter';
@@ -45,10 +45,17 @@ export const ExerciseRow = memo(function ExerciseRow({
   onOpen(id: string): void;
 }) {
   const t = useTheme();
+  // At large text sizes the tags drop under the name and the badge shrinks, so the name keeps its width.
+  const big = useWindowDimensions().fontScale > 1.3;
   const top = position === 'first' || position === 'only';
   const bottom = position === 'last' || position === 'only';
   const edge = t.scheme === 'light' ? StyleSheet.hairlineWidth : 0;
   const subtitle = subtitleOf(exercise);
+  const tags = [
+    exercise.custom ? <Tag key="custom" label="Custom" /> : null,
+    exercise.timed ? <Tag key="timed" label="Timed" /> : null,
+    inProgram ? <Tag key="in" label="In program" accent /> : null,
+  ];
   return (
     <View
       style={{
@@ -92,23 +99,22 @@ export const ExerciseRow = memo(function ExerciseRow({
             paddingVertical: t.space[3],
           }}
         >
-          <ExerciseBadge exercise={exercise} size={56} />
+          <ExerciseBadge exercise={exercise} size={big ? 40 : 56} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Text variant="bodyStrong" numberOfLines={2}>
+            <Text variant="bodyStrong" numberOfLines={big ? 4 : 2}>
               {exercise.name}
             </Text>
             {subtitle ? (
-              <Text variant="callout" color="textMuted" numberOfLines={2}>
+              <Text variant="callout" color="textMuted" numberOfLines={big ? 4 : 2}>
                 {subtitle}
               </Text>
             ) : null}
+            {big ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[1] }}>{tags}</View>
+            ) : null}
           </View>
-          <View style={{ alignItems: 'flex-end', gap: t.space[1] }}>
-            {exercise.custom ? <Tag label="Custom" /> : null}
-            {exercise.timed ? <Tag label="Timed" /> : null}
-            {inProgram ? <Tag label="In program" accent /> : null}
-          </View>
-          <Icon name="chevron" size={16} color="textMuted" />
+          {big ? null : <View style={{ alignItems: 'flex-end', gap: t.space[1] }}>{tags}</View>}
+          {big ? null : <Icon name="chevron" size={16} color="textMuted" />}
         </View>
       </Pressable>
     </View>

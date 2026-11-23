@@ -126,7 +126,11 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>
       <Stack.Screen
-        options={{ title: exercise ? 'Edit exercise' : 'New exercise', headerLargeTitle: true }}
+        options={{
+          title: exercise ? 'Edit exercise' : 'New exercise',
+          headerLargeTitle: true,
+          headerRight: () => null,
+        }}
       />
       <ScreenScroll withBottomBar gap={8}>
         <Section card>
