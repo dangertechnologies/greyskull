@@ -1,5 +1,6 @@
 import { getPlan } from '../config/plans';
 import { getLadder } from './ladders';
+import { own } from './own';
 import type { PluginId } from './program';
 import { PLUGINS, tryParseScheme } from './program';
 import type {
@@ -244,7 +245,7 @@ const idsOf = (slot: Slot): string[] => (typeof slot.exercise === 'string' ? [sl
 
 /** What a slot can progress under. Bodyweight lifts only move by a rep range or a ladder, holds not by AMRAP. */
 export function progressionOptions(slot: Slot, exercises: Record<string, Exercise>): ProgressionOption[] {
-  const bodyweight = idsOf(slot).some((id) => exercises[id]?.kind === 'bodyweight');
+  const bodyweight = idsOf(slot).some((id) => own(exercises, id)?.kind === 'bodyweight');
   const timed = [slot.scheme, ...(slot.stages ?? [])].some(isTimed);
   const onlyDouble = 'Bodyweight exercises only progress with Double (a rep range) or a ladder.';
   return [
@@ -274,7 +275,7 @@ export const effectiveModel = (slot: Slot, rules: Rules): ProgressionModel =>
 export function stuckReason(slot: Slot, rules: Rules, exercises: Record<string, Exercise>): string | null {
   if (slot.ladder !== undefined) return null;
   const model = effectiveModel(slot, rules);
-  if (!idsOf(slot).some((id) => exercises[id]?.kind === 'bodyweight')) return null;
+  if (!idsOf(slot).some((id) => own(exercises, id)?.kind === 'bodyweight')) return null;
   if (model === 'double' && isRange(slot.scheme)) return null;
   if (model === 'double')
     return 'Double needs a rep range, such as 3x8-12, to progress a bodyweight exercise.';
