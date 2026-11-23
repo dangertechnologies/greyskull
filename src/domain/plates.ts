@@ -164,7 +164,8 @@ function stepsOf(value: number, step: number, mode: Mode): number {
 
 /**
  * Added load for a bodyweight exercise (dip belt, vest): a multiple of the smallest single plate, never below 0.
- * Without plates there is nothing to round to, so the load is left as it is.
+ * Without plates there is nothing to round to, so the load is left as it is: rounding to nothing would zero
+ * a load the user typed (a weight vest, say) on the next unit switch or weight edit.
  */
 export function roundAddedLoad(kg: number, inv: PlateInventory, unit: Unit, mode: Mode = 'nearest'): number {
   const plates = platesOf(inv, unit).filter((p) => p > 0);
