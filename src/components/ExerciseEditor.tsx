@@ -172,7 +172,6 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
       <Stack.Screen
         options={{
           title: exercise ? 'Edit exercise' : 'New exercise',
-          headerLargeTitle: true,
           headerRight: () => null,
         }}
       />

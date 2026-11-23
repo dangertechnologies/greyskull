@@ -34,7 +34,7 @@ export const palettes: Record<Scheme, Palette> = {
     borderStrong: '#6B7280',
     text: '#F4F5F7',
     textMuted: '#A3A9B3',
-    accent: '#C6F432',
+    accent: '#62B97B',
     onAccent: '#0B0C0E',
     success: '#4ADE80',
     warning: '#FBBF24',
