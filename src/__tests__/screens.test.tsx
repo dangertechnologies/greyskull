@@ -12,13 +12,13 @@ beforeEach(() => {
 });
 
 test('fresh install lands on setup', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   expect(await screen.findByText('Get started')).toBeTruthy();
 });
 
 test('today lists the first session with bar-only plates', async () => {
   useStore.getState().setProgram(TEMPLATES.base);
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   expect((await screen.findAllByText('Day 1')).length).toBeGreaterThan(0);
   expect(screen.getByText('Week 1')).toBeTruthy();
   expect(screen.getAllByText('Overhead press').length).toBeGreaterThan(0);
@@ -30,7 +30,7 @@ test('today lists the first session with bar-only plates', async () => {
 
 test('switching to lb shows 45 lb; ticking the 1.25 lb plate lowers the smallest jump', async () => {
   useStore.getState().setProgram(TEMPLATES.base);
-  renderRouter(routes(), { initialUrl: '/settings' });
+  await renderRouter(routes(), { initialUrl: '/settings' });
   expect(await screen.findByText('Smallest jump: 2.5 kg')).toBeTruthy();
   fireEvent.press(screen.getByRole('radio', { name: 'lb' }));
   expect(screen.getByText('Smallest jump: 5 lb')).toBeTruthy();
@@ -42,7 +42,7 @@ test('switching to lb shows 45 lb; ticking the 1.25 lb plate lowers the smallest
 
 test('the lift editor changes the weight and shows the plates', async () => {
   useStore.getState().setProgram(TEMPLATES.base);
-  renderRouter(routes(), { initialUrl: '/lift/BENCH_PRESS' });
+  await renderRouter(routes(), { initialUrl: '/lift/BENCH_PRESS' });
   expect((await screen.findAllByText('Working weight')).length).toBeGreaterThan(0);
   for (let i = 0; i < 17; i++) fireEvent.press(screen.getAllByLabelText('Increase')[0]); // 20 → 62.5 kg
   expect(useStore.getState().lifts.BENCH_PRESS.weightKg).toBe(62.5);
@@ -51,7 +51,7 @@ test('the lift editor changes the weight and shows the plates', async () => {
 
 test('seeded v1 data goes through the confirm screen into history', async () => {
   await useStore.getState().importLegacy(JSON.stringify(fixture));
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   expect(await screen.findByText('Check your weights')).toBeTruthy();
   expect(screen.getByText('looks wrong')).toBeTruthy();
   expect(screen.getAllByText('45 lb').length).toBeGreaterThan(0);
@@ -66,7 +66,7 @@ test('Reset in settings confirms, wipes the program and sends you to setup', asy
   const alert = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
     buttons?.find((b) => b.style === 'destructive')?.onPress?.();
   });
-  renderRouter(routes(), { initialUrl: '/settings' });
+  await renderRouter(routes(), { initialUrl: '/settings' });
   fireEvent.press(await screen.findByLabelText('Reset'));
   expect(alert).toHaveBeenCalled();
   expect(useStore.getState().program).toBeNull();
@@ -75,7 +75,7 @@ test('Reset in settings confirms, wipes the program and sends you to setup', asy
 });
 
 test('the developer seed plays three months of backdated workouts with a deload in them', async () => {
-  renderRouter(routes(), { initialUrl: '/settings' });
+  await renderRouter(routes(), { initialUrl: '/settings' });
   fireEvent.press(await screen.findByLabelText('Seed 3 months of workouts'));
   const { sessions, program } = useStore.getState();
   expect(program).not.toBeNull();
@@ -92,7 +92,7 @@ test('immersive session: warm-ups, sets, AMRAP, finish and celebration', async (
   store.setProgram(TEMPLATES.base);
   store.setLift('BARBELL_SQUAT', { weightKg: 100 });
   store.setSettings({ restSeconds: 0 });
-  renderRouter(routes(), { initialUrl: '/session/0' });
+  await renderRouter(routes(), { initialUrl: '/session/0' });
   const done = () => fireEvent.press(screen.getByTestId('done-set'));
 
   expect(await screen.findByText('Warm-up 1 of 1')).toBeTruthy();
@@ -134,7 +134,7 @@ test('a half-finished session shows Resume on Today and keeps its sets', async (
   store.setProgram(TEMPLATES.base);
   store.startSession(0);
   store.logSet('MILITARY_PRESS', 0, 5);
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByText('Resume workout'));
   expect(await screen.findByText('AMRAP')).toBeTruthy();
 });
@@ -143,7 +143,7 @@ test('a logged set can be corrected from the set rail without starting a rest', 
   const store = useStore.getState();
   store.setProgram(TEMPLATES.base);
   store.setSettings({ restSeconds: 90 });
-  renderRouter(routes(), { initialUrl: '/session/0' });
+  await renderRouter(routes(), { initialUrl: '/session/0' });
   fireEvent.press(await screen.findByTestId('done-set')); // warm-up (no rest)
   fireEvent.press(screen.getByTestId('done-set')); // set 1 → rest starts
   expect(await screen.findByTestId('rest-remaining')).toBeTruthy();
@@ -157,7 +157,7 @@ test('a logged set can be corrected from the set rail without starting a rest', 
 
 describe('the design gallery (dev only)', () => {
   test('renders every primitive in both colour schemes', async () => {
-    renderRouter(routes(), { initialUrl: '/gallery' });
+    await renderRouter(routes(), { initialUrl: '/gallery' });
     expect(await screen.findByText('dark theme')).toBeTruthy();
     expect(screen.getByText('light theme')).toBeTruthy();
     expect(screen.getAllByText('Start workout')).toHaveLength(2);

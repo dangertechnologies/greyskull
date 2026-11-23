@@ -16,7 +16,7 @@ const lifts = () => JSON.parse(JSON.stringify(useStore.getState().lifts)) as Rec
 
 test('circles: tap logs the target, tap again counts down to empty, long-press edits reps', async () => {
   seed(true);
-  renderRouter(routes(), { initialUrl: '/session/0' });
+  await renderRouter(routes(), { initialUrl: '/session/0' });
   expect(await screen.findByLabelText('Warm-up 1 of 1, 20 kg ×5')).toBeTruthy(); // press: bar only
   for (const w of ['20 kg ×5', '55 kg ×4', '70 kg ×3', '85 kg ×2'])
     expect(screen.getAllByText(w).length).toBeGreaterThan(0);
@@ -46,7 +46,7 @@ test('circles: tap logs the target, tap again counts down to empty, long-press e
 test('rest bar counts down after a circle and can be skipped', async () => {
   seed(true);
   useStore.getState().setSettings({ restSeconds: 90 });
-  renderRouter(routes(), { initialUrl: '/session/0' });
+  await renderRouter(routes(), { initialUrl: '/session/0' });
   fireEvent.press((await screen.findAllByLabelText(/^Set 1 of 2, target 5$/))[0]);
   expect((await screen.findByTestId('rest-remaining')).props.children).toBe('1:30');
   fireEvent.press(screen.getByTestId('rest-skip'));
@@ -56,7 +56,7 @@ test('rest bar counts down after a circle and can be skipped', async () => {
 test('minimal and immersive views give identical progression for the same reps', async () => {
   // Minimal: press 5 + AMRAP 12 (long-press), squat 5 + AMRAP 4 (long-press), then Finish.
   seed(true);
-  renderRouter(routes(), { initialUrl: '/session/0' });
+  await renderRouter(routes(), { initialUrl: '/session/0' });
   const [pressSet1, squatSet1] = await screen.findAllByLabelText(/^Set 1 of 2, target 5$/);
   fireEvent.press(pressSet1);
   fireEvent.press(squatSet1);
@@ -75,7 +75,7 @@ test('minimal and immersive views give identical progression for the same reps',
   // Immersive from the same starting state.
   seed(false);
   act(() => void 0);
-  const rendered = renderRouter(routes(), { initialUrl: '/session/0' });
+  const rendered = await renderRouter(routes(), { initialUrl: '/session/0' });
   await screen.findByText('Warm-up 1 of 1');
   const press = () => fireEvent.press(screen.getByText('Done'));
   press();

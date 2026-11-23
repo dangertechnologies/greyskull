@@ -1,4 +1,4 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from '../../src/design/theme';
 
 /** The only file that imports the (still unstable) native tabs API. */

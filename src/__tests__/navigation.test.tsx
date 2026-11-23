@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 test('finishing a workout returns to the existing Today instead of stacking a new one', async () => {
-  const { getPathname } = renderRouter(routes(), { initialUrl: '/' });
+  const { getPathname } = await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('start-session'));
   await screen.findByTestId('done-set');
   while (screen.queryByTestId('done-set')) fireEvent.press(screen.getByTestId('done-set'));
@@ -25,7 +25,7 @@ test('finishing a workout returns to the existing Today instead of stacking a ne
 });
 
 test('saving the program from the Plan tab goes back to Today', async () => {
-  const { getPathname } = renderRouter(routes(), { initialUrl: '/plan' });
+  const { getPathname } = await renderRouter(routes(), { initialUrl: '/plan' });
   fireEvent.press(await screen.findByText('Days and exercises'));
   fireEvent.press(await screen.findByText('Save'));
   await screen.findAllByText('Day 1');
@@ -34,7 +34,7 @@ test('saving the program from the Plan tab goes back to Today', async () => {
 });
 
 test('Back on the session screen returns to Today and keeps the logged sets', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('start-session'));
   fireEvent.press(await screen.findByTestId('done-set'));
   fireEvent.press(screen.getByLabelText('Back to Today'));
@@ -46,7 +46,7 @@ test('editing the program during a workout warns before discarding logged sets',
   useStore.getState().startSession(0);
   useStore.getState().logSet('MILITARY_PRESS', 0, 5);
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
-  renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+  await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
   fireEvent.press(await screen.findByText('Save'));
   expect(alert).toHaveBeenCalledWith(
     'Discard the workout in progress?',
@@ -58,7 +58,7 @@ test('editing the program during a workout warns before discarding logged sets',
 });
 
 test('the four tabs are reachable and switching between them keeps one Today', async () => {
-  const { getPathname } = renderRouter(routes(), { initialUrl: '/' });
+  const { getPathname } = await renderRouter(routes(), { initialUrl: '/' });
   await screen.findAllByText('Day 1');
   for (const path of ['/progress', '/plan', '/settings', '/']) {
     act(() => router.navigate(path as '/'));

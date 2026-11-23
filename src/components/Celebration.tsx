@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View } from 'react-native';
+import { type HostInstance, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise, Outcome, Unit } from '../domain';
 import { formatWeight } from '../domain';
@@ -45,7 +45,7 @@ export function Celebration({
 }) {
   const t = useTheme();
   const gutter = useGutter();
-  const summaryRef = useRef<View>(null);
+  const summaryRef = useRef<HostInstance>(null);
   const shown = lines.filter((l) => l.outcome.change !== 'none');
   return (
     <View style={{ flex: 1, backgroundColor: t.color.background }}>

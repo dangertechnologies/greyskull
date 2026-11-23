@@ -5,7 +5,6 @@
     "scheme": "gslp",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "icon": "./assets/icon.png",
     "ios": {
       "bundleIdentifier": "com.dangertechnologies.gslp",
@@ -44,6 +43,8 @@
         }
       ],
       "expo-web-browser",
+      "expo-sharing",
+      "expo-status-bar",
       "expo-asset",
       "expo-font",
       "expo-notifications",

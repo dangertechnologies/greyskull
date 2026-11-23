@@ -12,7 +12,7 @@ beforeEach(() => useStore.setState({ ...initialState(), hydrated: true }));
 const press = (testID: string) => fireEvent.press(screen.getByTestId(testID));
 
 test("full flow with Phrak's: Day A = chins, press, squat; session 1 = B with deadlift", async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   fireEvent.press(await screen.findByRole('radio', { name: /^Phrak/ }));
@@ -31,7 +31,7 @@ test("full flow with Phrak's: Day A = chins, press, squat; session 1 = B with de
 });
 
 test('base + curls: every day ends with curls 2xAMRAP', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   fireEvent.press(await screen.findByRole('radio', { name: /^Greyskull LP/ }));
@@ -47,7 +47,7 @@ test('base + curls: every day ends with curls 2xAMRAP', async () => {
 });
 
 test('lb chosen in setup means 45 lb starting weights', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   fireEvent.press(await screen.findByRole('radio', { name: 'lb' }));
   press('setup-next');
@@ -61,7 +61,7 @@ test('lb chosen in setup means 45 lb starting weights', async () => {
 });
 
 test('a starting weight can be changed on the review screen', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   fireEvent.press(await screen.findByRole('radio', { name: /^Greyskull LP/ }));
@@ -76,7 +76,7 @@ test('a starting weight can be changed on the review screen', async () => {
 });
 
 test('from scratch: an empty day blocks Start training with an inline error', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   fireEvent.press(await screen.findByRole('radio', { name: /^From scratch/ }));
@@ -86,7 +86,7 @@ test('from scratch: an empty day blocks Start training with an inline error', as
 });
 
 test('experimental plans are labelled and StrongLifts goes through setup to a 5x5 Today', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   expect(await screen.findByLabelText('StrongLifts 5×5, experimental')).toBeTruthy();
@@ -108,7 +108,7 @@ test('experimental plans are labelled and StrongLifts goes through setup to a 5x
 test('AllPro shows the light day and the current rep target on Today', async () => {
   useStore.getState().setProgram(getPlan('allpro')!.program);
   useStore.setState({ nextSession: 1 });
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   expect(await screen.findByText('Light day · 80 % of your working weights')).toBeTruthy();
   expect(screen.getAllByText('2×8 (8–12)').length).toBeGreaterThanOrEqual(5);
 });
@@ -121,7 +121,7 @@ describe('editing the saved program', () => {
     store.startSession(0);
     store.logSet('MILITARY_PRESS', 0, 5);
     store.finishSession();
-    renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
     expect(await screen.findByText('Your history and current weights are kept.')).toBeTruthy();
     fireEvent.press(screen.getAllByText('Add exercise')[1]);
     fireEvent.press(await screen.findByLabelText('Dips'));
@@ -135,7 +135,7 @@ describe('editing the saved program', () => {
 
   test('emptying a day shows the validation error and disables Save', async () => {
     useStore.getState().setProgram(TEMPLATES.base);
-    renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
     await screen.findByText('Your history and current weights are kept.');
     fireEvent.press(screen.getAllByLabelText('Remove exercise')[2]);
     fireEvent.press(screen.getAllByLabelText('Remove exercise')[2]);
@@ -146,7 +146,7 @@ describe('editing the saved program', () => {
 
   test('the scheme sheet changes sets and reps', async () => {
     useStore.getState().setProgram(TEMPLATES.base);
-    renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
     fireEvent.press((await screen.findAllByLabelText(/^Scheme 2x5\+/))[0]);
     fireEvent.press(await screen.findByRole('radio', { name: 'Fixed' }));
     for (let i = 0; i < 3; i++) fireEvent.press(screen.getAllByLabelText('Increase')[0]); // sets 2 → 5
@@ -161,7 +161,7 @@ describe('editing the saved program', () => {
     useStore.getState().startSession(0);
     useStore.getState().logSet('MILITARY_PRESS', 0, 5);
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
-    renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
     fireEvent.press(await screen.findByText('Save'));
     expect(alert).toHaveBeenCalledWith(
       'Discard the workout in progress?',
@@ -179,7 +179,7 @@ test('Change plan keeps lifts and history and replaces the program', async () =>
   store.setLift('BARBELL_SQUAT', { weightKg: 100 });
   store.startSession(0);
   store.finishSession();
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   act(() => router.push('/setup/plan?change=1'));
   fireEvent.press(await screen.findByRole('radio', { name: /^Starting Strength/ }));
   press('setup-next');
@@ -194,7 +194,7 @@ test('Change plan keeps lifts and history and replaces the program', async () =>
 });
 
 test('training days can be set to five in setup and changed while a workout is in progress', async () => {
-  renderRouter(routes(), { initialUrl: '/' });
+  await renderRouter(routes(), { initialUrl: '/' });
   fireEvent.press(await screen.findByTestId('get-started'));
   press('setup-next');
   fireEvent.press(await screen.findByRole('radio', { name: /^Greyskull LP/ }));

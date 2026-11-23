@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused until removed', async () => {
-  renderRouter(routes(), { initialUrl: '/exercises/new' });
+  await renderRouter(routes(), { initialUrl: '/exercises/new' });
   expect((await screen.findByLabelText('Save')).props.accessibilityState.disabled).toBe(true);
   fireEvent.changeText(await screen.findByLabelText('Name'), 'Front squat');
   fireEvent.changeText(screen.getByLabelText('Good form'), 'Elbows up\n\nChest tall');
@@ -66,14 +66,14 @@ test('the exercise list separates custom from built-in and flags those in the pr
     increment: { kg: 1, lb: 2 },
     custom: true,
   });
-  renderRouter(routes(), { initialUrl: '/exercises' });
+  await renderRouter(routes(), { initialUrl: '/exercises' });
   expect(await screen.findByText('X lift')).toBeTruthy();
   expect(screen.getByText('Squat')).toBeTruthy();
   expect(screen.getAllByText('in program').length).toBeGreaterThan(0);
 });
 
 test('built-in exercises cannot be deleted from the editor', async () => {
-  renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS' });
+  await renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS' });
   await screen.findByText('Short name');
   expect(screen.queryByLabelText('Delete exercise')).toBeNull();
 });
