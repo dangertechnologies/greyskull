@@ -72,6 +72,8 @@ jest.mock('expo-file-system', () => {
 beforeEach(() => {
   (jest.requireMock('expo-file-system') as { __files: Map<string, string> }).__files.clear();
 });
+// expo-constants needs the native launcher module; the app config reads nothing special in tests.
+jest.mock('expo-constants', () => ({ __esModule: true, default: { expoConfig: { extra: {} } } }));
 jest.mock('react-native-view-shot', () => ({ captureRef: jest.fn(async () => 'file:///tmp/summary.png') }));
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn(async () => true),
