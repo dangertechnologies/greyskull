@@ -139,8 +139,12 @@ Merge in order with merge commits (not squash, so the stack stays valid): `gh pr
 
 **Release rule (for the owner, not done by the run):** the native fingerprint changes once (PR 1). Make the next
 store build from `master` after PR 3 merges, when HealthKit, Health Connect, App Intents and the on-device model all
-have working UI. Later fixes ship as OTA to that build. Rollback: `eas update:republish` of the previous update for JS;
-the v4 migration writes `state.v3.json` and keeps `gslp-v2`, so a support build can restore.
+have working UI. Later fixes ship as OTA to that build. Rollback: `eas update:republish` of the previous update, for
+JS only and only to an update built for the same native fingerprint (`runtimeVersion.policy = fingerprint`); the v3
+JavaScript can never run on the new binary, so a JS-only rollback to v3 is impossible. The v4 migration keeps
+`gslp-v2` and writes `state.v3.json`, but both hold only the data from the day of the upgrade: restoring from them
+loses everything logged since, so they are a last resort, not a rollback. Lifts carried over from v3 have no
+`touchedAt`, so a weight re-entered in v3 after a break is eased again on its first v4 workout (shown, and undoable).
 
 ---
 
