@@ -20,9 +20,14 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
+/** Names every object already has ("constructor", "toString", "__proto__"): never valid as an id or a lift key. */
+const RESERVED = new Set(Object.getOwnPropertyNames(Object.prototype));
+const reserved = (map: Record<string, unknown>): boolean => Object.keys(map).some((k) => RESERVED.has(k));
+
 function badSession(s: unknown): string | null {
   if (!isObject(s) || !isNum(s.n) || typeof s.startedAt !== 'string') return 'a session is malformed';
-  if (!isObject(s.results) || !Array.isArray(s.order)) return `session ${String(s.n)} is malformed`;
+  if (!isObject(s.results) || !Array.isArray(s.order) || reserved(s.results))
+    return `session ${String(s.n)} is malformed`;
   for (const r of Object.values(s.results)) {
     if (!isObject(r) || !isNum(r.weightKg) || !Array.isArray(r.sets))
       return `session ${String(s.n)} has a bad result`;
@@ -42,6 +47,7 @@ function badSession(s: unknown): string | null {
 
 const badLifts = (lifts: unknown): boolean =>
   !isObject(lifts) ||
+  reserved(lifts) ||
   Object.values(lifts).some(
     (l) =>
       !isObject(l) ||
@@ -107,13 +113,18 @@ function parse(raw: string): BackupResult {
     : (data.programs as unknown[]).map((p) => (isObject(p) ? p.lifts : undefined));
   // 0 kg is valid: bodyweight and ladder lifts carry no weight.
   if (liftSets.some(badLifts)) return { ok: false, error: 'A lift weight is invalid.' };
-  for (const e of Object.values(data.exercises)) {
+  for (const [key, e] of Object.entries(data.exercises)) {
     // A stored built-in marks a user field it switched off as `null`; fields that always have a value cannot be.
     const nullable = NULLABLE_USER_FIELDS as readonly string[];
     if (
       !isObject(e) ||
       typeof e.id !== 'string' ||
       typeof e.name !== 'string' ||
+      e.id !== key ||
+      RESERVED.has(key) ||
+      [e.pattern, e.level, ...[e.equipment, e.muscles, e.secondary].flat()].some(
+        (v) => typeof v === 'string' && RESERVED.has(v),
+      ) ||
       USER_FIELDS.some((f) => e[f] === null && !nullable.includes(f))
     ) {
       return { ok: false, error: 'An exercise is malformed.' };

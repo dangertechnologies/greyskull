@@ -201,6 +201,43 @@ test('optional engine fields and seven training days survive a backup round-trip
   expect(parseBackup(JSON.stringify(state)).ok).toBe(false);
 });
 
+const HOSTILE = ['constructor', '__proto__', 'toString', 'hasOwnProperty'];
+const custom = (id: string, extra: object = {}) => ({
+  id,
+  name: 'X',
+  kind: 'barbell',
+  increment: { kg: 1, lb: 2 },
+  custom: true,
+  ...extra,
+});
+// `defineProperty` makes "__proto__" an own key, as JSON.parse does, instead of setting a prototype.
+// biome-ignore lint/suspicious/noExplicitAny: tests mutate arbitrary JSON
+const own = (o: any, key: string, value: unknown) =>
+  Object.defineProperty(o, key, { value, enumerable: true, configurable: true });
+// biome-ignore lint/suspicious/noExplicitAny: tests mutate arbitrary JSON
+const hostileCases = (id: string): [string, (s: any) => void][] => [
+  [`${id} as an exercise id`, (s) => own(s.exercises, id, custom(id))],
+  [`${id} as a slot exercise`, (s) => (s.programs[0].days[0].slots[0].exercise = id)],
+  [`${id} as a slot ladder`, (s) => (s.programs[0].days[0].slots[0].ladder = id)],
+  [
+    `${id} as the exercise of a saved plan`,
+    (s) =>
+      (s.customPlans = [
+        {
+          id: 'p',
+          name: 'P',
+          program: { ...s.programs[0], days: [{ name: 'A', slots: [{ exercise: id, scheme: '3x5' }] }] },
+        },
+      ]),
+  ],
+  [
+    `${id} as the pattern of an exercise`,
+    (s) => (s.exercises.custom_x = custom('custom_x', { pattern: id })),
+  ],
+  [`${id} as an equipment value`, (s) => (s.exercises.custom_x = custom('custom_x', { equipment: [id] }))],
+  [`${id} as a lift key`, (s) => own(s.programs[0].lifts, id, { weightKg: 20, startKg: 20, fails: 0 })],
+];
+
 describe('a damaged backup is refused, never thrown', () => {
   const current = () => {
     useStore.setState({ ...initialState(), hydrated: true });
@@ -217,6 +254,8 @@ describe('a damaged backup is refused, never thrown', () => {
     ['a slot that is null', (s) => (s.programs[0].days[0].slots = [null])],
     ['lifts that are a list', (s) => (s.programs[0].lifts = [])],
     ['exercises with a null entry', (s) => (s.exercises.BENCH_PRESS = null)],
+    ['an exercise filed under another id', (s) => (s.exercises.custom_x = custom('custom_y'))],
+    ...HOSTILE.flatMap(hostileCases),
     [
       'a one-program backup whose program has no rules',
       (s) => {
