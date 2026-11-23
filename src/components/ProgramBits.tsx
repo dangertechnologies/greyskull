@@ -52,12 +52,19 @@ export function ProgramBadge({ program, size = 40 }: { program: ActiveProgram; s
 /** A logged workout with the name of its program above (history from before programs have none). */
 export function LoggedWorkout({ log }: { log: SessionLog }) {
   const t = useTheme();
+  const name = log.programName ?? 'Earlier program';
   return (
     <View style={{ paddingTop: t.space[3] }}>
-      <Text variant="caption" color="accent">
-        {log.programName ?? 'Earlier program'}
+      {/* Read as part of the row's own label, so screen readers do not say it twice. */}
+      <Text
+        variant="caption"
+        color="accent"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        {name}
       </Text>
-      <WorkoutRow log={log} />
+      <WorkoutRow log={log} programName={name} />
     </View>
   );
 }

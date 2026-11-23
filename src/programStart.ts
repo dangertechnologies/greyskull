@@ -11,7 +11,7 @@ export function setCounts(draft: SessionLog): { done: number; total: number } {
 
 /** Open the workout of a program. With another program's workout open, ask what to do with it first. */
 export function startWorkout(program: ActiveProgram): void {
-  const { draft, nextSession } = useStore.getState();
+  const { draft, nextSession, programs } = useStore.getState();
   if (!draft || draft.programId === program.id) {
     router.push(`/session/${draft?.n ?? nextSession}?program=${program.id}`);
     return;
@@ -19,7 +19,7 @@ export function startWorkout(program: ActiveProgram): void {
   const { done } = setCounts(draft);
   Alert.alert(
     'Finish or discard the current workout?',
-    `${draft.programName ?? 'The current program'} · ${draft.dayName} is still open with ${done} ${done === 1 ? 'set' : 'sets'} logged. Close it before starting ${program.name}.`,
+    `${programs.find((p) => p.id === draft.programId)?.name ?? draft.programName ?? 'The current program'} · ${draft.dayName} is still open with ${done} ${done === 1 ? 'set' : 'sets'} logged. Close it before starting ${program.name}.`,
     [
       { text: 'Resume it', onPress: () => router.push(`/session/${draft.n}`) },
       {

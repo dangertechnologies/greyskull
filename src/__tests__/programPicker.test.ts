@@ -1,6 +1,13 @@
 import type { Equipment, Exercise, Kind } from '../domain';
 import { TEMPLATES } from '../domain';
-import { CATEGORIES, categoryOf, equipmentFit, fitLabel } from '../programPicker';
+import {
+  CATEGORIES,
+  categoryOf,
+  equipmentFit,
+  fitLabel,
+  nameTaken,
+  uniqueProgramName,
+} from '../programPicker';
 
 const ex = (id: string, kind: Kind, equipment?: Equipment[]): Exercise => ({
   id,
@@ -84,5 +91,15 @@ describe('equipment fit', () => {
       CAL_ARCH_HANG: ex('CAL_ARCH_HANG', 'bodyweight', ['pull-up-bar']),
     };
     expect(equipmentFit(program, own, ['rings'])).toEqual({ status: 'missing', missing: ['pull-up-bar'] });
+  });
+});
+
+describe('program names', () => {
+  test('a taken name gets the next free number, ignoring case', () => {
+    expect(uniqueProgramName('GSLP', [])).toBe('GSLP');
+    expect(uniqueProgramName('GSLP', ['gslp'])).toBe('GSLP 2');
+    expect(uniqueProgramName('GSLP', ['GSLP', 'GSLP 2', ' gslp 3 '])).toBe('GSLP 4');
+    expect(nameTaken('  Mine ', ['mine'])).toBe(true);
+    expect(nameTaken('Mine', ['Yours'])).toBe(false);
   });
 });

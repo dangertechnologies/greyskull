@@ -80,3 +80,14 @@ export function fitLabel(fit: EquipmentFit): string {
   const names = fit.missing.map((e) => e.replace('-', ' '));
   return `Missing: ${names.slice(0, 2).join(', ')}${names.length > 2 ? '…' : ''}`;
 }
+
+const sameName = (a: string, b: string): boolean => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/** Whether `name` is already used by one of `taken` (ignoring case and surrounding spaces). */
+export const nameTaken = (name: string, taken: string[]): boolean => taken.some((t) => sameName(t, name));
+
+/** `name`, or `name 2`, `name 3`, ... when programs already use it. */
+export function uniqueProgramName(name: string, taken: string[]): string {
+  if (!nameTaken(name, taken)) return name;
+  for (let n = 2; ; n++) if (!nameTaken(`${name} ${n}`, taken)) return `${name} ${n}`;
+}
