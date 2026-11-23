@@ -64,6 +64,8 @@ export function PlateStack({
   const unit = unitProp ?? storeUnit;
   const gym = inventoryProp ?? storeInventory;
   const inventory = exercise ? inventoryFor(exercise, gym) : gym;
+  // Only a loaded barbell has plates to show (bodyweight and ladder lifts, kettlebells and 0 kg have none).
+  if ((exercise && exercise.kind !== 'barbell') || !(kg > 0)) return null;
   const plates = platesPerSide(kg, inventory, unit);
   const label = formatPlates(kg, inventory, unit);
 

@@ -141,3 +141,17 @@ test('Button centres a title that wraps', () => {
   render(<Button title="Resume workout" onPress={() => undefined} />);
   expect(StyleSheet.flatten(screen.getByText('Resume workout').props.style).textAlign).toBe('center');
 });
+
+test('PlateStack draws nothing for a lift without a bar or without weight', () => {
+  const ex = builtInExercises();
+  render(<PlateStack kg={0} unit="kg" exercise={ex.DIPS} />);
+  expect(screen.queryByText(/per side|bar only|not loadable/)).toBeNull();
+  render(<PlateStack kg={0} unit="kg" exercise={ex.BARBELL_SQUAT} />);
+  expect(screen.queryByText(/per side|bar only|not loadable/)).toBeNull();
+});
+
+test('PlateStack survives an exercise bar given in one unit only', () => {
+  const ez = { ...builtInExercises().EZ_BAR_CURL, barKg: { kg: 10 } as never };
+  render(<PlateStack kg={20} unit="lb" exercise={ez} />);
+  expect(screen.getByText(/per side|bar only|not loadable/)).toBeTruthy();
+});

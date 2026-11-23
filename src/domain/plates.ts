@@ -43,6 +43,8 @@ export function loadable(inv: PlateInventory, unit: Unit, maxTotal = 1000): Load
   if (hit) return hit;
 
   const bar = barOf(inv, unit);
+  // A bar that is not a number (a half-filled inventory) loads nothing, rather than an array of NaN length.
+  if (!Number.isFinite(bar)) return { totals: [], perSide: new Map() };
   const plates = platesOf(inv, unit).filter((p) => p > 0);
   const maxSide = Math.max(0, q((maxTotal - bar) / 2));
   const best: (number[] | null)[] = new Array<number[] | null>(maxSide + 1).fill(null);
@@ -149,7 +151,11 @@ export function startingWeightKg(exercise: Exercise, inv: PlateInventory, unit: 
 
 /** The inventory with the exercise's own bar (an EZ bar) in place of the gym bar. */
 export function inventoryFor(exercise: Exercise, inv: PlateInventory): PlateInventory {
-  return exercise.barKg ? { ...inv, barKg: exercise.barKg.kg, barLb: exercise.barKg.lb } : inv;
+  const own = exercise.barKg;
+  // Only a bar given in both units replaces the gym's; anything else (an import with one unit) keeps the gym bar.
+  return own && Number.isFinite(own.kg) && Number.isFinite(own.lb)
+    ? { ...inv, barKg: own.kg, barLb: own.lb }
+    : inv;
 }
 
 type Mode = 'nearest' | 'ceil' | 'floor';

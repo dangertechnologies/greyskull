@@ -267,3 +267,24 @@ test('the one-page view shows and edits a bodyweight exercise’s added load', a
   expect(get().draft?.results.CHINUPS.weightKg).toBe(11.25);
   expect(screen.getAllByText('+11.25 kg').length).toBeGreaterThan(0);
 });
+
+describe('setup with calisthenics programs', () => {
+  test.each([
+    ['Recommended Routine'],
+    ['Hybrid'],
+    ['Six Ladders'],
+    ['Skill Track'],
+    ['GZCLP'],
+    ['5/3/1 for Beginners'],
+  ])('%s goes through the plates, plan and starting-weights steps', async (name) => {
+    useStore.setState({ ...initialState(), hydrated: true });
+    await renderRouter(allRoutes(), { initialUrl: '/' });
+    fireEvent.press(await screen.findByTestId('get-started'));
+    expect(screen.getAllByText(/per side/).length).toBeGreaterThan(0);
+    fireEvent.press(screen.getByTestId('setup-next'));
+    fireEvent.press(await screen.findByRole('radio', { name: new RegExp(`^${name.replace('/', '\\/')}`) }));
+    fireEvent.press(screen.getByTestId('setup-next'));
+    fireEvent.press(await screen.findByTestId('start-training'));
+    expect(await screen.findByText(/^Next:/)).toBeTruthy();
+  });
+});

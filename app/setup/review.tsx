@@ -71,9 +71,11 @@ export default function Review() {
         });
       }
       for (const id of liftKeysOf(program)) {
-        // Bodyweight lifts start without added load unless the user set some here.
-        const bodyweight = exercises[exerciseOfLift(id)]?.kind === 'bodyweight';
-        if ((bodyweight || changing) && draft.weights[id] === undefined) continue;
+        // Ladders (no exercise of their own) start where `addProgram` puts them. Bodyweight lifts start without
+        // added load unless the user set some here.
+        const exercise = exercises[exerciseOfLift(id)];
+        if (!exercise) continue;
+        if ((exercise.kind === 'bodyweight' || changing) && draft.weights[id] === undefined) continue;
         const kg = weightOf(id);
         store.setLift(savedId, id, changing ? { weightKg: kg } : { weightKg: kg, startKg: kg });
       }
