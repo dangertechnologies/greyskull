@@ -39,3 +39,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# agent scratch
+.superpowers/
+.cache/
+.env

@@ -3,9 +3,12 @@ import {
   ceilLoadableKg,
   floorLoadableKg,
   formatPlates,
+  inventoryFor,
+  inventoryProblem,
   loadable,
   nearestLoadableKg,
   platesPerSide,
+  roundAddedLoad,
   roundForExercise,
   smallestStep,
 } from '../plates';
@@ -84,14 +87,130 @@ test('loadable() memoises and lists bar first', () => {
 describe('roundForExercise', () => {
   const ex = builtInExercises();
   const dumbbell = { ...ex.CURLS, kind: 'dumbbell' as const };
-  test('barbell uses plates; bodyweight is untouched', () => {
+  test('barbell uses plates; bodyweight added load uses single plates', () => {
     expect(roundForExercise(61, ex.BENCH_PRESS, 'ceil', inv, 'kg')).toBe(62.5);
-    expect(roundForExercise(61, ex.CHINUPS, 'ceil', inv, 'kg')).toBe(61);
+    expect(roundForExercise(61, ex.CHINUPS, 'ceil', inv, 'kg')).toBe(61.25);
+    expect(roundForExercise(0, ex.CHINUPS, 'nearest', inv, 'kg')).toBe(0);
+  });
+
+  const bell = { ...ex.CURLS, kind: 'kettlebell' as const };
+  type Bell = [string, Unit, number, 'nearest' | 'ceil' | 'floor', number, PlateInventory?];
+  const bells: Bell[] = [
+    ['nearest owned size', 'kg', 17, 'nearest', 16],
+    ['ties go to the lighter bell', 'kg', 18, 'nearest', 16],
+    ['ceil', 'kg', 17, 'ceil', 20],
+    ['floor', 'kg', 19, 'floor', 16],
+    ['an owned size stays', 'kg', 24, 'ceil', 24],
+    ['above the heaviest bell', 'kg', 40, 'ceil', 32],
+    ['below the lightest bell', 'kg', 5, 'floor', 8],
+    ['pounds nearest', 'lb', 30, 'nearest', 26],
+    ['pounds ceil', 'lb', 30, 'ceil', 35],
+    ['pounds floor', 'lb', 50, 'floor', 44],
+    ['only the bells you own', 'kg', 20, 'nearest', 24, withPlates({ kettlebellsKg: [12, 24] })],
+  ];
+  test.each(bells)('kettlebell: %s', (_name, unit, input, mode, want, i = inv) => {
+    expect(toUnit(roundForExercise(toKg(input, unit), bell, mode, i, unit), unit)).toBeCloseTo(want, 9);
+  });
+  test('kettlebell without owned sizes falls back to its rounding step', () => {
+    const noBells = withPlates({ kettlebellsKg: [], kettlebellsLb: [] });
+    expect(roundForExercise(17, bell, 'nearest', noBells, 'kg')).toBe(18);
+  });
+
+  test('an exercise bar (EZ bar 10 kg / 25 lb) replaces the gym bar', () => {
+    const ez = { ...ex.BENCH_PRESS, barKg: { kg: 10, lb: 25 } };
+    expect(roundForExercise(5, ez, 'nearest', inv, 'kg')).toBe(10);
+    expect(roundForExercise(13, ez, 'nearest', inv, 'kg')).toBe(12.5);
+    expect(roundForExercise(13, ex.BENCH_PRESS, 'nearest', inv, 'kg')).toBe(20);
+    expect(toUnit(roundForExercise(toKg(31, 'lb'), ez, 'nearest', inv, 'lb'), 'lb')).toBeCloseTo(30, 9);
+    expect(inventoryFor(ez, inv)).toMatchObject({ barKg: 10, barLb: 25 });
+    expect(inventoryFor(ex.BENCH_PRESS, inv)).toBe(inv);
   });
   test('dumbbell rounds to step in display unit', () => {
     expect(roundForExercise(11, dumbbell, 'ceil', inv, 'kg')).toBe(12);
     expect(roundForExercise(11, dumbbell, 'floor', inv, 'kg')).toBe(10);
     expect(roundForExercise(12, dumbbell, 'ceil', inv, 'kg')).toBe(12);
     expect(toUnit(roundForExercise(toKg(22, 'lb'), dumbbell, 'ceil', inv, 'lb'), 'lb')).toBeCloseTo(25, 9);
+  });
+});
+
+describe('roundAddedLoad (single plates on a dip belt)', () => {
+  type Row = [string, Unit, number, 'nearest' | 'ceil' | 'floor' | undefined, number, PlateInventory?];
+  const rows: Row[] = [
+    ['nearest multiple of the smallest plate', 'kg', 3, undefined, 2.5],
+    ['rounds up past the half', 'kg', 3.2, undefined, 3.75],
+    ['ceil', 'kg', 2.6, 'ceil', 3.75],
+    ['floor', 'kg', 3.7, 'floor', 2.5],
+    ['zero stays zero', 'kg', 0, undefined, 0],
+    ['never negative', 'kg', -3, 'floor', 0],
+    ['pounds', 'lb', 7, undefined, 7.5],
+    ['with 0.5 kg plates', 'kg', 3.2, undefined, 3, half],
+  ];
+  test.each(rows)('%s', (_name, unit, input, mode, want, i = inv) => {
+    expect(toUnit(roundAddedLoad(toKg(input, unit), i, unit, mode), unit)).toBeCloseTo(want, 9);
+  });
+  test('no plates leaves the load as it is', () => {
+    expect(roundAddedLoad(3.3, none, 'kg')).toBe(3.3);
+  });
+});
+
+describe('a damaged or hostile inventory', () => {
+  test('a bar that is negative, zero, huge or not a number loads nothing, without a huge search', () => {
+    for (const barKg of [-1e9, -20, 0, 51, 1e9, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const started = Date.now();
+      expect(loadable(withPlates({ barKg }), 'kg').totals).toEqual([]);
+      expect(Date.now() - started).toBeLessThan(500);
+    }
+    expect(loadable(withPlates({ barLb: 111 }), 'lb').totals).toEqual([]);
+    expect(loadable(withPlates({ barLb: 110 }), 'lb').totals.length).toBeGreaterThan(0);
+  });
+
+  test('plates out of range are left out and a long list is cut short', () => {
+    const junk = withPlates({ platesKg: [20, 0.001, -5, 1e9, Number.NaN, Number.POSITIVE_INFINITY] });
+    expect(loadable(junk, 'kg').totals).toEqual(loadable(withPlates({ platesKg: [20] }), 'kg').totals);
+    expect(smallestStep(junk, 'kg')).toBe(40);
+    const many = withPlates({ platesKg: Array.from({ length: 5000 }, (_, i) => 1 + i / 1000) });
+    const started = Date.now();
+    loadable(many, 'kg');
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
+
+  test("an exercise's own bar only counts when it is in range in both units", () => {
+    const ez = { ...builtInExercises().BARBELL_SQUAT };
+    for (const barKg of [
+      { kg: -10, lb: 25 },
+      { kg: 10, lb: -25 },
+      { kg: 1e9, lb: 25 },
+      { kg: 10, lb: 111 },
+      { kg: Number.NaN, lb: 25 },
+    ])
+      expect(inventoryFor({ ...ez, barKg }, inv)).toBe(inv);
+    expect(inventoryFor({ ...ez, barKg: { kg: 10, lb: 25 } }, inv)).toEqual({ ...inv, barKg: 10, barLb: 25 });
+  });
+
+  test('inventoryProblem accepts the defaults and names what is out of range', () => {
+    expect(inventoryProblem(inv)).toBeNull();
+    expect(inventoryProblem(withPlates({ platesKg: [...inv.platesKg, 0.5, 0.25] }))).toBeNull();
+    // Missing fields are filled from the defaults on load.
+    expect(inventoryProblem({ barKg: 20 })).toBeNull();
+    for (const bad of [
+      null,
+      [],
+      'inventory',
+      withPlates({ barKg: 0 }),
+      withPlates({ barKg: -20 }),
+      withPlates({ barKg: 51 }),
+      withPlates({ barLb: 111 }),
+      withPlates({ barKg: Number.NaN }),
+      withPlates({ platesKg: [20, -5] }),
+      withPlates({ platesKg: [20, 0.1] }),
+      withPlates({ platesLb: [45, 1e9] }),
+      withPlates({ platesKg: Array.from({ length: 21 }, (_, i) => i + 1) }),
+      withPlates({ platesKg: 'x' as never }),
+      withPlates({ kettlebellsKg: [16, 1000] }),
+      withPlates({ kettlebellsLb: [Number.POSITIVE_INFINITY] }),
+      withPlates({ kettlebellsKg: Array.from({ length: 41 }, () => 16) }),
+      withPlates({ kettlebellsLb: null as never }),
+    ])
+      expect([bad, inventoryProblem(bad)]).toEqual([bad, expect.any(String)]);
   });
 });

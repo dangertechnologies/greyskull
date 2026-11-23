@@ -1,8 +1,8 @@
 import { View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { useTheme } from '../design/theme';
-import type { PlateInventory, Unit } from '../domain';
-import { formatPlates, platesPerSide } from '../domain';
+import type { Exercise, PlateInventory, Unit } from '../domain';
+import { formatPlates, inventoryFor, platesPerSide } from '../domain';
 import { useInventory, useUnit } from '../store';
 import { Text } from './Text';
 
@@ -42,24 +42,30 @@ export function plateStyle(plate: number, unit: Unit): PlateStyle {
 
 /**
  * One side of the bar, plates largest first, with the text line underneath (colour is never the only carrier).
- * `size="sm"` is the compact variant for list rows.
+ * `size="sm"` is the compact variant for list rows. Pass the `exercise` so a lift with its own bar (EZ bar) counts
+ * from that bar.
  */
 export function PlateStack({
   kg,
   size = 'lg',
   unit: unitProp,
   inventory: inventoryProp,
+  exercise,
 }: {
   kg: number;
   size?: 'sm' | 'lg';
   unit?: Unit;
   inventory?: PlateInventory;
+  exercise?: Exercise;
 }) {
   const t = useTheme();
   const storeUnit = useUnit();
   const storeInventory = useInventory();
   const unit = unitProp ?? storeUnit;
-  const inventory = inventoryProp ?? storeInventory;
+  const gym = inventoryProp ?? storeInventory;
+  const inventory = exercise ? inventoryFor(exercise, gym) : gym;
+  // Only a loaded barbell has plates to show (bodyweight and ladder lifts, kettlebells and 0 kg have none).
+  if ((exercise && exercise.kind !== 'barbell') || !(kg > 0)) return null;
   const plates = platesPerSide(kg, inventory, unit);
   const label = formatPlates(kg, inventory, unit);
 

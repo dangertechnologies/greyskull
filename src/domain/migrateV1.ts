@@ -1,4 +1,5 @@
 import { exerciseIdsOf, PLUGINS, TEMPLATES } from './program';
+import { normaliseSessionIds } from './sessionIds';
 import type { AppState, Exercise, ExerciseResult, LiftState, Program, SessionLog } from './types';
 import { DEFAULT_INVENTORY } from './types';
 
@@ -17,16 +18,11 @@ interface V1 {
   workoutPlan: V1Workout[];
 }
 
+/** The first version's data in the one-program shape; the store turns it into programs. */
 export type MigrationPatch = Pick<
   AppState,
-  | 'unit'
-  | 'program'
-  | 'lifts'
-  | 'sessions'
-  | 'nextSession'
-  | 'needsWeightConfirm'
-  | 'needsWeightConfirmSuspects'
->;
+  'unit' | 'sessions' | 'nextSession' | 'needsWeightConfirm' | 'needsWeightConfirmSuspects'
+> & { program: Program; lifts: Record<string, LiftState> };
 
 /** v1 weights exploded to millions; anything above 3× the start weight (or 400 kg) is not trusted. */
 const looksWrong = (current: number, initial: number): boolean =>
@@ -46,7 +42,7 @@ function isV1(value: unknown): value is V1 {
 }
 
 /**
- * Turns the v1 AsyncStorage blob (`GSLP_STATE_18`) into a v2 state patch. Pure: it never touches storage,
+ * Turns the v1 AsyncStorage blob (`GSLP_STATE_18`) into a one-program state patch. Pure: it never touches storage,
  * so the legacy key stays intact. Returns null when `raw` is not a completed v1 setup.
  */
 export function migrateV1(
@@ -81,9 +77,14 @@ export function migrateV1(
   const suspects: string[] = [];
   const initials: Record<string, number> = {};
   for (const [id, w] of Object.entries(cfg.weights)) {
-    if (!(id in catalog) || typeof w.current !== 'number') continue;
-    const initial = typeof w.initial === 'number' ? w.initial : 0;
+    if (!Object.hasOwn(catalog, id) || !Number.isFinite(w?.current)) continue;
+    const initial = Number.isFinite(w.initial) ? w.initial : 0;
     initials[id] = initial;
+    // Bodyweight lifts start without added load; v1 stored a weight for them that never meant one.
+    if (catalog[id].kind === 'bodyweight') {
+      lifts[id] = { weightKg: 0, startKg: 0, fails: 0 };
+      continue;
+    }
     if (looksWrong(w.current, initial)) {
       suspects.push(id);
       const safe = initial > 0 ? initial : DEFAULT_INVENTORY.barKg;
@@ -101,28 +102,34 @@ export function migrateV1(
 
   const sessions: SessionLog[] = [];
   for (const workout of workoutPlan) {
-    if (!workout.completed) continue;
+    // Only finished workouts with a real date become history (v1 stored epoch milliseconds). A number past the
+    // last date a Date can hold is not one: it would make toISOString throw.
+    const time = typeof workout?.completed === 'number' ? new Date(workout.completed).getTime() : Number.NaN;
+    if (!workout || !time) continue;
     const results: Record<string, ExerciseResult> = {};
     const order: string[] = [];
-    for (const e of workout.exercises) {
-      if (!e.completed || !(e.definition in catalog)) continue;
-      const weightKg = e.weight ?? 0;
+    for (const e of Array.isArray(workout.exercises) ? workout.exercises : []) {
+      if (!e?.completed || !Object.hasOwn(catalog, e.definition)) continue;
+      const weightKg = Number.isFinite(e.weight) ? (e.weight as number) : 0;
       if (looksWrong(weightKg, initials[e.definition] ?? 0)) continue;
-      results[e.definition] = { weightKg, sets: [{ target: null, reps: e.amrap ?? 0 }] };
+      const reps = Number.isFinite(e.amrap) ? (e.amrap as number) : 0;
+      results[e.definition] = { weightKg, sets: [{ target: null, reps }] };
       order.push(e.definition);
     }
-    const when = new Date(workout.completed).toISOString();
+    const when = new Date(time).toISOString();
     sessions.push({ n: workout.id, dayName: '', startedAt: when, finishedAt: when, results, order });
   }
-  sessions.sort((a, b) => a.n - b.n);
+  // v1 ids are kept; a missing, broken or repeated one gets a new id after the highest (see normaliseSessionIds).
+  const { sessions: numbered, nextSession } = normaliseSessionIds({ sessions, draft: null, nextSession: 0 });
+  numbered.sort((a, b) => a.n - b.n);
 
   return {
     patch: {
       unit,
       program,
       lifts,
-      sessions,
-      nextSession: sessions.length,
+      sessions: numbered,
+      nextSession,
       needsWeightConfirm: true,
       needsWeightConfirmSuspects: suspects,
     },

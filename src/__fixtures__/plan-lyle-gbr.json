@@ -1,0 +1,1022 @@
+{
+  "persisted": {
+    "state": {
+      "version": 2,
+      "unit": "kg",
+      "inventory": {
+        "barKg": 20,
+        "platesKg": [25, 20, 15, 10, 5, 2.5, 1.25],
+        "barLb": 45,
+        "platesLb": [45, 35, 25, 10, 5, 2.5]
+      },
+      "minimalist": false,
+      "restSeconds": 90,
+      "exercises": {},
+      "program": {
+        "template": "lyle-gbr",
+        "sessionsPerWeek": 4,
+        "rules": {
+          "doubleAt": 10,
+          "deloadPct": 0.1,
+          "failsBeforeDeload": 1,
+          "warmups": true,
+          "progression": "double"
+        },
+        "days": [
+          {
+            "name": "Upper 1",
+            "slots": [
+              {
+                "exercise": "BENCH_PRESS",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "SEATED_CABLE_ROW",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "DB_SHOULDER_PRESS",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "LAT_PULLDOWN",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "TRICEP_PUSHDOWN",
+                "scheme": "2x12-15"
+              },
+              {
+                "exercise": "CURLS",
+                "scheme": "2x12-15"
+              }
+            ]
+          },
+          {
+            "name": "Lower 1",
+            "slots": [
+              {
+                "exercise": "BARBELL_SQUAT",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "ROMANIAN_DEADLIFT",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "LEG_PRESS",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "LEG_CURL",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "CALF_RAISE",
+                "scheme": "3x6-8"
+              }
+            ]
+          },
+          {
+            "name": "Upper 2",
+            "slots": [
+              {
+                "exercise": "INCLINE_BENCH_PRESS",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "BENT_OVER_ROW",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "MILITARY_PRESS",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "DUMBBELL_ROW",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "TRICEP_PUSHDOWN",
+                "scheme": "2x12-15"
+              },
+              {
+                "exercise": "CURLS",
+                "scheme": "2x12-15"
+              }
+            ]
+          },
+          {
+            "name": "Lower 2",
+            "slots": [
+              {
+                "exercise": "BARBELL_SQUAT",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "ROMANIAN_DEADLIFT",
+                "scheme": "3x6-8"
+              },
+              {
+                "exercise": "LEG_PRESS",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "LEG_CURL",
+                "scheme": "2x10-12"
+              },
+              {
+                "exercise": "CALF_RAISE",
+                "scheme": "3x6-8"
+              }
+            ]
+          }
+        ]
+      },
+      "lifts": {
+        "BENCH_PRESS": {
+          "weightKg": 52.5,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 6
+        },
+        "SEATED_CABLE_ROW": {
+          "weightKg": 2.5,
+          "startKg": 2.5,
+          "fails": 0,
+          "reps": 6
+        },
+        "DB_SHOULDER_PRESS": {
+          "weightKg": 2,
+          "startKg": 2,
+          "fails": 0,
+          "reps": 10
+        },
+        "LAT_PULLDOWN": {
+          "weightKg": 2.5,
+          "startKg": 2.5,
+          "fails": 0,
+          "reps": 10
+        },
+        "TRICEP_PUSHDOWN": {
+          "weightKg": 2.5,
+          "startKg": 2.5,
+          "fails": 0,
+          "reps": 14
+        },
+        "CURLS": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 14
+        },
+        "BARBELL_SQUAT": {
+          "weightKg": 52.5,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 6
+        },
+        "ROMANIAN_DEADLIFT": {
+          "weightKg": 52.5,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 6
+        },
+        "LEG_PRESS": {
+          "weightKg": 5,
+          "startKg": 5,
+          "fails": 1,
+          "reps": 12
+        },
+        "LEG_CURL": {
+          "weightKg": 2.5,
+          "startKg": 2.5,
+          "fails": 1,
+          "reps": 12
+        },
+        "CALF_RAISE": {
+          "weightKg": 5,
+          "startKg": 5,
+          "fails": 0,
+          "reps": 6
+        },
+        "INCLINE_BENCH_PRESS": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 8
+        },
+        "BENT_OVER_ROW": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 8
+        },
+        "MILITARY_PRESS": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "reps": 12
+        },
+        "DUMBBELL_ROW": {
+          "weightKg": 2,
+          "startKg": 2,
+          "fails": 0,
+          "reps": 12
+        }
+      },
+      "sessions": [
+        {
+          "n": 0,
+          "dayName": "Upper 1",
+          "startedAt": "2026-11-23T01:39:43.711Z",
+          "results": {
+            "BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 5
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "SEATED_CABLE_ROW": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 5
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "DB_SHOULDER_PRESS": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "LAT_PULLDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "TRICEP_PUSHDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "CURLS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            }
+          },
+          "order": [
+            "BENCH_PRESS",
+            "SEATED_CABLE_ROW",
+            "DB_SHOULDER_PRESS",
+            "LAT_PULLDOWN",
+            "TRICEP_PUSHDOWN",
+            "CURLS"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.712Z"
+        },
+        {
+          "n": 1,
+          "dayName": "Lower 1",
+          "startedAt": "2026-11-23T01:39:43.712Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "ROMANIAN_DEADLIFT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "LEG_PRESS": {
+              "weightKg": 5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "LEG_CURL": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "CALF_RAISE": {
+              "weightKg": 5,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "ROMANIAN_DEADLIFT", "LEG_PRESS", "LEG_CURL", "CALF_RAISE"],
+          "finishedAt": "2026-11-23T01:39:43.712Z"
+        },
+        {
+          "n": 2,
+          "dayName": "Upper 2",
+          "startedAt": "2026-11-23T01:39:43.713Z",
+          "results": {
+            "INCLINE_BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "BENT_OVER_ROW": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "MILITARY_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "DUMBBELL_ROW": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "TRICEP_PUSHDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "CURLS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            }
+          },
+          "order": [
+            "INCLINE_BENCH_PRESS",
+            "BENT_OVER_ROW",
+            "MILITARY_PRESS",
+            "DUMBBELL_ROW",
+            "TRICEP_PUSHDOWN",
+            "CURLS"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.713Z"
+        },
+        {
+          "n": 3,
+          "dayName": "Lower 2",
+          "startedAt": "2026-11-23T01:39:43.713Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 6
+                }
+              ]
+            },
+            "ROMANIAN_DEADLIFT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 6
+                }
+              ]
+            },
+            "LEG_PRESS": {
+              "weightKg": 5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "LEG_CURL": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "CALF_RAISE": {
+              "weightKg": 5,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 6
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "ROMANIAN_DEADLIFT", "LEG_PRESS", "LEG_CURL", "CALF_RAISE"],
+          "finishedAt": "2026-11-23T01:39:43.714Z"
+        },
+        {
+          "n": 4,
+          "dayName": "Upper 1",
+          "startedAt": "2026-11-23T01:39:43.714Z",
+          "results": {
+            "BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 5
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "SEATED_CABLE_ROW": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 6,
+                  "reps": 6
+                },
+                {
+                  "target": 6,
+                  "reps": 5
+                },
+                {
+                  "target": 6,
+                  "reps": 6
+                }
+              ]
+            },
+            "DB_SHOULDER_PRESS": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 9
+                }
+              ]
+            },
+            "LAT_PULLDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 9
+                }
+              ]
+            },
+            "TRICEP_PUSHDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 13,
+                  "reps": 13
+                },
+                {
+                  "target": 13,
+                  "reps": 12
+                }
+              ]
+            },
+            "CURLS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 13,
+                  "reps": 13
+                },
+                {
+                  "target": 13,
+                  "reps": 12
+                }
+              ]
+            }
+          },
+          "order": [
+            "BENCH_PRESS",
+            "SEATED_CABLE_ROW",
+            "DB_SHOULDER_PRESS",
+            "LAT_PULLDOWN",
+            "TRICEP_PUSHDOWN",
+            "CURLS"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.714Z"
+        },
+        {
+          "n": 5,
+          "dayName": "Lower 1",
+          "startedAt": "2026-11-23T01:39:43.714Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 6
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                }
+              ]
+            },
+            "ROMANIAN_DEADLIFT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 6
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                }
+              ]
+            },
+            "LEG_PRESS": {
+              "weightKg": 5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "LEG_CURL": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "CALF_RAISE": {
+              "weightKg": 5,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 6
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "ROMANIAN_DEADLIFT", "LEG_PRESS", "LEG_CURL", "CALF_RAISE"],
+          "finishedAt": "2026-11-23T01:39:43.715Z"
+        },
+        {
+          "n": 6,
+          "dayName": "Upper 2",
+          "startedAt": "2026-11-23T01:39:43.715Z",
+          "results": {
+            "INCLINE_BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                }
+              ]
+            },
+            "BENT_OVER_ROW": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                },
+                {
+                  "target": 7,
+                  "reps": 7
+                }
+              ]
+            },
+            "MILITARY_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "DUMBBELL_ROW": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "TRICEP_PUSHDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 13,
+                  "reps": 13
+                },
+                {
+                  "target": 13,
+                  "reps": 13
+                }
+              ]
+            },
+            "CURLS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 13,
+                  "reps": 13
+                },
+                {
+                  "target": 13,
+                  "reps": 13
+                }
+              ]
+            }
+          },
+          "order": [
+            "INCLINE_BENCH_PRESS",
+            "BENT_OVER_ROW",
+            "MILITARY_PRESS",
+            "DUMBBELL_ROW",
+            "TRICEP_PUSHDOWN",
+            "CURLS"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.716Z"
+        }
+      ],
+      "nextSession": 7,
+      "draft": null,
+      "needsWeightConfirm": false,
+      "needsWeightConfirmSuspects": [],
+      "legacyChecked": false,
+      "appearance": "system",
+      "hapticsEnabled": true,
+      "dynamicColor": false,
+      "catalogVersion": 4
+    },
+    "version": 3
+  },
+  "expected": {
+    "dayName": "Lower 2",
+    "slots": [
+      {
+        "exercise": "BARBELL_SQUAT",
+        "lift": "BARBELL_SQUAT",
+        "scheme": "3x6-8",
+        "week": null
+      },
+      {
+        "exercise": "ROMANIAN_DEADLIFT",
+        "lift": "ROMANIAN_DEADLIFT",
+        "scheme": "3x6-8",
+        "week": null
+      },
+      {
+        "exercise": "LEG_PRESS",
+        "lift": "LEG_PRESS",
+        "scheme": "2x10-12",
+        "week": null
+      },
+      {
+        "exercise": "LEG_CURL",
+        "lift": "LEG_CURL",
+        "scheme": "2x10-12",
+        "week": null
+      },
+      {
+        "exercise": "CALF_RAISE",
+        "lift": "CALF_RAISE",
+        "scheme": "3x6-8",
+        "week": null
+      }
+    ],
+    "results": {
+      "BARBELL_SQUAT": {
+        "weightKg": 52.5,
+        "sets": [
+          {
+            "target": 6,
+            "reps": 0
+          },
+          {
+            "target": 6,
+            "reps": 0
+          },
+          {
+            "target": 6,
+            "reps": 0
+          }
+        ]
+      },
+      "ROMANIAN_DEADLIFT": {
+        "weightKg": 52.5,
+        "sets": [
+          {
+            "target": 6,
+            "reps": 0
+          },
+          {
+            "target": 6,
+            "reps": 0
+          },
+          {
+            "target": 6,
+            "reps": 0
+          }
+        ]
+      },
+      "LEG_PRESS": {
+        "weightKg": 5,
+        "sets": [
+          {
+            "target": 12,
+            "reps": 0
+          },
+          {
+            "target": 12,
+            "reps": 0
+          }
+        ]
+      },
+      "LEG_CURL": {
+        "weightKg": 2.5,
+        "sets": [
+          {
+            "target": 12,
+            "reps": 0
+          },
+          {
+            "target": 12,
+            "reps": 0
+          }
+        ]
+      },
+      "CALF_RAISE": {
+        "weightKg": 5,
+        "sets": [
+          {
+            "target": 6,
+            "reps": 0
+          },
+          {
+            "target": 6,
+            "reps": 0
+          },
+          {
+            "target": 6,
+            "reps": 0
+          }
+        ]
+      }
+    }
+  }
+}

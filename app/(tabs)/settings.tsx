@@ -1,11 +1,15 @@
 import { router } from 'expo-router';
-import { Alert, Share, View } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import { Alert, Platform, Share, View } from 'react-native';
+import { GymEquipment } from '../../src/components/GymEquipment';
 import { GymSettings } from '../../src/components/GymSettings';
 import { haptics } from '../../src/design/haptics';
 import { dynamicColorSupported, useTheme } from '../../src/design/theme';
 import { TEMPLATES } from '../../src/domain';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
+import { SiriCard } from '../../src/intents/SiriCard';
 import { goHome } from '../../src/navigation';
+import { listCopies } from '../../src/storage';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ListRow } from '../../src/ui/ListRow';
@@ -15,23 +19,48 @@ import { Section } from '../../src/ui/Section';
 import { SegmentedControl } from '../../src/ui/SegmentedControl';
 import { Text } from '../../src/ui/Text';
 
-/** Attribution for exercise photos under licences that require it; full list in assets/CREDITS.md. */
-const PHOTO_CREDITS = [
-  '"Close-up Hand holding dumbbell in gym" and "Young man using a leg press machine at the gym" by Nenad Stojkovic, CC BY 2.0, via Wikimedia Commons.',
-  'Cable machine and bench photos by Rashed Hossain and lat pulldown photo by Teddyhtsai, CC0.',
-  'Photos are cropped, blurred and recoloured.',
-].join('\n\n');
+/** Copies of the data kept when it could not be read, before a restore or reset replaced it, or before an upgrade. */
+function KeptCopies() {
+  const files = listCopies();
+  if (files.length === 0) return null;
+  return (
+    <>
+      <Text variant="caption" color="textMuted">
+        Copies of your data kept on this device, newest first:
+      </Text>
+      {files.map((file) => (
+        <Button
+          key={file.uri}
+          title={`Export ${file.name}`}
+          variant="secondary"
+          icon="share"
+          onPress={() => {
+            void Sharing.isAvailableAsync().then((ok) =>
+              ok
+                ? Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: file.name })
+                : Alert.alert('Sharing is not available', 'This device cannot share files.'),
+            );
+          }}
+        />
+      ))}
+    </>
+  );
+}
 
 function devSeed() {
   const fixture: unknown = require('../../src/dev/v1-imperial.json');
   const { reset, importLegacy } = useStore.getState();
-  reset();
-  void importLegacy(JSON.stringify(fixture)).then(goHome);
+  // The first version's data replaces the sessions: only once reset has kept a copy of the data.
+  void reset().then(async (failed) => {
+    if (failed) return Alert.alert('Nothing was reset', failed);
+    await importLegacy(JSON.stringify(fixture));
+    goHome();
+  });
 }
 
-function devFastForward(reps = 8) {
-  const { nextSession, startSession, logSet, finishSession } = useStore.getState();
-  const draft = startSession(nextSession);
+function devFastForward(programId: string, reps = 8) {
+  const { startSession, logSet, finishSession } = useStore.getState();
+  const draft = startSession(programId);
   for (const id of draft.order) {
     draft.results[id].sets.forEach((_s, i) => {
       logSet(id, i, reps);
@@ -44,11 +73,12 @@ function devFastForward(reps = 8) {
 function devSeedHistory() {
   const days = 90;
   const s = useStore.getState();
-  if (!s.program) s.setProgram(TEMPLATES.base);
-  const perWeek = useStore.getState().program?.sessionsPerWeek ?? 3;
+  const programId =
+    s.programs.find((p) => !p.paused)?.id ?? s.addProgram({ ...TEMPLATES.base, name: 'Greyskull LP' });
+  const perWeek = useStore.getState().programs.find((p) => p.id === programId)?.sessionsPerWeek ?? 3;
   const count = Math.round((days / 7) * perWeek);
   const first = useStore.getState().sessions.length;
-  for (let i = 0; i < count; i++) devFastForward(i % 9 >= 6 ? 3 : 5 + (i % 3));
+  for (let i = 0; i < count; i++) devFastForward(programId, i % 9 >= 6 ? 3 : 5 + (i % 3));
   const now = Date.now();
   useStore.setState((st) => ({
     sessions: st.sessions.map((log, i) => {
@@ -68,6 +98,7 @@ export default function Settings() {
   const appearance = useStore((s) => s.appearance);
   const hapticsEnabled = useStore((s) => s.hapticsEnabled);
   const dynamicColor = useStore((s) => s.dynamicColor);
+  const healthSync = useStore((s) => s.healthSync);
   const { setUnit, setInventory, setSettings, reset, exportJson } = useStore.getState();
 
   const confirmReset = () => {
@@ -78,8 +109,8 @@ export default function Settings() {
         text: 'Reset',
         style: 'destructive',
         onPress: () => {
-          reset();
-          goHome();
+          // A copy of the data is kept first; when that fails nothing is reset and the reason is shown.
+          void reset().then((failed) => (failed ? Alert.alert('Nothing was reset', failed) : goHome()));
         },
       },
     ]);
@@ -98,6 +129,8 @@ export default function Settings() {
         onUnitChange={setUnit}
         onInventoryChange={setInventory}
       />
+
+      <GymEquipment unit={unit} inventory={inventory} onInventoryChange={setInventory} />
 
       <Section label="Workout" card>
         <ListRow
@@ -149,6 +182,16 @@ export default function Settings() {
         />
       </Section>
 
+      <Section label="Health" card>
+        <ListRow
+          title={Platform.OS === 'ios' ? 'Apple Health' : 'Health Connect'}
+          subtitle="Save finished workouts"
+          value={healthSync ? 'On' : 'Off'}
+          accessory="chevron"
+          onPress={() => router.push('/settings/health')}
+        />
+      </Section>
+
       <Section label="Data">
         <Button
           title="Export backup"
@@ -168,21 +211,27 @@ export default function Settings() {
             ])
           }
         />
+        <KeptCopies />
         <Button title="Reset" variant="destructive" onPress={confirmReset} />
       </Section>
 
+      {Platform.OS === 'ios' ? <SiriCard /> : null}
+
       <Section label="About" card>
-        <ListRow
-          title="Photo credits"
-          accessory="chevron"
-          onPress={() => Alert.alert('Photo credits', PHOTO_CREDITS)}
-        />
+        <ListRow title="Credits" accessory="chevron" onPress={() => router.push('/credits')} />
       </Section>
 
       {__DEV__ ? (
         <Section label="Developer">
           <Button title="Seed v1 data" variant="secondary" onPress={devSeed} />
-          <Button title="Fast-forward" variant="secondary" onPress={() => devFastForward()} />
+          <Button
+            title="Fast-forward"
+            variant="secondary"
+            onPress={() => {
+              const id = useStore.getState().programs.find((p) => !p.paused)?.id;
+              if (id) devFastForward(id);
+            }}
+          />
           <Button title="Seed 3 months of workouts" variant="secondary" onPress={devSeedHistory} />
           <Button title="Design gallery" variant="secondary" onPress={() => router.push('/gallery')} />
         </Section>

@@ -107,7 +107,15 @@ export function NumberStepper({
           // Screen readers adjust with swipe up/down instead of hunting for the +/− buttons.
           accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
           onAccessibilityAction={(e) => step(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
-          style={{ minWidth: inline ? 72 : 112, textAlign: 'center' }}
+          // A fixed width and tabular digits: the buttons must not move as the number changes (a long value shrinks).
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.6}
+          style={{
+            width: inline ? 96 : size === 'lg' ? 184 : 120,
+            textAlign: 'center',
+            fontVariant: ['tabular-nums'],
+          }}
         >
           {format(value)}
         </Text>

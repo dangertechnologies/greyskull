@@ -7,7 +7,7 @@ import { useStore } from '../store';
 import { Text } from '../ui/Text';
 
 /** A logged workout in Today's "Recent" and in History: tap to edit; skipped ones are muted. */
-export function WorkoutRow({ log }: { log: SessionLog }) {
+export function WorkoutRow({ log, programName }: { log: SessionLog; programName?: string }) {
   const exercises = useStore((s) => s.exercises);
   const unit = useStore((s) => s.unit);
   const t = useTheme();
@@ -21,7 +21,7 @@ export function WorkoutRow({ log }: { log: SessionLog }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Workout ${log.n + 1}, ${log.skipped ? 'skipped' : 'edit'}`}
+      accessibilityLabel={`Workout ${log.n + 1}, ${programName ? `${programName}, ` : ''}${log.skipped ? 'skipped' : 'edit'}`}
       onPress={() => !log.skipped && router.push(`/session/edit/${log.n}`)}
       style={{ paddingVertical: t.space[3], gap: t.space[1] }}
     >

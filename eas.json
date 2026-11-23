@@ -12,10 +12,31 @@
     "production": {
       "channel": "production",
       "autoIncrement": true
+    },
+    "preview-simulator": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "testflight": {
+      "extends": "production",
+      "env": {
+        "GREYSKULL_HEALTHKIT": "off"
+      }
     }
   },
   "submit": {
     "production": {
+      "ios": {
+        "ascAppId": "1449769260",
+        "metadataPath": "./store/store.config.json"
+      },
+      "android": {
+        "track": "internal"
+      }
+    },
+    "testflight": {
       "ios": {
         "ascAppId": "1449769260",
         "metadataPath": "./store/store.config.json"

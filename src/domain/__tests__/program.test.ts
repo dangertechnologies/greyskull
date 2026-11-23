@@ -1,18 +1,23 @@
+import { active } from '../../__fixtures__/oneProgram';
 import { builtInExercises } from '../../catalog';
 import { PLANS } from '../../config/plans';
 import {
   PLUGINS,
+  parseProgram,
   parseScheme,
+  SCHEME_LIMITS,
+  schemeProblem,
   sessionFor,
   setTargets,
   TEMPLATES,
   tryParseScheme,
   validateProgram,
+  validateProgramByDay,
 } from '../program';
-import type { Program } from '../types';
+import { type Day, DEFAULT_RULES, type Program, type Slot } from '../types';
 
 const ex = builtInExercises();
-const ids = (p: Program, n: number) => sessionFor(p, n).slots.map((s) => s.exercise);
+const ids = (p: Program, n: number) => sessionFor(active(p, n)).slots.map((s) => s.exercise);
 const short = (p: Program, n: number) => ids(p, n).map((id) => ex[id].shortName);
 
 test('base template: press/bench alternate, squat sessions 0 and 2, deadlift once in 3', () => {
@@ -29,7 +34,7 @@ test('base template: press/bench alternate, squat sessions 0 and 2, deadlift onc
 });
 
 test('phrak template: A B A B…, deadlift only on B', () => {
-  const days = [0, 1, 2, 3, 4, 5].map((n) => sessionFor(TEMPLATES.phrak, n).dayName);
+  const days = [0, 1, 2, 3, 4, 5].map((n) => sessionFor(active(TEMPLATES.phrak, n)).dayName);
   expect(days).toEqual(['A', 'B', 'A', 'B', 'A', 'B']);
   const dl = [0, 1, 2, 3, 4, 5].filter((n) => ids(TEMPLATES.phrak, n).includes('DEADLIFT'));
   expect(dl).toEqual([1, 3, 5]);
@@ -48,11 +53,17 @@ test('sessionFor is O(1)-correct for large n and works with a single day', () =>
 });
 
 test('parseScheme and setTargets', () => {
-  expect(parseScheme('2x5+')).toEqual({ sets: 2, reps: 5, repsMax: null, amrap: true });
-  expect(parseScheme('2xAMRAP')).toEqual({ sets: 2, reps: null, repsMax: null, amrap: true });
-  expect(parseScheme('3x8')).toEqual({ sets: 3, reps: 8, repsMax: null, amrap: false });
-  expect(parseScheme('5x5')).toEqual({ sets: 5, reps: 5, repsMax: null, amrap: false });
-  expect(parseScheme('2x8-12')).toEqual({ sets: 2, reps: 8, repsMax: 12, amrap: false });
+  expect(parseScheme('2x5+')).toEqual({ sets: 2, reps: 5, repsMax: null, amrap: true, timed: false });
+  expect(parseScheme('2xAMRAP')).toEqual({ sets: 2, reps: null, repsMax: null, amrap: true, timed: false });
+  expect(parseScheme('3x8')).toEqual({ sets: 3, reps: 8, repsMax: null, amrap: false, timed: false });
+  expect(parseScheme('5x5')).toEqual({ sets: 5, reps: 5, repsMax: null, amrap: false, timed: false });
+  expect(parseScheme('2x8-12')).toEqual({ sets: 2, reps: 8, repsMax: 12, amrap: false, timed: false });
+  expect(parseScheme('3x30s')).toEqual({ sets: 3, reps: 30, repsMax: null, amrap: false, timed: true });
+  expect(parseScheme('3x10-30s')).toEqual({ sets: 3, reps: 10, repsMax: 30, amrap: false, timed: true });
+  for (const bad of ['3x5+s', '3xAMRAPs', '3x0s', '3x30-10s', '3x10s-30s', '3x30S'])
+    expect(tryParseScheme(bad)).toBeNull();
+  expect(setTargets('3x10-30s', 15)).toEqual([15, 15, 15]);
+  expect(setTargets('2x30s')).toEqual([30, 30]);
   expect(tryParseScheme('2x12-8')).toBeNull();
   expect(tryParseScheme('0x5')).toBeNull();
   expect(tryParseScheme('banana')).toBeNull();
@@ -107,5 +118,317 @@ describe('plugins', () => {
     const rows = PLUGINS.rows_instead_of_chins.apply(TEMPLATES.phrak);
     expect(rows.days[0].slots[0].exercise).toBe('BENT_OVER_ROW');
     expect(rows.days[1].slots[0].exercise).toBe('CHINUPS');
+  });
+});
+
+describe('parseProgram', () => {
+  const copy = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+  test.each(PLANS.map((p) => [p.id, p.program] as const))('%s passes through unchanged', (_id, program) => {
+    expect(parseProgram(copy(program))).toEqual({ ok: true, program });
+  });
+
+  test('keeps ladders and groups, drops unknown fields', () => {
+    const input = {
+      template: 'custom',
+      sessionsPerWeek: 3,
+      rules: { ...DEFAULT_RULES, extra: 1 },
+      days: [
+        {
+          name: 'A',
+          note: 'dropped',
+          groups: [{ id: 'a', kind: 'superset', restS: 90, colour: 'red' }],
+          slots: [
+            { exercise: 'CAL_SCAPULAR_PULL', scheme: '3x5-8', ladder: 'rr_pullup', group: 'a', x: 1 },
+            { exercise: 'DIPS', scheme: '3x5', group: 'a' },
+          ],
+        },
+      ],
+    };
+    const parsed = parseProgram(input);
+    expect(parsed).toEqual({
+      ok: true,
+      program: {
+        template: 'custom',
+        sessionsPerWeek: 3,
+        rules: DEFAULT_RULES,
+        days: [
+          {
+            name: 'A',
+            groups: [{ id: 'a', kind: 'superset', restS: 90 }],
+            slots: [
+              { exercise: 'CAL_SCAPULAR_PULL', scheme: '3x5-8', ladder: 'rr_pullup', group: 'a' },
+              { exercise: 'DIPS', scheme: '3x5', group: 'a' },
+            ],
+          },
+        ],
+      },
+    });
+  });
+
+  const valid = () =>
+    copy(TEMPLATES.base) as unknown as Record<string, unknown> & { days: Record<string, unknown>[] };
+  const slotOf = (p: ReturnType<typeof valid>) => (p.days[0].slots as Record<string, unknown>[])[0];
+  type Valid = ReturnType<typeof valid>;
+  const day = (patch: Record<string, unknown>) => (p: Valid) => {
+    Object.assign(p.days[0], patch);
+    return p;
+  };
+  const slot = (patch: Record<string, unknown>) => (p: Valid) => {
+    Object.assign(slotOf(p), patch);
+    return p;
+  };
+  type Row = [string, (p: Valid) => unknown];
+  const rows: Row[] = [
+    ['not an object', () => 'banana'],
+    ['null', () => null],
+    ['an array', () => []],
+    ['no days', (p) => ({ ...p, days: undefined })],
+    ['days is not a list', (p) => ({ ...p, days: {} })],
+    ['no days at all', (p) => ({ ...p, days: [] })],
+    ['15 days', (p) => ({ ...p, days: Array.from({ length: 15 }, () => p.days[0]) })],
+    [
+      '21 slots in a day',
+      (p) => {
+        p.days[0].slots = Array.from({ length: 21 }, () => slotOf(p));
+        return p;
+      },
+    ],
+    ['a day without a name', day({ name: 7 })],
+    ['an exercise that is a number', slot({ exercise: 5 })],
+    ['a pair of three', slot({ exercise: ['A', 'B', 'C'] })],
+    ['a scheme that is not text', slot({ scheme: 5 })],
+    ['stages that are not a list', slot({ stages: '3x5' })],
+    ['a group of an unknown kind', day({ groups: [{ id: 'a', kind: 'tabata' }] })],
+    ['a group rest that is text', day({ groups: [{ id: 'a', kind: 'superset', restS: '90' }] })],
+    ['no rules', (p) => ({ ...p, rules: undefined })],
+    ['rules with text numbers', (p) => ({ ...p, rules: { ...DEFAULT_RULES, doubleAt: '10' } })],
+    [
+      'an increment without pounds',
+      (p) => ({ ...p, rules: { ...DEFAULT_RULES, increments: { X: { kg: 1 } } } }),
+    ],
+    ['sessions per week that is text', (p) => ({ ...p, sessionsPerWeek: '3' })],
+    ['a very long name', day({ name: 'x'.repeat(1000) })],
+    ['an intensity that is text', day({ intensity: '0.8' })],
+  ];
+  test.each(rows)('rejects %s', (_name, mutate) => {
+    const parsed = parseProgram(mutate(valid()));
+    expect(parsed.ok).toBe(false);
+    if (!parsed.ok) expect(parsed.error).toEqual(expect.any(String));
+  });
+});
+
+describe('validateProgram: rule ranges and timed schemes', () => {
+  const withRules = (patch: Partial<Program['rules']>): Program => ({
+    ...TEMPLATES.base,
+    rules: { ...TEMPLATES.base.rules, ...patch },
+  });
+  type Row = [string, Partial<Program['rules']>, RegExp | null];
+  const rows: Row[] = [
+    ['doubleAt 1', { doubleAt: 1 }, null],
+    ['doubleAt 50', { doubleAt: 50 }, null],
+    ['doubleAt 0', { doubleAt: 0 }, /double-jump reps/i],
+    ['doubleAt 51', { doubleAt: 51 }, /double-jump reps/i],
+    ['doubleAt 7.5', { doubleAt: 7.5 }, /double-jump reps/i],
+    ['deloadPct 0', { deloadPct: 0 }, null],
+    ['deloadPct 0.5', { deloadPct: 0.5 }, null],
+    ['deloadPct -0.1', { deloadPct: -0.1 }, /deload/],
+    ['deloadPct 0.6', { deloadPct: 0.6 }, /deload/],
+    ['deloadPct NaN', { deloadPct: Number.NaN }, /deload/],
+    ['failsBeforeDeload 0', { failsBeforeDeload: 0 }, null],
+    ['failsBeforeDeload 10', { failsBeforeDeload: 10 }, null],
+    ['failsBeforeDeload 11', { failsBeforeDeload: 11 }, /misses/i],
+    ['failsBeforeDeload 1.5', { failsBeforeDeload: 1.5 }, /misses/i],
+    ['failsBeforeDeload -1', { failsBeforeDeload: -1 }, /misses/i],
+    ['increment 0 and 100', { increments: { BENCH_PRESS: { kg: 0, lb: 100 } } }, null],
+    ['increment above 100', { increments: { BENCH_PRESS: { kg: 101, lb: 5 } } }, /increment/],
+    ['negative increment', { increments: { BENCH_PRESS: { kg: 2.5, lb: -5 } } }, /increment/],
+    [
+      'infinite increment',
+      { increments: { BENCH_PRESS: { kg: Number.POSITIVE_INFINITY, lb: 5 } } },
+      /increment/,
+    ],
+  ];
+  test.each(rows)('%s', (_name, patch, error) => {
+    const errors = validateProgram(withRules(patch), ex).join('\n');
+    if (error) expect(errors).toMatch(error);
+    else expect(errors).toBe('');
+  });
+
+  const plank = (
+    progression?: Program['rules']['progression'],
+    scheme: Program['days'][0]['slots'][0]['scheme'] = '3x30s',
+  ) =>
+    ({
+      template: 'custom',
+      sessionsPerWeek: 3,
+      rules: DEFAULT_RULES,
+      days: [
+        { name: 'A', slots: [{ exercise: 'CAL_PLANK', scheme, ...(progression ? { progression } : {}) }] },
+      ],
+    }) as Program;
+  test('a timed scheme is rejected under AMRAP, 5/3/1 and stages', () => {
+    expect(validateProgram(plank(), ex).join()).toMatch(/timed scheme 3x30s cannot use amrap/);
+    expect(validateProgram(plank('amrap'), ex).join()).toMatch(/cannot use amrap/);
+    expect(validateProgram(plank('531'), ex).join()).toMatch(/cannot use 531/);
+    expect(
+      validateProgram({ ...plank(), rules: { ...DEFAULT_RULES, progression: 'amrap' } }, ex).join(),
+    ).toMatch(/cannot use amrap/);
+  });
+  test('a timed scheme is allowed under linear (fixed hold), double (range) and ladders', () => {
+    expect(validateProgram(plank('linear'), ex)).toEqual([]);
+    expect(validateProgram(plank('double', '3x10-30s'), ex)).toEqual([]);
+    expect(
+      validateProgram(
+        {
+          ...plank(),
+          days: [
+            { name: 'A', slots: [{ exercise: 'CAL_PLANK', scheme: '3x5-8', ladder: 'rr_antiextension' }] },
+          ],
+        },
+        ex,
+      ),
+    ).toEqual([]);
+  });
+});
+
+test('parseProgram keeps only known rule and increment fields', () => {
+  const junk = 'x'.repeat(100_000);
+  const input = {
+    ...JSON.parse(JSON.stringify(TEMPLATES.base)),
+    junk,
+    rules: { ...DEFAULT_RULES, junk, increments: { BENCH_PRESS: { kg: 2.5, lb: 5, junk } } },
+  };
+  const parsed = parseProgram(input);
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) return;
+  expect(JSON.stringify(parsed.program)).not.toContain('xxxx');
+  expect(parsed.program.rules).toEqual({ ...DEFAULT_RULES, increments: { BENCH_PRESS: { kg: 2.5, lb: 5 } } });
+});
+
+describe('validateProgram: names every object has are not exercises, ladders or lift keys', () => {
+  const catalog = builtInExercises();
+  const one = (slot: Slot): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES },
+    days: [{ name: 'A', slots: [slot] }],
+  });
+  test.each(['constructor', '__proto__', 'toString', 'hasOwnProperty'])('%s', (id) => {
+    expect(validateProgram(one({ exercise: id, scheme: '3x5' }), catalog).join()).toMatch(/unknown exercise/);
+    expect(validateProgram(one({ exercise: ['BENCH_PRESS', id], scheme: '3x5' }), catalog).join()).toMatch(
+      /unknown exercise/,
+    );
+    expect(
+      validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', ladder: id }), catalog).join(),
+    ).toMatch(/unknown ladder/);
+    expect(
+      validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', lift: id }), catalog).join(),
+    ).toMatch(/lift .* must start with the exercise id BENCH_PRESS/);
+    expect(
+      validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', lift: 'BENCH_PRESS@T2' }), catalog),
+    ).toEqual([]);
+  });
+});
+
+describe('validateProgram: the same limits the importer has', () => {
+  const catalog = builtInExercises();
+  const day = (name: string, n = 1): Day => ({
+    name,
+    slots: Array.from({ length: n }, (_, i) => ({
+      exercise: ['BENCH_PRESS', 'DEADLIFT', 'DIPS', 'CHINUPS', 'CURLS'][i % 5],
+      scheme: '3x5' as const,
+    })),
+  });
+  const prog = (days: Day[]): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES },
+    days,
+  });
+
+  test('at most 14 days', () => {
+    const fine = prog(Array.from({ length: 14 }, (_, i) => day(`D${i}`)));
+    expect(validateProgram(fine, catalog)).toEqual([]);
+    expect(validateProgram(prog([...fine.days, day('D15')]), catalog).join()).toMatch(/at most 14 days/);
+  });
+
+  test('a day name of 1 to 100 letters', () => {
+    expect(validateProgram(prog([day('x'.repeat(100))]), catalog)).toEqual([]);
+    expect(validateProgram(prog([day('x'.repeat(101))]), catalog).join()).toMatch(/Day 1 needs a name/);
+    expect(validateProgram(prog([day('')]), catalog).join()).toMatch(/Day 1 needs a name/);
+    expect(validateProgram(prog([day('   ')]), catalog).join()).toMatch(/Day 1 needs a name/);
+  });
+
+  test('at most 20 exercises a day, and ids of at most 100 letters', () => {
+    const many = day('A', 21);
+    many.slots = many.slots.map((s, i) => ({ ...s, exercise: `custom_e${i}` }));
+    const cat = {
+      ...catalog,
+      ...Object.fromEntries(many.slots.map((s) => [s.exercise, { ...catalog.BENCH_PRESS, id: s.exercise }])),
+    };
+    expect(validateProgram(prog([many]), cat).join()).toMatch(/at most 20 exercises/);
+    const long = `custom_${'a'.repeat(100)}`;
+    const withLong = { ...catalog, [long]: { ...catalog.BENCH_PRESS, id: long } };
+    expect(
+      validateProgram(prog([{ name: 'A', slots: [{ exercise: long, scheme: '3x5' }] }]), withLong).join(),
+    ).toMatch(/too long/);
+  });
+
+  test('each message says which day it belongs to, by position', () => {
+    const p = prog([day('Same'), { name: 'Same', slots: [] }]);
+    const { errors, days } = validateProgramByDay(p, catalog);
+    expect(errors).toEqual(['Same has no exercises.']);
+    expect(days).toEqual([1]);
+    const g = prog([day(''), day('B')]);
+    expect(validateProgramByDay(g, catalog).days).toEqual([0]);
+    const general = { ...prog([day('A')]), sessionsPerWeek: 9 };
+    expect(validateProgramByDay(general, catalog).days).toEqual([null]);
+  });
+});
+
+describe('scheme limits', () => {
+  const one = (slot: Partial<Slot>): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES, progression: 'linear' },
+    days: [{ name: 'A', slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5', ...slot } as Slot] }],
+  });
+
+  test('a scheme may ask for no more than the scheme editor offers', () => {
+    expect(SCHEME_LIMITS).toEqual({ sets: 20, reps: 30, repsMax: 40, seconds: 300, secondsMax: 600 });
+    for (const ok of ['20x5', '3x30', '3x10-40', '20xAMRAP', '3x30+', '3x300s', '3x10-600s'])
+      expect([ok, schemeProblem(ok)]).toEqual([ok, null]);
+    for (const bad of [
+      '100000000x8-12',
+      '21x5',
+      '3x31',
+      '3x10-41',
+      '3x31-40',
+      '3x301s',
+      '3x10-601s',
+      '21xAMRAP',
+    ])
+      expect(schemeProblem(bad)).toMatch(/too/);
+    expect(schemeProblem('nonsense')).toMatch(/unknown scheme/);
+  });
+
+  test('validateProgram refuses a scheme or a stage over the limits, and a huge advanceAt', () => {
+    expect(validateProgram(one({ scheme: '100000000x8-12' as never }), ex)).toEqual([
+      'A: scheme 100000000x8-12 is too much: at most 20 sets of 30 reps (a range up to 40).',
+    ]);
+    const staged = one({ scheme: '3x5', stages: ['3x5', '99x3'] as never, progression: 'stages' });
+    expect(validateProgram(staged, ex).join(' ')).toMatch(/99x3 is too much/);
+    expect(validateProgram(one({ advanceAt: 1e9 }), ex)).toEqual(['A: invalid advanceAt.']);
+    expect(validateProgram(one({ advanceAt: Number.NaN }), ex)).toEqual(['A: invalid advanceAt.']);
+  });
+
+  test('a huge scheme passes the structural parse but never validateProgram', () => {
+    const parsed = parseProgram(one({ scheme: '100000000x8-12' as never }));
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(validateProgram(parsed.program, ex).join(' ')).toMatch(/too much/);
+  });
+
+  test('every built-in plan stays within the limits', () => {
+    for (const plan of PLANS) expect([plan.id, validateProgram(plan.program, ex)]).toEqual([plan.id, []]);
   });
 });

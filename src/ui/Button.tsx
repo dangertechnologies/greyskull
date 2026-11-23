@@ -69,7 +69,12 @@ export function Button({
     >
       <View style={[styles.row, { gap: t.space[2] }]}>
         {icon ? <Icon name={icon} color={fg} /> : null}
-        <Text variant={size === 'lg' ? 'headline' : 'bodyStrong'} color={fg}>
+        <Text
+          variant={size === 'lg' ? 'headline' : 'bodyStrong'}
+          color={fg}
+          align="center"
+          style={styles.title}
+        >
           {title}
         </Text>
       </View>
@@ -79,5 +84,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: { alignItems: 'center', justifyContent: 'center', alignSelf: 'stretch' },
-  row: { flexDirection: 'row', alignItems: 'center' },
+  // A title that wraps at large text stays centred, and the button grows with it.
+  row: { flexDirection: 'row', alignItems: 'center', flexShrink: 1, paddingVertical: 12 },
+  title: { flexShrink: 1 },
 });

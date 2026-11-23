@@ -1,0 +1,799 @@
+{
+  "persisted": {
+    "state": {
+      "version": 2,
+      "unit": "kg",
+      "inventory": {
+        "barKg": 20,
+        "platesKg": [25, 20, 15, 10, 5, 2.5, 1.25],
+        "barLb": 45,
+        "platesLb": [45, 35, 25, 10, 5, 2.5]
+      },
+      "minimalist": false,
+      "restSeconds": 90,
+      "exercises": {},
+      "program": {
+        "template": "gzclp",
+        "sessionsPerWeek": 4,
+        "rules": {
+          "doubleAt": 10,
+          "deloadPct": 0.15,
+          "failsBeforeDeload": 1,
+          "warmups": true,
+          "progression": "stages",
+          "increments": {
+            "BENCH_PRESS": {
+              "kg": 2.5,
+              "lb": 5
+            },
+            "MILITARY_PRESS": {
+              "kg": 2.5,
+              "lb": 5
+            },
+            "BARBELL_SQUAT": {
+              "kg": 5,
+              "lb": 10
+            },
+            "DEADLIFT": {
+              "kg": 5,
+              "lb": 10
+            },
+            "LAT_PULLDOWN": {
+              "kg": 2.5,
+              "lb": 5
+            },
+            "DUMBBELL_ROW": {
+              "kg": 2.5,
+              "lb": 5
+            }
+          }
+        },
+        "days": [
+          {
+            "name": "Day 1",
+            "slots": [
+              {
+                "exercise": "BARBELL_SQUAT",
+                "scheme": "5x3+",
+                "stages": ["5x3+", "6x2+", "10x1+"]
+              },
+              {
+                "exercise": "BENCH_PRESS",
+                "lift": "BENCH_PRESS@T2",
+                "scheme": "3x10",
+                "stages": ["3x10", "3x8", "3x6"]
+              },
+              {
+                "exercise": "LAT_PULLDOWN",
+                "progression": "linear",
+                "scheme": "3x15+",
+                "stages": ["3x15+"],
+                "advanceAt": 25
+              }
+            ]
+          },
+          {
+            "name": "Day 2",
+            "slots": [
+              {
+                "exercise": "MILITARY_PRESS",
+                "scheme": "5x3+",
+                "stages": ["5x3+", "6x2+", "10x1+"]
+              },
+              {
+                "exercise": "DEADLIFT",
+                "lift": "DEADLIFT@T2",
+                "scheme": "3x10",
+                "stages": ["3x10", "3x8", "3x6"]
+              },
+              {
+                "exercise": "DUMBBELL_ROW",
+                "progression": "linear",
+                "scheme": "3x15+",
+                "stages": ["3x15+"],
+                "advanceAt": 25
+              }
+            ]
+          },
+          {
+            "name": "Day 3",
+            "slots": [
+              {
+                "exercise": "BENCH_PRESS",
+                "scheme": "5x3+",
+                "stages": ["5x3+", "6x2+", "10x1+"]
+              },
+              {
+                "exercise": "BARBELL_SQUAT",
+                "lift": "BARBELL_SQUAT@T2",
+                "scheme": "3x10",
+                "stages": ["3x10", "3x8", "3x6"]
+              },
+              {
+                "exercise": "LAT_PULLDOWN",
+                "progression": "linear",
+                "scheme": "3x15+",
+                "stages": ["3x15+"],
+                "advanceAt": 25
+              }
+            ]
+          },
+          {
+            "name": "Day 4",
+            "slots": [
+              {
+                "exercise": "DEADLIFT",
+                "scheme": "5x3+",
+                "stages": ["5x3+", "6x2+", "10x1+"]
+              },
+              {
+                "exercise": "MILITARY_PRESS",
+                "lift": "MILITARY_PRESS@T2",
+                "scheme": "3x10",
+                "stages": ["3x10", "3x8", "3x6"]
+              },
+              {
+                "exercise": "DUMBBELL_ROW",
+                "progression": "linear",
+                "scheme": "3x15+",
+                "stages": ["3x15+"],
+                "advanceAt": 25
+              }
+            ]
+          }
+        ]
+      },
+      "lifts": {
+        "BARBELL_SQUAT": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 2
+        },
+        "BENCH_PRESS@T2": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 2
+        },
+        "LAT_PULLDOWN": {
+          "weightKg": 2.5,
+          "startKg": 2.5,
+          "fails": 0
+        },
+        "MILITARY_PRESS": {
+          "weightKg": 62.5,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 1
+        },
+        "DEADLIFT@T2": {
+          "weightKg": 65,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 1
+        },
+        "DUMBBELL_ROW": {
+          "weightKg": 2,
+          "startKg": 2,
+          "fails": 1
+        },
+        "BENCH_PRESS": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 2
+        },
+        "BARBELL_SQUAT@T2": {
+          "weightKg": 70,
+          "startKg": 20,
+          "fails": 0
+        },
+        "DEADLIFT": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 1
+        },
+        "MILITARY_PRESS@T2": {
+          "weightKg": 60,
+          "startKg": 20,
+          "fails": 0,
+          "stage": 1
+        }
+      },
+      "sessions": [
+        {
+          "n": 0,
+          "dayName": "Day 1",
+          "startedAt": "2026-11-23T01:39:43.734Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 2
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": null,
+                  "reps": 3
+                }
+              ]
+            },
+            "BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ],
+              "lift": "BENCH_PRESS@T2"
+            },
+            "LAT_PULLDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 14
+                },
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": null,
+                  "reps": 7
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "BENCH_PRESS", "LAT_PULLDOWN"],
+          "finishedAt": "2026-11-23T01:39:43.734Z"
+        },
+        {
+          "n": 1,
+          "dayName": "Day 2",
+          "startedAt": "2026-11-23T01:39:43.734Z",
+          "results": {
+            "MILITARY_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            },
+            "DEADLIFT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ],
+              "lift": "DEADLIFT@T2"
+            },
+            "DUMBBELL_ROW": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": null,
+                  "reps": 11
+                }
+              ]
+            }
+          },
+          "order": ["MILITARY_PRESS", "DEADLIFT", "DUMBBELL_ROW"],
+          "finishedAt": "2026-11-23T01:39:43.734Z"
+        },
+        {
+          "n": 2,
+          "dayName": "Day 3",
+          "startedAt": "2026-11-23T01:39:43.734Z",
+          "results": {
+            "BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 2
+                },
+                {
+                  "target": null,
+                  "reps": 7
+                }
+              ]
+            },
+            "BARBELL_SQUAT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ],
+              "lift": "BARBELL_SQUAT@T2"
+            },
+            "LAT_PULLDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": null,
+                  "reps": 3
+                }
+              ]
+            }
+          },
+          "order": ["BENCH_PRESS", "BARBELL_SQUAT", "LAT_PULLDOWN"],
+          "finishedAt": "2026-11-23T01:39:43.735Z"
+        },
+        {
+          "n": 3,
+          "dayName": "Day 4",
+          "startedAt": "2026-11-23T01:39:43.735Z",
+          "results": {
+            "DEADLIFT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 2
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": null,
+                  "reps": 11
+                }
+              ]
+            },
+            "MILITARY_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 9
+                }
+              ],
+              "lift": "MILITARY_PRESS@T2"
+            },
+            "DUMBBELL_ROW": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            }
+          },
+          "order": ["DEADLIFT", "MILITARY_PRESS", "DUMBBELL_ROW"],
+          "finishedAt": "2026-11-23T01:39:43.735Z"
+        },
+        {
+          "n": 4,
+          "dayName": "Day 1",
+          "startedAt": "2026-11-23T01:39:43.735Z",
+          "results": {
+            "BARBELL_SQUAT": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 1
+                },
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            },
+            "BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 8,
+                  "reps": 8
+                },
+                {
+                  "target": 8,
+                  "reps": 7
+                },
+                {
+                  "target": 8,
+                  "reps": 8
+                }
+              ],
+              "lift": "BENCH_PRESS@T2"
+            },
+            "LAT_PULLDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": 15,
+                  "reps": 14
+                },
+                {
+                  "target": null,
+                  "reps": 7
+                }
+              ]
+            }
+          },
+          "order": ["BARBELL_SQUAT", "BENCH_PRESS", "LAT_PULLDOWN"],
+          "finishedAt": "2026-11-23T01:39:43.736Z"
+        },
+        {
+          "n": 5,
+          "dayName": "Day 2",
+          "startedAt": "2026-11-23T01:39:43.736Z",
+          "results": {
+            "MILITARY_PRESS": {
+              "weightKg": 62.5,
+              "sets": [
+                {
+                  "target": 3,
+                  "reps": 2
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": 3,
+                  "reps": 3
+                },
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            },
+            "DEADLIFT": {
+              "weightKg": 65,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ],
+              "lift": "DEADLIFT@T2"
+            },
+            "DUMBBELL_ROW": {
+              "weightKg": 2,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 14
+                },
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": null,
+                  "reps": 11
+                }
+              ]
+            }
+          },
+          "order": ["MILITARY_PRESS", "DEADLIFT", "DUMBBELL_ROW"],
+          "finishedAt": "2026-11-23T01:39:43.736Z"
+        },
+        {
+          "n": 6,
+          "dayName": "Day 3",
+          "startedAt": "2026-11-23T01:39:43.736Z",
+          "results": {
+            "BENCH_PRESS": {
+              "weightKg": 60,
+              "sets": [
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 2
+                },
+                {
+                  "target": 2,
+                  "reps": 1
+                },
+                {
+                  "target": null,
+                  "reps": 11
+                }
+              ]
+            },
+            "BARBELL_SQUAT": {
+              "weightKg": 65,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ],
+              "lift": "BARBELL_SQUAT@T2"
+            },
+            "LAT_PULLDOWN": {
+              "weightKg": 2.5,
+              "sets": [
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": 15,
+                  "reps": 15
+                },
+                {
+                  "target": null,
+                  "reps": 3
+                }
+              ]
+            }
+          },
+          "order": ["BENCH_PRESS", "BARBELL_SQUAT", "LAT_PULLDOWN"],
+          "finishedAt": "2026-11-23T01:39:43.737Z"
+        }
+      ],
+      "nextSession": 7,
+      "draft": null,
+      "needsWeightConfirm": false,
+      "needsWeightConfirmSuspects": [],
+      "legacyChecked": false,
+      "appearance": "system",
+      "hapticsEnabled": true,
+      "dynamicColor": false,
+      "catalogVersion": 4
+    },
+    "version": 3
+  },
+  "expected": {
+    "dayName": "Day 4",
+    "slots": [
+      {
+        "exercise": "DEADLIFT",
+        "lift": "DEADLIFT",
+        "scheme": "6x2+",
+        "week": null
+      },
+      {
+        "exercise": "MILITARY_PRESS",
+        "lift": "MILITARY_PRESS@T2",
+        "scheme": "3x8",
+        "week": null
+      },
+      {
+        "exercise": "DUMBBELL_ROW",
+        "lift": "DUMBBELL_ROW",
+        "scheme": "3x15+",
+        "week": null
+      }
+    ],
+    "results": {
+      "DEADLIFT": {
+        "weightKg": 60,
+        "sets": [
+          {
+            "target": 2,
+            "reps": 0
+          },
+          {
+            "target": 2,
+            "reps": 0
+          },
+          {
+            "target": 2,
+            "reps": 0
+          },
+          {
+            "target": 2,
+            "reps": 0
+          },
+          {
+            "target": 2,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      },
+      "MILITARY_PRESS": {
+        "weightKg": 60,
+        "sets": [
+          {
+            "target": 8,
+            "reps": 0
+          },
+          {
+            "target": 8,
+            "reps": 0
+          },
+          {
+            "target": 8,
+            "reps": 0
+          }
+        ],
+        "lift": "MILITARY_PRESS@T2"
+      },
+      "DUMBBELL_ROW": {
+        "weightKg": 2,
+        "sets": [
+          {
+            "target": 15,
+            "reps": 0
+          },
+          {
+            "target": 15,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      }
+    }
+  }
+}

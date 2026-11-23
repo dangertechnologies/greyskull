@@ -1,0 +1,246 @@
+{
+  "persisted": {
+    "state": {
+      "version": 2,
+      "unit": "kg",
+      "inventory": {
+        "barKg": 20,
+        "platesKg": [25, 20, 15, 10, 5, 2.5, 1.25],
+        "barLb": 45,
+        "platesLb": [45, 35, 25, 10, 5, 2.5]
+      },
+      "minimalist": false,
+      "restSeconds": 90,
+      "exercises": {},
+      "program": {
+        "template": "base",
+        "sessionsPerWeek": 3,
+        "rules": {
+          "doubleAt": 10,
+          "deloadPct": 0.1,
+          "failsBeforeDeload": 1,
+          "warmups": true
+        },
+        "days": [
+          {
+            "name": "Day 1",
+            "slots": [
+              {
+                "exercise": ["MILITARY_PRESS", "BENCH_PRESS"],
+                "scheme": "2x5+"
+              },
+              {
+                "exercise": "BARBELL_SQUAT",
+                "scheme": "2x5+"
+              }
+            ]
+          },
+          {
+            "name": "Day 2",
+            "slots": [
+              {
+                "exercise": ["MILITARY_PRESS", "BENCH_PRESS"],
+                "scheme": "2x5+"
+              },
+              {
+                "exercise": "DEADLIFT",
+                "scheme": "1x5+"
+              }
+            ]
+          },
+          {
+            "name": "Day 3",
+            "slots": [
+              {
+                "exercise": ["MILITARY_PRESS", "BENCH_PRESS"],
+                "scheme": "2x5+"
+              },
+              {
+                "exercise": "BARBELL_SQUAT",
+                "scheme": "2x5+"
+              }
+            ]
+          }
+        ]
+      },
+      "lifts": {
+        "MILITARY_PRESS": {
+          "weightKg": 22.5,
+          "startKg": 20,
+          "fails": 0
+        },
+        "BENCH_PRESS": {
+          "weightKg": 22.5,
+          "startKg": 20,
+          "fails": 0
+        },
+        "BARBELL_SQUAT": {
+          "weightKg": 82.5,
+          "startKg": 20,
+          "fails": 0
+        },
+        "DEADLIFT": {
+          "weightKg": 22.5,
+          "startKg": 20,
+          "fails": 0
+        }
+      },
+      "sessions": [
+        {
+          "n": 0,
+          "dayName": "Day 1",
+          "startedAt": "2026-11-23T01:39:43.766Z",
+          "results": {
+            "MILITARY_PRESS": {
+              "weightKg": 20,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 4
+                },
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            },
+            "BARBELL_SQUAT": {
+              "weightKg": 80,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 4
+                },
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            }
+          },
+          "order": ["MILITARY_PRESS", "BARBELL_SQUAT"],
+          "finishedAt": "2026-11-23T01:39:43.767Z"
+        },
+        {
+          "n": 1,
+          "dayName": "Day 2",
+          "startedAt": "2026-11-23T01:39:43.767Z",
+          "results": {
+            "BENCH_PRESS": {
+              "weightKg": 20,
+              "sets": [
+                {
+                  "target": 5,
+                  "reps": 5
+                },
+                {
+                  "target": null,
+                  "reps": 7
+                }
+              ]
+            },
+            "DEADLIFT": {
+              "weightKg": 20,
+              "sets": [
+                {
+                  "target": null,
+                  "reps": 5
+                }
+              ]
+            }
+          },
+          "order": ["BENCH_PRESS", "DEADLIFT"],
+          "finishedAt": "2026-11-23T01:39:43.767Z"
+        }
+      ],
+      "nextSession": 2,
+      "draft": {
+        "n": 2,
+        "dayName": "Day 3",
+        "startedAt": "2026-11-23T01:39:43.767Z",
+        "results": {
+          "MILITARY_PRESS": {
+            "weightKg": 22.5,
+            "sets": [
+              {
+                "target": 5,
+                "reps": 5
+              },
+              {
+                "target": null,
+                "reps": 0
+              }
+            ]
+          },
+          "BARBELL_SQUAT": {
+            "weightKg": 82.5,
+            "sets": [
+              {
+                "target": 5,
+                "reps": 0
+              },
+              {
+                "target": null,
+                "reps": 0
+              }
+            ]
+          }
+        },
+        "order": ["MILITARY_PRESS", "BARBELL_SQUAT"]
+      },
+      "needsWeightConfirm": false,
+      "needsWeightConfirmSuspects": [],
+      "legacyChecked": false,
+      "appearance": "system",
+      "hapticsEnabled": true,
+      "dynamicColor": false,
+      "catalogVersion": 4
+    },
+    "version": 3
+  },
+  "expected": {
+    "dayName": "Day 3",
+    "slots": [
+      {
+        "exercise": "MILITARY_PRESS",
+        "lift": "MILITARY_PRESS",
+        "scheme": "2x5+",
+        "week": null
+      },
+      {
+        "exercise": "BARBELL_SQUAT",
+        "lift": "BARBELL_SQUAT",
+        "scheme": "2x5+",
+        "week": null
+      }
+    ],
+    "results": {
+      "MILITARY_PRESS": {
+        "weightKg": 22.5,
+        "sets": [
+          {
+            "target": 5,
+            "reps": 5
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      },
+      "BARBELL_SQUAT": {
+        "weightKg": 82.5,
+        "sets": [
+          {
+            "target": 5,
+            "reps": 0
+          },
+          {
+            "target": null,
+            "reps": 0
+          }
+        ]
+      }
+    }
+  }
+}

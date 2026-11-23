@@ -72,6 +72,8 @@ export const KIND_ICONS: Record<Kind, Pictogram> = {
   barbell: { d: 'M3 16 H29 M7 9 V23 M10.5 11 V21 M21.5 11 V21 M25 9 V23' },
   // Dumbbell on the diagonal.
   dumbbell: { d: 'M11 21 L21 11 M7 19 L13 25 M9.5 16.5 L15.5 22.5 M16.5 9.5 L22.5 15.5 M19 7 L25 13' },
+  // Kettlebell: handle over a round bell.
+  kettlebell: { d: 'M12 13 V9 Q16 3 20 9 V13', rings: [[16, 20, 8]] },
   // Weight stack with its cable.
   machine: { d: 'M16 3 V9 M10 9 H22 V29 H10 Z M10 14 H22 M10 19 H22 M10 24 H22' },
   // Standing figure, arms out.

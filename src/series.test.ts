@@ -1,7 +1,7 @@
 import { builtInExercises } from './catalog';
-import type { SessionLog } from './domain';
+import type { Scheme, SessionLog } from './domain';
 import { toKg } from './domain';
-import { seriesFor } from './series';
+import { chartsAddedLoad, resultFor, seriesFor } from './series';
 
 const ex = builtInExercises();
 const log = (n: number, results: SessionLog['results'], skipped = false): SessionLog => ({
@@ -41,6 +41,13 @@ test('weights per finished session in the chosen unit; skipped sessions are igno
 
 test('bodyweight lifts chart last-set reps', () => {
   expect(seriesFor(sessions, ex.CHINUPS, 'kg')).toEqual([6, 9]);
+  expect(chartsAddedLoad(sessions, ex.CHINUPS)).toBe(false);
+});
+
+test('a bodyweight lift that has carried added load charts the load', () => {
+  const loaded = [...sessions, log(4, { CHINUPS: { weightKg: 5, sets: [{ target: 8, reps: 8 }] } })];
+  expect(chartsAddedLoad(loaded, ex.CHINUPS)).toBe(true);
+  expect(seriesFor(loaded, ex.CHINUPS, 'kg')).toEqual([0, 0, 5]);
 });
 
 import { inRange, seriesPoints } from './series';
@@ -109,4 +116,78 @@ test('a 5/3/1 lift charts its training max, not the heaviest set', () => {
     },
   ];
   expect(seriesFor(logs, builtInExercises().BARBELL_SQUAT, 'kg')).toEqual([100]);
+});
+
+describe('ladders and timed results', () => {
+  const at = '2026-01-01T00:00:00.000Z';
+  const ladderLog = (
+    n: number,
+    exercise: string,
+    step: number,
+    scheme: Scheme,
+    reps: number[],
+  ): SessionLog => ({
+    n,
+    dayName: '',
+    startedAt: at,
+    finishedAt: at,
+    order: [exercise],
+    results: {
+      [exercise]: {
+        weightKg: 0,
+        lift: 'rr_pullup',
+        step,
+        scheme,
+        sets: reps.map((r) => ({ target: null, reps: r })),
+        ...(scheme.endsWith('s') ? { timed: true as const } : {}),
+      },
+    },
+  });
+  const all = builtInExercises();
+  const logs = [
+    ladderLog(0, 'CAL_SCAPULAR_PULL', 0, '3x5-8', [5, 5, 4]),
+    ladderLog(1, 'CAL_SCAPULAR_PULL', 0, '3x5-8', [8, 8, 8]),
+    ladderLog(2, 'CAL_ARCH_HANG', 1, '3x10-30s', [20, 18, 15]),
+    ladderLog(3, 'CAL_PULLUP_NEGATIVE', 2, '3x5-8', [6, 5, 5]),
+    ladderLog(4, 'CAL_PULLUP_NEGATIVE', 2, '3x5-8', [3, 2, 2]),
+  ];
+
+  test('resultFor finds a result by its ladder id', () => {
+    expect(resultFor(logs[2], 'rr_pullup')).toBe(logs[2].results.CAL_ARCH_HANG);
+    expect(resultFor(logs[2], 'rr_squat')).toBeUndefined();
+    expect(resultFor(logs[2], 'CAL_ARCH_HANG')).toBeUndefined();
+  });
+
+  test('the value is the step plus how far up its range the best set got', () => {
+    const points = seriesPoints(logs, all.CAL_PULLUP, 'kg', 'rr_pullup', all);
+    expect(points.map((p) => p.value)).toEqual([0, 1, 1.5, 2 + 1 / 3, 2]);
+    expect(points.map((p) => p.label)).toEqual([
+      'Scapular pull · 5 reps',
+      'Scapular pull · 8 reps',
+      'Arch hang · 20 s',
+      'Pull-up negative · 6 reps',
+      'Pull-up negative · 3 reps',
+    ]);
+    expect(points.map((p) => p.pr)).toEqual([true, true, true, true, false]);
+  });
+
+  test('a fixed ladder scheme counts as done once the target is met', () => {
+    const fixed = [
+      ladderLog(0, 'CAL_SCAPULAR_PULL', 0, '3x5', [5, 5, 5]),
+      ladderLog(1, 'CAL_SCAPULAR_PULL', 0, '3x5', [4, 4, 4]),
+    ];
+    expect(seriesFor(fixed, all.CAL_PULLUP, 'kg', 'rr_pullup')).toEqual([1, 0]);
+  });
+
+  test('timed results are labelled in seconds', () => {
+    const plank: SessionLog = {
+      n: 0,
+      dayName: '',
+      startedAt: at,
+      finishedAt: at,
+      order: ['CAL_PLANK'],
+      results: { CAL_PLANK: { weightKg: 0, timed: true, sets: [{ target: 30, reps: 45 }] } },
+    };
+    expect(seriesPoints([plank], all.CAL_PLANK, 'kg')).toMatchObject([{ value: 45, label: '45 s' }]);
+  });
 });

@@ -2,7 +2,9 @@ import { requireOptionalNativeModule } from 'expo';
 import type { LiveActivity } from 'expo-widgets';
 import { Platform } from 'react-native';
 import type { AppState } from '../domain';
-import { type NextWorkoutProps, nextWorkoutProps, type RestProps, restProps } from './summary';
+import { watchTimers } from '../timers/owner';
+import type { TimerProps } from './definitions';
+import { type NextWorkoutProps, nextWorkoutProps, restProps } from './summary';
 
 type Definitions = typeof import('./definitions');
 
@@ -44,11 +46,20 @@ export function syncNextWorkout(state: Parameters<typeof nextWorkoutProps>[0]): 
   return props;
 }
 
-let activity: LiveActivity<RestProps> | null = null;
+/** The one Live Activity, and whose it is: a rest countdown or an EMOM / interval timer. */
+let activity: LiveActivity<TimerProps> | null = null;
+let owner: 'rest' | 'timer' | null = null;
+
+function end(): void {
+  const current = activity;
+  activity = null;
+  owner = null;
+  if (current) void current.end('immediate').catch(() => undefined);
+}
 
 /** Show the rest countdown on the Lock Screen and in the Dynamic Island. */
 export function startRestActivity(label: string, seconds: number): void {
-  endRestActivity();
+  end();
   try {
     activity =
       load()?.restActivity.start(
@@ -56,15 +67,38 @@ export function startRestActivity(label: string, seconds: number): void {
         undefined,
         new Date(Date.now() + seconds * 1000 + 60_000),
       ) ?? null;
+    owner = activity ? 'rest' : null;
   } catch {
-    activity = null; // e.g. Live Activities switched off in iOS settings
+    end(); // e.g. Live Activities switched off in iOS settings
   }
 }
 
+/** End the rest countdown; a timer's activity is left alone. */
 export function endRestActivity(): void {
-  const current = activity;
-  activity = null;
-  if (current) void current.end('immediate').catch(() => undefined);
+  if (owner === 'rest') end();
+}
+
+/**
+ * Show an EMOM or interval timer in the same Live Activity (replacing a rest countdown). `staleAt` is when the
+ * view stops being true without another update (the next boundary), so iOS can dim it.
+ */
+export function showTimerActivity(props: TimerProps, staleAt: number): void {
+  try {
+    if (activity && owner === 'timer') {
+      void activity.update(props, new Date(staleAt)).catch(() => undefined);
+      return;
+    }
+    end();
+    activity = load()?.restActivity.start(props, undefined, new Date(staleAt)) ?? null;
+    owner = activity ? 'timer' : null;
+  } catch {
+    end();
+  }
+}
+
+/** End a timer's activity; a rest countdown is left alone. */
+export function endTimerActivity(): void {
+  if (owner === 'timer') end();
 }
 
 /** Keep the widget in step with the store for the lifetime of the app. Returns the unsubscribe. */
@@ -77,5 +111,10 @@ export function watchStoreForWidgets(store: {
     if (s.hydrated) syncNextWorkout(s);
   };
   run();
-  return store.subscribe(run);
+  const stopTimers = watchTimers(store, { show: showTimerActivity, end: endTimerActivity });
+  const stop = store.subscribe(run);
+  return () => {
+    stop();
+    stopTimers();
+  };
 }

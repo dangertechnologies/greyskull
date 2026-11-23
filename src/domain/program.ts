@@ -1,6 +1,21 @@
 import type { PluginId } from '../config/plans';
 import { PLANS } from '../config/plans';
-import type { Exercise, LiftState, Program, ProgressionModel, Scheme, Slot } from './types';
+import { groupErrors } from './groups';
+import { getLadder, stepIn } from './ladders';
+import { isReservedKey } from './own';
+import type {
+  ActiveProgram,
+  Day,
+  Exercise,
+  Group,
+  GroupKind,
+  LiftState,
+  Program,
+  ResolvedSlot,
+  Rules,
+  Scheme,
+  Slot,
+} from './types';
 
 /** Programs of the built-in plans, by plan id (see src/config/plans.ts). */
 export const TEMPLATES: Record<string, Program> = Object.fromEntries(PLANS.map((p) => [p.id, p.program]));
@@ -50,9 +65,12 @@ export interface ParsedScheme {
   repsMax: number | null;
   /** True when the last set (or every set, for `xAMRAP`) is as many reps as possible. */
   amrap: boolean;
+  /** Held for time (`3x30s`, `3x10-30s`): `reps` and `repsMax` are seconds. */
+  timed: boolean;
 }
 
-const SCHEME_PATTERN = /^(\d+)x(?:(AMRAP)|(\d+)(\+)?|(\d+)-(\d+))$/;
+/** `5x5`, `2x5+`, `2xAMRAP`, `2x8-12`; a trailing `s` on fixed or ranged reps makes them seconds. */
+export const SCHEME_PATTERN = /^(\d+)x(?:(AMRAP)|(\d+)(?:(\+)|(s))?|(\d+)-(\d+)(s)?)$/;
 
 /** Parses a scheme string; null when it is not one the app understands. */
 export function tryParseScheme(s: string): ParsedScheme | null {
@@ -60,11 +78,37 @@ export function tryParseScheme(s: string): ParsedScheme | null {
   if (!m) return null;
   const sets = Number(m[1]);
   if (sets < 1) return null;
-  if (m[2]) return { sets, reps: null, repsMax: null, amrap: true };
-  if (m[3]) return { sets, reps: Number(m[3]), repsMax: null, amrap: m[4] === '+' };
-  const min = Number(m[5]);
-  const max = Number(m[6]);
-  return min >= 1 && max >= min ? { sets, reps: min, repsMax: max, amrap: false } : null;
+  if (m[2]) return { sets, reps: null, repsMax: null, amrap: true, timed: false };
+  if (m[3]) {
+    const timed = m[5] === 's';
+    const reps = Number(m[3]);
+    return timed && reps < 1 ? null : { sets, reps, repsMax: null, amrap: m[4] === '+', timed };
+  }
+  const min = Number(m[6]);
+  const max = Number(m[7]);
+  return min >= 1 && max >= min ? { sets, reps: min, repsMax: max, amrap: false, timed: m[8] === 's' } : null;
+}
+
+/**
+ * The most a scheme may ask for, as the scheme editor allows: sets, reps (fixed or the bottom of a range) and the
+ * top of a range, and the same for seconds held.
+ */
+export const SCHEME_LIMITS = { sets: 20, reps: 30, repsMax: 40, seconds: 300, secondsMax: 600 } as const;
+
+/** Why a scheme cannot be saved (not one the app understands, or more than `limits`), or null. */
+export function schemeProblem(
+  s: string,
+  limits: { [K in keyof typeof SCHEME_LIMITS]: number } = SCHEME_LIMITS,
+): string | null {
+  const p = tryParseScheme(s);
+  if (!p) return `unknown scheme ${String(s).slice(0, 20)}`;
+  const L = limits;
+  const [low, high] = p.timed ? [L.seconds, L.secondsMax] : [L.reps, L.repsMax];
+  if (p.sets > L.sets || (p.reps ?? 0) > low || (p.repsMax ?? 0) > high)
+    return p.timed
+      ? `scheme ${s} is too long: at most ${L.sets} sets of ${low} seconds (a range up to ${high})`
+      : `scheme ${s} is too much: at most ${L.sets} sets of ${low} reps (a range up to ${high})`;
+  return null;
 }
 
 export function parseScheme(s: Scheme): ParsedScheme {
@@ -92,37 +136,48 @@ export interface ResolvedSession {
   dayName: string;
   /** Fraction of working weight for the day (1 unless the plan marks it light/medium). */
   intensity: number;
-  slots: {
-    exercise: string;
-    lift: string;
-    scheme: Scheme;
-    progression: ProgressionModel;
-    stages?: Scheme[];
-    advanceAt?: number;
-    week?: number;
-    lastInWeek?: boolean;
-  }[];
+  slots: ResolvedSlot[];
+  groups?: Group[];
 }
 
 /** Exercise id behind a lift key: `'BARBELL_SQUAT@T2'` → `'BARBELL_SQUAT'`. */
 export const exerciseOfLift = (key: string): string => key.split('@')[0];
 
-/** Alternating pairs use the exercise resolved for this session. */
+/** A ladder slot's lift is the ladder id; alternating pairs use the exercise resolved for this session. */
 export function liftKeyOf(slot: Slot, exercise?: string): string {
-  return slot.lift ?? exercise ?? (typeof slot.exercise === 'string' ? slot.exercise : slot.exercise[0]);
+  return (
+    slot.ladder ??
+    slot.lift ??
+    exercise ??
+    (typeof slot.exercise === 'string' ? slot.exercise : slot.exercise[0])
+  );
 }
 
-/** Which day and exercises session `n` (0-based) is. Pure and derived on demand from the program. */
+/**
+ * The program's next session (day and exercises at `program.position`). Pure and derived on demand.
+ * Days, alternating pairs and 5/3/1 weeks all count from the program's own position.
+ */
 export function sessionFor(
-  program: Program,
-  session: number,
-  lifts: Record<string, LiftState> = {},
+  program: ActiveProgram,
+  lifts: Record<string, LiftState> = program.lifts,
 ): ResolvedSession {
-  // Days, alternating pairs and 5/3/1 weeks count from the session the program started at.
-  const n = Math.max(0, session - (program.startN ?? 0));
+  const n = Math.max(0, program.position);
   const len = program.days.length;
-  const resolve = (at: number) =>
+  const resolve = (at: number): ResolvedSlot[] =>
     program.days[at % len].slots.map((slot) => {
+      const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
+      if (ladder) {
+        const step = stepIn(ladder, lifts[ladder.id]?.step);
+        const { exercise, scheme } = ladder.steps[step];
+        return {
+          ...slot,
+          exercise,
+          lift: ladder.id,
+          scheme: scheme ?? slot.scheme,
+          progression: 'ladder' as const,
+          step,
+        };
+      }
       let exercise: string;
       if (typeof slot.exercise === 'string') exercise = slot.exercise;
       else {
@@ -160,42 +215,162 @@ export function sessionFor(
       : slot,
   );
   const day = program.days[n % len];
-  return { dayName: day.name, intensity: day.intensity ?? 1, slots };
+  return {
+    dayName: day.name,
+    intensity: day.intensity ?? 1,
+    slots,
+    ...(day.groups ? { groups: day.groups } : {}),
+  };
 }
 
-export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
+/** An exercise's name, or the id itself when the catalog has no such own entry (ids come from untrusted files). */
+const nameIn = (catalog: Record<string, Exercise> | undefined, id: string): string =>
+  catalog && Object.hasOwn(catalog, id) ? catalog[id].name : id;
+
+/** The most days, exercises in a day and letters in a name or id a program may have (what `parseProgram` accepts). */
+export const MAX_DAYS = 14;
+export const MAX_SLOTS = 20;
+export const MAX_TEXT = 100;
+
+/** The sizes `validateProgram` allows. */
+export interface ProgramLimits {
+  days: number;
+  slots: number;
+  text: number;
+  scheme: { [K in keyof typeof SCHEME_LIMITS]: number };
+}
+/** What the editors, imports and the generator may create. */
+export const EDITOR_LIMITS: ProgramLimits = {
+  days: MAX_DAYS,
+  slots: MAX_SLOTS,
+  text: MAX_TEXT,
+  scheme: SCHEME_LIMITS,
+};
+/**
+ * What stored data and the user's own backups may hold. Older versions saved programs without the editor limits
+ * (more days, longer names and ids), and such data must still load: these only stop sizes that would stall the app.
+ */
+export const STORED_LIMITS: ProgramLimits = {
+  days: 100,
+  slots: 100,
+  text: 10_000,
+  scheme: { sets: 200, reps: 1000, repsMax: 1000, seconds: 36_000, secondsMax: 36_000 },
+};
+
+export function validateProgram(
+  p: Program,
+  catalog?: Record<string, Exercise>,
+  limits: ProgramLimits = EDITOR_LIMITS,
+): string[] {
+  return validateProgramByDay(p, catalog, limits).errors;
+}
+
+/**
+ * `validateProgram` with the day each message belongs to (`days[i]` is the index of the day for `errors[i]`, or
+ * null for a message about the program as a whole), so a screen can show it under the right day whatever the
+ * day is called.
+ */
+export function validateProgramByDay(
+  p: Program,
+  catalog?: Record<string, Exercise>,
+  limits: ProgramLimits = EDITOR_LIMITS,
+): { errors: string[]; days: (number | null)[] } {
+  const { days: maxDays, slots: maxSlots, text: maxText } = limits;
   const errors: string[] = [];
+  const days: (number | null)[] = [];
+  const owner = (day: number | null) => {
+    while (days.length < errors.length) days.push(day);
+  };
+  if (isReservedKey(p.template)) errors.push('Invalid program template.');
   if (p.days.length === 0) errors.push('Add at least one day.');
+  if (p.days.length > maxDays) errors.push(`A program has at most ${maxDays} days.`);
   if (!Number.isInteger(p.sessionsPerWeek) || p.sessionsPerWeek < 1 || p.sessionsPerWeek > 7)
     errors.push('Training days per week must be between 1 and 7.');
   if (p.startN !== undefined && !(Number.isInteger(p.startN) && p.startN >= 0))
     errors.push('Invalid program start.');
-  const models = ['amrap', 'linear', 'double', 'stages', '531'];
+  const models = ['amrap', 'linear', 'double', 'stages', '531', 'ladder'];
   if (p.rules.progression !== undefined && !models.includes(p.rules.progression))
     errors.push('Unknown progression model.');
+  const { doubleAt, deloadPct, failsBeforeDeload, increments } = p.rules;
+  if (!(Number.isInteger(doubleAt) && doubleAt >= 1 && doubleAt <= 50))
+    errors.push('Double-jump reps must be a whole number from 1 to 50.');
+  if (!(deloadPct >= 0 && deloadPct <= 0.5)) errors.push('The deload must be between 0 and 50 %.');
+  if (!(Number.isInteger(failsBeforeDeload) && failsBeforeDeload >= 0 && failsBeforeDeload <= 10))
+    errors.push('Misses before a deload must be a whole number from 0 to 10.');
+  for (const [id, inc] of Object.entries(increments ?? {}))
+    if (![inc?.kg, inc?.lb].every((v) => Number.isFinite(v) && v >= 0 && v <= 100))
+      errors.push(`The increment for ${nameIn(catalog, id)} must be 0 to 100.`);
   const liftExercises = new Map<string, string>();
   const pairOrder = new Map<string, string>();
-  for (const day of p.days) {
+  owner(null);
+  for (const [dayIndex, day] of p.days.entries()) {
+    if (typeof day.name !== 'string' || day.name.trim() === '' || day.name.length > maxText)
+      errors.push(`Day ${dayIndex + 1} needs a name of 1 to ${maxText} letters.`);
+    if (day.slots.length > maxSlots) errors.push(`${day.name}: at most ${maxSlots} exercises a day.`);
     if (day.slots.length === 0) errors.push(`${day.name} has no exercises.`);
     if (day.intensity !== undefined && !(day.intensity > 0 && day.intensity <= 1)) {
       errors.push(`${day.name}: intensity must be between 0 and 100 %.`);
     }
     const seen = new Set<string>();
     for (const slot of day.slots) {
-      for (const id of slotIds(slot)) {
-        if (catalog && !(id in catalog)) errors.push(`${day.name}: unknown exercise ${id}.`);
-        if (seen.has(id)) errors.push(`${day.name}: ${catalog?.[id]?.name ?? id} appears twice.`);
+      const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
+      if (slot.ladder !== undefined && !ladder) errors.push(`${day.name}: unknown ladder ${slot.ladder}.`);
+      if (ladder && slot.exercise !== ladder.steps[0].exercise)
+        errors.push(`${day.name}: ${ladder.name} must start at ${ladder.steps[0].exercise}.`);
+      // A lift key becomes a property of the program's lifts, so it must be its exercise's id (or `<id>@tier`).
+      if (
+        slot.lift !== undefined &&
+        typeof slot.exercise === 'string' &&
+        exerciseOfLift(slot.lift) !== slot.exercise
+      )
+        errors.push(`${day.name}: lift ${slot.lift} must start with the exercise id ${slot.exercise}.`);
+      if (slot.ladder !== undefined && slot.progression !== undefined && slot.progression !== 'ladder')
+        errors.push(`${day.name}: a ladder slot uses ladder progression.`);
+      if (slot.ladder === undefined && (slot.progression ?? p.rules.progression) === 'ladder')
+        errors.push(`${day.name}: ladder progression needs a ladder.`);
+      // Seconds are judged against their targets: AMRAP reps, 5/3/1 and stages have no meaning for a hold.
+      const model = slot.progression ?? p.rules.progression ?? 'amrap';
+      if (slot.ladder === undefined && model !== 'linear' && model !== 'double')
+        for (const scheme of [slot.scheme, ...(Array.isArray(slot.stages) ? slot.stages : [])])
+          if (tryParseScheme(scheme)?.timed)
+            errors.push(
+              `${day.name}: timed scheme ${scheme} cannot use ${model} progression; use linear (a fixed hold), double (a range of seconds) or a ladder.`,
+            );
+      // A ladder can reach any of its steps, and a session keeps one result per exercise.
+      for (const id of ladder ? ladder.steps.map((s) => s.exercise) : slotIds(slot)) {
+        const name = nameIn(catalog, id);
+        if (id.length > maxText) errors.push(`${day.name}: the exercise id ${id.slice(0, 20)}… is too long.`);
+        if (catalog && !Object.hasOwn(catalog, id)) errors.push(`${day.name}: unknown exercise ${id}.`);
+        if (seen.has(id))
+          errors.push(
+            ladder
+              ? `${day.name}: ${ladder.name} shares ${name} with another exercise of the day.`
+              : `${day.name}: ${name} appears twice.`,
+          );
         seen.add(id);
         const key = liftKeyOf(slot, id);
         const known = liftExercises.get(key);
-        if (known !== undefined && known !== id)
+        const owner = ladder ? `ladder ${ladder.id}` : id;
+        if (known !== undefined && known !== owner)
           errors.push(`${day.name}: lift ${key} must use the same exercise everywhere.`);
-        liftExercises.set(key, id);
+        liftExercises.set(key, owner);
       }
-      if (!tryParseScheme(slot.scheme)) errors.push(`${day.name}: unknown scheme ${slot.scheme}.`);
+      for (const scheme of new Set([slot.scheme, ...(Array.isArray(slot.stages) ? slot.stages : [])])) {
+        // A stage that does not parse is reported with the stages below; here it only meets the scheme's limits.
+        if (scheme !== slot.scheme && !tryParseScheme(scheme)) continue;
+        const problem = typeof scheme === 'string' ? schemeProblem(scheme, limits.scheme) : 'invalid scheme';
+        if (problem) errors.push(`${day.name}: ${problem}.`);
+      }
       if (slot.progression !== undefined && !models.includes(slot.progression))
         errors.push(`${day.name}: unknown progression model.`);
-      if (slot.advanceAt !== undefined && (!Number.isInteger(slot.advanceAt) || slot.advanceAt < 1))
+      if (
+        slot.advanceAt !== undefined &&
+        !(
+          Number.isInteger(slot.advanceAt) &&
+          slot.advanceAt >= 1 &&
+          slot.advanceAt <= limits.scheme.secondsMax
+        )
+      )
         errors.push(`${day.name}: invalid advanceAt.`);
       if (
         slot.lift !== undefined &&
@@ -221,17 +396,29 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
           errors.push(`${day.name}: ${a} / ${b} must use the same order on every day.`);
       }
     }
+    errors.push(...groupErrors(day, setCounts));
+    owner(dayIndex);
   }
-  return errors;
+  return { errors, days };
 }
 
+/** Every set count a slot can have: one per ladder step, or its scheme and stages. */
+function setCounts(slot: Slot): number[] {
+  const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
+  const schemes = ladder
+    ? ladder.steps.map((s) => s.scheme ?? slot.scheme)
+    : [slot.scheme, ...(slot.stages ?? [])];
+  return schemes.flatMap((s) => tryParseScheme(s)?.sets ?? []);
+}
+
+/** Every exercise a program can use, including each step of its ladders. */
 export function exerciseIdsOf(program: Program): string[] {
   const ids = new Set<string>();
   for (const day of program.days)
-    for (const slot of day.slots)
-      slotIds(slot).forEach((id) => {
-        ids.add(id);
-      });
+    for (const slot of day.slots) {
+      const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
+      for (const id of ladder ? ladder.steps.map((s) => s.exercise) : slotIds(slot)) ids.add(id);
+    }
   return [...ids];
 }
 
@@ -243,4 +430,124 @@ export function liftKeysOf(program: Program): string[] {
       ),
     ),
   ];
+}
+
+class InvalidProgram extends Error {}
+
+type Json = Record<string, unknown>;
+const GROUP_KINDS: GroupKind[] = ['superset', 'circuit', 'emom', 'interval'];
+
+const isObject = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
+const isText = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= MAX_TEXT;
+const isNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const isList = (v: unknown, max: number): v is unknown[] => Array.isArray(v) && v.length <= max;
+
+function check(ok: boolean, error: string): asserts ok {
+  if (!ok) throw new InvalidProgram(error);
+}
+
+/** Copies the optional fields that are present; a present field that fails `valid` is an error. */
+function optional(src: Json, keys: string[], valid: (v: unknown) => boolean, where: string): Json {
+  const out: Json = {};
+  for (const key of keys) {
+    if (src[key] === undefined) continue;
+    check(valid(src[key]), `${where}: invalid ${key}.`);
+    out[key] = src[key];
+  }
+  return out;
+}
+
+function slotOf(v: unknown, where: string): Slot {
+  check(isObject(v), `${where} is not an exercise.`);
+  const { exercise, scheme } = v;
+  check(
+    isText(exercise) || (isList(exercise, 2) && exercise.length === 2 && exercise.every(isText)),
+    `${where}: invalid exercise.`,
+  );
+  check(isText(scheme), `${where}: invalid scheme.`);
+  return {
+    exercise,
+    scheme,
+    ...optional(v, ['lift', 'progression', 'ladder', 'group'], isText, where),
+    ...optional(v, ['advanceAt'], isNumber, where),
+    ...optional(v, ['stages'], (s) => isList(s, 10) && s.every(isText), where),
+  } as Slot;
+}
+
+function groupOf(v: unknown, where: string): Group {
+  check(isObject(v) && isText(v.id), `${where}: invalid group.`);
+  check(GROUP_KINDS.includes(v.kind as GroupKind), `${where}: unknown group kind.`);
+  return {
+    id: v.id,
+    kind: v.kind as GroupKind,
+    ...optional(v, ['rounds', 'restS', 'workS', 'minutes'], isNumber, `${where}, group ${v.id}`),
+  };
+}
+
+function dayOf(v: unknown, i: number): Day {
+  const where = `Day ${i + 1}`;
+  check(isObject(v) && isText(v.name), `${where}: invalid name.`);
+  check(isList(v.slots, MAX_SLOTS), `${where}: at most ${MAX_SLOTS} exercises.`);
+  check(v.groups === undefined || isList(v.groups, MAX_SLOTS), `${where}: invalid groups.`);
+  return {
+    name: v.name,
+    slots: v.slots.map((s, j) => slotOf(s, `${where}, exercise ${j + 1}`)),
+    ...optional(v, ['intensity'], isNumber, where),
+    ...(v.groups ? { groups: v.groups.map((g) => groupOf(g, where)) } : {}),
+  };
+}
+
+function rulesOf(v: unknown): Rules {
+  check(isObject(v), 'Invalid rules.');
+  const { doubleAt, deloadPct, failsBeforeDeload, warmups } = v;
+  check(isNumber(doubleAt) && isNumber(deloadPct) && isNumber(failsBeforeDeload), 'Invalid rules.');
+  check(typeof warmups === 'boolean', 'Invalid rules.');
+  const { increments } = v;
+  check(
+    increments === undefined || (isObject(increments) && Object.keys(increments).length <= 200),
+    'Rules: invalid increments.',
+  );
+  // Rebuilt entry by entry so only `kg` and `lb` of each increment are kept.
+  const incrementsOf = (m: Json) =>
+    Object.fromEntries(
+      Object.entries(m).map(([id, i]) => {
+        check(
+          isText(id) && isObject(i) && isNumber(i.kg) && isNumber(i.lb),
+          `Rules: invalid increment ${id}.`,
+        );
+        return [id, { kg: i.kg, lb: i.lb }];
+      }),
+    );
+  return {
+    doubleAt,
+    deloadPct,
+    failsBeforeDeload,
+    warmups,
+    ...optional(v, ['progression'], isText, 'Rules'),
+    ...(increments === undefined ? {} : { increments: incrementsOf(increments) }),
+  };
+}
+
+/**
+ * Structural check of untrusted JSON (an imported or generated plan): shapes, types and sizes, keeping only the
+ * fields a program has. Run `validateProgram` on the result for the training rules.
+ */
+export function parseProgram(input: unknown): { ok: true; program: Program } | { ok: false; error: string } {
+  try {
+    check(isObject(input), 'Not a program.');
+    check(isText(input.template), 'Invalid template.');
+    check(isNumber(input.sessionsPerWeek), 'Invalid training days per week.');
+    check(isList(input.days, MAX_DAYS) && input.days.length > 0, `A program has 1 to ${MAX_DAYS} days.`);
+    const program: Program = {
+      template: input.template,
+      sessionsPerWeek: input.sessionsPerWeek,
+      rules: rulesOf(input.rules),
+      days: input.days.map(dayOf),
+      ...optional(input, ['startN'], isNumber, 'Program'),
+    };
+    return { ok: true, program };
+  } catch (e) {
+    if (e instanceof InvalidProgram) return { ok: false, error: e.message };
+    throw e;
+  }
 }

@@ -1,0 +1,3911 @@
+{
+  "CAL_AB_WHEEL_ROLLOUT": {
+    "id": "CAL_AB_WHEEL_ROLLOUT",
+    "name": "Ab wheel rollout",
+    "shortName": "Ab wheel",
+    "abbr": "AWR",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "lats",
+      "shoulders"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Kneel with an ab wheel in both hands and roll out until the body is nearly flat, then roll back. A demanding anti-extension exercise.",
+    "goodForm": [
+      "Round the upper back slightly and tuck the pelvis",
+      "Roll out slowly and stop before the back arches",
+      "Return by squeezing the abs"
+    ],
+    "badForm": [
+      "Let the hips sag toward the floor",
+      "Go farther than you can control"
+    ],
+    "video": "https://www.youtube.com/watch?v=rqiTPdK1c_I",
+    "pictogram": "ab-wheel"
+  },
+  "CAL_ARCH_HANG": {
+    "id": "CAL_ARCH_HANG",
+    "name": "Arch hang",
+    "shortName": "Arch hang",
+    "abbr": "AH",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back",
+      "forearms"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A hang with the shoulders pulled down and back and the chest pushed forward, so the body forms a slight arch. It builds grip and the strength to hold the top half of a pull-up.",
+    "goodForm": [
+      "Pull the shoulder blades down and together",
+      "Push the chest forward and look slightly up",
+      "Squeeze the glutes so the hips stay in line with the body"
+    ],
+    "badForm": [
+      "Hang passively with the shoulders up by the ears",
+      "Bend the elbows to fake the position"
+    ],
+    "video": "https://www.youtube.com/watch?v=5cqheBp551U",
+    "timed": true,
+    "pictogram": "dead-hang"
+  },
+  "CAL_ASSISTED_SQUAT": {
+    "id": "CAL_ASSISTED_SQUAT",
+    "name": "Assisted squat",
+    "shortName": "Assisted squat",
+    "abbr": "AS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A squat where you hold a doorframe, rail or suspended handles to take some of the load. It lets you learn full depth and a steady position.",
+    "goodForm": [
+      "Grip lightly and use the arms only as much as you need",
+      "Keep the whole foot on the floor",
+      "Sit down between the hips until the thighs pass parallel"
+    ],
+    "badForm": [
+      "Pull yourself up with the arms",
+      "Let the knees collapse inward"
+    ],
+    "video": "https://www.youtube.com/watch?v=HUq21S5Kcrw",
+    "pictogram": "squat"
+  },
+  "CAL_BRIDGE": {
+    "id": "CAL_BRIDGE",
+    "name": "Full bridge",
+    "shortName": "Full bridge",
+    "abbr": "FB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "quadriceps",
+      "abdominals"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Press up from the floor into an arch with straight arms and legs, supported on hands and feet. It builds spinal strength and shoulder and hip mobility.",
+    "goodForm": [
+      "Push the shoulders over the hands",
+      "Straighten the arms and legs as far as you can",
+      "Spread the arch over the whole spine"
+    ],
+    "badForm": [
+      "Hinge only at the lower back",
+      "Hold the position through pain"
+    ],
+    "video": "https://www.youtube.com/watch?v=4F4lTh09Z5E",
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_ANGLED": {
+    "id": "CAL_BRIDGE_ANGLED",
+    "name": "Angled bridge",
+    "shortName": "Angled bridge",
+    "abbr": "AB",
+    "kind": "bodyweight",
+    "equipment": [
+      "bench"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back"
+    ],
+    "secondary": [
+      "shoulders",
+      "hamstrings"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A bridge with the hands on the floor and the feet raised on a low step so the body slopes down toward the head. A stepping stone to the full bridge.",
+    "goodForm": [
+      "Keep the arms straight and the chest open",
+      "Push the hips toward the ceiling",
+      "Lower the hands step by step over weeks"
+    ],
+    "badForm": [
+      "Let the shoulders collapse forward",
+      "Bend the elbows"
+    ],
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_CLOSING": {
+    "id": "CAL_BRIDGE_CLOSING",
+    "name": "Closing the bridge",
+    "shortName": "Closing the",
+    "abbr": "CTB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "From a full bridge, shift the hands closer to the feet until the hands and feet are almost together. It asks for a flexible spine and strong shoulders.",
+    "goodForm": [
+      "Walk the hands toward the feet slowly",
+      "Keep the arms straight",
+      "Hold the closed position briefly"
+    ],
+    "badForm": [
+      "Strain the lower back alone",
+      "Rush the transition"
+    ],
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_HALF": {
+    "id": "CAL_BRIDGE_HALF",
+    "name": "Half bridge",
+    "shortName": "Half bridge",
+    "abbr": "HB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A bridge with the hands on the floor beside the head and the arms bent, pushing the hips up until the elbows are partly bent. It is a lower-range version of the full bridge.",
+    "goodForm": [
+      "Keep the hands flat and the fingers pointing toward the feet",
+      "Press the hips up without locking the arms",
+      "Breathe steadily"
+    ],
+    "badForm": [
+      "Hold the breath",
+      "Let the knees fall inward"
+    ],
+    "video": "https://www.youtube.com/watch?v=CXJjUcn3-dY",
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_HEAD": {
+    "id": "CAL_BRIDGE_HEAD",
+    "name": "Head bridge",
+    "shortName": "Head bridge",
+    "abbr": "HB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes"
+    ],
+    "secondary": [
+      "neck",
+      "shoulders"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back with feet flat, lift the hips and rest lightly on the top of the head while pressing through the feet. It builds back and neck strength toward the full bridge.",
+    "goodForm": [
+      "Keep most of the weight on the feet",
+      "Rest only lightly on the head",
+      "Come down slowly and stop if the neck feels any pinch"
+    ],
+    "badForm": [
+      "Put heavy load on the neck",
+      "Jerk in and out of the position"
+    ],
+    "video": "https://www.youtube.com/watch?v=fEPJ2-WLk_M",
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_SHORT": {
+    "id": "CAL_BRIDGE_SHORT",
+    "name": "Short bridge",
+    "shortName": "Short bridge",
+    "abbr": "SB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back"
+    ],
+    "secondary": [
+      "hamstrings"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back with the knees bent and feet flat, then raise the hips until the body forms a line from shoulders to knees. It builds glute and back strength with a small range.",
+    "goodForm": [
+      "Push through the whole foot",
+      "Squeeze the glutes at the top",
+      "Keep the neck relaxed on the floor"
+    ],
+    "badForm": [
+      "Push the hips so high the lower back arches hard",
+      "Let the knees fall apart"
+    ],
+    "video": "https://www.youtube.com/watch?v=L9KZfxT654Y",
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_STAND_TO_STAND": {
+    "id": "CAL_BRIDGE_STAND_TO_STAND",
+    "name": "Stand-to-stand bridge",
+    "shortName": "Stand-to-stand bridge",
+    "abbr": "STS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "From standing, arch back into a full bridge, then press back up to standing without touching the floor with anything except the hands and feet. The top step of the bridge line.",
+    "goodForm": [
+      "Push the hips forward and reach back slowly",
+      "Reverse the movement with the same control",
+      "Keep the arms and legs strong"
+    ],
+    "badForm": [
+      "Fall into the bridge",
+      "Jerk up using momentum"
+    ],
+    "video": "https://www.youtube.com/watch?v=PhH-A4-mbYs",
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_STRAIGHT": {
+    "id": "CAL_BRIDGE_STRAIGHT",
+    "name": "Straight bridge",
+    "shortName": "Straight bridge",
+    "abbr": "SB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back",
+      "hamstrings"
+    ],
+    "secondary": [
+      "abdominals"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Sit with the legs straight in front and the hands behind, then push the hips up so the body forms a flat table. It stretches the front of the body and works the hamstrings.",
+    "goodForm": [
+      "Keep the legs straight and the toes pulled up",
+      "Push the hips up until the body is flat",
+      "Look forward or slightly back, not at your feet"
+    ],
+    "badForm": [
+      "Let the hips sag",
+      "Bend the knees to get up higher"
+    ],
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_WALL_DOWN": {
+    "id": "CAL_BRIDGE_WALL_DOWN",
+    "name": "Wall-walking bridge down",
+    "shortName": "Wall-walking bridge",
+    "abbr": "WWB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Stand facing away from a wall, arch backward and walk your hands down the wall toward the floor into a bridge. It teaches you to enter the full bridge under control.",
+    "goodForm": [
+      "Keep the hips pushed forward",
+      "Walk the hands down slowly",
+      "Stand a short distance from the wall at first"
+    ],
+    "badForm": [
+      "Throw yourself backward",
+      "Pitch the head back first"
+    ],
+    "video": "https://www.youtube.com/watch?v=yvXjisvurdI",
+    "pictogram": "bridge"
+  },
+  "CAL_BRIDGE_WALL_UP": {
+    "id": "CAL_BRIDGE_WALL_UP",
+    "name": "Wall-walking bridge up",
+    "shortName": "Wall-walking bridge",
+    "abbr": "WWB",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "From a full bridge facing away from a wall, walk the hands up the wall until you stand, using the back and legs. It builds the strength to come out of a bridge.",
+    "goodForm": [
+      "Press the hips forward as the hands climb",
+      "Walk in small steady steps",
+      "Finish standing tall"
+    ],
+    "badForm": [
+      "Collapse the lower back",
+      "Drop the head backward"
+    ],
+    "video": "https://www.youtube.com/watch?v=yvXjisvurdI",
+    "pictogram": "bridge"
+  },
+  "CAL_BULGARIAN_SPLIT_SQUAT": {
+    "id": "CAL_BULGARIAN_SPLIT_SQUAT",
+    "name": "Bulgarian split squat",
+    "shortName": "Bulgarian split",
+    "abbr": "BSS",
+    "kind": "bodyweight",
+    "equipment": [
+      "bench"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "adductors"
+    ],
+    "pattern": "squat",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A split squat with the back foot resting on a bench or box behind you. The raised rear foot makes the front leg do almost all the work.",
+    "goodForm": [
+      "Set the front foot far enough ahead that the shin stays near vertical",
+      "Lower until the back knee nearly touches the floor",
+      "Keep the hips square to the front"
+    ],
+    "badForm": [
+      "Put the front foot too close so the knee travels far forward",
+      "Lean the torso heavily forward"
+    ],
+    "video": "https://www.youtube.com/watch?v=uODWo4YqbT8",
+    "pictogram": "split-squat"
+  },
+  "CAL_CROW_STAND": {
+    "id": "CAL_CROW_STAND",
+    "name": "Crow stand",
+    "shortName": "Crow stand",
+    "abbr": "CS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "triceps"
+    ],
+    "pattern": "skill",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Squat down, place the hands on the floor, and rest the knees on the backs of the upper arms, then lift the feet. An early arm balance that trains wrist strength and balance.",
+    "goodForm": [
+      "Spread the fingers and press the floor away",
+      "Lean forward until the feet lift",
+      "Look slightly ahead"
+    ],
+    "badForm": [
+      "Look straight down at the hands",
+      "Let the elbows spread outward"
+    ],
+    "video": "https://www.youtube.com/watch?v=1vwWeqpknUc",
+    "timed": true,
+    "pictogram": "generic"
+  },
+  "CAL_DIP_NEGATIVE": {
+    "id": "CAL_DIP_NEGATIVE",
+    "name": "Dip negative",
+    "shortName": "Dip negative",
+    "abbr": "DN",
+    "kind": "bodyweight",
+    "equipment": [
+      "dip-bars"
+    ],
+    "muscles": [
+      "triceps",
+      "chest",
+      "shoulders"
+    ],
+    "secondary": [
+      "forearms"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Start at the top of a dip and lower yourself slowly until the shoulders are below the elbows, then step or jump back up. It builds dip strength before you can press up.",
+    "goodForm": [
+      "Lower for at least three seconds",
+      "Keep the elbows tracking back and the chest slightly forward",
+      "Stop at a depth where the shoulders feel comfortable"
+    ],
+    "badForm": [
+      "Drop the last part of the movement",
+      "Go deeper than your shoulders allow"
+    ],
+    "video": "https://www.youtube.com/watch?v=TL0ZY615sCw",
+    "pictogram": "dip"
+  },
+  "CAL_FL": {
+    "id": "CAL_FL",
+    "name": "Front lever",
+    "shortName": "Front lever",
+    "abbr": "FL",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from straight arms with the whole body held straight and level, facing up. It is one of the strongest pulling skills.",
+    "goodForm": [
+      "Keep the whole body in one flat line",
+      "Pull the shoulders down and hold the arms straight",
+      "Squeeze the glutes and legs together"
+    ],
+    "badForm": [
+      "Pike at the hips",
+      "Let the head and feet sag"
+    ],
+    "video": "https://www.youtube.com/watch?v=5lE8-EAC4mU",
+    "timed": true,
+    "pictogram": "front-lever"
+  },
+  "CAL_FL_ADV_TUCK": {
+    "id": "CAL_FL_ADV_TUCK",
+    "name": "Advanced tuck front lever",
+    "shortName": "Advanced tuck",
+    "abbr": "ATF",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "The tuck front lever with the hips opened so the back is flat and the knees stay bent at ninety degrees. A longer lever than the tuck.",
+    "goodForm": [
+      "Open the hips until the thighs line up with the torso",
+      "Keep the back flat and the arms straight",
+      "Pull the shoulders down and back"
+    ],
+    "badForm": [
+      "Round the back",
+      "Let the hips sag"
+    ],
+    "video": "https://www.youtube.com/watch?v=Rk7cJ3TXELY",
+    "timed": true,
+    "pictogram": "front-lever"
+  },
+  "CAL_FL_ONE_LEG": {
+    "id": "CAL_FL_ONE_LEG",
+    "name": "One-leg front lever",
+    "shortName": "One-leg front",
+    "abbr": "OLF",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A front lever with one leg straight and the other knee tucked. It sits between the advanced tuck and straddle.",
+    "goodForm": [
+      "Keep the straight leg in line with the body",
+      "Hold the hips at shoulder height",
+      "Alternate which leg is extended"
+    ],
+    "badForm": [
+      "Let the straight leg drop",
+      "Bend the arms"
+    ],
+    "video": "https://www.youtube.com/watch?v=bD9dt5dHft4",
+    "timed": true,
+    "pictogram": "front-lever"
+  },
+  "CAL_FL_STRADDLE": {
+    "id": "CAL_FL_STRADDLE",
+    "name": "Straddle front lever",
+    "shortName": "Straddle front",
+    "abbr": "SFL",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A front lever with the legs straight and spread wide to shorten the lever. It is a very hard hold.",
+    "goodForm": [
+      "Keep the body flat and the legs straight",
+      "Open the legs as wide as needed",
+      "Hold the arms straight and the shoulders down"
+    ],
+    "badForm": [
+      "Sag at the hips",
+      "Pike the body up"
+    ],
+    "video": "https://www.youtube.com/watch?v=bgRVpNRMjG4",
+    "timed": true,
+    "pictogram": "front-lever"
+  },
+  "CAL_FL_TUCK": {
+    "id": "CAL_FL_TUCK",
+    "name": "Tuck front lever",
+    "shortName": "Tuck front",
+    "abbr": "TFL",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar or rings and lift the hips so the back is flat and parallel to the floor, with the knees tucked tightly. The first real lever hold.",
+    "goodForm": [
+      "Keep the arms straight and pull the shoulders down",
+      "Lift the hips to the same height as the shoulders",
+      "Keep the knees close to the chest"
+    ],
+    "badForm": [
+      "Let the hips drop",
+      "Bend the elbows"
+    ],
+    "video": "https://www.youtube.com/watch?v=lkGhntOoLNk",
+    "timed": true,
+    "pictogram": "front-lever"
+  },
+  "CAL_HANDSTAND": {
+    "id": "CAL_HANDSTAND",
+    "name": "Freestanding handstand",
+    "shortName": "Freestanding handstand",
+    "abbr": "FH",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "traps"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Balance on the hands with the body straight and the feet in the air, without a wall. Control comes from small changes in finger pressure.",
+    "goodForm": [
+      "Stack wrists, shoulders, hips and ankles in a line",
+      "Press tall through the shoulders",
+      "Look between the hands"
+    ],
+    "badForm": [
+      "Arch the back to hold balance",
+      "Let the shoulders collapse"
+    ],
+    "video": "https://www.youtube.com/watch?v=2-3wv5kLNnw",
+    "timed": true,
+    "pictogram": "handstand"
+  },
+  "CAL_HANDSTAND_CHEST_TO_WALL": {
+    "id": "CAL_HANDSTAND_CHEST_TO_WALL",
+    "name": "Chest-to-wall handstand",
+    "shortName": "Chest-to-wall handstand",
+    "abbr": "CTW",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "traps"
+    ],
+    "pattern": "skill",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Walk the feet up a wall until the chest faces it and the body is nearly straight, then hold. It teaches the right line and shoulder opening.",
+    "goodForm": [
+      "Push the floor away through the shoulders",
+      "Keep the ribs tucked and the body in a straight line",
+      "Point the toes lightly against the wall"
+    ],
+    "badForm": [
+      "Arch the back",
+      "Let the shoulders sink toward the ears"
+    ],
+    "video": "https://www.youtube.com/watch?v=udZZb1mif_I",
+    "timed": true,
+    "pictogram": "handstand"
+  },
+  "CAL_HANDSTAND_HEEL_PULL": {
+    "id": "CAL_HANDSTAND_HEEL_PULL",
+    "name": "Handstand heel pull",
+    "shortName": "Handstand heel",
+    "abbr": "HHP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "traps"
+    ],
+    "pattern": "skill",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "From a chest-to-wall handstand, lightly pull the heels off the wall and balance for a moment, then return to the wall. It teaches the balance reflex.",
+    "goodForm": [
+      "Lift the heels only a little",
+      "Press the fingertips into the floor to correct balance",
+      "Return to the wall before you fall"
+    ],
+    "badForm": [
+      "Kick hard off the wall",
+      "Arch deeply to hold balance"
+    ],
+    "video": "https://www.youtube.com/watch?v=OYehg2ruMN0",
+    "timed": true,
+    "pictogram": "handstand"
+  },
+  "CAL_HANDSTAND_WALL_PLANK": {
+    "id": "CAL_HANDSTAND_WALL_PLANK",
+    "name": "Wall plank",
+    "shortName": "Wall plank",
+    "abbr": "WP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "abdominals"
+    ],
+    "secondary": [
+      "triceps",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Walk the feet up a wall from a push-up position until the body is steeply angled, with the hands under the shoulders. It builds overhead shoulder strength toward the handstand.",
+    "goodForm": [
+      "Keep the arms straight and the shoulders open",
+      "Squeeze the glutes and abs",
+      "Walk up only as far as you can hold"
+    ],
+    "badForm": [
+      "Let the hips sag",
+      "Bend the elbows"
+    ],
+    "video": "https://www.youtube.com/watch?v=h7_EkZeE68Y",
+    "timed": true,
+    "pictogram": "handstand"
+  },
+  "CAL_HANGING_BENT_LEG_RAISE": {
+    "id": "CAL_HANGING_BENT_LEG_RAISE",
+    "name": "Hanging bent-leg raise",
+    "shortName": "Hanging bent-leg",
+    "abbr": "HBL",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar and raise the legs with a slight bend in the knees to at least hip height. Harder than the knee raise because the legs are longer.",
+    "goodForm": [
+      "Raise until the thighs are above horizontal",
+      "Keep a soft bend in the knees",
+      "Lower slowly"
+    ],
+    "badForm": [
+      "Kick up with momentum",
+      "Let the shoulders rise toward the ears"
+    ],
+    "pictogram": "leg-raise"
+  },
+  "CAL_HANGING_FROG_RAISE": {
+    "id": "CAL_HANGING_FROG_RAISE",
+    "name": "Hanging frog raise",
+    "shortName": "Hanging frog",
+    "abbr": "HFR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang with the feet together and the knees turned out, then lift the knees high toward the chest and extend the legs upward. It trains the hips high without the full lever.",
+    "goodForm": [
+      "Keep the soles of the feet together",
+      "Lift the knees past chest height",
+      "Control the way down"
+    ],
+    "badForm": [
+      "Swing the legs up",
+      "Let the back arch"
+    ],
+    "video": "https://www.youtube.com/watch?v=L2XU8Evz_iI",
+    "pictogram": "leg-raise"
+  },
+  "CAL_HANGING_KNEE_RAISE": {
+    "id": "CAL_HANGING_KNEE_RAISE",
+    "name": "Hanging knee raise",
+    "shortName": "Hanging knee",
+    "abbr": "HKR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar and pull the knees up toward the chest, then lower them. It moves the leg-raise work into a hang.",
+    "goodForm": [
+      "Hang with the shoulders pulled slightly down",
+      "Curl the pelvis up as the knees rise",
+      "Lower without swinging"
+    ],
+    "badForm": [
+      "Swing the body for momentum",
+      "Hang loosely with shrugged shoulders"
+    ],
+    "video": "https://www.youtube.com/watch?v=l7OroezzX9k",
+    "pictogram": "leg-raise"
+  },
+  "CAL_HANGING_LEG_RAISE": {
+    "id": "CAL_HANGING_LEG_RAISE",
+    "name": "Hanging straight-leg raise",
+    "shortName": "Hanging straight-leg",
+    "abbr": "HSL",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar and lift straight legs until the toes touch or nearly touch the bar, then lower slowly. A very strong core exercise.",
+    "goodForm": [
+      "Keep the legs together and the knees locked",
+      "Curl the pelvis up at the top",
+      "Lower for a count of three"
+    ],
+    "badForm": [
+      "Swing the legs",
+      "Bend the knees to finish the rep"
+    ],
+    "video": "https://www.youtube.com/watch?v=S2QVHl6DoNo",
+    "pictogram": "leg-raise"
+  },
+  "CAL_HANGING_LEG_RAISE_PARTIAL": {
+    "id": "CAL_HANGING_LEG_RAISE_PARTIAL",
+    "name": "Partial hanging straight-leg raise",
+    "shortName": "Partial hanging",
+    "abbr": "PHS",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang and raise straight legs only up to about forty-five degrees, then lower. It builds toward the full straight-leg raise.",
+    "goodForm": [
+      "Keep the knees locked",
+      "Raise the legs to about forty-five degrees",
+      "Lower with control"
+    ],
+    "badForm": [
+      "Bend the knees to lift higher",
+      "Swing the torso"
+    ],
+    "pictogram": "leg-raise"
+  },
+  "CAL_HEADSTAND_WALL": {
+    "id": "CAL_HEADSTAND_WALL",
+    "name": "Wall headstand",
+    "shortName": "Wall headstand",
+    "abbr": "WH",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "traps"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Kick up to a headstand against a wall with the head and both hands on the floor. A first step for getting used to being upside down.",
+    "goodForm": [
+      "Form a triangle with the head and hands",
+      "Keep most of the weight on the hands",
+      "Stack the hips over the shoulders against the wall"
+    ],
+    "badForm": [
+      "Rest most of the weight on the neck",
+      "Kick up wildly"
+    ],
+    "video": "https://www.youtube.com/watch?v=p5aR61Lt6ok",
+    "timed": true,
+    "pictogram": "handstand"
+  },
+  "CAL_HSPU": {
+    "id": "CAL_HSPU",
+    "name": "Handstand push-up",
+    "shortName": "Handstand push-up",
+    "abbr": "HPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Facing a wall in a handstand, lower the head to the floor and press back to straight arms. A strict overhead pressing exercise.",
+    "goodForm": [
+      "Keep the body tight and ribs tucked",
+      "Lower the head to a mat",
+      "Press up to full lockout"
+    ],
+    "badForm": [
+      "Kip with the legs",
+      "Rebound off the floor"
+    ],
+    "video": "https://www.youtube.com/watch?v=gdhmNaZ7nAk",
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_HSPU_CLOSE": {
+    "id": "CAL_HSPU_CLOSE",
+    "name": "Close handstand push-up",
+    "shortName": "Close handstand",
+    "abbr": "CHP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A handstand push-up with the hands close together. It shifts the load toward the triceps and makes balance harder.",
+    "goodForm": [
+      "Place the hands about a hand width apart",
+      "Keep the elbows tucked",
+      "Press to full lockout"
+    ],
+    "badForm": [
+      "Let the elbows flare",
+      "Bounce at the bottom"
+    ],
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_HSPU_HALF": {
+    "id": "CAL_HSPU_HALF",
+    "name": "Half handstand push-up",
+    "shortName": "Half handstand",
+    "abbr": "HHP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A handstand push-up against a wall with the feet raised on a box and the head lowered only partway. It builds toward the full range.",
+    "goodForm": [
+      "Keep the body as straight as you can",
+      "Lower the head halfway toward the floor",
+      "Press up to straight arms"
+    ],
+    "badForm": [
+      "Flare the elbows wide",
+      "Arch the back deeply"
+    ],
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_HSPU_LEVER": {
+    "id": "CAL_HSPU_LEVER",
+    "name": "Lever handstand push-up",
+    "shortName": "Lever handstand",
+    "abbr": "LHP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A handstand push-up with one arm extended sideways on a support, so most load is on the other arm. Close to the one-arm version.",
+    "goodForm": [
+      "Keep the helper arm light",
+      "Lower the head slowly",
+      "Press up with a straight body"
+    ],
+    "badForm": [
+      "Push hard with the helper",
+      "Twist open"
+    ],
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_HSPU_ONE_ARM": {
+    "id": "CAL_HSPU_ONE_ARM",
+    "name": "One-arm handstand push-up",
+    "shortName": "One-arm handstand",
+    "abbr": "OAH",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lower and press back up on one arm in a handstand. An elite pressing skill reached after years of training.",
+    "goodForm": [
+      "Stay square to the wall",
+      "Keep the free arm out of the way",
+      "Press smoothly to lockout"
+    ],
+    "badForm": [
+      "Twist to find balance",
+      "Bounce off the floor"
+    ],
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_HSPU_ONE_ARM_HALF": {
+    "id": "CAL_HSPU_ONE_ARM_HALF",
+    "name": "Half one-arm handstand push-up",
+    "shortName": "Half one-arm",
+    "abbr": "HOA",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A one-arm handstand push-up lowered only partway, with the other hand held out to the side. A late step on the road to a one-arm handstand push-up.",
+    "goodForm": [
+      "Place the working hand under the shoulder",
+      "Lower only as far as you can control",
+      "Keep the body square to the wall"
+    ],
+    "badForm": [
+      "Rotate the chest open",
+      "Go lower than you can press back"
+    ],
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_HSPU_UNEVEN": {
+    "id": "CAL_HSPU_UNEVEN",
+    "name": "Uneven handstand push-up",
+    "shortName": "Uneven handstand",
+    "abbr": "UHP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A handstand push-up with one hand on a raised block and the other on the floor, so the low arm does more work.",
+    "goodForm": [
+      "Keep the shoulders level",
+      "Lower toward the low hand",
+      "Alternate which hand is raised"
+    ],
+    "badForm": [
+      "Twist the torso",
+      "Rely on the raised hand"
+    ],
+    "pictogram": "handstand-push-up"
+  },
+  "CAL_KNEE_RAISE_LYING": {
+    "id": "CAL_KNEE_RAISE_LYING",
+    "name": "Lying knee raise",
+    "shortName": "Lying knee",
+    "abbr": "LKR",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back with the knees bent, then lift the thighs to vertical and lower the feet back down, keeping the knees bent.",
+    "goodForm": [
+      "Keep the lower back flat on the floor",
+      "Lift the hips slightly at the top",
+      "Lower under control"
+    ],
+    "badForm": [
+      "Let the feet drop to the floor",
+      "Jerk the legs up"
+    ],
+    "video": "https://www.youtube.com/watch?v=aK8Rm_tv3WM",
+    "pictogram": "leg-raise"
+  },
+  "CAL_KNEE_TUCK_LYING": {
+    "id": "CAL_KNEE_TUCK_LYING",
+    "name": "Lying knee tuck",
+    "shortName": "Lying knee",
+    "abbr": "LKT",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back and pull the knees toward the chest, then lower the feet without touching the floor. The easiest step in the leg-raise line.",
+    "goodForm": [
+      "Press the lower back into the floor",
+      "Bring the knees to the chest",
+      "Lower slowly and stop just above the floor"
+    ],
+    "badForm": [
+      "Let the lower back arch",
+      "Swing the legs"
+    ],
+    "video": "https://www.youtube.com/watch?v=jYzDETk1oUk",
+    "pictogram": "leg-raise"
+  },
+  "CAL_LEG_RAISE_BENT_LYING": {
+    "id": "CAL_LEG_RAISE_BENT_LYING",
+    "name": "Lying bent-leg raise",
+    "shortName": "Lying bent-leg",
+    "abbr": "LBL",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lift both legs together with a slight bend in the knees up to vertical, then lower slowly. A step between the knee raise and the straight-leg version.",
+    "goodForm": [
+      "Press the lower back down the whole time",
+      "Keep a slight bend in the knees",
+      "Lower the legs slowly"
+    ],
+    "badForm": [
+      "Arch the lower back as the legs descend",
+      "Swing to start the lift"
+    ],
+    "video": "https://www.youtube.com/watch?v=T31_qyE7Xqw",
+    "pictogram": "leg-raise"
+  },
+  "CAL_LEG_RAISE_FROG_LYING": {
+    "id": "CAL_LEG_RAISE_FROG_LYING",
+    "name": "Lying frog raise",
+    "shortName": "Lying frog",
+    "abbr": "LFR",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back with the soles of the feet together and knees out, raise the hips with the legs pushing up toward the ceiling, then lower. It adds range and tempo to the leg raise.",
+    "goodForm": [
+      "Keep the soles of the feet together",
+      "Lift the hips off the floor at the top",
+      "Lower the legs slowly"
+    ],
+    "badForm": [
+      "Throw the legs up with momentum",
+      "Let the back arch"
+    ],
+    "video": "https://www.youtube.com/watch?v=S0b-mqGlGLs",
+    "pictogram": "leg-raise"
+  },
+  "CAL_LEG_RAISE_LYING": {
+    "id": "CAL_LEG_RAISE_LYING",
+    "name": "Lying straight-leg raise",
+    "shortName": "Lying straight-leg",
+    "abbr": "LSL",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back and lift both straight legs to vertical, then lower them to just above the floor. The core controls the full length of the legs.",
+    "goodForm": [
+      "Keep the knees locked and toes pointed",
+      "Press the lower back into the floor",
+      "Lower with a count of three"
+    ],
+    "badForm": [
+      "Let the back arch at the bottom",
+      "Bend the knees to cheat"
+    ],
+    "video": "https://www.youtube.com/watch?v=Zr-PtqcpeWM",
+    "pictogram": "leg-raise"
+  },
+  "CAL_LSIT": {
+    "id": "CAL_LSIT",
+    "name": "L-sit",
+    "shortName": "L-sit",
+    "abbr": "LS",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps",
+      "forearms"
+    ],
+    "pattern": "skill",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Support your body on straight arms with the legs straight out in front, parallel to the floor. It trains core compression and shoulder strength.",
+    "goodForm": [
+      "Push the shoulders down and keep the arms locked",
+      "Keep the legs together and the knees straight",
+      "Point the toes and hold the legs level"
+    ],
+    "badForm": [
+      "Let the legs drop below horizontal",
+      "Bend the elbows"
+    ],
+    "video": "https://www.youtube.com/watch?v=HxDP7SqggpI",
+    "timed": true,
+    "pictogram": "l-sit"
+  },
+  "CAL_LSIT_FOOT_SUPPORTED": {
+    "id": "CAL_LSIT_FOOT_SUPPORTED",
+    "name": "Foot-supported L-sit",
+    "shortName": "Foot-supported L-sit",
+    "abbr": "FSL",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps"
+    ],
+    "pattern": "skill",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Support yourself on parallettes or bars with one or both feet resting lightly on the floor in front. It teaches the compression and shoulder position of an L-sit.",
+    "goodForm": [
+      "Press the shoulders down and lock the arms",
+      "Keep the legs straight with the heels touching the floor",
+      "Lift the weight off the feet gradually"
+    ],
+    "badForm": [
+      "Shrug the shoulders",
+      "Round the back and collapse the chest"
+    ],
+    "video": "https://www.youtube.com/watch?v=a4qGW79QtrE",
+    "timed": true,
+    "pictogram": "l-sit"
+  },
+  "CAL_LSIT_ONE_LEG": {
+    "id": "CAL_LSIT_ONE_LEG",
+    "name": "One-leg L-sit",
+    "shortName": "One-leg L-sit",
+    "abbr": "OLL",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps"
+    ],
+    "pattern": "skill",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hold an L-sit with one leg straight out in front and the other knee tucked in. It splits the demand in half.",
+    "goodForm": [
+      "Keep the extended leg locked and level with the hips",
+      "Switch legs between sets",
+      "Press the floor away through the arms"
+    ],
+    "badForm": [
+      "Let the straight leg drop",
+      "Lean back and slump"
+    ],
+    "timed": true,
+    "pictogram": "l-sit"
+  },
+  "CAL_LSIT_PULLUP": {
+    "id": "CAL_LSIT_PULLUP",
+    "name": "L-sit pull-up",
+    "shortName": "L-sit pull-up",
+    "abbr": "LSP",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps",
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A strict pull-up while holding the legs straight out in front at hip height. It adds a hard core and hip-flexor demand to the pull.",
+    "goodForm": [
+      "Lock the knees and point the toes",
+      "Keep the legs level with the hips for the whole rep",
+      "Pull smoothly without swinging"
+    ],
+    "badForm": [
+      "Let the legs sag as you tire",
+      "Swing the legs forward to gain momentum"
+    ],
+    "video": "https://www.youtube.com/watch?v=QHVbofO5SN8",
+    "pictogram": "pull-up"
+  },
+  "CAL_LSIT_TUCK": {
+    "id": "CAL_LSIT_TUCK",
+    "name": "Tuck L-sit",
+    "shortName": "Tuck L-sit",
+    "abbr": "TLS",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps"
+    ],
+    "pattern": "skill",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hold your body off the floor on straight arms with both knees pulled toward the chest. It is an easier version of the full L-sit.",
+    "goodForm": [
+      "Press down strongly through straight arms",
+      "Pull the knees to the chest",
+      "Round the upper back slightly"
+    ],
+    "badForm": [
+      "Let the shoulders shrug up",
+      "Swing the body"
+    ],
+    "video": "https://www.youtube.com/watch?v=PLffPwepgiY",
+    "timed": true,
+    "pictogram": "l-sit"
+  },
+  "CAL_MUSCLEUP": {
+    "id": "CAL_MUSCLEUP",
+    "name": "Muscle-up",
+    "shortName": "Muscle-up",
+    "abbr": "MU",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "biceps",
+      "shoulders",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Pull yourself up and over a bar or rings until you are in a straight-arm support on top. It joins a pull-up and a dip into one move.",
+    "goodForm": [
+      "Pull high with the elbows driving back",
+      "Lean forward over the bar through the transition",
+      "Press to full lockout on top"
+    ],
+    "badForm": [
+      "Kip excessively",
+      "Chicken-wing one arm over the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=OyRj1z3sNgs",
+    "pictogram": "muscle-up"
+  },
+  "CAL_MUSCLEUP_BAND": {
+    "id": "CAL_MUSCLEUP_BAND",
+    "name": "Band-assisted muscle-up",
+    "shortName": "Band-assisted muscle-up",
+    "abbr": "BAM",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "bands"
+    ],
+    "muscles": [
+      "lats",
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "biceps",
+      "shoulders"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A muscle-up with a band looped under the feet or knees to reduce load. It lets you practise the transition over the bar.",
+    "goodForm": [
+      "Pull high and lean the chest over the bar quickly",
+      "Move through the transition with elbows close",
+      "Press out to straight arms above the bar"
+    ],
+    "badForm": [
+      "Rely on a big kick",
+      "Skip the lowering"
+    ],
+    "video": "https://www.youtube.com/watch?v=8wa2Lj-VOwA",
+    "pictogram": "muscle-up"
+  },
+  "CAL_NORDIC_CURL": {
+    "id": "CAL_NORDIC_CURL",
+    "name": "Nordic curl",
+    "shortName": "Nordic curl",
+    "abbr": "NC",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "hamstrings"
+    ],
+    "secondary": [
+      "glutes",
+      "calves"
+    ],
+    "pattern": "hinge",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "With the feet anchored, lower your straight body toward the floor using only the hamstrings, then pull back up. One of the hardest hamstring exercises in bodyweight training.",
+    "goodForm": [
+      "Keep the hips extended and the body in one line",
+      "Lower for as long as you can control it",
+      "Catch yourself with the hands and push back up if needed"
+    ],
+    "badForm": [
+      "Fold at the hips to cheat the lever",
+      "Rush the lowering phase"
+    ],
+    "video": "https://www.youtube.com/watch?v=3-4pKUhkzoQ",
+    "pictogram": "nordic"
+  },
+  "CAL_NORDIC_CURL_BANDED": {
+    "id": "CAL_NORDIC_CURL_BANDED",
+    "name": "Banded Nordic curl negative",
+    "shortName": "Banded Nordic",
+    "abbr": "BNC",
+    "kind": "bodyweight",
+    "equipment": [
+      "bands"
+    ],
+    "muscles": [
+      "hamstrings"
+    ],
+    "secondary": [
+      "glutes",
+      "calves"
+    ],
+    "pattern": "hinge",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Kneel with the feet anchored and lower the body forward as slowly as possible while a band, anchored above, takes part of your weight. It builds the strength to control a full Nordic curl.",
+    "goodForm": [
+      "Keep the body straight from knee to head",
+      "Lower as slowly as you can under control",
+      "Use a thicker band if you fall in the first half"
+    ],
+    "badForm": [
+      "Bend at the hips instead of staying straight",
+      "Let go and drop to the floor"
+    ],
+    "video": "https://www.youtube.com/watch?v=I9S20HrolmI",
+    "pictogram": "nordic"
+  },
+  "CAL_PALLOF_PRESS_BANDED": {
+    "id": "CAL_PALLOF_PRESS_BANDED",
+    "name": "Banded Pallof press",
+    "shortName": "Banded Pallof",
+    "abbr": "BPP",
+    "kind": "bodyweight",
+    "equipment": [
+      "bands"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "shoulders",
+      "glutes"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Stand sideways to a band anchored at chest height, press your hands straight out and bring them back without letting the band turn you. It trains the trunk to resist rotation.",
+    "goodForm": [
+      "Stand tall with the hips and shoulders square",
+      "Press the hands straight in front of the chest",
+      "Pause with arms extended before returning"
+    ],
+    "badForm": [
+      "Let the band pull the torso around",
+      "Lean away from the anchor"
+    ],
+    "video": "https://www.youtube.com/watch?v=y1fOBVtANdM",
+    "pictogram": "generic"
+  },
+  "CAL_PISTOL": {
+    "id": "CAL_PISTOL",
+    "name": "Pistol squat",
+    "shortName": "Pistol squat",
+    "abbr": "PS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals",
+      "calves"
+    ],
+    "pattern": "squat",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Squat to full depth on one leg with the other leg held straight in front, then stand back up. It needs strength, balance and mobility.",
+    "goodForm": [
+      "Keep the free leg straight and off the floor",
+      "Let the arms reach forward for balance",
+      "Drive up through the heel with the chest tall"
+    ],
+    "badForm": [
+      "Drop into the bottom without control",
+      "Roll the knee inward"
+    ],
+    "video": "https://www.youtube.com/watch?v=vq5-vdgJc0I",
+    "pictogram": "pistol"
+  },
+  "CAL_PISTOL_ASSISTED": {
+    "id": "CAL_PISTOL_ASSISTED",
+    "name": "Assisted pistol squat",
+    "shortName": "Assisted pistol",
+    "abbr": "APS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
+    "pattern": "squat",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A full-depth one-leg squat where you hold a support or a band with the hands to take away some load. It lets you train the full range before doing it unaided.",
+    "goodForm": [
+      "Hold the support lightly with straight arms",
+      "Keep the free leg off the floor",
+      "Sit all the way to the bottom and rise smoothly"
+    ],
+    "badForm": [
+      "Pull yourself up on the support",
+      "Let the heel lift"
+    ],
+    "video": "https://www.youtube.com/watch?v=tiA23NSUm7A",
+    "pictogram": "pistol"
+  },
+  "CAL_PLANCHE_ADV_TUCK": {
+    "id": "CAL_PLANCHE_ADV_TUCK",
+    "name": "Advanced tuck planche",
+    "shortName": "Advanced tuck",
+    "abbr": "ATP",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A tuck planche with the back flat and the knees still bent, a longer lever than the tuck.",
+    "goodForm": [
+      "Open the hips so the back is flat",
+      "Keep the arms straight",
+      "Hold the shoulders far over the hands"
+    ],
+    "badForm": [
+      "Round the back",
+      "Bend the elbows"
+    ],
+    "video": "https://www.youtube.com/watch?v=oSNVpyQmhGk",
+    "timed": true,
+    "pictogram": "planche"
+  },
+  "CAL_PLANCHE_LEAN": {
+    "id": "CAL_PLANCHE_LEAN",
+    "name": "Planche lean",
+    "shortName": "Planche lean",
+    "abbr": "PL",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
+    "pattern": "skill",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "In a straight-arm plank, shift the shoulders far forward of the hands while keeping the body straight. It builds the wrist and shoulder strength of a planche.",
+    "goodForm": [
+      "Keep the arms locked and the shoulders pushing down",
+      "Lean forward until the shoulders are well past the hands",
+      "Keep the body in a straight line"
+    ],
+    "badForm": [
+      "Bend the elbows",
+      "Let the hips sag"
+    ],
+    "video": "https://www.youtube.com/watch?v=3MzSVM-yEI0",
+    "timed": true,
+    "pictogram": "planche"
+  },
+  "CAL_PLANCHE_STRADDLE": {
+    "id": "CAL_PLANCHE_STRADDLE",
+    "name": "Straddle planche",
+    "shortName": "Straddle planche",
+    "abbr": "SP",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A planche held with the legs straight and spread wide. It needs very strong shoulders, wrists and core.",
+    "goodForm": [
+      "Keep the legs straight and wide",
+      "Hold the body flat and level",
+      "Push strongly through the shoulders"
+    ],
+    "badForm": [
+      "Pike the hips",
+      "Let the arms bend"
+    ],
+    "video": "https://www.youtube.com/watch?v=WzGybj0aVwU",
+    "timed": true,
+    "pictogram": "planche"
+  },
+  "CAL_PLANCHE_TUCK": {
+    "id": "CAL_PLANCHE_TUCK",
+    "name": "Tuck planche",
+    "shortName": "Tuck planche",
+    "abbr": "TP",
+    "kind": "bodyweight",
+    "equipment": [
+      "parallettes"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
+    "pattern": "skill",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Balance on straight arms with the feet off the floor and the knees tucked in, the hips about level with the shoulders. The first hold where the whole body is off the ground.",
+    "goodForm": [
+      "Lock the arms and push the shoulders forward",
+      "Round the back and tuck the knees tight",
+      "Keep the hips at shoulder height"
+    ],
+    "badForm": [
+      "Bend the elbows",
+      "Let the hips rise too high"
+    ],
+    "video": "https://www.youtube.com/watch?v=M5il8Jpltt8",
+    "timed": true,
+    "pictogram": "planche"
+  },
+  "CAL_PLANK": {
+    "id": "CAL_PLANK",
+    "name": "Plank",
+    "shortName": "Plank",
+    "abbr": "P",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "shoulders",
+      "glutes"
+    ],
+    "pattern": "core",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hold the body straight on forearms and toes. It trains the trunk to resist sagging.",
+    "goodForm": [
+      "Stack the elbows under the shoulders",
+      "Squeeze the glutes and tuck the ribs down",
+      "Breathe steadily without letting the hips drop"
+    ],
+    "badForm": [
+      "Let the lower back sag",
+      "Raise the hips into a pike"
+    ],
+    "video": "https://www.youtube.com/watch?v=6LqqeBtFn9M",
+    "timed": true,
+    "pictogram": "plank"
+  },
+  "CAL_PULLUP": {
+    "id": "CAL_PULLUP",
+    "name": "Pull-up",
+    "shortName": "Pull-up",
+    "abbr": "PU",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar with an overhand grip and pull until your chin clears it, then lower to straight arms. A basic test of upper-body pulling strength.",
+    "goodForm": [
+      "Begin each rep from a dead hang with the shoulders set down",
+      "Pull the elbows down and back, chest toward the bar",
+      "Lower under control to full extension"
+    ],
+    "badForm": [
+      "Kip or swing the legs",
+      "Crane the neck forward to reach the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=eGo4IYlbE5g",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_BAND_ASSISTED": {
+    "id": "CAL_PULLUP_BAND_ASSISTED",
+    "name": "Band-assisted pull-up",
+    "shortName": "Band-assisted pull-up",
+    "abbr": "BAP",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "bands"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A pull-up with a resistance band looped around the bar and under a foot or knee. The band helps most at the bottom, letting you practise full pull-ups before you can do them unassisted.",
+    "goodForm": [
+      "Start every rep from straight arms and shoulders pulled down",
+      "Pull the elbows toward the ribs",
+      "Move to a thinner band as you get stronger"
+    ],
+    "badForm": [
+      "Bounce out of the bottom on the band",
+      "Stop short of getting the chin over the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=4yE-XGDWJPg",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_CHEST_TO_BAR": {
+    "id": "CAL_PULLUP_CHEST_TO_BAR",
+    "name": "Chest-to-bar pull-up",
+    "shortName": "Chest-to-bar pull-up",
+    "abbr": "CTB",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A strict pull-up where the chest touches the bar. It teaches the pull height needed for a muscle-up.",
+    "goodForm": [
+      "Pull until the chest touches the bar",
+      "Lean back slightly at the top",
+      "Lower to a full hang"
+    ],
+    "badForm": [
+      "Swing the legs",
+      "Reach the chin to the bar only"
+    ],
+    "video": "https://www.youtube.com/watch?v=KVnxsJpKyOA",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_CLOSE": {
+    "id": "CAL_PULLUP_CLOSE",
+    "name": "Close-grip pull-up",
+    "shortName": "Close-grip pull-up",
+    "abbr": "CGP",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A pull-up with the hands touching or nearly touching. The narrow grip loads the biceps and lats more.",
+    "goodForm": [
+      "Grip with the hands a few centimetres apart",
+      "Pull the chest toward the bar",
+      "Lower to full extension"
+    ],
+    "badForm": [
+      "Kip the legs",
+      "Pull the chin forward to the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=j--ftfgTL5I",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_HALF": {
+    "id": "CAL_PULLUP_HALF",
+    "name": "Half pull-up",
+    "shortName": "Half pull-up",
+    "abbr": "HPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A pull-up lifted only about halfway, until the elbows reach ninety degrees. It builds strength in the lower half of the movement.",
+    "goodForm": [
+      "Start from a full hang with shoulders set",
+      "Pull until the elbows are bent about ninety degrees",
+      "Lower to straight arms"
+    ],
+    "badForm": [
+      "Swing the legs",
+      "Cut the hang short at the bottom"
+    ],
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_HIGH": {
+    "id": "CAL_PULLUP_HIGH",
+    "name": "High pull-up",
+    "shortName": "High pull-up",
+    "abbr": "HPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A strict pull-up pulled as high as possible, until the bar reaches the upper chest. It builds the strength to bring the body above the bar.",
+    "goodForm": [
+      "Pull the elbows back behind the body",
+      "Aim the bar toward the sternum",
+      "Keep the legs together and body tight"
+    ],
+    "badForm": [
+      "Kip with the legs",
+      "Stop with the chin at the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=cgYMLffRiMk",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_JACKKNIFE": {
+    "id": "CAL_PULLUP_JACKKNIFE",
+    "name": "Jackknife pull-up",
+    "shortName": "Jackknife pull-up",
+    "abbr": "JPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar with the feet on a raised support in front, hips bent, and pull the chest toward the bar. The legs share the weight, making it easier than a full pull-up.",
+    "goodForm": [
+      "Place the feet on a bench in front of you",
+      "Pull the chest toward the bar",
+      "Lower to straight arms each rep"
+    ],
+    "badForm": [
+      "Push hard with the feet",
+      "Stop with the elbows still bent"
+    ],
+    "video": "https://www.youtube.com/watch?v=fRJDlmUrN84",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_NEGATIVE": {
+    "id": "CAL_PULLUP_NEGATIVE",
+    "name": "Pull-up negative",
+    "shortName": "Pull-up negative",
+    "abbr": "PUN",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Jump or step up so your chin is over the bar, then lower yourself as slowly as you can to straight arms. Lowering is easier than pulling, so this builds the strength for the first pull-up.",
+    "goodForm": [
+      "Start with the chin above the bar and the shoulders down",
+      "Take at least three seconds to lower",
+      "Finish in a full dead hang before the next rep"
+    ],
+    "badForm": [
+      "Drop quickly through the lower half",
+      "Start with the head poked forward over the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=gbPURTSxQLY",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_ONE_ARM": {
+    "id": "CAL_PULLUP_ONE_ARM",
+    "name": "One-arm pull-up",
+    "shortName": "One-arm pull-up",
+    "abbr": "OAP",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Pull the chin over a bar using one arm only. It is one of the hardest bodyweight pulling skills.",
+    "goodForm": [
+      "Start from a dead hang with the shoulder set",
+      "Pull the elbow down toward the hip",
+      "Lower smoothly to full extension"
+    ],
+    "badForm": [
+      "Kip or swing",
+      "Loosen the grip at the bottom"
+    ],
+    "video": "https://www.youtube.com/watch?v=mTJHClMQPM8",
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_ONE_ARM_ASSISTED": {
+    "id": "CAL_PULLUP_ONE_ARM_ASSISTED",
+    "name": "Assisted one-arm pull-up",
+    "shortName": "Assisted one-arm",
+    "abbr": "AOA",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "bands"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A one-arm pull-up with a light assist such as a towel, band or the free hand gripping a lower point. It lets you practise the full range.",
+    "goodForm": [
+      "Keep the assisting hand as light as possible",
+      "Pull the elbow toward the ribs",
+      "Lower slowly to a full hang"
+    ],
+    "badForm": [
+      "Let the helper do the work",
+      "Twist away from the bar"
+    ],
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_ONE_ARM_HALF": {
+    "id": "CAL_PULLUP_ONE_ARM_HALF",
+    "name": "Half one-arm pull-up",
+    "shortName": "Half one-arm",
+    "abbr": "HOA",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A one-arm pull-up taken only about halfway up, with the other hand held lightly on the wrist or released. A major step toward the full one-arm pull-up.",
+    "goodForm": [
+      "Hold the working wrist firmly with the free hand only for balance",
+      "Pull until the elbow reaches ninety degrees",
+      "Lower under control"
+    ],
+    "badForm": [
+      "Use the free hand to pull",
+      "Kick the legs"
+    ],
+    "pictogram": "pull-up"
+  },
+  "CAL_PULLUP_UNEVEN": {
+    "id": "CAL_PULLUP_UNEVEN",
+    "name": "Uneven pull-up",
+    "shortName": "Uneven pull-up",
+    "abbr": "UPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A pull-up with one hand on the bar and the other holding a towel or lower rung, so one arm does more work. It builds toward the one-arm pull-up.",
+    "goodForm": [
+      "Let the upper hand do most of the work",
+      "Keep the shoulders level",
+      "Switch which hand is higher each set"
+    ],
+    "badForm": [
+      "Pull hard with the helping hand",
+      "Twist the body"
+    ],
+    "pictogram": "pull-up"
+  },
+  "CAL_PULL_VERTICAL": {
+    "id": "CAL_PULL_VERTICAL",
+    "name": "Vertical pull",
+    "shortName": "Vertical pull",
+    "abbr": "VP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hold a fixed upright post or doorframe edge with both hands and lean back, then pull yourself back to upright. The easiest pulling step, with the body close to vertical.",
+    "goodForm": [
+      "Grip the support firmly and lean back with a straight body",
+      "Pull the elbows toward the ribs",
+      "Lower back slowly to straight arms"
+    ],
+    "badForm": [
+      "Pull with the shoulders shrugged up",
+      "Bend at the hips"
+    ],
+    "pictogram": "row"
+  },
+  "CAL_PUSHUP": {
+    "id": "CAL_PUSHUP",
+    "name": "Push-up",
+    "shortName": "Push-up",
+    "abbr": "PU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "From a straight-arm plank, lower the chest to just above the floor and press back up with the body held rigid. The standard horizontal push.",
+    "goodForm": [
+      "Hands under the shoulders and body in one line",
+      "Elbows at about 45 degrees from the ribs",
+      "Touch the chest down and lock the arms out"
+    ],
+    "badForm": [
+      "Let the hips sag or rise",
+      "Reach forward with the head"
+    ],
+    "video": "https://www.youtube.com/watch?v=IODxDxX7oi4",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_CLOSE": {
+    "id": "CAL_PUSHUP_CLOSE",
+    "name": "Close push-up",
+    "shortName": "Close push-up",
+    "abbr": "CPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "triceps",
+      "chest"
+    ],
+    "secondary": [
+      "shoulders"
+    ],
+    "pattern": "push",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up with the hands a few centimetres apart, narrower than the shoulders. A step toward harder single-arm work.",
+    "goodForm": [
+      "Place the hands just inside shoulder width",
+      "Keep the elbows brushing the sides",
+      "Lower under control and press to lockout"
+    ],
+    "badForm": [
+      "Let the elbows drift out",
+      "Sag through the middle"
+    ],
+    "video": "https://www.youtube.com/watch?v=G2mlaEfpEIM",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_DIAMOND": {
+    "id": "CAL_PUSHUP_DIAMOND",
+    "name": "Diamond push-up",
+    "shortName": "Diamond push-up",
+    "abbr": "DPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "triceps",
+      "chest"
+    ],
+    "secondary": [
+      "shoulders"
+    ],
+    "pattern": "push",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up with the hands close together under the chest, forming a diamond with the thumbs and index fingers. It shifts the load toward the triceps.",
+    "goodForm": [
+      "Keep the elbows tucked close to the ribs",
+      "Lower the chest to the hands",
+      "Brace the core so the hips stay level"
+    ],
+    "badForm": [
+      "Flare the elbows outward",
+      "Let the wrists collapse"
+    ],
+    "video": "https://www.youtube.com/watch?v=J0DnG1_S92I",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_HALF": {
+    "id": "CAL_PUSHUP_HALF",
+    "name": "Half push-up",
+    "shortName": "Half push-up",
+    "abbr": "HPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up where you go down only about halfway, until the upper arms are parallel to the floor. It builds toward the full range.",
+    "goodForm": [
+      "Lower until the elbows reach about ninety degrees",
+      "Hold the plank position the whole time",
+      "Lock out at the top"
+    ],
+    "badForm": [
+      "Flare the elbows wide",
+      "Let the hips drop"
+    ],
+    "video": "https://www.youtube.com/watch?v=1OG1PDZE_r0",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_INCLINE": {
+    "id": "CAL_PUSHUP_INCLINE",
+    "name": "Incline push-up",
+    "shortName": "Incline push-up",
+    "abbr": "IPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "bench",
+      "box"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up with the hands on a bench, step or bar so the body slopes down toward the feet. Lower the surface over time to make it harder.",
+    "goodForm": [
+      "Keep the body in one straight line",
+      "Lower the chest to the edge of the support",
+      "Point the elbows about 45 degrees from the torso"
+    ],
+    "badForm": [
+      "Let the hips sag or pike",
+      "Do half reps"
+    ],
+    "video": "https://www.youtube.com/watch?v=yAbg3_pJKvw",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_KNEELING": {
+    "id": "CAL_PUSHUP_KNEELING",
+    "name": "Kneeling push-up",
+    "shortName": "Kneeling push-up",
+    "abbr": "KPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up from the knees, with a straight line from knees to head. It shortens the lever so you can practise a full range on the floor.",
+    "goodForm": [
+      "Keep the hips extended with a straight line from knees to head",
+      "Lower the chest to the floor",
+      "Press all the way to straight arms"
+    ],
+    "badForm": [
+      "Sit the hips back toward the heels",
+      "Lower only partway"
+    ],
+    "video": "https://www.youtube.com/watch?v=utzhPQuXWcA",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_LEVER": {
+    "id": "CAL_PUSHUP_LEVER",
+    "name": "Lever push-up",
+    "shortName": "Lever push-up",
+    "abbr": "LPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up with one arm straight out to the side and sliding on a towel or support, so most of your weight is on the other arm. A bridge to the true one-arm push-up.",
+    "goodForm": [
+      "Keep the supporting arm slightly bent and under the chest",
+      "Let the straight arm help only as much as you need",
+      "Lower the chest to the floor under control"
+    ],
+    "badForm": [
+      "Push off the helping hand",
+      "Twist the hips open"
+    ],
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_ONE_ARM": {
+    "id": "CAL_PUSHUP_ONE_ARM",
+    "name": "One-arm push-up",
+    "shortName": "One-arm push-up",
+    "abbr": "OAP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up using only one arm, with the feet wide and the free hand behind the back. It needs strong pressing muscles and a very tight core.",
+    "goodForm": [
+      "Place the feet wider than the shoulders",
+      "Keep the hips and shoulders square to the floor",
+      "Press the floor away smoothly until the arm is locked"
+    ],
+    "badForm": [
+      "Twist the body open as you tire",
+      "Jerk up out of the bottom"
+    ],
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_ONE_ARM_HALF": {
+    "id": "CAL_PUSHUP_ONE_ARM_HALF",
+    "name": "Half one-arm push-up",
+    "shortName": "Half one-arm",
+    "abbr": "HOA",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A one-arm push-up lowered only halfway, with the feet wide for balance. It builds toward the full one-arm push-up.",
+    "goodForm": [
+      "Set the feet wide and keep the hips square",
+      "Tuck the working elbow near the ribs",
+      "Lower to ninety degrees and press up"
+    ],
+    "badForm": [
+      "Rotate the hips open",
+      "Collapse the shoulder at the bottom"
+    ],
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_PSEUDO_PLANCHE": {
+    "id": "CAL_PUSHUP_PSEUDO_PLANCHE",
+    "name": "Pseudo planche push-up",
+    "shortName": "Pseudo planche",
+    "abbr": "PPP",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms"
+    ],
+    "pattern": "push",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up with the hands placed by the hips and the shoulders leaned well forward of them. It loads the front shoulders and prepares you for planche work.",
+    "goodForm": [
+      "Turn the fingers outward and put the hands near the waist",
+      "Lean the shoulders far over the hands",
+      "Keep the body straight and the shoulder blades spread"
+    ],
+    "badForm": [
+      "Let the hips pike up to cut the load",
+      "Hold the lean with bent arms and a sagging chest"
+    ],
+    "video": "https://www.youtube.com/watch?v=i-gSmqe9tNw",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_UNEVEN": {
+    "id": "CAL_PUSHUP_UNEVEN",
+    "name": "Uneven push-up",
+    "shortName": "Uneven push-up",
+    "abbr": "UPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
+    "pattern": "push",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A push-up with one hand on a raised surface such as a ball or block and the other on the floor. The lower hand does most of the pressing.",
+    "goodForm": [
+      "Keep the shoulders level",
+      "Lean toward the lower hand as you descend",
+      "Switch which hand is raised between sets"
+    ],
+    "badForm": [
+      "Twist the torso",
+      "Use the raised hand to push off hard"
+    ],
+    "video": "https://www.youtube.com/watch?v=tLE6iBjJJt8",
+    "pictogram": "push-up"
+  },
+  "CAL_PUSHUP_WALL": {
+    "id": "CAL_PUSHUP_WALL",
+    "name": "Wall push-up",
+    "shortName": "Wall push-up",
+    "abbr": "WPU",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Face a wall with arms straight and hands at chest height, then bend the elbows to bring the chest to the wall and push back. The gentlest push-up variation.",
+    "goodForm": [
+      "Stand a bit more than an arm length away",
+      "Keep the body straight from head to heels",
+      "Lower until the nose nearly touches the wall"
+    ],
+    "badForm": [
+      "Stick the hips back",
+      "Flare the elbows straight out to the sides"
+    ],
+    "video": "https://www.youtube.com/watch?v=wIPJvBQs7RA",
+    "pictogram": "push-up"
+  },
+  "CAL_RDL_BODYWEIGHT": {
+    "id": "CAL_RDL_BODYWEIGHT",
+    "name": "Bodyweight Romanian deadlift",
+    "shortName": "Bodyweight Romanian",
+    "abbr": "BRD",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "hamstrings",
+      "glutes"
+    ],
+    "secondary": [
+      "lower-back"
+    ],
+    "pattern": "hinge",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Push the hips back with soft knees and lower the torso until you feel the hamstrings stretch, then stand tall. It teaches the hip hinge without weight.",
+    "goodForm": [
+      "Keep the back flat and the knees softly bent",
+      "Send the hips straight back like closing a door with them",
+      "Squeeze the glutes to stand up"
+    ],
+    "badForm": [
+      "Round the lower back",
+      "Turn it into a squat by bending the knees a lot"
+    ],
+    "video": "https://www.youtube.com/watch?v=EK-Fi5sFSm4",
+    "pictogram": "rdl"
+  },
+  "CAL_REVERSE_HYPEREXTENSION": {
+    "id": "CAL_REVERSE_HYPEREXTENSION",
+    "name": "Reverse hyperextension",
+    "shortName": "Reverse hyperextension",
+    "abbr": "RH",
+    "kind": "bodyweight",
+    "equipment": [
+      "bench"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back"
+    ],
+    "secondary": [
+      "hamstrings"
+    ],
+    "pattern": "hinge",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie face down over the edge of a bench or box and swing the straight legs up behind you until they are in line with the body. It strengthens the glutes and lower back with little spinal load.",
+    "goodForm": [
+      "Hold the bench firmly and keep the torso still",
+      "Lift the legs by squeezing the glutes",
+      "Lower slowly without swinging"
+    ],
+    "badForm": [
+      "Swing the legs with momentum",
+      "Arch the lower back past neutral at the top"
+    ],
+    "video": "https://www.youtube.com/watch?v=WCha157af1E",
+    "pictogram": "back-extension"
+  },
+  "CAL_RING_ROLLOUT": {
+    "id": "CAL_RING_ROLLOUT",
+    "name": "Ring ab rollout",
+    "shortName": "Ring ab",
+    "abbr": "RAR",
+    "kind": "bodyweight",
+    "equipment": [
+      "rings"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "lats",
+      "shoulders"
+    ],
+    "pattern": "core",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Kneel holding low rings and roll forward until the arms are extended, then pull back to the start. The rings move freely, so the core works hard to stay stable.",
+    "goodForm": [
+      "Tuck the pelvis and keep a straight line from knees to head",
+      "Reach only as far as you can keep the back flat",
+      "Pull back with the abs rather than the hips"
+    ],
+    "badForm": [
+      "Let the lower back arch at full reach",
+      "Fold at the hips to come back"
+    ],
+    "video": "https://www.youtube.com/watch?v=cGz4fNiEFW0",
+    "pictogram": "ab-wheel"
+  },
+  "CAL_ROW_ARCHER": {
+    "id": "CAL_ROW_ARCHER",
+    "name": "Archer row",
+    "shortName": "Archer row",
+    "abbr": "AR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "On a wide grip, pull to one side while the opposite arm stays straight like a bowstring, then alternate. It prepares you for one-arm pulling.",
+    "goodForm": [
+      "Pull toward the working hand and keep the other arm straight",
+      "Keep the hips level and the body rigid",
+      "Control the lowering to the center"
+    ],
+    "badForm": [
+      "Bend both arms equally",
+      "Twist the torso to reach the bar"
+    ],
+    "video": "https://www.youtube.com/watch?v=OKKUSKbemtQ",
+    "pictogram": "inverted-row"
+  },
+  "CAL_ROW_HORIZONTAL": {
+    "id": "CAL_ROW_HORIZONTAL",
+    "name": "Horizontal row",
+    "shortName": "Horizontal row",
+    "abbr": "HR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms",
+      "abdominals"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie under a bar or rings with the body straight and parallel to the floor, then pull the chest up to your hands. Also called an inverted row.",
+    "goodForm": [
+      "Keep the legs, hips and chest in one plank-like line",
+      "Pull the shoulder blades back first",
+      "Touch the chest to the bar or rings"
+    ],
+    "badForm": [
+      "Let the hips sag",
+      "Stop halfway"
+    ],
+    "video": "https://www.youtube.com/watch?v=hXTc1mDnZCw",
+    "pictogram": "inverted-row"
+  },
+  "CAL_ROW_INCLINE": {
+    "id": "CAL_ROW_INCLINE",
+    "name": "Incline row",
+    "shortName": "Incline row",
+    "abbr": "IR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A row with the body leaning back at about 45 degrees under a bar or rings. A middle step between vertical and horizontal rows.",
+    "goodForm": [
+      "Hold the body straight from heels to head",
+      "Pull the chest toward the hands",
+      "Lower to straight arms with control"
+    ],
+    "badForm": [
+      "Let the hips drop",
+      "Jerk with the legs"
+    ],
+    "video": "https://www.youtube.com/watch?v=5W8F6MzZ8Rk",
+    "pictogram": "inverted-row"
+  },
+  "CAL_ROW_VERTICAL": {
+    "id": "CAL_ROW_VERTICAL",
+    "name": "Vertical row",
+    "shortName": "Vertical row",
+    "abbr": "VR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Stand holding rings or a bar and lean back only slightly, then pull yourself to upright. With an almost vertical body the load is small, so it suits a first rowing practice.",
+    "goodForm": [
+      "Keep the body in a straight line",
+      "Pull the elbows back and squeeze the shoulder blades",
+      "Walk the feet forward to make it harder"
+    ],
+    "badForm": [
+      "Sag at the hips",
+      "Shrug the shoulders toward the ears"
+    ],
+    "video": "https://www.youtube.com/watch?v=PlUXvBmue90",
+    "pictogram": "inverted-row"
+  },
+  "CAL_ROW_WIDE": {
+    "id": "CAL_ROW_WIDE",
+    "name": "Wide row",
+    "shortName": "Wide row",
+    "abbr": "WR",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "shoulders"
+    ],
+    "pattern": "pull",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A horizontal row with a wider grip and the elbows flaring out. It shifts the work toward the upper back and rear shoulders.",
+    "goodForm": [
+      "Take a grip clearly wider than the shoulders",
+      "Lead with the elbows, pointing them outward",
+      "Keep the body straight and tight"
+    ],
+    "badForm": [
+      "Pull with the neck and shoulders only",
+      "Let the hips rise or sag"
+    ],
+    "pictogram": "inverted-row"
+  },
+  "CAL_SCAPULAR_PULL": {
+    "id": "CAL_SCAPULAR_PULL",
+    "name": "Scapular pull",
+    "shortName": "Scapular pull",
+    "abbr": "SP",
+    "kind": "bodyweight",
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "traps",
+      "forearms"
+    ],
+    "pattern": "pull",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hang from a bar with straight arms and pull only your shoulder blades down, lifting the body a few centimetres. It teaches the shoulder position every pull-up starts from.",
+    "goodForm": [
+      "Keep the elbows locked straight the whole time",
+      "Drive the shoulders away from the ears, then let them rise slowly",
+      "Pause for a second at the top of each rep"
+    ],
+    "badForm": [
+      "Bend the elbows to help the movement",
+      "Swing or kick to get the body moving"
+    ],
+    "video": "https://www.youtube.com/watch?v=-ZIpSoTRsuE",
+    "pictogram": "dead-hang"
+  },
+  "CAL_SHRIMP_SQUAT_ADVANCED": {
+    "id": "CAL_SHRIMP_SQUAT_ADVANCED",
+    "name": "Advanced shrimp squat",
+    "shortName": "Advanced shrimp",
+    "abbr": "ASS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
+    "pattern": "squat",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "The full shrimp squat, with the rear leg held behind and the torso kept upright while the knee touches down. It asks for strong quads and good ankle and hip mobility.",
+    "goodForm": [
+      "Keep the chest tall and the rear foot held high",
+      "Lower with control until the knee just touches",
+      "Press up through the heel of the standing foot"
+    ],
+    "badForm": [
+      "Collapse into the bottom",
+      "Use momentum from the back leg to rise"
+    ],
+    "video": "https://www.youtube.com/watch?v=xfl7SDj0Gzs",
+    "pictogram": "shrimp-squat"
+  },
+  "CAL_SHRIMP_SQUAT_BEGINNER": {
+    "id": "CAL_SHRIMP_SQUAT_BEGINNER",
+    "name": "Beginner shrimp squat",
+    "shortName": "Beginner shrimp",
+    "abbr": "BSS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
+    "pattern": "squat",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Stand on one leg, hold the other foot behind you and lower the back knee to the floor, using a light support if needed. The entry point to single-leg knee-bend strength.",
+    "goodForm": [
+      "Hold a wall or post lightly for balance",
+      "Reach the back knee down gently toward the floor",
+      "Keep the standing heel planted"
+    ],
+    "badForm": [
+      "Drop the last few centimetres onto the knee",
+      "Lean far forward to stay balanced"
+    ],
+    "video": "https://www.youtube.com/watch?v=85YE86ipw_w",
+    "pictogram": "shrimp-squat"
+  },
+  "CAL_SHRIMP_SQUAT_INTERMEDIATE": {
+    "id": "CAL_SHRIMP_SQUAT_INTERMEDIATE",
+    "name": "Intermediate shrimp squat",
+    "shortName": "Intermediate shrimp",
+    "abbr": "ISS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
+    "pattern": "squat",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A shrimp squat with the rear foot held in the hand and no support. The balance and range of motion are both larger than in the beginner version.",
+    "goodForm": [
+      "Hold the rear foot close to the glute",
+      "Touch the back knee lightly to a mat each rep",
+      "Stand up without pushing off the back leg"
+    ],
+    "badForm": [
+      "Rest the full weight on the rear knee",
+      "Let the standing knee roll inward"
+    ],
+    "video": "https://www.youtube.com/watch?v=AEVjjU0pVV8",
+    "pictogram": "shrimp-squat"
+  },
+  "CAL_SINGLE_LEG_DEADLIFT": {
+    "id": "CAL_SINGLE_LEG_DEADLIFT",
+    "name": "Single-leg deadlift",
+    "shortName": "Single-leg deadlift",
+    "abbr": "SLD",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "hamstrings",
+      "glutes"
+    ],
+    "secondary": [
+      "lower-back",
+      "abdominals"
+    ],
+    "pattern": "hinge",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hinge forward on one leg while the other extends straight behind you, then return upright. It builds hamstring strength and hip balance.",
+    "goodForm": [
+      "Keep the hips level and pointed at the floor",
+      "Reach the free leg back in line with the torso",
+      "Soften the standing knee and keep the foot flat"
+    ],
+    "badForm": [
+      "Open the hips to the side",
+      "Round the back to reach lower"
+    ],
+    "video": "https://www.youtube.com/watch?v=JQZqPsmeesc",
+    "pictogram": "rdl"
+  },
+  "CAL_SPLIT_SQUAT": {
+    "id": "CAL_SPLIT_SQUAT",
+    "name": "Split squat",
+    "shortName": "Split squat",
+    "abbr": "SS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "adductors"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Take a long stance with one foot forward and lower the back knee toward the floor, then press back up. It trains one leg at a time without the balance demand of a lunge step.",
+    "goodForm": [
+      "Keep the torso upright and the front foot flat",
+      "Lower straight down rather than forward",
+      "Drive up through the whole front foot"
+    ],
+    "badForm": [
+      "Let the front knee cave inward",
+      "Shorten the stance so the heel lifts"
+    ],
+    "video": "https://www.youtube.com/watch?v=Ms7aIhDm0uc",
+    "pictogram": "split-squat"
+  },
+  "CAL_SQUAT": {
+    "id": "CAL_SQUAT",
+    "name": "Bodyweight squat",
+    "shortName": "Bodyweight squat",
+    "abbr": "BS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "adductors",
+      "calves"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Stand with feet about shoulder width and sit down until the thighs are at least level with the floor, then stand back up. The base movement for every leg progression.",
+    "goodForm": [
+      "Push the knees out over the middle toes",
+      "Keep the heels down and the chest up",
+      "Reach full hip extension at the top"
+    ],
+    "badForm": [
+      "Let the heels lift",
+      "Stop well above parallel"
+    ],
+    "video": "https://www.youtube.com/watch?v=P-yaD24bUE8",
+    "pictogram": "squat"
+  },
+  "CAL_SQUAT_CLOSE": {
+    "id": "CAL_SQUAT_CLOSE",
+    "name": "Close squat",
+    "shortName": "Close squat",
+    "abbr": "CS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "calves",
+      "adductors"
+    ],
+    "pattern": "squat",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A full squat with the feet together. The narrow stance demands more ankle and quad work and keeps the balance tricky.",
+    "goodForm": [
+      "Keep the feet touching or nearly touching",
+      "Sit straight down and keep the heels planted",
+      "Hold the arms forward for balance"
+    ],
+    "badForm": [
+      "Let the heels come off the floor",
+      "Fall backward at the bottom"
+    ],
+    "video": "https://www.youtube.com/watch?v=sMVyjUCp-XI",
+    "pictogram": "squat"
+  },
+  "CAL_SQUAT_HALF": {
+    "id": "CAL_SQUAT_HALF",
+    "name": "Half squat",
+    "shortName": "Half squat",
+    "abbr": "HS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A squat that stops when the thighs are about halfway to level, with the arms out in front. It builds control through the upper range.",
+    "goodForm": [
+      "Lower until the knees are at about ninety degrees",
+      "Keep the heels flat and the chest up",
+      "Drive up through the whole foot"
+    ],
+    "badForm": [
+      "Let the knees buckle inward",
+      "Bounce at the bottom"
+    ],
+    "video": "https://www.youtube.com/watch?v=zWvxJ7bBMmU",
+    "pictogram": "squat"
+  },
+  "CAL_SQUAT_JACKKNIFE": {
+    "id": "CAL_SQUAT_JACKKNIFE",
+    "name": "Jackknife squat",
+    "shortName": "Jackknife squat",
+    "abbr": "JS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "abdominals",
+      "hamstrings"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A deep squat with the torso folded forward and the hands on the floor in front for support. It builds leg strength in the bottom range with the arms sharing the load.",
+    "goodForm": [
+      "Fold forward with the chest close to the thighs",
+      "Keep the hands light on the floor",
+      "Stand fully upright between reps"
+    ],
+    "badForm": [
+      "Push off the floor with the hands",
+      "Lift the heels"
+    ],
+    "pictogram": "squat"
+  },
+  "CAL_SQUAT_ONE_LEG_HALF": {
+    "id": "CAL_SQUAT_ONE_LEG_HALF",
+    "name": "Half one-leg squat",
+    "shortName": "Half one-leg",
+    "abbr": "HOL",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
+    "pattern": "squat",
+    "level": "expert",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A one-leg squat that stops halfway down while the free leg reaches forward. It builds balance and strength for the full one-leg squat.",
+    "goodForm": [
+      "Extend the free leg in front and keep it off the floor",
+      "Lower until the thigh is halfway to level",
+      "Keep the standing heel flat"
+    ],
+    "badForm": [
+      "Let the knee fall inward",
+      "Fall back onto the free foot"
+    ],
+    "pictogram": "pistol"
+  },
+  "CAL_SQUAT_SHOULDERSTAND": {
+    "id": "CAL_SQUAT_SHOULDERSTAND",
+    "name": "Shoulderstand squat",
+    "shortName": "Shoulderstand squat",
+    "abbr": "SS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "abdominals"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Lie on your back with the legs in the air and the hands on the floor, then bend and straighten the knees toward the chest. A gentle first leg step that loads the quads without balance demands.",
+    "goodForm": [
+      "Keep the hips up and the weight on the shoulders",
+      "Bend the knees until the thighs near the chest",
+      "Push back to straight legs without swinging"
+    ],
+    "badForm": [
+      "Pull on the neck with the hands",
+      "Rock hard to build momentum"
+    ],
+    "pictogram": "squat"
+  },
+  "CAL_SQUAT_SUPPORTED": {
+    "id": "CAL_SQUAT_SUPPORTED",
+    "name": "Supported squat",
+    "shortName": "Supported squat",
+    "abbr": "SS",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
+    "pattern": "squat",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A full squat holding a fixed object in front for balance. You use the grip to stay upright and keep the heels down.",
+    "goodForm": [
+      "Hold something steady at chest height",
+      "Sit between the hips to full depth",
+      "Use the arms only for balance"
+    ],
+    "badForm": [
+      "Hang from the support to stand up",
+      "Let the knees drift inward"
+    ],
+    "video": "https://www.youtube.com/watch?v=VV_0K2Dud3o",
+    "pictogram": "squat"
+  },
+  "CAL_SQUAT_UNEVEN": {
+    "id": "CAL_SQUAT_UNEVEN",
+    "name": "Uneven squat",
+    "shortName": "Uneven squat",
+    "abbr": "US",
+    "kind": "bodyweight",
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
+    "pattern": "squat",
+    "level": "intermediate",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "A squat with one foot flat on the floor and the other raised on a small step, so the lower leg takes more of the load. A step toward one-leg squats.",
+    "goodForm": [
+      "Place the raised foot only a few centimetres higher",
+      "Keep both feet pointing forward",
+      "Switch legs between sets"
+    ],
+    "badForm": [
+      "Shift sideways over the low leg",
+      "Let the knee cave in"
+    ],
+    "pictogram": "squat"
+  },
+  "CAL_SUPPORT_HOLD": {
+    "id": "CAL_SUPPORT_HOLD",
+    "name": "Support hold",
+    "shortName": "Support hold",
+    "abbr": "SH",
+    "kind": "bodyweight",
+    "equipment": [
+      "dip-bars",
+      "parallettes",
+      "rings"
+    ],
+    "muscles": [
+      "triceps",
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms"
+    ],
+    "pattern": "push",
+    "level": "beginner",
+    "increment": {
+      "kg": 2.5,
+      "lb": 5
+    },
+    "description": "Hold your body up on straight arms between two bars, parallettes or rings. It builds the lockout strength and shoulder stability needed for dips.",
+    "goodForm": [
+      "Lock the elbows and press the shoulders down away from the ears",
+      "Keep the chest tall and the legs together",
+      "Breathe steadily and keep the body still"
+    ],
+    "badForm": [
+      "Shrug the shoulders up toward the ears",
+      "Let the elbows bend or flare"
+    ],
+    "video": "https://www.youtube.com/watch?v=eLI7t-5wHno",
+    "timed": true,
+    "pictogram": "support-hold"
+  }
+}

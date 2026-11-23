@@ -1,3 +1,4 @@
+import { own } from './own';
 import type { SessionLog } from './types';
 
 export interface LastResult {
@@ -15,8 +16,9 @@ const comparable = (log: SessionLog): boolean => !log.skipped && (log.intensity 
 export function lastResult(sessions: SessionLog[], exerciseId: string, beforeN?: number): LastResult | null {
   for (let i = sessions.length - 1; i >= 0; i--) {
     const log = sessions[i];
-    const result = log.results[exerciseId];
-    if (!comparable(log) || !result || (beforeN !== undefined && log.n >= beforeN)) continue;
+    const result = own(log.results, exerciseId);
+    if (!comparable(log) || !result || result.skipped || (beforeN !== undefined && log.n >= beforeN))
+      continue;
     return {
       n: log.n,
       date: log.finishedAt ?? log.startedAt,
@@ -41,15 +43,16 @@ export function isPersonalRecord(
   let heaviest = 0;
   let bestRepsAtWeight = 0;
   for (const log of sessions) {
-    const result = log.results[exerciseId];
-    if (!comparable(log) || !result) continue;
+    const result = own(log.results, exerciseId);
+    if (!comparable(log) || !result || result.skipped) continue;
     seen = true;
     heaviest = Math.max(heaviest, result.weightKg);
   }
   if (!seen) return false;
   for (const log of sessions) {
-    const result = log.results[exerciseId];
-    if (!comparable(log) || !result || Math.abs(result.weightKg - weightKg) > 1e-3) continue;
+    const result = own(log.results, exerciseId);
+    if (!comparable(log) || !result || result.skipped || Math.abs(result.weightKg - weightKg) > 1e-3)
+      continue;
     bestRepsAtWeight = Math.max(bestRepsAtWeight, result.sets.at(-1)?.reps ?? 0);
   }
   if (weightKg > heaviest + 1e-3) return true;

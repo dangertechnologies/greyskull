@@ -1,8 +1,10 @@
-import { nearestLoadableKg, roundForExercise } from './plates';
-import { tryParseScheme } from './program';
+import { getLadder, stepIn, stepTransition } from './ladders';
+import { inventoryFor, nearestLoadableKg, roundAddedLoad, roundForExercise } from './plates';
+import { type ParsedScheme, tryParseScheme } from './program';
 import type {
   Exercise,
   ExerciseResult,
+  Ladder,
   LiftState,
   PlateInventory,
   ProgressionModel,
@@ -22,6 +24,9 @@ export interface Outcome {
 /** Minimum AMRAP reps that count as a successful session. */
 export const SUCCESS_REPS = 5;
 
+/** Seconds a timed ladder hold adds after a session where every set reached its target. */
+export const HOLD_STEP_S = 5;
+
 export interface SessionContext {
   /** The slot's scheme; needed for the rep range of double progression. */
   scheme?: Scheme;
@@ -32,6 +37,11 @@ export interface SessionContext {
   lastInWeek?: boolean;
   /** Day intensity (light/medium days below 1 never progress). */
   intensity?: number;
+  /** Ladder id and the step the session was done at. */
+  ladder?: string;
+  step?: number;
+  /** Assistance bands, heaviest first (for banded ladder steps). */
+  bands?: { id: string; label: string }[];
 }
 
 /** Increment for a lift: the user's override, then the plan's, then the exercise default. */
@@ -53,31 +63,47 @@ export function nextLift(
   context: SessionContext = {},
 ): Outcome {
   const last = result.sets[result.sets.length - 1];
-  if (exercise.kind === 'bodyweight' || !last || (context.intensity ?? 1) < 1)
-    return { next: lift, change: 'none' };
+  if (!last || (context.intensity ?? 1) < 1) return { next: lift, change: 'none' };
 
   const model = context.progression ?? rules.progression ?? 'amrap';
+  const range = context.scheme ? tryParseScheme(context.scheme) : null;
+  const ladder = model === 'ladder' && context.ladder !== undefined ? getLadder(context.ladder) : undefined;
+  if (model === 'ladder' && !ladder) return { next: lift, change: 'none' };
+  // The one place that decides which models move a bodyweight lift: a ladder, or a rep range under double
+  // progression (reps, then added load). Every other model leaves it exactly as it was (plan extras such as
+  // chin-ups and dips under GSLP, StrongLifts or 5/3/1 never gain load).
+  const bodyweight = exercise.kind === 'bodyweight';
+  if (bodyweight && !ladder && !(model === 'double' && range?.repsMax != null))
+    return { next: lift, change: 'none' };
   if (model === '531' && (context.week !== 2 || !context.lastInWeek)) return { next: lift, change: 'none' };
 
   const inc = incrementFor(lift, rules, exercise, unit);
   const workingKg = model === '531' ? lift.weightKg : result.weightKg;
   const cur = toUnit(workingKg, unit); // the weight actually lifted
   const up = (steps: number) => roundForExercise(toKg(cur + steps * inc, unit), exercise, 'ceil', inv, unit);
-  const range = context.scheme ? tryParseScheme(context.scheme) : null;
+  // An increase the equipment cannot make (increment 0, heaviest kettlebell owned) holds instead.
+  const raised = (o: Outcome): Outcome =>
+    o.next.weightKg > workingKg + 1e-9
+      ? o
+      : { next: { ...lift, weightKg: workingKg, fails: 0 }, change: 'same' };
 
   let success: boolean;
   let outcome: Outcome | null = null;
   if (model === '531') {
     success = (result.sets[2]?.reps ?? 0) >= 1;
-    if (success) outcome = { next: { ...lift, weightKg: up(1), fails: 0 }, change: 'up' };
-  } else if (model === 'amrap' && context.advanceAt === undefined) {
+    if (success) outcome = raised({ next: { ...lift, weightKg: up(1), fails: 0 }, change: 'up' });
+  } else if (ladder) {
+    success = result.sets.every((set) => set.reps >= (set.target ?? range?.reps ?? SUCCESS_REPS));
+    if (success) outcome = climb(ladder, lift, result.weightKg, range, context, raised, up);
+  } else if (model === 'amrap' && context.advanceAt === undefined && !range?.timed) {
+    // GSLP reads the last set's reps; a timed scheme is judged by its target seconds below instead.
     success = last.reps >= SUCCESS_REPS;
     if (success) {
       const doubled = last.reps >= rules.doubleAt;
-      outcome = {
+      outcome = raised({
         next: { ...lift, weightKg: up(doubled ? 2 : 1), fails: 0 },
         change: doubled ? 'double' : 'up',
-      };
+      });
     }
   } else {
     // Every set must reach its target (an AMRAP set counts from its scheme's minimum, else SUCCESS_REPS).
@@ -99,23 +125,84 @@ export function nextLift(
       outcome =
         target < range.repsMax
           ? { next: { ...lift, weightKg: result.weightKg, reps: target + 1, fails: 0 }, change: 'reps' }
-          : { next: { ...lift, weightKg: up(1), reps: range.reps, fails: 0 }, change: 'up' };
+          : raised({ next: { ...lift, weightKg: up(1), reps: range.reps, fails: 0 }, change: 'up' });
     } else if (success) {
-      outcome = { next: { ...lift, weightKg: up(1), fails: 0 }, change: 'up' };
+      outcome = raised({ next: { ...lift, weightKg: up(1), fails: 0 }, change: 'up' });
     }
   }
   if (outcome) return outcome;
 
   const fails = lift.fails + 1;
+  if (ladder && fails >= rules.failsBeforeDeload + 1) {
+    // A ladder deload drops the target to the bottom of the range, takes added load off and goes back one
+    // band (heavier = more help); it never moves down a step.
+    const { reps: _reps, ...rest } = lift;
+    const weightKg =
+      workingKg > 0 ? roundAddedLoad(toKg(cur * (1 - rules.deloadPct), unit), inv, unit, 'floor') : 0;
+    const bands = context.bands ?? [];
+    const i = bands.findIndex((b) => b.id === lift.bandId);
+    const band =
+      ladder.steps[stepIn(ladder, context.step ?? lift.step)].band && i > 0
+        ? { bandId: bands[i - 1].id }
+        : {};
+    return { next: { ...rest, weightKg, fails: 0, ...band }, change: 'deload' };
+  }
   if (fails >= rules.failsBeforeDeload + 1) {
     const weightKg = roundForExercise(toKg(cur * (1 - rules.deloadPct), unit), exercise, 'floor', inv, unit);
     const reps = model === 'double' && range?.reps != null ? { reps: range.reps } : {};
+    // No added load to take off: a bodyweight lift just starts counting misses again.
+    if (bodyweight && weightKg === workingKg) return { next: { ...lift, fails: 0, ...reps }, change: 'same' };
     return { next: { ...lift, weightKg, fails: 0, ...reps }, change: 'deload' };
   }
   return { next: { ...lift, weightKg: workingKg, fails }, change: 'same' };
 }
 
-/** Weight for a session: the working weight, scaled and re-rounded on light/medium days. */
+/**
+ * A ladder session where every set reached its target: one more rep (or `HOLD_STEP_S` more seconds) up to the
+ * top of the range; at the top a lighter band, else the next step, else added load after a weighted ladder.
+ */
+function climb(
+  ladder: Ladder,
+  lift: LiftState,
+  weightKg: number,
+  range: ParsedScheme | null,
+  context: SessionContext,
+  raised: (o: Outcome) => Outcome,
+  up: (steps: number) => number,
+): Outcome {
+  const { reps: _reps, bandId: _bandId, ...rest } = lift;
+  const last = ladder.steps.length - 1;
+  const step = stepIn(ladder, context.step ?? lift.step);
+  if (range?.reps != null && range.repsMax != null) {
+    const target = Math.max(range.reps, Math.min(range.repsMax, lift.reps ?? range.reps));
+    if (target < range.repsMax) {
+      const reps = Math.min(range.repsMax, target + (range.timed ? HOLD_STEP_S : 1));
+      return { next: { ...lift, weightKg, step, reps, fails: 0 }, change: 'reps' };
+    }
+  }
+  const bands = context.bands ?? [];
+  if (ladder.steps[step].band && bands.length > 0) {
+    const i = bands.findIndex((b) => b.id === lift.bandId);
+    // No band or one the user deleted: start this step's bands again from the heaviest.
+    if (i < 0) return { next: { ...rest, weightKg, step, bandId: bands[0].id, fails: 0 }, change: 'same' };
+    if (i < bands.length - 1)
+      return { next: { ...rest, weightKg, step, bandId: bands[i + 1].id, fails: 0 }, change: 'up' };
+  }
+  if (step < last)
+    return { next: { ...stepTransition(lift, step + 1, ladder, bands), weightKg, fails: 0 }, change: 'up' };
+  if (ladder.after === 'weighted') {
+    const outcome = raised({ next: { ...rest, weightKg: up(1), step, fails: 0 }, change: 'up' });
+    return outcome.change === 'up'
+      ? outcome
+      : { next: { ...lift, weightKg, step, fails: 0 }, change: 'same' };
+  }
+  return { next: { ...lift, weightKg, step, fails: 0 }, change: 'same' };
+}
+
+/**
+ * Weight for a session: the working weight, scaled and re-rounded on light/medium days. For a bodyweight
+ * exercise it is the added load (0 = none).
+ */
 export function sessionWeightKg(
   liftKg: number,
   intensity: number,
@@ -123,7 +210,6 @@ export function sessionWeightKg(
   inv: PlateInventory,
   unit: Unit,
 ): number {
-  if (exercise.kind === 'bodyweight') return 0;
   return intensity < 1 ? roundForExercise(liftKg * intensity, exercise, 'nearest', inv, unit) : liftKg;
 }
 
@@ -142,7 +228,8 @@ export function warmups(
 ): Warmup[] {
   const parsed = tryParseScheme(scheme);
   if (exercise.kind !== 'barbell' || !parsed || parsed.reps === null) return [];
-  const barKg = toKg(unit === 'kg' ? inv.barKg : inv.barLb, unit);
+  const own = inventoryFor(exercise, inv);
+  const barKg = toKg(unit === 'kg' ? own.barKg : own.barLb, unit);
   // A single heavy set (deadlifts) gets two bigger jumps; everything else ramps up from the empty bar.
   const plan: { reps: number; pct: number | null }[] =
     parsed.sets === 1
@@ -158,7 +245,7 @@ export function warmups(
         ];
   const out: Warmup[] = [];
   plan.forEach(({ reps, pct }, i) => {
-    const kg = pct === null ? barKg : Math.max(barKg, nearestLoadableKg(pct * workKg, inv, unit));
+    const kg = pct === null ? barKg : Math.max(barKg, nearestLoadableKg(pct * workKg, own, unit));
     // The first set is always kept (an empty-bar set even when the work weight is the bar).
     if (i > 0 && (Math.abs(kg - workKg) < 1e-9 || out.some((w) => Math.abs(w.kg - kg) < 1e-9))) return;
     out.push({ reps, kg });

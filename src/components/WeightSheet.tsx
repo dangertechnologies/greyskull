@@ -32,7 +32,9 @@ export function WeightSheet({
         unit={unit}
         inventory={inventory}
       />
-      {exercise.kind === 'barbell' ? <PlateStack kg={kg} unit={unit} inventory={inventory} /> : null}
+      {exercise.kind === 'barbell' ? (
+        <PlateStack kg={kg} unit={unit} inventory={inventory} exercise={exercise} />
+      ) : null}
       <Button title="Done" onPress={onClose} />
     </Sheet>
   );

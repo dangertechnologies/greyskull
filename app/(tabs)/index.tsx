@@ -1,177 +1,225 @@
 import { Redirect, router } from 'expo-router';
-import { useMemo } from 'react';
-import { View } from 'react-native';
-import { LiftRow } from '../../src/components/LiftRow';
-import { WorkoutRow } from '../../src/components/WorkoutRow';
+import { Pressable, View } from 'react-native';
+import { CategoryPill, LoggedWorkout, Pill } from '../../src/components/ProgramBits';
 import { useTheme } from '../../src/design/theme';
-import { fiveThreeOneSets, formatWeight, project, sessionFor, sessionWeightKg } from '../../src/domain';
-import { intensityLabel, nameOf, schemeLabel, weekLabel, weekOf } from '../../src/format';
+import type { ActiveProgram, SessionLog } from '../../src/domain';
+import { sessionFor } from '../../src/domain';
+import { nameOf, weekLabel } from '../../src/format';
+import { useNow } from '../../src/hooks/useNow';
+import { setCounts, startWorkout, WEIGHT_CONFIRM_ROUTE } from '../../src/programStart';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
-import { Icon } from '../../src/ui/Icon';
-import { BottomBar, ScreenScroll } from '../../src/ui/layout';
+import { EmptyState } from '../../src/ui/EmptyState';
+import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
+import { ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
 import { useSnackbar } from '../../src/ui/Snackbar';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 
-/** The week as one dot per session: done, skipped, next, or still to come. */
-function WeekStrip({ first, perWeek, next }: { first: number; perWeek: number; next: number }) {
+/** "Started 18 min ago" for a draft. */
+function startedAgo(iso: string, now = Date.now()): string {
+  const minutes = Math.max(0, Math.round((now - Date.parse(iso)) / 60_000));
+  if (minutes < 1) return 'Started just now';
+  if (minutes < 60) return `Started ${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  return hours < 24 ? `Started ${hours} h ago` : `Started ${Math.floor(hours / 24)} d ago`;
+}
+
+function DraftCard({ draft }: { draft: SessionLog }) {
   const t = useTheme();
-  const sessions = useStore((s) => s.sessions);
+  const now = useNow();
+  // The program's current name, so a rename shows; the name stored in the draft is for a removed program.
+  const name = useStore((s) => s.programs.find((p) => p.id === draft.programId)?.name) ?? draft.programName;
+  const { done, total } = setCounts(draft);
   return (
-    <View
-      accessible
-      accessibilityLabel={`This week: ${Math.min(Math.max(next - first, 0), perWeek)} of ${perWeek} sessions done`}
-      style={{ flexDirection: 'row', gap: t.space[3] }}
-    >
-      {Array.from({ length: perWeek }, (_, i) => first + i).map((n) => {
-        const log = sessions.find((s) => s.n === n);
-        const isNext = n === next;
-        return (
-          <View
-            key={n}
-            style={{
-              width: 40,
-              flexShrink: 1,
-              height: 40,
-              borderRadius: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: log && !log.skipped ? t.color.success : 'transparent',
-              borderWidth: 2,
-              borderColor: log
-                ? log.skipped
-                  ? t.color.warning
-                  : t.color.success
-                : isNext
-                  ? t.color.accent
-                  : t.color.border,
-            }}
-          >
-            {log && !log.skipped ? (
-              <Icon name="check" size={18} color="background" />
-            ) : (
-              <Text variant="caption" color={log?.skipped ? 'warning' : isNext ? 'accent' : 'textMuted'}>
-                {log?.skipped ? '–' : String((n % perWeek) + 1)}
-              </Text>
-            )}
-          </View>
-        );
-      })}
-    </View>
+    <Card style={{ gap: t.space[4], borderWidth: 2, borderColor: t.color.accent }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: t.space[3] }}>
+        <View style={{ flex: 1, gap: t.space[1] }}>
+          <Text variant="headline">{`${name ?? 'Workout'} · ${draft.dayName}`}</Text>
+          <Text variant="callout" color="textMuted">
+            {`${startedAgo(draft.startedAt, now)} · ${done} of ${total} sets`}
+          </Text>
+        </View>
+        <Pill label="Draft" tone="success" />
+      </View>
+      <Button
+        title="Resume workout"
+        size="lg"
+        testID="resume-workout"
+        onPress={() => router.push(`/session/${draft.n}`)}
+      />
+    </Card>
   );
 }
 
-export default function Today() {
-  const state = useStore();
-  const { program, lifts, nextSession, draft, sessions, unit, inventory, exercises, needsWeightConfirm } =
-    state;
-  const snackbar = useSnackbar();
+function ProgramCard({ program, sameName }: { program: ActiveProgram; sameName: boolean }) {
   const t = useTheme();
-  const upcoming = useMemo(() => project(state, 3), [state]);
-
-  if (program === null) return <Redirect href="/setup" />;
-  if (needsWeightConfirm) return <Redirect href="/setup/confirm" />;
-
-  const session = sessionFor(program, nextSession, lifts);
-  const perWeek = program.sessionsPerWeek;
-  const week = weekOf(nextSession, perWeek);
-  const light = intensityLabel(session.dayName, session.intensity);
-  const recent = [...sessions].reverse().slice(0, 3);
+  const exercises = useStore((s) => s.exercises);
+  const snackbar = useSnackbar();
+  const session = sessionFor(program);
+  const ids = session.slots.map((s) => s.exercise).slice(0, 5);
+  // Two cards with one name are told apart by their next day.
+  const who = sameName ? `${program.name}, ${session.dayName}` : program.name;
 
   const skip = () => {
-    state.skipSession();
+    useStore.getState().skipSession(program.id);
     snackbar.show({
-      message: 'Workout skipped',
-      action: { label: 'Undo', onPress: () => useStore.getState().undoSkip() },
+      message: `${program.name}: workout skipped`,
+      action: { label: 'Undo', onPress: () => useStore.getState().undoSkip(program.id) },
     });
   };
 
   return (
-    <>
-      <ScreenScroll headerless withBottomBar gap={10}>
-        <View style={{ gap: t.space[2] }}>
-          <Text variant="label" color="textMuted">
-            {weekLabel(program, nextSession)}
+    <Card style={{ gap: t.space[4] }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${program.name}, next ${session.dayName}, ${weekLabel(program)}`}
+        accessibilityHint="Opens the program"
+        onPress={() => router.push(`/program/${program.id}`)}
+        style={{ flexDirection: 'row', alignItems: 'flex-start', gap: t.space[3] }}
+      >
+        <View style={{ flex: 1, gap: t.space[1] }}>
+          <Text variant="headline">{program.name}</Text>
+          <Text variant="callout" color="textMuted">
+            {`Next: ${session.dayName} · ${weekLabel(program)}`}
           </Text>
-          <Text variant="title" accessibilityRole="header">
-            {session.dayName}
-          </Text>
-          {light ? (
-            <Text variant="callout" color="textMuted">{`${light} of your working weights`}</Text>
-          ) : null}
         </View>
-
-        <WeekStrip first={(week - 1) * perWeek} perWeek={perWeek} next={nextSession} />
-
-        <Card style={{ gap: t.space[5] }}>
-          {session.slots.map(({ exercise: id, lift, scheme, progression, week }) => {
-            const exercise = exercises[id];
-            if (!exercise) return null;
-            const sets =
-              draft?.n === nextSession
-                ? draft.results[id]?.sets
-                : progression === '531'
-                  ? fiveThreeOneSets(lifts[lift]?.weightKg ?? 0, week ?? 0, exercise, inventory, unit)
-                  : undefined;
-            const kg =
-              draft?.n === nextSession
-                ? (draft.results[id]?.weightKg ?? 0)
-                : progression === '531'
-                  ? Math.max(...(sets ?? []).map((s) => s.kg ?? 0))
-                  : sessionWeightKg(lifts[lift]?.weightKg ?? 0, session.intensity, exercise, inventory, unit);
-            return (
-              <LiftRow
-                key={id}
-                exercise={exercise}
-                kg={kg}
-                sets={sets}
-                schemeLabel={schemeLabel(scheme, lifts[lift]?.reps)}
-                unit={unit}
-                inventory={inventory}
-              />
-            );
-          })}
-        </Card>
-
-        <View style={{ alignItems: 'center' }}>
-          <Button title="Skip this workout" variant="plain" testID="skip-session" onPress={skip} />
+        <CategoryPill program={program} />
+      </Pressable>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+        {ids.map((id) => exercises[id] && <ExerciseBadge key={id} exercise={exercises[id]} size={40} />)}
+      </View>
+      <Text variant="callout" color="textMuted">
+        {ids.map((id) => nameOf(exercises, id, true)).join(' · ')}
+      </Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space[3] }}>
+        <View
+          style={{
+            flexGrow: 1,
+            flexBasis: 140,
+            borderRadius: t.radius.lg,
+            borderWidth: 1,
+            borderColor: t.color.borderStrong,
+          }}
+        >
+          <Button
+            title="Start"
+            variant="secondary"
+            testID={`start-${program.id}`}
+            accessibilityLabel={`Start ${who}`}
+            onPress={() => startWorkout(program)}
+          />
         </View>
+        <View style={{ flexShrink: 0 }}>
+          <Button
+            title="Skip"
+            variant="plain"
+            testID={`skip-${program.id}`}
+            accessibilityLabel={`Skip ${who}`}
+            onPress={skip}
+          />
+        </View>
+      </View>
+    </Card>
+  );
+}
 
-        <View style={{ height: t.space[2] }} />
+function PausedCard({ program }: { program: ActiveProgram }) {
+  const t = useTheme();
+  const session = sessionFor(program);
+  return (
+    <Card style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${program.name}, paused, ${session.dayName} next`}
+        accessibilityHint="Opens the program"
+        onPress={() => router.push(`/program/${program.id}`)}
+        style={{ flex: 1, gap: t.space[1] }}
+      >
+        <Text variant="bodyStrong">{program.name}</Text>
+        <Text variant="callout" color="textMuted">
+          {`Paused · ${session.dayName} next`}
+        </Text>
+      </Pressable>
+      <Button
+        title="Resume"
+        variant="plain"
+        testID={`resume-${program.id}`}
+        accessibilityLabel={`Resume ${program.name}`}
+        onPress={() => useStore.getState().pauseProgram(program.id, false)}
+      />
+    </Card>
+  );
+}
 
-        <Section label="Coming up" card>
-          {upcoming.slice(1).map((s) => (
-            <Text key={s.n} variant="callout" color="textMuted" style={{ paddingVertical: t.space[3] }}>
-              {`${s.dayName} · ${s.lifts
-                .filter((l) => exercises[l.exercise]?.kind !== 'bodyweight')
-                .map(
-                  (l) =>
-                    `${nameOf(exercises, l.exercise, true)} ${formatWeight(l.weightKg, unit).replace(/ (kg|lb)$/, '')}`,
-                )
-                .join(' · ')}`}
-            </Text>
-          ))}
-        </Section>
+export default function Today() {
+  const programs = useStore((s) => s.programs);
+  const draft = useStore((s) => s.draft);
+  const sessions = useStore((s) => s.sessions);
+  const needsWeightConfirm = useStore((s) => s.needsWeightConfirm);
+  const t = useTheme();
 
-        {recent.length > 0 ? (
-          <Section label="Recent" card>
-            {recent.map((log) => (
-              <WorkoutRow key={log.n} log={log} />
-            ))}
-            <Button title="See all history" variant="plain" onPress={() => router.push('/history')} />
-          </Section>
-        ) : null}
-      </ScreenScroll>
-      <BottomBar>
-        <Button
-          title={draft ? 'Resume workout' : 'Start workout'}
-          size="lg"
-          testID="start-session"
-          onPress={() => router.push(`/session/${nextSession}`)}
+  if (programs.length === 0 && sessions.length === 0) return <Redirect href="/setup" />;
+  if (needsWeightConfirm) return <Redirect href={WEIGHT_CONFIRM_ROUTE} />;
+
+  // The program with the open workout is shown by its draft card, not twice.
+  const active = programs.filter((p) => !p.paused && p.id !== draft?.programId);
+  // Never the program of the open workout: it has its draft card.
+  const paused = programs.filter((p) => p.paused && p.id !== draft?.programId);
+  const recent = [...sessions].reverse().slice(0, 3);
+  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+
+  return (
+    <ScreenScroll headerless gap={10}>
+      <View style={{ gap: t.space[1] }}>
+        <Text variant="label" color="textMuted">
+          {date}
+        </Text>
+        <Text variant="title" accessibilityRole="header">
+          Today
+        </Text>
+      </View>
+
+      {programs.length === 0 ? (
+        <EmptyState
+          icon="calendar"
+          title="No program yet"
+          body="Pick a program and your first workout shows up here, with every weight worked out."
+          action={{ title: 'Add a program', onPress: () => router.push('/setup/plan?add=1') }}
         />
-      </BottomBar>
-    </>
+      ) : null}
+
+      {draft ? <DraftCard draft={draft} /> : null}
+      {active.map((p) => (
+        <ProgramCard
+          key={p.id}
+          program={p}
+          sameName={programs.some((q) => q.id !== p.id && q.name.toLowerCase() === p.name.toLowerCase())}
+        />
+      ))}
+      {programs.length > 0 && active.length === 0 && !draft ? (
+        <Text color="textMuted">All programs are paused. Resume one to see its next workout.</Text>
+      ) : null}
+
+      {paused.length > 0 ? (
+        <Section label="Paused">
+          <View style={{ gap: t.space[3] }}>
+            {paused.map((p) => (
+              <PausedCard key={p.id} program={p} />
+            ))}
+          </View>
+        </Section>
+      ) : null}
+
+      {recent.length > 0 ? (
+        <Section label="Recent" card>
+          {recent.map((log) => (
+            <LoggedWorkout key={log.n} log={log} />
+          ))}
+          <Button title="See all history" variant="plain" onPress={() => router.push('/history')} />
+        </Section>
+      ) : null}
+    </ScreenScroll>
   );
 }

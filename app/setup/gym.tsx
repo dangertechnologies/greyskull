@@ -1,5 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { View } from 'react-native';
+import { GymEquipment } from '../../src/components/GymEquipment';
 import { GymSettings } from '../../src/components/GymSettings';
 import { useTheme } from '../../src/design/theme';
 import { toKg } from '../../src/domain';
@@ -28,6 +29,11 @@ export default function Gym() {
           unit={draft.unit}
           inventory={draft.inventory}
           onUnitChange={(unit) => update({ unit, weights: {} })}
+          onInventoryChange={(patch) => update({ inventory: { ...draft.inventory, ...patch }, weights: {} })}
+        />
+        <GymEquipment
+          unit={draft.unit}
+          inventory={draft.inventory}
           onInventoryChange={(patch) => update({ inventory: { ...draft.inventory, ...patch }, weights: {} })}
         />
         <Section label={`Example: ${draft.unit === 'kg' ? '100 kg' : '225 lb'}`}>

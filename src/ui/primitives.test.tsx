@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import * as Haptics from 'expo-haptics';
-import { Text as RNText } from 'react-native';
+import { Text as RNText, StyleSheet } from 'react-native';
 import { builtInExercises } from '../catalog';
 import { Button } from './Button';
 import { Chip } from './Chip';
@@ -78,6 +78,11 @@ test('PlateStack draws one rect per plate and describes them in text', () => {
   expect(screen.getByText('bar only')).toBeTruthy();
 });
 
+test('PlateStack counts from the exercise’s own bar (EZ bar 10 kg)', () => {
+  render(<PlateStack kg={20} unit="kg" exercise={builtInExercises().EZ_BAR_CURL} />);
+  expect(screen.getByText('per side: 5')).toBeTruthy();
+});
+
 test('plate colours follow the IWF convention for kg and are neutral for lb', () => {
   expect(plateStyle(25, 'kg').color).toBe('#D32F2F');
   expect(plateStyle(20, 'kg').color).toBe('#1565C0');
@@ -130,4 +135,23 @@ test('Snackbar shows a message with an action and goes away after it runs', () =
   fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
   expect(onUndo).toHaveBeenCalled();
   expect(screen.queryByText('Workout skipped')).toBeNull();
+});
+
+test('Button centres a title that wraps', () => {
+  render(<Button title="Resume workout" onPress={() => undefined} />);
+  expect(StyleSheet.flatten(screen.getByText('Resume workout').props.style).textAlign).toBe('center');
+});
+
+test('PlateStack draws nothing for a lift without a bar or without weight', () => {
+  const ex = builtInExercises();
+  render(<PlateStack kg={0} unit="kg" exercise={ex.DIPS} />);
+  expect(screen.queryByText(/per side|bar only|not loadable/)).toBeNull();
+  render(<PlateStack kg={0} unit="kg" exercise={ex.BARBELL_SQUAT} />);
+  expect(screen.queryByText(/per side|bar only|not loadable/)).toBeNull();
+});
+
+test('PlateStack survives an exercise bar given in one unit only', () => {
+  const ez = { ...builtInExercises().EZ_BAR_CURL, barKg: { kg: 10 } as never };
+  render(<PlateStack kg={20} unit="lb" exercise={ez} />);
+  expect(screen.getByText(/per side|bar only|not loadable/)).toBeTruthy();
 });

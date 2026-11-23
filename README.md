@@ -1,8 +1,8 @@
 # Greyskull LP
 
-A Greyskull LP (GSLP) workout tracker built with Expo SDK 57 and expo-router. It replaces the 2019 bare
+A Greyskull LP (GSLP) workout tracker built with Expo SDK 58 and expo-router. It replaces the 2019 bare
 React Native app and ships under the same store ids: `com.dangertechnologies.gslp` on iOS and
-`com.greyskull` on Android. Version `2.0.0` (iOS build 2, Android versionCode 2).
+`com.greyskull` on Android. Version `1.1.0` (`package.json`; build numbers are managed by EAS).
 
 ## Run
 
@@ -20,24 +20,34 @@ dependencies are autolinked into native builds.
 
 ```sh
 pnpm test            # jest (domain, store, hooks, components, screens)
-pnpm typecheck       # tsc --noEmit with TypeScript 7 (native compiler)
+pnpm typecheck       # tsc --noEmit (TypeScript 6.0.3, pinned: expo-doctor needs 6.x)
 pnpm lint            # Biome: lint + format + import order (pnpm lint:fix / pnpm format to fix)
-pnpm check           # lint + typecheck + test, what CI runs
+pnpm test:scripts    # node:test for scripts/ (catalog build)
+pnpm check           # lint + typecheck + test + test:scripts, what CI runs
 pnpm expo export --platform ios   # proves the bundle builds
 ```
 
-TypeScript 7 is used for type checking only; Metro and jest strip types with Babel. The TS 7 package has no
-`tsserver.js`, so editors should use their bundled TypeScript or the native-preview language server.
+TypeScript is used for type checking only; Metro and jest strip types with Babel.
 
 ## Training plans
 
-Plans are data in `src/config/plans.ts`: days, schemes (`2x5+`, `5x5`, `2x8-12`, …), the progression model
-(`amrap`, `linear`, `double`), plan-specific increments, light/medium day intensities, and which extras each
-plan offers. Built in: Greyskull LP and Phrak's GSLP (stable), StrongLifts 5×5, Starting Strength and AllPro's
-Beginner Routine (experimental). Every plan is validated and simulated by the test suite.
+Plans are data in `src/config/plans.ts`: days, schemes (`2x5+`, `5x5`, `3x30s`, `3x10-30s`, …), the progression
+model (`amrap`, `linear`, `double`, `ladder`), groups (superset, circuit, EMOM, interval), plan-specific
+increments and a category. Built in: Greyskull LP and Phrak's GSLP, StrongLifts 5×5, Starting Strength and
+AllPro's Beginner Routine, and the calisthenics set (Recommended Routine, Six Ladders, Skill Track, Hybrid).
+Users can run several at once, build their own (`app/builder`), generate one (`app/generate`) and share them.
+Every plan is validated and simulated by the test suite. The full design is in
+[docs/PLAN-calisthenics.md](docs/PLAN-calisthenics.md); screen mockups are in [docs/mockups](docs/mockups).
 
-Structure: `src/domain` is pure TypeScript (units, plate maths, progression, program templates, projection,
-v1 migration); `src/store.ts` is the persisted zustand store; `app/` holds the expo-router screens.
+Structure: `src/domain` is pure TypeScript (units, plate maths, progression, ladders, groups, ease-back after a
+break, program templates, projection, migrations); `src/store.ts` is the persisted zustand store, saved to a file
+by `src/storage.ts`; `src/catalog/` holds the exercise library (built by `scripts/build-catalog.mjs`, see
+`src/catalog/CREDITS.md`); `src/health` syncs workouts to Apple Health and Health Connect; `src/generate` is the
+program generator (on-device model via `expo-ai`); `src/intents` and `app-intents/` are Siri and Shortcuts;
+`app/` holds the expo-router screens.
+
+**Native modules.** HealthKit, Health Connect, `expo-ai`, `expo-app-intents` and the widgets need a development
+or production build, not Expo Go. Run `npx expo prebuild` / `eas build` after changing native dependencies.
 
 ## CI and releases
 
@@ -82,7 +92,7 @@ Install the preview build over a device that still has v1 to check the migration
 
 ## Release
 
-1. Install the preview iOS build over a device that has v1 installed. The "Check your weights" screen must
+1. Install the preview iOS build over a device that has the previous version installed. The "Check your weights" screen must
    appear with the old data; confirm it and check the history.
 2. `pnpm dlx eas-cli build --profile production -p ios && pnpm dlx eas-cli submit -p ios`.
 3. Android: if the original upload keystore for `com.greyskull` exists, build and submit with it

@@ -1,0 +1,579 @@
+[
+  {
+    "id": "rr_pullup",
+    "name": "Pull-up progression",
+    "pattern": "pull",
+    "after": "weighted",
+    "steps": [
+      {
+        "exercise": "CAL_SCAPULAR_PULL"
+      },
+      {
+        "exercise": "CAL_ARCH_HANG",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_PULLUP_NEGATIVE"
+      },
+      {
+        "exercise": "CAL_PULLUP_BAND_ASSISTED",
+        "band": true
+      },
+      {
+        "exercise": "CAL_PULLUP"
+      },
+      {
+        "exercise": "CAL_LSIT_PULLUP"
+      }
+    ]
+  },
+  {
+    "id": "rr_squat",
+    "name": "Squat progression",
+    "pattern": "squat",
+    "steps": [
+      {
+        "exercise": "CAL_ASSISTED_SQUAT"
+      },
+      {
+        "exercise": "CAL_SQUAT"
+      },
+      {
+        "exercise": "CAL_SPLIT_SQUAT"
+      },
+      {
+        "exercise": "CAL_BULGARIAN_SPLIT_SQUAT"
+      },
+      {
+        "exercise": "CAL_SHRIMP_SQUAT_BEGINNER"
+      },
+      {
+        "exercise": "CAL_SHRIMP_SQUAT_INTERMEDIATE"
+      },
+      {
+        "exercise": "CAL_SHRIMP_SQUAT_ADVANCED"
+      }
+    ]
+  },
+  {
+    "id": "rr_dip",
+    "name": "Dip progression",
+    "pattern": "push",
+    "after": "weighted",
+    "steps": [
+      {
+        "exercise": "CAL_SUPPORT_HOLD",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_DIP_NEGATIVE"
+      },
+      {
+        "exercise": "DIPS"
+      }
+    ]
+  },
+  {
+    "id": "rr_hinge",
+    "name": "Hip hinge progression",
+    "pattern": "hinge",
+    "steps": [
+      {
+        "exercise": "CAL_RDL_BODYWEIGHT"
+      },
+      {
+        "exercise": "CAL_SINGLE_LEG_DEADLIFT"
+      },
+      {
+        "exercise": "CAL_NORDIC_CURL_BANDED"
+      },
+      {
+        "exercise": "CAL_NORDIC_CURL"
+      }
+    ]
+  },
+  {
+    "id": "rr_row",
+    "name": "Row progression",
+    "pattern": "pull",
+    "steps": [
+      {
+        "exercise": "CAL_ROW_VERTICAL"
+      },
+      {
+        "exercise": "CAL_ROW_INCLINE"
+      },
+      {
+        "exercise": "CAL_ROW_HORIZONTAL"
+      },
+      {
+        "exercise": "CAL_ROW_WIDE"
+      },
+      {
+        "exercise": "CAL_ROW_ARCHER"
+      }
+    ]
+  },
+  {
+    "id": "rr_pushup",
+    "name": "Push-up progression",
+    "pattern": "push",
+    "after": "weighted",
+    "steps": [
+      {
+        "exercise": "CAL_PUSHUP_WALL"
+      },
+      {
+        "exercise": "CAL_PUSHUP_INCLINE"
+      },
+      {
+        "exercise": "CAL_PUSHUP"
+      },
+      {
+        "exercise": "CAL_PUSHUP_DIAMOND"
+      },
+      {
+        "exercise": "CAL_PUSHUP_PSEUDO_PLANCHE"
+      }
+    ]
+  },
+  {
+    "id": "rr_antiextension",
+    "name": "Anti-extension core progression",
+    "pattern": "core",
+    "steps": [
+      {
+        "exercise": "CAL_PLANK",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_RING_ROLLOUT"
+      },
+      {
+        "exercise": "CAL_AB_WHEEL_ROLLOUT"
+      }
+    ]
+  },
+  {
+    "id": "rr_antirotation",
+    "name": "Anti-rotation core",
+    "pattern": "core",
+    "steps": [
+      {
+        "exercise": "CAL_PALLOF_PRESS_BANDED"
+      }
+    ]
+  },
+  {
+    "id": "rr_extension",
+    "name": "Back extension",
+    "pattern": "hinge",
+    "steps": [
+      {
+        "exercise": "CAL_REVERSE_HYPEREXTENSION"
+      }
+    ]
+  },
+  {
+    "id": "six_pushup",
+    "name": "Ten-step push-up",
+    "pattern": "push",
+    "steps": [
+      {
+        "exercise": "CAL_PUSHUP_WALL",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_PUSHUP_INCLINE",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_PUSHUP_KNEELING",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_PUSHUP_HALF",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_PUSHUP",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_PUSHUP_CLOSE",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_PUSHUP_UNEVEN",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_PUSHUP_ONE_ARM_HALF",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_PUSHUP_LEVER",
+        "scheme": "3x3-5"
+      },
+      {
+        "exercise": "CAL_PUSHUP_ONE_ARM",
+        "scheme": "3x3-5"
+      }
+    ]
+  },
+  {
+    "id": "six_squat",
+    "name": "Ten-step squat",
+    "pattern": "squat",
+    "steps": [
+      {
+        "exercise": "CAL_SQUAT_SHOULDERSTAND",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_SQUAT_JACKKNIFE",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_SQUAT_SUPPORTED",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_SQUAT_HALF",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_SQUAT",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_SQUAT_CLOSE",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_SQUAT_UNEVEN",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_SQUAT_ONE_LEG_HALF",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_PISTOL_ASSISTED",
+        "scheme": "3x3-5"
+      },
+      {
+        "exercise": "CAL_PISTOL",
+        "scheme": "3x3-5"
+      }
+    ]
+  },
+  {
+    "id": "six_pullup",
+    "name": "Ten-step pull-up",
+    "pattern": "pull",
+    "steps": [
+      {
+        "exercise": "CAL_PULL_VERTICAL",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_ROW_HORIZONTAL",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_PULLUP_JACKKNIFE",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_PULLUP_HALF",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_PULLUP",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_PULLUP_CLOSE",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_PULLUP_UNEVEN",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_PULLUP_ONE_ARM_HALF",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_PULLUP_ONE_ARM_ASSISTED",
+        "scheme": "3x3-5"
+      },
+      {
+        "exercise": "CAL_PULLUP_ONE_ARM",
+        "scheme": "3x3-5"
+      }
+    ]
+  },
+  {
+    "id": "six_legraise",
+    "name": "Ten-step leg raise",
+    "pattern": "core",
+    "steps": [
+      {
+        "exercise": "CAL_KNEE_TUCK_LYING",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_KNEE_RAISE_LYING",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_LEG_RAISE_BENT_LYING",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_LEG_RAISE_FROG_LYING",
+        "scheme": "3x10-20"
+      },
+      {
+        "exercise": "CAL_LEG_RAISE_LYING",
+        "scheme": "3x10-20"
+      },
+      {
+        "exercise": "CAL_HANGING_KNEE_RAISE",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_HANGING_BENT_LEG_RAISE",
+        "scheme": "3x8-12"
+      },
+      {
+        "exercise": "CAL_HANGING_FROG_RAISE",
+        "scheme": "3x8-12"
+      },
+      {
+        "exercise": "CAL_HANGING_LEG_RAISE_PARTIAL",
+        "scheme": "3x5-10"
+      },
+      {
+        "exercise": "CAL_HANGING_LEG_RAISE",
+        "scheme": "3x3-8"
+      }
+    ]
+  },
+  {
+    "id": "six_bridge",
+    "name": "Ten-step bridge",
+    "pattern": "core",
+    "steps": [
+      {
+        "exercise": "CAL_BRIDGE_SHORT",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_BRIDGE_STRAIGHT",
+        "scheme": "3x10-25"
+      },
+      {
+        "exercise": "CAL_BRIDGE_ANGLED",
+        "scheme": "3x10-20"
+      },
+      {
+        "exercise": "CAL_BRIDGE_HEAD",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_BRIDGE_HALF",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_BRIDGE",
+        "scheme": "3x8-15"
+      },
+      {
+        "exercise": "CAL_BRIDGE_WALL_DOWN",
+        "scheme": "3x5-10"
+      },
+      {
+        "exercise": "CAL_BRIDGE_WALL_UP",
+        "scheme": "3x5-10"
+      },
+      {
+        "exercise": "CAL_BRIDGE_CLOSING",
+        "scheme": "3x3-8"
+      },
+      {
+        "exercise": "CAL_BRIDGE_STAND_TO_STAND",
+        "scheme": "3x3-5"
+      }
+    ]
+  },
+  {
+    "id": "six_hspu",
+    "name": "Ten-step handstand push-up",
+    "pattern": "push",
+    "steps": [
+      {
+        "exercise": "CAL_HEADSTAND_WALL",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_CROW_STAND",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_HANDSTAND_CHEST_TO_WALL",
+        "scheme": "3x20-60s"
+      },
+      {
+        "exercise": "CAL_HSPU_HALF",
+        "scheme": "3x5-10"
+      },
+      {
+        "exercise": "CAL_HSPU",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_HSPU_CLOSE",
+        "scheme": "3x5-8"
+      },
+      {
+        "exercise": "CAL_HSPU_UNEVEN",
+        "scheme": "3x3-6"
+      },
+      {
+        "exercise": "CAL_HSPU_ONE_ARM_HALF",
+        "scheme": "3x3-5"
+      },
+      {
+        "exercise": "CAL_HSPU_LEVER",
+        "scheme": "3x3-5"
+      },
+      {
+        "exercise": "CAL_HSPU_ONE_ARM",
+        "scheme": "3x1-3"
+      }
+    ]
+  },
+  {
+    "id": "skill_handstand",
+    "name": "Handstand",
+    "pattern": "skill",
+    "steps": [
+      {
+        "exercise": "CAL_HANDSTAND_WALL_PLANK",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_HANDSTAND_CHEST_TO_WALL",
+        "scheme": "3x20-60s"
+      },
+      {
+        "exercise": "CAL_HANDSTAND_HEEL_PULL",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_HANDSTAND",
+        "scheme": "3x10-30s"
+      }
+    ]
+  },
+  {
+    "id": "skill_lsit",
+    "name": "L-sit",
+    "pattern": "skill",
+    "steps": [
+      {
+        "exercise": "CAL_LSIT_FOOT_SUPPORTED",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_LSIT_TUCK",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_LSIT_ONE_LEG",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_LSIT",
+        "scheme": "3x10-30s"
+      }
+    ]
+  },
+  {
+    "id": "skill_front_lever",
+    "name": "Front lever",
+    "pattern": "skill",
+    "steps": [
+      {
+        "exercise": "CAL_FL_TUCK",
+        "scheme": "3x5-15s"
+      },
+      {
+        "exercise": "CAL_FL_ADV_TUCK",
+        "scheme": "3x5-15s"
+      },
+      {
+        "exercise": "CAL_FL_ONE_LEG",
+        "scheme": "3x5-15s"
+      },
+      {
+        "exercise": "CAL_FL_STRADDLE",
+        "scheme": "3x3-10s"
+      },
+      {
+        "exercise": "CAL_FL",
+        "scheme": "3x3-10s"
+      }
+    ]
+  },
+  {
+    "id": "skill_planche",
+    "name": "Planche",
+    "pattern": "skill",
+    "steps": [
+      {
+        "exercise": "CAL_PLANCHE_LEAN",
+        "scheme": "3x10-30s"
+      },
+      {
+        "exercise": "CAL_PLANCHE_TUCK",
+        "scheme": "3x5-15s"
+      },
+      {
+        "exercise": "CAL_PLANCHE_ADV_TUCK",
+        "scheme": "3x5-15s"
+      },
+      {
+        "exercise": "CAL_PLANCHE_STRADDLE",
+        "scheme": "3x3-10s"
+      }
+    ]
+  },
+  {
+    "id": "skill_muscleup",
+    "name": "Muscle-up",
+    "pattern": "skill",
+    "steps": [
+      {
+        "exercise": "CAL_PULLUP_HIGH",
+        "scheme": "3x3-8"
+      },
+      {
+        "exercise": "CAL_PULLUP_CHEST_TO_BAR",
+        "scheme": "3x3-8"
+      },
+      {
+        "exercise": "CAL_MUSCLEUP_BAND",
+        "scheme": "3x3-5",
+        "band": true
+      },
+      {
+        "exercise": "CAL_MUSCLEUP",
+        "scheme": "3x1-3"
+      }
+    ]
+  }
+]

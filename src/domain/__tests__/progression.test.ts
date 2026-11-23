@@ -1,5 +1,6 @@
 import { builtInExercises } from '../../catalog';
 import { ceilLoadableKg, floorLoadableKg, isLoadable } from '../plates';
+import { setTargets } from '../program';
 import { nextLift, sessionWeightKg, warmups } from '../progression';
 import {
   DEFAULT_INVENTORY,
@@ -7,6 +8,8 @@ import {
   type Exercise,
   type LiftState,
   type PlateInventory,
+  type ProgressionModel,
+  type Scheme,
   type Unit,
 } from '../types';
 import { toKg, toUnit } from '../units';
@@ -59,10 +62,133 @@ test.each(rows)(
   },
 );
 
-test('bodyweight never changes', () => {
-  const o = run(ex.CHINUPS, 'kg', 0, 15, 0);
-  expect(o.change).toBe('none');
-  expect(o.next).toEqual({ weightKg: 0, startKg: 0, fails: 0 });
+describe('bodyweight: only a rep range under double progression (or a ladder) adds load', () => {
+  const chin = ex.CHINUPS;
+  const go = (
+    weight: number,
+    reps: number[],
+    progression: ProgressionModel,
+    scheme: Scheme,
+    patch: Partial<LiftState> = {},
+    unit: Unit = 'kg',
+    e: Exercise = chin,
+  ) => {
+    const weightKg = toKg(weight, unit);
+    const lift: LiftState = { weightKg, startKg: 0, fails: 0, ...patch };
+    const targets = setTargets(scheme, lift.reps);
+    const sets = reps.map((r, i) => ({ target: targets[i] ?? null, reps: r }));
+    const context = { progression, scheme, week: 2, lastInWeek: true, stages: [scheme, scheme] };
+    const o = nextLift(lift, { weightKg, sets }, DEFAULT_RULES, e, inv, unit, context);
+    return { ...o, lift, shown: toUnit(o.next.weightKg, unit) };
+  };
+
+  // Every model and scheme the built-in plans use for bodyweight extras stays exactly as before: no change.
+  type Unchanged = [string, ReturnType<typeof go>];
+  const unchanged: Unchanged[] = [
+    ['AMRAP (GSLP chin-ups)', go(0, [5, 15], 'amrap', '2xAMRAP')],
+    ['AMRAP with a minimum', go(0, [5, 15], 'amrap', '2x5+')],
+    ['AMRAP miss', go(0, [5, 2], 'amrap', '2x5+', { fails: 1 })],
+    ['linear (StrongLifts dips)', go(0, [12, 12], 'linear', '2xAMRAP')],
+    ['linear fixed reps', go(0, [5, 5, 5], 'linear', '3x5')],
+    ['double without a range (5/3/1 dips)', go(0, [20, 20, 20, 20, 20], 'double', '5xAMRAP')],
+    ['double with fixed reps', go(0, [5, 5, 5], 'double', '3x5')],
+    ['5/3/1', go(0, [5, 3, 1], '531', '3x5+')],
+    ['stages', go(0, [1, 1, 1], 'stages', '3x5')],
+    ['added load kept as it is', go(10, [5, 15], 'amrap', '2xAMRAP')],
+  ];
+  test.each(unchanged)('%s: none', (_name, o) => {
+    expect(o.change).toBe('none');
+    expect(o.next).toBe(o.lift);
+  });
+
+  type Row = [string, ReturnType<typeof go>, number, string, Partial<LiftState>];
+  const rows: Row[] = [
+    [
+      'double adds a rep inside the range',
+      go(0, [6, 6, 6], 'double', '3x5-8', { reps: 6 }),
+      0,
+      'reps',
+      { reps: 7 },
+    ],
+    ['double at the top adds load', go(0, [8, 8, 8], 'double', '3x5-8', { reps: 8 }), 2.5, 'up', { reps: 5 }],
+    ['double adds load in pounds', go(0, [8, 8], 'double', '2x5-8', { reps: 8 }, 'lb'), 5, 'up', { reps: 5 }],
+    ['double miss counts a fail', go(0, [4, 4], 'double', '2x5-8'), 0, 'same', { fails: 1 }],
+    [
+      'double second miss with load deloads',
+      go(10, [4, 4], 'double', '2x5-8', { fails: 1 }),
+      8.75,
+      'deload',
+      { reps: 5 },
+    ],
+    [
+      'double second miss without load has nothing to take off',
+      go(0, [4, 4], 'double', '2x5-8', { fails: 1, reps: 7 }),
+      0,
+      'same',
+      { fails: 0, reps: 5 },
+    ],
+  ];
+  test.each(rows)('%s', (_name, o, weight, change, patch) => {
+    expect(o.shown).toBeCloseTo(weight, 9);
+    expect(o.change).toBe(change);
+    expect(o.next).toMatchObject(patch);
+  });
+
+  describe('timed sets are judged by their target seconds only', () => {
+    const plank = ex.CAL_PLANK;
+    const carry: Exercise = { ...ex.CURLS, kind: 'dumbbell', timed: true, step: { kg: 2, lb: 5 } };
+    const short = [30, 30, 12];
+    test.each(['amrap', 'linear', 'double'] as const)(
+      'a bodyweight plank under %s stays as it is',
+      (model) => {
+        expect(go(0, short, model, '3x30s', {}, 'kg', plank).change).toBe('none');
+      },
+    );
+    test('a plank on a ladder misses with a short hold', () => {
+      const o = nextLift(
+        { weightKg: 0, startKg: 0, fails: 0 },
+        { weightKg: 0, sets: short.map((reps) => ({ target: 30, reps })) },
+        DEFAULT_RULES,
+        plank,
+        inv,
+        'kg',
+        { progression: 'ladder', ladder: 'rr_antiextension', step: 0, scheme: '3x30s' },
+      );
+      expect(o.change).toBe('same');
+      expect(o.next.fails).toBe(1);
+    });
+    test.each(['amrap', 'linear', 'double'] as const)(
+      'a loaded hold under %s misses with a short hold',
+      (model) => {
+        const o = go(10, short, model, '3x30s', {}, 'kg', carry);
+        expect(o.change).toBe('same');
+        expect(o.next).toMatchObject({ weightKg: 10, fails: 1 });
+      },
+    );
+    test('a long hold under AMRAP adds one increment, never the double jump', () => {
+      const o = go(10, [60, 60, 60], 'amrap', '3x30s', {}, 'kg', carry);
+      expect(o.change).toBe('up');
+      expect(o.shown).toBe(12);
+    });
+  });
+});
+
+describe('an increase that cannot change the weight is not an increase', () => {
+  test('increment 0', () => {
+    const o = run(inc(0, 0), 'kg', 60, 8, 0);
+    expect(o.change).toBe('same');
+    expect(o.next).toEqual({ weightKg: 60, startKg: 60, fails: 0 });
+  });
+  test('a kettlebell already at the heaviest owned size', () => {
+    const bell: Exercise = { ...ex.CURLS, kind: 'kettlebell' };
+    const lift: LiftState = { weightKg: 32, startKg: 16, fails: 0 };
+    const sets = [5, 5, 5].map((reps) => ({ target: 5, reps }));
+    const o = nextLift(lift, { weightKg: 32, sets }, DEFAULT_RULES, bell, inv, 'kg', {
+      progression: 'linear',
+    });
+    expect(o.change).toBe('same');
+    expect(o.next).toEqual(lift);
+  });
 });
 
 test('uses the weight actually lifted, not the stored weight', () => {
@@ -271,7 +397,10 @@ test('session weight on a light day is re-rounded to a loadable weight', () => {
   expect(sessionWeightKg(100, 0.8, ex.BARBELL_SQUAT, inv, 'kg')).toBe(80);
   expect(sessionWeightKg(62.5, 0.9, ex.BARBELL_SQUAT, inv, 'kg')).toBe(55); // 56.25: ties round down
   expect(sessionWeightKg(62.5, 1, ex.BARBELL_SQUAT, inv, 'kg')).toBe(62.5);
-  expect(sessionWeightKg(62.5, 0.8, ex.CHINUPS, inv, 'kg')).toBe(0);
+  // Bodyweight: the added load, scaled and rounded to single plates; 0 means no added load.
+  expect(sessionWeightKg(10, 1, ex.CHINUPS, inv, 'kg')).toBe(10);
+  expect(sessionWeightKg(10, 0.8, ex.CHINUPS, inv, 'kg')).toBe(7.5);
+  expect(sessionWeightKg(0, 0.8, ex.CHINUPS, inv, 'kg')).toBe(0);
 });
 
 test('warm-ups: single-set schemes get two jumps, 5x5 ramps from the bar, rep-range work too', () => {
@@ -280,4 +409,6 @@ test('warm-ups: single-set schemes get two jumps, 5x5 ramps from the bar, rep-ra
   expect(w(140, '1x5', ex.DEADLIFT)).toEqual([70, 105]);
   expect(w(100, '5x5', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
   expect(w(100, '2x8-12', ex.BARBELL_SQUAT)).toEqual([20, 55, 70, 85]);
+  // An EZ bar (10 kg) starts from its own bar.
+  expect(w(30, '3x8', { ...ex.BARBELL_SQUAT, barKg: { kg: 10, lb: 25 } })[0]).toBe(10);
 });

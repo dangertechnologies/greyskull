@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { WorkoutRow } from '../src/components/WorkoutRow';
+import { LoggedWorkout } from '../src/components/ProgramBits';
 import { useTheme } from '../src/design/theme';
 import { useStore } from '../src/store';
 import { EmptyState } from '../src/ui/EmptyState';
@@ -46,7 +46,7 @@ export default function History() {
                   borderBottomRightRadius: index === data.length - 1 ? r : 0,
                 }}
               >
-                <WorkoutRow log={log} />
+                <LoggedWorkout log={log} />
               </View>
             );
           }}

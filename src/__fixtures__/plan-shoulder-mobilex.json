@@ -1,0 +1,921 @@
+{
+  "persisted": {
+    "state": {
+      "version": 2,
+      "unit": "kg",
+      "inventory": {
+        "barKg": 20,
+        "platesKg": [25, 20, 15, 10, 5, 2.5, 1.25],
+        "barLb": 45,
+        "platesLb": [45, 35, 25, 10, 5, 2.5]
+      },
+      "minimalist": false,
+      "restSeconds": 90,
+      "exercises": {},
+      "program": {
+        "template": "shoulder-mobilex",
+        "sessionsPerWeek": 3,
+        "rules": {
+          "doubleAt": 10,
+          "deloadPct": 0.1,
+          "failsBeforeDeload": 2,
+          "warmups": false,
+          "progression": "double"
+        },
+        "days": [
+          {
+            "name": "Shoulder",
+            "slots": [
+              {
+                "exercise": "SIDELYING_EXTERNAL_ROTATION",
+                "scheme": "3x10-12"
+              },
+              {
+                "exercise": "PRONE_HORIZONTAL_ABDUCTION",
+                "scheme": "3x10-12"
+              },
+              {
+                "exercise": "PRONE_EXTERNAL_ROTATION",
+                "scheme": "3x10-12"
+              },
+              {
+                "exercise": "SUPINE_PROTRACTION",
+                "scheme": "3x10-12"
+              },
+              {
+                "exercise": "SCAPTION",
+                "scheme": "3x10-12"
+              }
+            ]
+          }
+        ]
+      },
+      "lifts": {
+        "SIDELYING_EXTERNAL_ROTATION": {
+          "weightKg": 0.5,
+          "startKg": 0.5,
+          "fails": 0,
+          "reps": 11
+        },
+        "PRONE_HORIZONTAL_ABDUCTION": {
+          "weightKg": 0.5,
+          "startKg": 0.5,
+          "fails": 0,
+          "reps": 11
+        },
+        "PRONE_EXTERNAL_ROTATION": {
+          "weightKg": 0.5,
+          "startKg": 0.5,
+          "fails": 0,
+          "reps": 11
+        },
+        "SUPINE_PROTRACTION": {
+          "weightKg": 0.5,
+          "startKg": 0.5,
+          "fails": 0,
+          "reps": 11
+        },
+        "SCAPTION": {
+          "weightKg": 0.5,
+          "startKg": 0.5,
+          "fails": 0,
+          "reps": 11
+        }
+      },
+      "sessions": [
+        {
+          "n": 0,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.724Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 9
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.725Z"
+        },
+        {
+          "n": 1,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.725Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.725Z"
+        },
+        {
+          "n": 2,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.725Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                },
+                {
+                  "target": 11,
+                  "reps": 11
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.726Z"
+        },
+        {
+          "n": 3,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.726Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.728Z"
+        },
+        {
+          "n": 4,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.728Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.731Z"
+        },
+        {
+          "n": 5,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.731Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 12,
+                  "reps": 11
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                },
+                {
+                  "target": 12,
+                  "reps": 12
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.731Z"
+        },
+        {
+          "n": 6,
+          "dayName": "Shoulder",
+          "startedAt": "2026-11-23T01:39:43.731Z",
+          "results": {
+            "SIDELYING_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "PRONE_HORIZONTAL_ABDUCTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "PRONE_EXTERNAL_ROTATION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "SUPINE_PROTRACTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            },
+            "SCAPTION": {
+              "weightKg": 0.5,
+              "sets": [
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                },
+                {
+                  "target": 10,
+                  "reps": 10
+                }
+              ]
+            }
+          },
+          "order": [
+            "SIDELYING_EXTERNAL_ROTATION",
+            "PRONE_HORIZONTAL_ABDUCTION",
+            "PRONE_EXTERNAL_ROTATION",
+            "SUPINE_PROTRACTION",
+            "SCAPTION"
+          ],
+          "finishedAt": "2026-11-23T01:39:43.732Z"
+        }
+      ],
+      "nextSession": 7,
+      "draft": null,
+      "needsWeightConfirm": false,
+      "needsWeightConfirmSuspects": [],
+      "legacyChecked": false,
+      "appearance": "system",
+      "hapticsEnabled": true,
+      "dynamicColor": false,
+      "catalogVersion": 4
+    },
+    "version": 3
+  },
+  "expected": {
+    "dayName": "Shoulder",
+    "slots": [
+      {
+        "exercise": "SIDELYING_EXTERNAL_ROTATION",
+        "lift": "SIDELYING_EXTERNAL_ROTATION",
+        "scheme": "3x10-12",
+        "week": null
+      },
+      {
+        "exercise": "PRONE_HORIZONTAL_ABDUCTION",
+        "lift": "PRONE_HORIZONTAL_ABDUCTION",
+        "scheme": "3x10-12",
+        "week": null
+      },
+      {
+        "exercise": "PRONE_EXTERNAL_ROTATION",
+        "lift": "PRONE_EXTERNAL_ROTATION",
+        "scheme": "3x10-12",
+        "week": null
+      },
+      {
+        "exercise": "SUPINE_PROTRACTION",
+        "lift": "SUPINE_PROTRACTION",
+        "scheme": "3x10-12",
+        "week": null
+      },
+      {
+        "exercise": "SCAPTION",
+        "lift": "SCAPTION",
+        "scheme": "3x10-12",
+        "week": null
+      }
+    ],
+    "results": {
+      "SIDELYING_EXTERNAL_ROTATION": {
+        "weightKg": 0.5,
+        "sets": [
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          }
+        ]
+      },
+      "PRONE_HORIZONTAL_ABDUCTION": {
+        "weightKg": 0.5,
+        "sets": [
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          }
+        ]
+      },
+      "PRONE_EXTERNAL_ROTATION": {
+        "weightKg": 0.5,
+        "sets": [
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          }
+        ]
+      },
+      "SUPINE_PROTRACTION": {
+        "weightKg": 0.5,
+        "sets": [
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          }
+        ]
+      },
+      "SCAPTION": {
+        "weightKg": 0.5,
+        "sets": [
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          },
+          {
+            "target": 11,
+            "reps": 0
+          }
+        ]
+      }
+    }
+  }
+}

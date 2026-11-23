@@ -4,6 +4,7 @@ import { WeightStepper } from '../../src/components/WeightStepper';
 import { useTheme } from '../../src/design/theme';
 import { exerciseOfLift, liftKeysOf, roundForExercise } from '../../src/domain';
 import { liftLabel } from '../../src/format';
+import { useProgramById } from '../../src/hooks/useProgramById';
 import { goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -15,16 +16,23 @@ import { Text } from '../../src/ui/Text';
 
 export default function ConfirmWeights() {
   const exercises = useStore((s) => s.exercises);
-  const program = useStore((s) => s.program);
+  // Intended fallback: the weights to check are the ones of the program moved over from the old version,
+  // which is the first program (the same one `confirmWeights` writes to when given no id).
+  const firstId = useStore((s) => s.programs[0]?.id);
+  const program = useProgramById(firstId);
   const suspects = useStore((s) => s.needsWeightConfirmSuspects);
-  const storedLifts = useStore((s) => s.lifts);
+  const storedLifts = program?.lifts ?? {};
   const confirmWeights = useStore((s) => s.confirmWeights);
   const unit = useStore((s) => s.unit);
   const inventory = useStore((s) => s.inventory);
   const t = useTheme();
 
   const ids = (program ? liftKeysOf(program) : []).filter(
-    (id) => storedLifts[id] && exercises[exerciseOfLift(id)]?.kind !== 'bodyweight',
+    // Only lifts with a weight of their own (no bodyweight lifts or ladders).
+    (id) =>
+      storedLifts[id] &&
+      !!exercises[exerciseOfLift(id)] &&
+      exercises[exerciseOfLift(id)].kind !== 'bodyweight',
   );
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(
@@ -64,7 +72,9 @@ export default function ConfirmWeights() {
                 kg={weights[id]}
                 onChange={(kg) => setWeights((w) => ({ ...w, [id]: kg }))}
               />
-              {exercises[exerciseOfLift(id)].kind === 'barbell' ? <PlateStack kg={weights[id]} /> : null}
+              {exercises[exerciseOfLift(id)].kind === 'barbell' ? (
+                <PlateStack kg={weights[id]} exercise={exercises[exerciseOfLift(id)]} />
+              ) : null}
             </Card>
           ))}
         </View>
@@ -75,7 +85,7 @@ export default function ConfirmWeights() {
           size="lg"
           testID="confirm-weights"
           onPress={() => {
-            confirmWeights(weights);
+            confirmWeights(weights, program?.id);
             goHome();
           }}
         />

@@ -1,8 +1,9 @@
+import { active } from '../__fixtures__/oneProgram';
 import { builtInExercises } from '../catalog';
 import { TEMPLATES } from '../domain';
 import { initialState } from '../store';
 import { endRestActivity, startRestActivity, syncNextWorkout } from './index';
-import { EMPTY_NEXT, nextWorkoutProps, restProps } from './summary';
+import { ALL_PAUSED_NEXT, EMPTY_NEXT, nextWorkoutProps, restProps } from './summary';
 
 const mockDefinitionsLoaded = jest.fn();
 // Stands in for the real definitions, whose expo-widgets import throws without the native module.
@@ -13,10 +14,13 @@ jest.mock('./definitions', () => {
 
 const withProgram = () => {
   const s = initialState();
-  s.program = JSON.parse(JSON.stringify(TEMPLATES.base));
-  for (const id of ['BARBELL_SQUAT', 'DEADLIFT', 'BENCH_PRESS', 'MILITARY_PRESS']) {
-    s.lifts[id] = { weightKg: 62.5, startKg: 20, fails: 0 };
-  }
+  const lifts = Object.fromEntries(
+    ['BARBELL_SQUAT', 'DEADLIFT', 'BENCH_PRESS', 'MILITARY_PRESS'].map((id) => [
+      id,
+      { weightKg: 62.5, startKg: 20, fails: 0 },
+    ]),
+  );
+  s.programs = [active(TEMPLATES.base, 0, lifts)];
   return s;
 };
 
@@ -33,9 +37,43 @@ describe('widget props', () => {
     expect(p.lines.length).toBeGreaterThan(0);
     expect(p.lines.some((l) => /kg$/.test(l))).toBe(true);
     expect(p.inProgress).toBe(false);
-    s.draft = { n: 0, dayName: p.title, startedAt: '', results: {}, order: [] };
+    s.draft = { n: 0, dayName: p.title, startedAt: '', results: {}, order: [], programId: 'other' };
+    expect(nextWorkoutProps(s).inProgress).toBe(false);
+    s.draft = { ...s.draft, programId: 'test', position: 0 };
     expect(nextWorkoutProps(s).inProgress).toBe(true);
+    expect(nextWorkoutProps(s).title).toBe(p.title);
     expect(Object.keys(builtInExercises()).length).toBeGreaterThan(0);
+  });
+
+  test('bodyweight lifts show their added load, and only their name without one', () => {
+    const s = initialState();
+    s.programs = [
+      active(
+        {
+          ...TEMPLATES.base,
+          days: [
+            {
+              name: 'A',
+              slots: [
+                { exercise: 'DIPS', scheme: '2xAMRAP' },
+                { exercise: 'CHINUPS', scheme: '2xAMRAP' },
+              ],
+            },
+          ],
+        },
+        0,
+        { DIPS: { weightKg: 10, startKg: 0, fails: 0 }, CHINUPS: { weightKg: 0, startKg: 0, fails: 0 } },
+      ),
+    ];
+    expect(nextWorkoutProps(s).lines).toEqual(['Dips +10 kg', 'Chin']);
+  });
+
+  test('paused programs are skipped; all paused says to resume one', () => {
+    const s = withProgram();
+    s.programs = [{ ...s.programs[0], id: 'paused', name: 'Paused', paused: true }, s.programs[0]];
+    expect(nextWorkoutProps(s).ready).toBe(true);
+    s.programs = [s.programs[0]];
+    expect(nextWorkoutProps(s)).toEqual(ALL_PAUSED_NEXT);
   });
 
   test('props are JSON-serialisable (they cross into the extension as JSON)', () => {

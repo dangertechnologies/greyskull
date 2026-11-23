@@ -16,8 +16,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   if (process.env.EAS_BUILD && !projectId) {
     throw new Error('EAS_PROJECT_ID is not set: this build could never receive OTA updates.');
   }
+  // A build whose Apple provisioning profile lacks the HealthKit capability (GREYSKULL_HEALTHKIT=off, set by the
+  // `testflight` EAS profile) leaves the HealthKit module and entitlement out; the app then reports Health as
+  // unavailable on iOS. Without the variable nothing changes.
+  const healthKit = process.env.GREYSKULL_HEALTHKIT !== 'off';
+  const plugins = (config.plugins ?? []).filter(
+    (p) => healthKit || (Array.isArray(p) ? p[0] : p) !== '@kingstinct/react-native-healthkit',
+  );
   return {
     ...config,
+    plugins,
     name: config.name ?? 'Greyskull LP',
     slug: config.slug ?? 'greyskull',
     version: pkg.version,
@@ -28,5 +36,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           extra: { ...config.extra, eas: { projectId } },
         }
       : {}),
+    extra: {
+      ...config.extra,
+      ...(projectId ? { eas: { projectId } } : {}),
+      healthKit,
+    },
   };
 };
