@@ -48,6 +48,7 @@ function setup(
   const written: HealthWorkout[] = [];
   const calls = {
     failNext: 0,
+    failRequest: false,
     permission: opts.permission ?? ('granted' as Permission),
     batches: [] as string[][],
     // Set to hold the next write until `release` is called.
@@ -56,7 +57,10 @@ function setup(
   let now = NOW;
   const platform: HealthPlatform = {
     permission: async () => calls.permission,
-    request: async () => calls.permission,
+    request: async () => {
+      if (calls.failRequest) throw new Error('rejected');
+      return calls.permission;
+    },
     openSettings: jest.fn(),
     write: async (w) => {
       const hold = calls.hold;
@@ -95,6 +99,9 @@ function setup(
     status,
     written,
     calls,
+    failRequest: () => {
+      calls.failRequest = true;
+    },
     sync,
     flush,
     hold,
@@ -441,6 +448,17 @@ describe('turning sync on and off', () => {
     expect(t.store.getState().healthSync).toBe(true);
     expect(t.status.getState().since).toBe(new Date(NOW).toISOString());
     expect(t.status.getState().dirty).toEqual([5]);
+  });
+
+  it('reports a denial when the system rejects the request after "Don\'t Allow"', async () => {
+    const t = setup({ healthSync: false, permission: 'denied' });
+    // The platform double answers `calls.permission` for the check; make only the request fail.
+    const real = t.calls;
+    expect(real.permission).toBe('denied');
+    t.failRequest();
+    expect(await t.sync.enable()).toBe('denied');
+    expect(t.status.getState().permission).toBe('denied');
+    expect(t.store.getState().healthSync).toBe(false);
   });
 
   it('never writes while off, and keeps the unwritten work for when it is back on', async () => {

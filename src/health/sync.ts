@@ -285,10 +285,12 @@ export function createHealthSync(deps: {
       }
       let permission = await permissionNow();
       if (permission !== 'granted') {
+        // A request that fails (the system can reject it after "Don't Allow") says nothing about the device:
+        // ask for the real answer, and only call Health unavailable when that fails too.
         permission = await withTimeout(
           Promise.resolve().then(() => platform.request()),
           'Health request',
-        ).catch(() => 'unavailable' as const);
+        ).catch(() => permissionNow());
       }
       status.setState({ permission });
       if (permission === 'granted') {
