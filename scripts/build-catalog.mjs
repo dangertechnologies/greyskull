@@ -144,14 +144,36 @@ export function pictogram(e) {
 }
 export function pattern(e) {
   const n = e.name.toLowerCase();
-  if (e.category === 'stretching') return 'mobility';
+  const muscles = (e.primaryMuscles ?? e.muscles ?? []).map(muscle);
+  if (e.category === 'stretching' || /external rotation|internal rotation|rotator.cuff/.test(n))
+    return 'mobility';
   if (/carry|farmer.*walk/.test(n)) return 'carry';
-  if (/squat|lunge|step.up|leg press/.test(n)) return 'squat';
-  if (/deadlift|good morning|swing|hip thrust|bridge/.test(n)) return 'hinge';
-  if ((e.primaryMuscles ?? e.muscles ?? []).includes('abdominals')) return 'core';
-  if (/press|push|dip|tricep|fly/.test(n)) return 'push';
-  if (/row|pull|chin|curl|shrug/.test(n)) return 'pull';
-  return e.force === 'push' ? 'push' : e.force === 'pull' ? 'pull' : 'skill';
+  if (/squat|lunge|step.up|leg press|calf|calves/.test(n)) return 'squat';
+  if (/deadlift|good morning|swing|hip thrust|bridge|leg curl|hamstring curl/.test(n)) return 'hinge';
+  if (muscles.includes('abdominals')) return 'core';
+  if (/press|push|\bdips?\b|tricep|fly/.test(n)) return 'push';
+  if (/\brows?\b|\bpull|\bchin|\bcurls?\b|shrug/.test(n)) return 'pull';
+  if (muscles.some((m) => ['quadriceps', 'calves', 'abductors', 'adductors'].includes(m))) return 'squat';
+  if (muscles.some((m) => ['hamstrings', 'glutes', 'lower-back'].includes(m))) return 'hinge';
+  if (muscles.some((m) => ['shoulders', 'triceps', 'chest'].includes(m))) return 'push';
+  if (muscles.some((m) => ['lats', 'middle-back', 'traps', 'biceps', 'forearms'].includes(m))) return 'pull';
+  return e.force === 'pull' ? 'pull' : 'push';
+}
+const levels = new Set(['beginner', 'intermediate', 'expert']);
+const musclesAllowed = new Set(
+  'abdominals abductors adductors biceps calves chest forearms glutes hamstrings lats lower-back middle-back neck quadriceps shoulders traps triceps'.split(
+    ' ',
+  ),
+);
+const equipmentAllowed = new Set(
+  'barbell ez-bar trap-bar dumbbell kettlebell cable machine bench pull-up-bar dip-bars rings parallettes bands box medicine-ball exercise-ball foam-roll none'.split(
+    ' ',
+  ),
+);
+export function parseSource(raw) {
+  const source = JSON.parse(raw);
+  if (!Array.isArray(source)) throw new Error('Source JSON must be an array');
+  return source;
 }
 export function mapExercise(s) {
   if (
@@ -161,7 +183,14 @@ export function mapExercise(s) {
     !Array.isArray(s.primaryMuscles) ||
     !Array.isArray(s.secondaryMuscles)
   )
-    throw new Error('Invalid source entry');
+    throw new Error(`Invalid source entry: ${s?.id ?? 'unknown'}`);
+  if (!levels.has(s.level)) throw new Error(`Invalid level: ${s.id}`);
+  if (s.equipment !== null && !Object.hasOwn(EQUIPMENT, s.equipment))
+    throw new Error(`Invalid equipment: ${s.id}`);
+  for (const value of [...s.primaryMuscles, ...s.secondaryMuscles]) {
+    if (typeof value !== 'string' || !musclesAllowed.has(muscle(value)))
+      throw new Error(`Invalid muscle: ${s.id}`);
+  }
   const kind =
     {
       barbell: 'barbell',
@@ -197,6 +226,8 @@ export function mapExercise(s) {
   if (/pull.?up|chin.?up/i.test(s.name)) e.equipment = ['pull-up-bar'];
   if (/\bdips?\b/i.test(s.name) && s.equipment === 'body only')
     e.equipment = [/bench/i.test(s.name) ? 'bench' : 'dip-bars'];
+  if (!e.equipment.every((value) => equipmentAllowed.has(value)))
+    throw new Error(`Invalid mapped equipment: ${s.id}`);
   e.pictogram = pictogram(e);
   return e;
 }
@@ -210,36 +241,46 @@ export function description(e) {
   return { description: `${e.name}: ${equipment}; works ${muscles}; ${e.level ?? 'level unspecified'}.` };
 }
 export const serialize = (v) => `${JSON.stringify(v, null, 2)}\n`;
+// Original metadata is reviewed independently of upstream name matching.
+const originalMetadata = {
+  BARBELL_SQUAT: { muscles: ['quadriceps'], equipment: ['barbell'], pattern: 'squat' },
+  DEADLIFT: { muscles: ['hamstrings', 'glutes'], equipment: ['barbell'], pattern: 'hinge' },
+  BENCH_PRESS: { muscles: ['chest', 'triceps'], equipment: ['barbell', 'bench'], pattern: 'push' },
+  MILITARY_PRESS: { muscles: ['shoulders'], equipment: ['barbell'], pattern: 'push' },
+  CHINUPS: { muscles: ['lats'], equipment: ['pull-up-bar'], pattern: 'pull' },
+  CURLS: { muscles: ['biceps'], equipment: ['barbell'], pattern: 'pull' },
+  CRUNCHES: { muscles: ['abdominals'], equipment: ['none'], pattern: 'core' },
+  BENT_OVER_ROW: { muscles: ['lats'], equipment: ['barbell'], pattern: 'pull' },
+  DIPS: { muscles: ['chest', 'triceps'], equipment: ['dip-bars'], pattern: 'push' },
+  INCLINE_BENCH_PRESS: { muscles: ['chest', 'triceps'], equipment: ['barbell', 'bench'], pattern: 'push' },
+  ROMANIAN_DEADLIFT: { muscles: ['hamstrings'], equipment: ['barbell'], pattern: 'hinge' },
+  LEG_PRESS: { muscles: ['quadriceps'], equipment: ['machine'], pattern: 'squat' },
+  LEG_CURL: { muscles: ['hamstrings'], equipment: ['machine'], pattern: 'hinge' },
+  CALF_RAISE: { muscles: ['calves'], equipment: ['machine'], pattern: 'squat' },
+  LAT_PULLDOWN: { muscles: ['lats'], equipment: ['machine'], pattern: 'pull' },
+  SEATED_CABLE_ROW: { muscles: ['middle-back'], equipment: ['cable'], pattern: 'pull' },
+  TRICEP_PUSHDOWN: { muscles: ['triceps'], equipment: ['cable'], pattern: 'push' },
+  DUMBBELL_ROW: { muscles: ['middle-back'], equipment: ['dumbbell', 'bench'], pattern: 'pull' },
+  DB_SHOULDER_PRESS: { muscles: ['shoulders'], equipment: ['dumbbell'], pattern: 'push' },
+  DB_LATERAL_RAISE: { muscles: ['shoulders'], equipment: ['dumbbell'], pattern: 'push' },
+  SIDELYING_EXTERNAL_ROTATION: { muscles: ['shoulders'], equipment: ['dumbbell'], pattern: 'mobility' },
+  PRONE_HORIZONTAL_ABDUCTION: { muscles: ['shoulders'], equipment: ['dumbbell', 'bench'], pattern: 'push' },
+  PRONE_EXTERNAL_ROTATION: { muscles: ['shoulders'], equipment: ['dumbbell', 'bench'], pattern: 'mobility' },
+  SUPINE_PROTRACTION: { muscles: ['shoulders'], equipment: ['dumbbell'], pattern: 'push' },
+  SCAPTION: { muscles: ['shoulders'], equipment: ['dumbbell'], pattern: 'push' },
+};
 export function buildCatalog(existing, source, calisthenics = {}, { maxBytes = Infinity } = {}) {
+  if (!Array.isArray(source)) throw new Error('Source JSON must be an array');
   const exercises = {};
   for (const e of Object.values(existing)) {
     const match = source.find((s) => normal(s.name) === normal(e.name));
     const mapped = match ? mapExercise(match) : null;
-    const muscles =
-      mapped?.muscles ??
-      (/crunch/.test(e.id.toLowerCase())
-        ? ['abdominals']
-        : /squat|leg press/i.test(e.name)
-          ? ['quadriceps']
-          : /deadlift/i.test(e.name)
-            ? ['hamstrings', 'glutes']
-            : /row|chin|pulldown/i.test(e.name)
-              ? ['lats']
-              : /curl/i.test(e.name)
-                ? ['biceps']
-                : /calf/i.test(e.name)
-                  ? ['calves']
-                  : /bench|dip/i.test(e.name)
-                    ? ['chest', 'triceps']
-                    : ['shoulders']);
-    const equipment =
-      mapped?.equipment ??
-      (e.id === 'CHINUPS'
-        ? ['pull-up-bar']
-        : e.id === 'DIPS'
-          ? ['dip-bars']
-          : [e.kind === 'bodyweight' ? 'none' : e.kind, ...(/bench/i.test(e.name) ? ['bench'] : [])]);
-    const enriched = { ...e, equipment, muscles, pattern: pattern({ ...e, muscles }) };
+    const metadata = originalMetadata[e.id] ?? {
+      muscles: mapped?.muscles ?? [],
+      equipment: mapped?.equipment ?? [e.kind === 'bodyweight' ? 'none' : e.kind],
+      pattern: pattern(e),
+    };
+    const enriched = { ...e, ...metadata };
     if (['CHINUPS', 'DIPS'].includes(e.id)) enriched.increment = { kg: 2.5, lb: 5 };
     enriched.pictogram = pictogram(enriched);
     exercises[e.id] = enriched;
@@ -252,7 +293,12 @@ export function buildCatalog(existing, source, calisthenics = {}, { maxBytes = I
   for (const s of [...source].sort((a, b) => a.id.localeCompare(b.id, 'en'))) {
     if (!categories.has(s.category) || names.has(normal(s.name))) continue;
     const e = mapExercise(s);
-    if (Object.hasOwn(exercises, e.id)) continue;
+    if (
+      Object.hasOwn(exercises, e.id) ||
+      Object.hasOwn(calisthenics, e.id) ||
+      Object.values(calisthenics).some((cal) => cal.id === e.id)
+    )
+      continue;
     names.add(normal(e.name));
     descriptions[e.id] = description(e);
     exercises[e.id] = { ...e, ...descriptions[e.id] };
@@ -264,9 +310,20 @@ export function buildCatalog(existing, source, calisthenics = {}, { maxBytes = I
       pictogram: PICTOGRAM_KEYS.includes(e.pictogram) ? e.pictogram : pictogram(e),
     };
   const sorted = Object.fromEntries(Object.entries(exercises).sort(([a], [b]) => a.localeCompare(b, 'en')));
-  const prose = new Set(source.flatMap((s) => s.instructions ?? []));
-  for (const e of Object.values(descriptions))
-    if (prose.has(e.description)) throw new Error('Source instruction copied');
+  const prose = new Set(source.flatMap((s) => s.instructions ?? []).filter((s) => typeof s === 'string'));
+  for (const e of Object.values(sorted)) {
+    for (const text of [e.description, ...(e.goodForm ?? [])]) {
+      if (
+        typeof text === 'string' &&
+        [...prose].some(
+          (instruction) =>
+            (Object.hasOwn(descriptions, e.id) && text === instruction) ||
+            (instruction.length >= 30 && text.includes(instruction)),
+        )
+      )
+        throw new Error(`Source instruction copied: ${e.id}`);
+    }
+  }
   const bytes = Buffer.byteLength(serialize(sorted)) + Buffer.byteLength(serialize(descriptions));
   if (bytes > maxBytes) throw new Error(`Catalog budget exceeded: ${bytes} > ${maxBytes}`);
   return {
@@ -285,14 +342,14 @@ export async function main() {
     raw = await readFile(cache, 'utf8');
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    const response = await fetch(SOURCE);
+    const response = await fetch(SOURCE, { signal: AbortSignal.timeout(30_000) });
     if (!response.ok) throw new Error(`Download failed: ${response.status}`);
     raw = await response.text();
-    JSON.parse(raw);
+    parseSource(raw);
     await mkdir(new URL('.cache/free-exercise-db/', root), { recursive: true });
     await writeFile(cache, raw);
   }
-  const source = JSON.parse(raw);
+  const source = parseSource(raw);
   const existing = JSON.parse(await readFile(new URL('src/exercises.json', root), 'utf8'));
   let calisthenics = {};
   try {

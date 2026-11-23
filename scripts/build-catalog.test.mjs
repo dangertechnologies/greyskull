@@ -6,6 +6,7 @@ import {
   EQUIPMENT,
   mapExercise,
   PICTOGRAM_KEYS,
+  parseSource,
   pictogram,
   serialize,
 } from './build-catalog.mjs';
@@ -152,6 +153,7 @@ test('generated catalog meets count, vocabulary, original text and pictogram tar
     assert.deepEqual(Object.keys(d), ['description']);
     assert.equal(catalog[id].goodForm, undefined);
     assert.equal(catalog[id].badForm, undefined);
+    assert.notEqual(catalog[id].pattern, 'skill');
     assert.equal(catalog[id].description, d.description);
   }
   const entries = Object.values(catalog);
@@ -171,5 +173,97 @@ test('generated catalog meets count, vocabulary, original text and pictogram tar
       e.id,
     );
     assert.equal(e.images, undefined);
+  }
+});
+
+test('original metadata without upstream matches covers all 25 originals', () => {
+  const originals = JSON.parse(readFileSync(new URL('../src/exercises.json', import.meta.url)));
+  const result = buildCatalog(originals, []).exercises;
+  const expected = {
+    BARBELL_SQUAT: ['quadriceps', 'barbell', 'squat'],
+    DEADLIFT: ['hamstrings,glutes', 'barbell', 'hinge'],
+    BENCH_PRESS: ['chest,triceps', 'barbell,bench', 'push'],
+    MILITARY_PRESS: ['shoulders', 'barbell', 'push'],
+    CHINUPS: ['lats', 'pull-up-bar', 'pull'],
+    CURLS: ['biceps', 'barbell', 'pull'],
+    CRUNCHES: ['abdominals', 'none', 'core'],
+    BENT_OVER_ROW: ['lats', 'barbell', 'pull'],
+    DIPS: ['chest,triceps', 'dip-bars', 'push'],
+    INCLINE_BENCH_PRESS: ['chest,triceps', 'barbell,bench', 'push'],
+    ROMANIAN_DEADLIFT: ['hamstrings', 'barbell', 'hinge'],
+    LEG_PRESS: ['quadriceps', 'machine', 'squat'],
+    LEG_CURL: ['hamstrings', 'machine', 'hinge'],
+    CALF_RAISE: ['calves', 'machine', 'squat'],
+    LAT_PULLDOWN: ['lats', 'machine', 'pull'],
+    SEATED_CABLE_ROW: ['middle-back', 'cable', 'pull'],
+    TRICEP_PUSHDOWN: ['triceps', 'cable', 'push'],
+    DUMBBELL_ROW: ['middle-back', 'dumbbell,bench', 'pull'],
+    DB_SHOULDER_PRESS: ['shoulders', 'dumbbell', 'push'],
+    DB_LATERAL_RAISE: ['shoulders', 'dumbbell', 'push'],
+    SIDELYING_EXTERNAL_ROTATION: ['shoulders', 'dumbbell', 'mobility'],
+    PRONE_HORIZONTAL_ABDUCTION: ['shoulders', 'dumbbell,bench', 'push'],
+    PRONE_EXTERNAL_ROTATION: ['shoulders', 'dumbbell,bench', 'mobility'],
+    SUPINE_PROTRACTION: ['shoulders', 'dumbbell', 'push'],
+    SCAPTION: ['shoulders', 'dumbbell', 'push'],
+  };
+  assert.deepEqual(Object.keys(expected), Object.keys(originals));
+  for (const [id, mapping] of Object.entries(expected)) {
+    assert.deepEqual(
+      [result[id].muscles.join(','), result[id].equipment.join(','), result[id].pattern],
+      mapping,
+      id,
+    );
+  }
+});
+
+test('isolation and rotation patterns follow muscles without skill or throw substring matches', () => {
+  for (const [name, muscles, expected] of [
+    ['Leg Curl', ['hamstrings'], 'hinge'],
+    ['Calf Raise', ['calves'], 'squat'],
+    ['Dumbbell External Rotation', ['shoulders'], 'mobility'],
+    ['Lateral Raise', ['shoulders'], 'push'],
+    ['Biceps Curl', ['biceps'], 'pull'],
+    ['Medicine Ball Throw', ['chest'], 'push'],
+    ['Medicine Ball Throw', ['abdominals'], 'core'],
+  ]) {
+    const s = { ...row('PATTERN', name), primaryMuscles: muscles, force: null };
+    assert.equal(mapExercise(s).pattern, expected, name);
+  }
+});
+
+test('calisthenics id collision creates no orphan description or import count', () => {
+  const cal = { ...existing.TAKEN, name: 'Winning exercise', pictogram: 'planche' };
+  const result = buildCatalog({}, [row('TAKEN', 'Different source name')], { TAKEN: cal });
+  assert.equal(result.imported, 0);
+  assert.deepEqual(result.descriptions, {});
+  assert.deepEqual(result.exercises.TAKEN, cal);
+});
+
+test('invalid imported enum values identify the entry', () => {
+  for (const change of [
+    { level: 'advanced' },
+    { equipment: 'unknown' },
+    { primaryMuscles: ['unknown'] },
+    { secondaryMuscles: [42] },
+  ]) {
+    assert.throws(() => buildCatalog({}, [{ ...row('INVALID_ENUM', 'Invalid'), ...change }]), /INVALID_ENUM/);
+  }
+  assert.throws(() => parseSource('{}'), /must be an array/);
+  assert.throws(() => buildCatalog({}, {}), /must be an array/);
+  assert.deepEqual(parseSource('[]'), []);
+});
+
+test('provenance guard rejects exact descriptions and embedded long source prose in all output', () => {
+  const s = row('EXACT', 'Exact');
+  s.instructions = ['Exact: barbell; works chest; beginner.'];
+  assert.throws(() => buildCatalog({}, [s]), /Source instruction copied: EXACT/);
+  const instruction = 'This source instruction contains at least thirty characters';
+  const source = [{ ...row('SOURCE', 'Source'), instructions: [instruction] }];
+  for (const field of ['description', 'goodForm']) {
+    const copy = {
+      ...existing.TAKEN,
+      [field]: field === 'goodForm' ? [`Prefix ${instruction} suffix`] : `Prefix ${instruction} suffix`,
+    };
+    assert.throws(() => buildCatalog({ TAKEN: copy }, source), /Source instruction copied: TAKEN/);
   }
 });

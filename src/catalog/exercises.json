@@ -312,13 +312,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Alternate Leg Diagonal Bound: no equipment; works quadriceps; beginner."
   },
   "ALTERNATING_CABLE_SHOULDER_PRESS": {
@@ -425,7 +425,7 @@
       "lower-back",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -737,7 +737,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -762,13 +762,13 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "skill",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "squat",
     "description": "Balance Board: no equipment; works calves; beginner."
   },
   "BALL_LEG_CURL": {
@@ -787,7 +787,7 @@
       "calves",
       "glutes"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -859,13 +859,13 @@
       "adductors"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "squat",
     "description": "Band Hip Adductions: bands; works adductors; beginner."
   },
   "BAND_PULL_APART": {
@@ -1316,7 +1316,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -1476,11 +1476,11 @@
     "url": "https://stronglifts.com/squat/#Squat_Technique",
     "abbr": "SQ",
     "background": "squat",
-    "equipment": [
-      "barbell"
-    ],
     "muscles": [
       "quadriceps"
+    ],
+    "equipment": [
+      "barbell"
     ],
     "pattern": "squat",
     "pictogram": "squat"
@@ -1658,13 +1658,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Bench Jump: no equipment, bench; works quadriceps; intermediate."
   },
   "BENCH_PRESS": {
@@ -1696,13 +1696,13 @@
     "video": "https://www.youtube.com/watch?v=rxD321l2svE",
     "abbr": "BP",
     "background": "dumbbell-female",
-    "equipment": [
-      "barbell",
-      "bench"
-    ],
     "muscles": [
       "chest",
       "triceps"
+    ],
+    "equipment": [
+      "barbell",
+      "bench"
     ],
     "pattern": "push",
     "pictogram": "bench"
@@ -1806,13 +1806,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Bench Sprint: no equipment, bench; works quadriceps; beginner."
   },
   "BENT_ARM_BARBELL_PULLOVER": {
@@ -1934,7 +1934,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -2030,11 +2030,11 @@
     "url": "https://stronglifts.com/barbell-row/",
     "abbr": "ROW",
     "background": "empty-gym",
-    "equipment": [
-      "barbell"
-    ],
     "muscles": [
       "lats"
+    ],
+    "equipment": [
+      "barbell"
     ],
     "pattern": "pull",
     "pictogram": "row"
@@ -2407,13 +2407,13 @@
       "glutes",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Box Jump (Multiple Response): no equipment; works hamstrings; beginner."
   },
   "BOX_SKIP": {
@@ -2435,13 +2435,13 @@
       "glutes",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Box Skip: no equipment; works hamstrings; beginner."
   },
   "BOX_SQUAT": {
@@ -2801,7 +2801,7 @@
       "quadriceps"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -2811,7 +2811,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "squat",
     "description": "Cable Hip Adduction: cable; works quadriceps; beginner."
   },
   "CABLE_INCLINE_PUSHDOWN": {
@@ -2879,7 +2879,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "mobility",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -2889,7 +2889,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "overhead-press",
+    "pictogram": "stretch",
     "description": "Cable Internal Rotation: cable; works shoulders; beginner."
   },
   "CABLE_IRON_CROSS": {
@@ -3199,7 +3199,7 @@
       "middle-back",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -3471,7 +3471,6 @@
       "Let the shoulders collapse forward",
       "Bend the elbows"
     ],
-    "video": "https://www.youtube.com/watch?v=o9yKAjvUQlM",
     "pictogram": "bridge"
   },
   "CAL_BRIDGE_CLOSING": {
@@ -3687,7 +3686,6 @@
       "Let the hips sag",
       "Bend the knees to get up higher"
     ],
-    "video": "https://www.youtube.com/watch?v=gkTVDJHHIZ0",
     "pictogram": "bridge"
   },
   "CAL_BRIDGE_WALL_DOWN": {
@@ -4250,7 +4248,6 @@
       "Kick up with momentum",
       "Let the shoulders rise toward the ears"
     ],
-    "video": "https://www.youtube.com/watch?v=CtFMjDbU0P4",
     "pictogram": "leg-raise"
   },
   "CAL_HANGING_FROG_RAISE": {
@@ -6229,7 +6226,6 @@
       "Twist the body open as you tire",
       "Jerk up out of the bottom"
     ],
-    "video": "https://www.youtube.com/watch?v=xp1tgjT_3k0",
     "pictogram": "push-up"
   },
   "CAL_PUSHUP_ONE_ARM_HALF": {
@@ -7023,7 +7019,6 @@
       "Push off the floor with the hands",
       "Lift the heels"
     ],
-    "video": "https://www.youtube.com/watch?v=QhyRsrPOkoY",
     "pictogram": "squat"
   },
   "CAL_SQUAT_ONE_LEG_HALF": {
@@ -7093,7 +7088,6 @@
       "Pull on the neck with the hands",
       "Rock hard to build momentum"
     ],
-    "video": "https://www.youtube.com/watch?v=5XDjserman8",
     "pictogram": "squat"
   },
   "CAL_SQUAT_SUPPORTED": {
@@ -7220,7 +7214,7 @@
       "traps"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -7246,7 +7240,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -7313,13 +7307,13 @@
       "Rush through short reps"
     ],
     "background": "leg-press",
-    "equipment": [
-      "machine"
-    ],
     "muscles": [
       "calves"
     ],
-    "pattern": "skill",
+    "equipment": [
+      "machine"
+    ],
+    "pattern": "squat",
     "pictogram": "calf-raise"
   },
   "CALF_RAISE_ON_A_DUMBBELL": {
@@ -7335,7 +7329,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -7361,7 +7355,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -7480,13 +7474,13 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "skill",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "squat",
     "description": "Carioca Quick Step: no equipment; works adductors; beginner."
   },
   "CAT_STRETCH": {
@@ -7916,11 +7910,11 @@
     "url": "https://stronglifts.com/pullups/",
     "background": "pullups",
     "abbr": "CU",
-    "equipment": [
-      "pull-up-bar"
-    ],
     "muscles": [
       "lats"
+    ],
+    "equipment": [
+      "pull-up-bar"
     ],
     "pattern": "pull",
     "pictogram": "chin-up"
@@ -7946,7 +7940,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -8066,7 +8060,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -8591,11 +8585,11 @@
     ],
     "background": "crunches",
     "abbr": "CR",
-    "equipment": [
-      "medicine-ball"
-    ],
     "muscles": [
       "abdominals"
+    ],
+    "equipment": [
+      "none"
     ],
     "pattern": "core",
     "pictogram": "hollow-hold"
@@ -8654,11 +8648,11 @@
     "background": "curls",
     "video": "https://www.youtube.com/watch?v=bAWLx7PPK10",
     "abbr": "CL",
-    "equipment": [
-      "barbell"
-    ],
     "muscles": [
       "biceps"
+    ],
+    "equipment": [
+      "barbell"
     ],
     "pattern": "pull",
     "pictogram": "curl"
@@ -8716,13 +8710,13 @@
       "Drop the weights on the way down"
     ],
     "background": "dumbbell-hand",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
     ],
-    "pattern": "skill",
+    "equipment": [
+      "dumbbell"
+    ],
+    "pattern": "push",
     "pictogram": "lateral-raise"
   },
   "DB_SHOULDER_PRESS": {
@@ -8753,11 +8747,11 @@
       "Force your shoulders through a painful range"
     ],
     "background": "dumbbell-female",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
+    ],
+    "equipment": [
+      "dumbbell"
     ],
     "pattern": "push",
     "pictogram": "overhead-press"
@@ -8814,12 +8808,12 @@
     "url": "https://stronglifts.com/deadlift/",
     "background": "deadlift",
     "abbr": "DL",
-    "equipment": [
-      "barbell"
-    ],
     "muscles": [
       "hamstrings",
       "glutes"
+    ],
+    "equipment": [
+      "barbell"
     ],
     "pattern": "hinge",
     "pictogram": "deadlift"
@@ -9206,13 +9200,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Depth Jump Leap: no equipment; works quadriceps; beginner."
   },
   "DIP_MACHINE": {
@@ -9272,12 +9266,12 @@
     "url": "https://stronglifts.com/dips/",
     "background": "dips",
     "abbr": "DIP",
-    "equipment": [
-      "dip-bars"
-    ],
     "muscles": [
       "chest",
       "triceps"
+    ],
+    "equipment": [
+      "dip-bars"
     ],
     "pattern": "push",
     "pictogram": "dip"
@@ -9345,7 +9339,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -9375,7 +9369,7 @@
       "quadriceps",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -9465,7 +9459,7 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "expert",
     "increment": {
       "kg": 2,
@@ -9528,13 +9522,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Double Leg Butt Kick: no equipment; works quadriceps; beginner."
   },
   "DOWNWARD_FACING_BALANCE": {
@@ -9553,13 +9547,13 @@
       "abdominals",
       "hamstrings"
     ],
-    "pattern": "skill",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "deadlift",
     "description": "Downward Facing Balance: exercise ball; works glutes; intermediate."
   },
   "DRAG_CURL": {
@@ -9748,7 +9742,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -9920,7 +9914,7 @@
     "secondary": [
       "middle-back"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -9972,7 +9966,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -10135,7 +10129,7 @@
     "secondary": [
       "biceps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -10206,11 +10200,12 @@
       "Drop the dumbbell between reps"
     ],
     "background": "dumbbell-female",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "middle-back"
+    ],
+    "equipment": [
+      "dumbbell",
+      "bench"
     ],
     "pattern": "pull",
     "pictogram": "row"
@@ -10260,7 +10255,7 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -10270,7 +10265,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Dumbbell Seated Box Jump: dumbbell; works quadriceps; intermediate."
   },
   "DUMBBELL_SEATED_ONE_LEG_CALF_RAISE": {
@@ -10286,7 +10281,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -10726,7 +10721,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "mobility",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -10736,7 +10731,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "overhead-press",
+    "pictogram": "stretch",
     "description": "External Rotation: dumbbell; works shoulders; beginner."
   },
   "EXTERNAL_ROTATION_WITH_BAND": {
@@ -10752,13 +10747,13 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "mobility",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "overhead-press",
+    "pictogram": "stretch",
     "description": "External Rotation with Band: bands; works shoulders; beginner."
   },
   "EXTERNAL_ROTATION_WITH_CABLE": {
@@ -10774,7 +10769,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "mobility",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -10784,7 +10779,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "overhead-press",
+    "pictogram": "stretch",
     "description": "External Rotation with Cable: cable; works shoulders; beginner."
   },
   "EZ_BAR_CURL": {
@@ -10888,13 +10883,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Fast Skipping: no equipment; works quadriceps; beginner."
   },
   "FINGER_CURLS": {
@@ -11034,7 +11029,7 @@
       "calves",
       "glutes"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -11108,13 +11103,13 @@
     "secondary": [
       "hamstrings"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "deadlift",
     "description": "Flutter Kicks: no equipment; works glutes; beginner."
   },
   "FOOT_SMR": {
@@ -11312,13 +11307,13 @@
       "glutes",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Front Box Jump: no equipment; works hamstrings; beginner."
   },
   "FRONT_CABLE_RAISE": {
@@ -11366,13 +11361,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Front Cone Hops (or hurdle hops): no equipment; works quadriceps; beginner."
   },
   "FRONT_DUMBBELL_RAISE": {
@@ -11649,7 +11644,7 @@
       "calves",
       "glutes"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -11677,13 +11672,13 @@
     "secondary": [
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Glute Kickback: no equipment; works glutes; beginner."
   },
   "GOBLET_SQUAT": {
@@ -11989,7 +11984,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -12019,7 +12014,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -12050,7 +12045,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "expert",
     "increment": {
       "kg": 2.5,
@@ -12081,7 +12076,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "expert",
     "increment": {
       "kg": 2.5,
@@ -12180,7 +12175,7 @@
       "shoulders",
       "triceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -12280,13 +12275,13 @@
     "secondary": [
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Hip Extension with Bands: bands; works glutes; beginner."
   },
   "HIP_FLEXION_WITH_BAND": {
@@ -12302,13 +12297,13 @@
       "quadriceps"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "squat",
     "description": "Hip Flexion with Band: bands; works quadriceps; beginner."
   },
   "HIP_LIFT_WITH_BAND": {
@@ -12327,13 +12322,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Hip Lift with Band: bands; works glutes; beginner."
   },
   "HUG_A_BALL": {
@@ -12404,13 +12399,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Hurdle Hops: no equipment; works hamstrings; beginner."
   },
   "HYPEREXTENSIONS_BACK_EXTENSIONS": {
@@ -12429,7 +12424,7 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -12455,7 +12450,7 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -12556,13 +12551,13 @@
       "Bend your wrists back under the bar"
     ],
     "background": "incline-bench",
-    "equipment": [
-      "barbell",
-      "bench"
-    ],
     "muscles": [
       "chest",
       "triceps"
+    ],
+    "equipment": [
+      "barbell",
+      "bench"
     ],
     "pattern": "push",
     "pictogram": "incline-press"
@@ -13028,13 +13023,13 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "skill",
+    "pattern": "mobility",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "overhead-press",
+    "pictogram": "stretch",
     "description": "Internal Rotation with Band: bands; works shoulders; beginner."
   },
   "INVERTED_ROW": {
@@ -13157,13 +13152,13 @@
       "shoulders",
       "triceps"
     ],
-    "pattern": "skill",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "push-up",
     "description": "Isometric Chest Squeezes: no equipment; works chest; beginner."
   },
   "ISOMETRIC_NECK_EXERCISE_FRONT_AND_BACK": {
@@ -13179,13 +13174,13 @@
       "neck"
     ],
     "secondary": [],
-    "pattern": "skill",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "push-up",
     "description": "Isometric Neck Exercise - Front And Back: no equipment; works neck; beginner."
   },
   "ISOMETRIC_NECK_EXERCISE_SIDES": {
@@ -13201,13 +13196,13 @@
       "neck"
     ],
     "secondary": [],
-    "pattern": "skill",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "push-up",
     "description": "Isometric Neck Exercise - Sides: no equipment; works neck; beginner."
   },
   "ISOMETRIC_WIPERS": {
@@ -13454,7 +13449,7 @@
       "quadriceps",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -13514,7 +13509,7 @@
       "abdominals",
       "triceps"
     ],
-    "pattern": "skill",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -13524,7 +13519,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "push-up",
     "description": "Kettlebell Halo: kettlebell; works shoulders; beginner."
   },
   "KETTLEBELL_HALO_WITH_OVERHEAD_EXTENSION": {
@@ -13577,7 +13572,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -14069,13 +14064,13 @@
       "glutes",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Knee Tuck Jump: no equipment; works hamstrings; beginner."
   },
   "KNEELING_ARM_DRILL": {
@@ -14093,13 +14088,13 @@
     "secondary": [
       "abdominals"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "push-up",
     "description": "Kneeling Arm Drill: no equipment; works shoulders; beginner."
   },
   "KNEELING_CABLE_CRUNCH_WITH_ALTERNATING_OBLIQUE_TWISTS": {
@@ -14393,11 +14388,11 @@
       "Release the weight suddenly"
     ],
     "background": "pulldown",
-    "equipment": [
-      "machine"
-    ],
     "muscles": [
       "lats"
+    ],
+    "equipment": [
+      "machine"
     ],
     "pattern": "pull",
     "pictogram": "lat-pulldown"
@@ -14421,7 +14416,7 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -14449,7 +14444,7 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -14477,7 +14472,7 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -14558,13 +14553,13 @@
       "Force a range that causes knee pain"
     ],
     "background": "leg-press",
+    "muscles": [
+      "hamstrings"
+    ],
     "equipment": [
       "machine"
     ],
-    "muscles": [
-      "biceps"
-    ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "pictogram": "leg-curl"
   },
   "LEG_EXTENSIONS": {
@@ -14580,7 +14575,7 @@
       "quadriceps"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -14608,13 +14603,13 @@
     "secondary": [
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Leg Lift: no equipment; works glutes; beginner."
   },
   "LEG_OVER_FLOOR_PRESS": {
@@ -14674,11 +14669,11 @@
       "Snap your knees back at the top"
     ],
     "background": "leg-press",
-    "equipment": [
-      "machine"
-    ],
     "muscles": [
       "quadriceps"
+    ],
+    "equipment": [
+      "machine"
     ],
     "pattern": "squat",
     "pictogram": "squat"
@@ -14972,13 +14967,13 @@
       "calves",
       "quadriceps"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "Linear 3-Part Start Technique: no equipment; works hamstrings; beginner."
   },
   "LINEAR_ACCELERATION_WALL_DRILL": {
@@ -14998,13 +14993,13 @@
       "glutes",
       "quadriceps"
     ],
-    "pattern": "skill",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "deadlift",
     "description": "Linear Acceleration Wall Drill: no equipment; works hamstrings; beginner."
   },
   "LINEAR_DEPTH_JUMP": {
@@ -15024,13 +15019,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Linear Depth Jump: no equipment; works quadriceps; intermediate."
   },
   "LONDON_BRIDGES": {
@@ -15596,7 +15591,7 @@
       "hamstrings"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -15652,7 +15647,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -15700,7 +15695,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -15996,7 +15991,7 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -16086,11 +16081,11 @@
     "url": "https://stronglifts.com/overhead-press/",
     "background": "overhead-press",
     "abbr": "OHP",
-    "equipment": [
-      "barbell"
-    ],
     "muscles": [
       "shoulders"
+    ],
+    "equipment": [
+      "barbell"
     ],
     "pattern": "push",
     "pictogram": "overhead-press"
@@ -16133,7 +16128,7 @@
       "abductors"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -16159,13 +16154,13 @@
       "hamstrings",
       "shoulders"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "squat",
     "description": "Mountain Climbers: no equipment; works quadriceps; beginner."
   },
   "MOVING_CLAW_SERIES": {
@@ -16184,13 +16179,13 @@
       "calves",
       "quadriceps"
     ],
-    "pattern": "skill",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "deadlift",
     "description": "Moving Claw Series: no equipment; works hamstrings; beginner."
   },
   "MUSCLE_SNATCH": {
@@ -16212,7 +16207,7 @@
       "shoulders",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -16325,7 +16320,7 @@
       "glutes",
       "lower-back"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -16721,7 +16716,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -16953,7 +16948,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "expert",
     "increment": {
       "kg": 2,
@@ -17013,7 +17008,7 @@
       "hamstrings",
       "quadriceps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "expert",
     "increment": {
       "kg": 2,
@@ -17155,7 +17150,7 @@
       "quadriceps",
       "shoulders"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -17422,7 +17417,7 @@
     "secondary": [
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -17432,7 +17427,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "deadlift",
     "description": "One-Legged Cable Kickback: cable; works glutes; intermediate."
   },
   "OPEN_PALM_KETTLEBELL_CLEAN": {
@@ -17453,7 +17448,7 @@
       "quadriceps",
       "shoulders"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "expert",
     "increment": {
       "kg": 2,
@@ -17983,13 +17978,13 @@
       "forearms"
     ],
     "secondary": [],
-    "pattern": "skill",
+    "pattern": "pull",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "row",
     "description": "Plate Pinch: no equipment; works forearms; intermediate."
   },
   "PLATE_TWIST": {
@@ -18029,13 +18024,13 @@
     "secondary": [
       "glutes"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "deadlift",
     "description": "Platform Hamstring Slides: no equipment; works hamstrings; beginner."
   },
   "PLIE_DUMBBELL_SQUAT": {
@@ -18168,7 +18163,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -18192,7 +18187,7 @@
     "secondary": [
       "quadriceps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -18221,7 +18216,7 @@
       "shoulders",
       "triceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "expert",
     "increment": {
       "kg": 2.5,
@@ -18277,7 +18272,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "expert",
     "increment": {
       "kg": 2.5,
@@ -18308,7 +18303,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -18421,14 +18416,15 @@
       "Rush the movement or push through pain"
     ],
     "background": "dumbbell-hand",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
     ],
-    "pattern": "skill",
-    "pictogram": "overhead-press"
+    "equipment": [
+      "dumbbell",
+      "bench"
+    ],
+    "pattern": "mobility",
+    "pictogram": "stretch"
   },
   "PRONE_HORIZONTAL_ABDUCTION": {
     "id": "PRONE_HORIZONTAL_ABDUCTION",
@@ -18458,13 +18454,14 @@
       "Force the arm beyond a pain-free range"
     ],
     "background": "dumbbell-hand",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
     ],
-    "pattern": "skill",
+    "equipment": [
+      "dumbbell",
+      "bench"
+    ],
+    "pattern": "push",
     "pictogram": "lateral-raise"
   },
   "PRONE_MANUAL_HAMSTRING": {
@@ -18480,13 +18477,13 @@
       "hamstrings"
     ],
     "secondary": [],
-    "pattern": "skill",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "deadlift",
     "description": "Prone Manual Hamstring: no equipment; works hamstrings; beginner."
   },
   "PULL_THROUGH": {
@@ -18805,13 +18802,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Quick Leap: no equipment; works quadriceps; beginner."
   },
   "RACK_DELIVERY": {
@@ -18830,13 +18827,13 @@
       "forearms",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "push-up",
     "description": "Rack Delivery: barbell; works shoulders; intermediate."
   },
   "RACK_PULL_WITH_BANDS": {
@@ -19229,7 +19226,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "mobility",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -19239,7 +19236,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "overhead-press",
+    "pictogram": "stretch",
     "description": "Reverse Flyes With External Rotation: dumbbell; works shoulders; intermediate."
   },
   "REVERSE_GRIP_BENT_OVER_ROWS": {
@@ -19435,13 +19432,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Rocket Jump: no equipment; works quadriceps; beginner."
   },
   "ROCKING_STANDING_CALF_RAISE": {
@@ -19457,7 +19454,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -19516,11 +19513,11 @@
       "Let the bar drift away from your legs"
     ],
     "background": "deadlift",
-    "equipment": [
-      "barbell"
-    ],
     "muscles": [
       "hamstrings"
+    ],
+    "equipment": [
+      "barbell"
     ],
     "pattern": "hinge",
     "pictogram": "rdl"
@@ -19732,14 +19729,14 @@
       "Rush the lowering or force a painful range"
     ],
     "background": "dumbbell-hand",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
     ],
-    "pattern": "skill",
-    "pictogram": "generic"
+    "equipment": [
+      "dumbbell"
+    ],
+    "pattern": "push",
+    "pictogram": "push-up"
   },
   "SCAPULAR_PULL_UP": {
     "id": "SCAPULAR_PULL_UP",
@@ -19804,13 +19801,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Scissors Jump: no equipment; works quadriceps; beginner."
   },
   "SEATED_BAND_HAMSTRING_CURL": {
@@ -19826,7 +19823,7 @@
       "hamstrings"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -19920,7 +19917,7 @@
       "shoulders"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -20012,11 +20009,11 @@
       "Jerk the handle to start the pull"
     ],
     "background": "cable",
-    "equipment": [
-      "cable"
-    ],
     "muscles": [
       "middle-back"
+    ],
+    "equipment": [
+      "cable"
     ],
     "pattern": "pull",
     "pictogram": "row"
@@ -20062,7 +20059,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -20456,7 +20453,7 @@
       "hamstrings"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -20911,13 +20908,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Side Hop-Sprint: no equipment; works quadriceps; beginner."
   },
   "SIDE_JACKKNIFE": {
@@ -21103,13 +21100,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Side Standing Long Jump: no equipment; works quadriceps; beginner."
   },
   "SIDE_TO_SIDE_BOX_SHUFFLE": {
@@ -21130,13 +21127,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Side to Side Box Shuffle: no equipment; works quadriceps; beginner."
   },
   "SIDE_TO_SIDE_CHINS": {
@@ -21219,14 +21216,14 @@
       "Rush the rep or push through pain"
     ],
     "background": "dumbbell-hand",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
     ],
-    "pattern": "skill",
-    "pictogram": "overhead-press"
+    "equipment": [
+      "dumbbell"
+    ],
+    "pattern": "mobility",
+    "pictogram": "stretch"
   },
   "SINGLE_ARM_CABLE_CROSSOVER": {
     "id": "SINGLE_ARM_CABLE_CROSSOVER",
@@ -21321,13 +21318,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Single-Cone Sprint Drill: no equipment; works quadriceps; beginner."
   },
   "SINGLE_DUMBBELL_RAISE": {
@@ -21346,7 +21343,7 @@
       "forearms",
       "traps"
     ],
-    "pattern": "skill",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -21375,13 +21372,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Single Leg Butt Kick: no equipment; works quadriceps; beginner."
   },
   "SINGLE_LEG_GLUTE_BRIDGE": {
@@ -21451,13 +21448,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Single-Leg Hop Progression: no equipment; works quadriceps; beginner."
   },
   "SINGLE_LEG_LATERAL_HOP": {
@@ -21478,7 +21475,7 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -21500,7 +21497,7 @@
       "quadriceps"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -21556,13 +21553,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Single-Leg Stride Jump: no equipment; works quadriceps; beginner."
   },
   "SIT_SQUATS": {
@@ -21630,7 +21627,7 @@
       "middle-back",
       "quadriceps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -21861,7 +21858,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -21952,7 +21949,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -22151,7 +22148,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -22305,7 +22302,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -22333,7 +22330,7 @@
       "shoulders",
       "triceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -22393,7 +22390,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "expert",
     "increment": {
       "kg": 2.5,
@@ -22659,7 +22656,7 @@
       "shoulders",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -22686,7 +22683,7 @@
       "shoulders",
       "triceps"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -22712,13 +22709,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Split Jump: no equipment; works quadriceps; beginner."
   },
   "SPLIT_SNATCH": {
@@ -22744,7 +22741,7 @@
       "traps",
       "triceps"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "expert",
     "increment": {
       "kg": 2.5,
@@ -22962,7 +22959,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -23222,7 +23219,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -23276,7 +23273,7 @@
       "calves"
     ],
     "secondary": [],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -23623,7 +23620,7 @@
       "hamstrings"
     ],
     "secondary": [],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -23653,13 +23650,13 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Standing Long Jump: no equipment; works quadriceps; beginner."
   },
   "STANDING_LOW_PULLEY_DELTOID_RAISE": {
@@ -23758,13 +23755,13 @@
     "secondary": [
       "biceps"
     ],
-    "pattern": "skill",
+    "pattern": "pull",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "generic",
+    "pictogram": "row",
     "description": "Standing Olympic Plate Hand Squeeze: no equipment; works forearms; beginner."
   },
   "STANDING_ONE_ARM_CABLE_CURL": {
@@ -24085,7 +24082,7 @@
       "chest",
       "lats"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -24112,13 +24109,13 @@
       "hamstrings",
       "shoulders"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Star Jump: no equipment; works quadriceps; beginner."
   },
   "STEP_UP_WITH_KNEE_RAISE": {
@@ -24372,13 +24369,13 @@
       "calves",
       "hamstrings"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Stride Jump Crossover: no equipment; works quadriceps; beginner."
   },
   "SUMO_DEADLIFT": {
@@ -24513,7 +24510,7 @@
       "chest",
       "shoulders"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "beginner",
     "increment": {
       "kg": 2.5,
@@ -24576,13 +24573,13 @@
       "Drop your shoulder back or push through pain"
     ],
     "background": "dumbbell-hand",
-    "equipment": [
-      "dumbbell"
-    ],
     "muscles": [
       "shoulders"
     ],
-    "pattern": "skill",
+    "equipment": [
+      "dumbbell"
+    ],
+    "pattern": "push",
     "pictogram": "overhead-press"
   },
   "SUPINE_TWO_ARM_OVERHEAD_THROW": {
@@ -24857,7 +24854,7 @@
     "secondary": [
       "glutes"
     ],
-    "pattern": "push",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -24867,7 +24864,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "push-up",
+    "pictogram": "squat",
     "description": "Thigh Abductor: machine; works abductors; beginner."
   },
   "THIGH_ADDUCTOR": {
@@ -24886,7 +24883,7 @@
       "glutes",
       "hamstrings"
     ],
-    "pattern": "pull",
+    "pattern": "squat",
     "level": "beginner",
     "increment": {
       "kg": 2,
@@ -24896,7 +24893,7 @@
       "kg": 2,
       "lb": 5
     },
-    "pictogram": "row",
+    "pictogram": "squat",
     "description": "Thigh Adductor: machine; works adductors; beginner."
   },
   "TOE_TOUCHERS": {
@@ -25022,11 +25019,11 @@
       "Let the weight stack slam down"
     ],
     "background": "cable",
-    "equipment": [
-      "cable"
-    ],
     "muscles": [
       "triceps"
+    ],
+    "equipment": [
+      "cable"
     ],
     "pattern": "push",
     "pictogram": "triceps-extension"
@@ -25224,7 +25221,7 @@
       "lower-back",
       "traps"
     ],
-    "pattern": "pull",
+    "pattern": "push",
     "level": "intermediate",
     "increment": {
       "kg": 2,
@@ -25607,7 +25604,7 @@
       "hamstrings",
       "middle-back"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
@@ -26019,7 +26016,7 @@
       "glutes",
       "lower-back"
     ],
-    "pattern": "pull",
+    "pattern": "hinge",
     "level": "intermediate",
     "increment": {
       "kg": 2.5,
