@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import { Alert, Platform, Share, View } from 'react-native';
 import { GymEquipment } from '../../src/components/GymEquipment';
 import { GymSettings } from '../../src/components/GymSettings';
@@ -8,6 +9,7 @@ import { TEMPLATES } from '../../src/domain';
 import { importFromClipboard, importFromFile } from '../../src/importFlow';
 import { SiriCard } from '../../src/intents/SiriCard';
 import { goHome } from '../../src/navigation';
+import { listBeforeRestore, listUnreadable } from '../../src/storage';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ListRow } from '../../src/ui/ListRow';
@@ -17,11 +19,40 @@ import { Section } from '../../src/ui/Section';
 import { SegmentedControl } from '../../src/ui/SegmentedControl';
 import { Text } from '../../src/ui/Text';
 
+/** Copies of the data kept when it could not be read or before a restore or reset replaced it. */
+function KeptCopies() {
+  const files = [...listBeforeRestore(), ...listUnreadable()];
+  if (files.length === 0) return null;
+  return (
+    <>
+      <Text variant="caption" color="textMuted">
+        Copies of your data kept on this device, newest first:
+      </Text>
+      {files.map((file) => (
+        <Button
+          key={file.uri}
+          title={`Export ${file.name}`}
+          variant="secondary"
+          icon="share"
+          onPress={() => {
+            void Sharing.isAvailableAsync().then((ok) =>
+              ok
+                ? Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: file.name })
+                : Alert.alert('Sharing is not available', 'This device cannot share files.'),
+            );
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 function devSeed() {
   const fixture: unknown = require('../../src/dev/v1-imperial.json');
   const { reset, importLegacy } = useStore.getState();
-  reset();
-  void importLegacy(JSON.stringify(fixture)).then(goHome);
+  void reset()
+    .then(() => importLegacy(JSON.stringify(fixture)))
+    .then(goHome);
 }
 
 function devFastForward(programId: string, reps = 8) {
@@ -75,8 +106,10 @@ export default function Settings() {
         text: 'Reset',
         style: 'destructive',
         onPress: () => {
-          reset();
-          goHome();
+          // A copy of the data is kept first; when that fails nothing is reset and the reason is shown.
+          void reset().then(() => {
+            if (!useStore.getState().storageError) goHome();
+          });
         },
       },
     ]);
@@ -177,6 +210,7 @@ export default function Settings() {
             ])
           }
         />
+        <KeptCopies />
         <Button title="Reset" variant="destructive" onPress={confirmReset} />
       </Section>
 

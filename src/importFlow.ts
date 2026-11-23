@@ -3,7 +3,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { Alert } from 'react-native';
 import type { BackupSummary } from './backup';
-import { parseBackup } from './backup';
+import { BACKUP_TOO_LARGE, MAX_BACKUP_BYTES, parseBackup } from './backup';
 import { useStore } from './store';
 
 const describe = (s: BackupSummary): string =>
@@ -43,7 +43,7 @@ export function confirmAndApply(raw: string, onDone?: () => void): boolean {
 }
 
 /** Shows why the backup could not be read instead of leaving the failure unhandled. */
-async function readOrExplain(read: () => Promise<string>): Promise<string | null> {
+async function readOrExplain<T>(read: () => Promise<T>): Promise<T | null> {
   try {
     return await read();
   } catch (e) {
@@ -64,6 +64,13 @@ export async function importFromFile(onDone?: () => void): Promise<boolean> {
   const picked = await DocumentPicker.getDocumentAsync({ type: ['application/json', 'text/plain'] });
   const uri = picked.assets?.[0]?.uri;
   if (picked.canceled || !uri) return false;
+  // Refuse a huge file before reading it into memory. The picker may not know the size: ask the file itself.
+  const size = await readOrExplain(async () => picked.assets?.[0]?.size ?? new File(uri).size);
+  if (size === null) return false;
+  if (size > MAX_BACKUP_BYTES) {
+    Alert.alert('Cannot import', BACKUP_TOO_LARGE);
+    return false;
+  }
   const raw = await readOrExplain(() => new File(uri).text());
   return raw !== null && confirmAndApply(raw, onDone);
 }

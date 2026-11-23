@@ -211,6 +211,8 @@ export interface ExerciseResult {
   step?: number;
   scheme?: Scheme;
   band?: { id: string; label: string };
+  /** The exercise was skipped in this workout: its sets are 0 reps and it changed nothing about the lift. */
+  skipped?: true;
 }
 
 /** One exercise of a session as the program resolves it (day, stage, alternating pair and 5/3/1 week applied). */
@@ -246,6 +248,8 @@ export interface SessionLog {
   position?: number;
   /** Draft only: the resolved exercises, so finishing never re-derives them from a changed program. */
   slots?: ResolvedSlot[];
+  /** Draft only: exercises (result keys or lift keys) skipped in this workout; finishing leaves their lifts alone. */
+  skippedExercises?: string[];
   /** Set when the session eased back after a long break: the longest gap in days and the eased lift states. */
   eased?: { gapDays: number; lifts: Record<string, LiftState> };
   /** Id of the workout written to Apple Health or Health Connect. */

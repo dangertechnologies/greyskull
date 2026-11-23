@@ -6,8 +6,9 @@ import { getLadder } from './domain/ladders';
 function entryFor(log: SessionLog, key: string): [string, ExerciseResult] | undefined {
   const id = exerciseOfLift(key);
   const result = own(log.results, id);
-  if (result && (result.lift ?? id) === key) return [id, result];
-  return Object.entries(log.results).find(([, r]) => r.lift === key);
+  // A skipped exercise has no result for charts and history.
+  if (result && (result.lift ?? id) === key) return result.skipped ? undefined : [id, result];
+  return Object.entries(log.results).find(([, r]) => r.lift === key && !r.skipped);
 }
 
 /**

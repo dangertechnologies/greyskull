@@ -25,6 +25,7 @@ import {
   exerciseOfLift,
   fiveThreeOneSets,
   getLadder,
+  inventoryProblem,
   isReservedKey,
   liftKeysOf,
   migrateV1,
@@ -41,7 +42,9 @@ import {
   validateProgram,
 } from './domain';
 import { isEdited, userFieldsOf, withUserFields } from './domain/exerciseFields';
+import { sanitizeExercise } from './domain/sanitizeExercise';
 import { EQUIPMENT_LABELS } from './exerciseFilter';
+import { recordId } from './health/workout';
 import { createFileStorage } from './storage';
 
 /** AsyncStorage entry the state lived in before it moved to a file (read once, then kept untouched). */
@@ -118,6 +121,9 @@ interface Actions {
   undoEase(): void;
   /** Drop the workout in progress without logging it (its session id stays used). */
   discardDraft(): void;
+  /** Skip an exercise (its result key or lift key) of the open workout: it changes nothing about the lift. */
+  skipExercise(key: string): void;
+  unskipExercise(key: string): void;
   logSet(exerciseId: string, setIndex: number, reps: number): void;
   setDraftWeight(exerciseId: string, kg: number): void;
   finishSession(): Record<string, Outcome>;
@@ -131,7 +137,7 @@ interface Actions {
   setBands(list: { id: string; label: string }[]): void;
   setBreakDeload(on: boolean): void;
   setHealthSync(on: boolean): void;
-  /** Record where each session was written to Health, in one update (sessions that are gone are ignored). */
+  /** Record where each session was written to Health, in one update. An id only goes to the workout it was made for (`recordId`). */
   setHealthIds(entries: { n: number; healthId: string }[]): void;
   upsertExercise(exercise: Exercise): void;
   deleteExercise(id: string): string[];
@@ -140,7 +146,8 @@ interface Actions {
   exportJson(): string;
   /** Replace everything with a validated backup (see `parseBackup`). */
   importBackup(state: AppState): Promise<void>;
-  reset(): void;
+  /** Replace everything with a new install's state; the data it replaces is kept as a copy first. */
+  reset(): Promise<void>;
   /** Import v1 data from `raw`, or from the legacy key when omitted (read-only; the key is never written). */
   importLegacy(raw?: string): Promise<boolean>;
 }
@@ -192,6 +199,13 @@ export function restoreExercises(stored: Record<string, Exercise> | undefined): 
     if (!isRecord(e)) throw new Error(`The saved exercise ${id} is damaged`);
   }
   const out: Record<string, Exercise> = { ...stored };
+  // A custom exercise is rebuilt from the fields it may have; one that fails refuses the load, it is never dropped.
+  for (const [id, e] of Object.entries(stored ?? {})) {
+    const problem = customExerciseProblem(id, e);
+    if (problem) throw new Error(`The saved data is damaged: ${problem}`);
+    const r = isRecord(e) && e.custom === true && !Object.hasOwn(SHIPPED, id) ? sanitizeExercise(e) : null;
+    if (r?.ok) out[id] = { ...r.exercise, ...(e.archived === true ? { archived: true } : {}) };
+  }
   for (const [id, shipped] of Object.entries(builtInExercises())) {
     const entry = stored?.[id];
     out[id] = entry ? withUserFields(shipped, entry as unknown as Record<string, unknown>) : shipped;
@@ -375,6 +389,18 @@ export const knownEquipment = (list: unknown): Equipment[] =>
 /** An object that is not an array. */
 const isRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !Array.isArray(v);
 
+/**
+ * What is wrong with a stored custom exercise (one that is not a shipped built-in), or null. Same rebuild as a
+ * shared plan's exercises: text within the editor's limits, weights in range, known equipment and muscles.
+ */
+function customExerciseProblem(id: string, e: unknown): string | null {
+  if (!isRecord(e) || e.custom !== true || Object.hasOwn(SHIPPED, id)) return null;
+  if (isReservedKey(id)) return `the exercise ${id} has a reserved name`;
+  const r = sanitizeExercise(e, `The exercise ${id}`);
+  if (!r.ok) return `the exercise ${id} is damaged: ${r.error}`;
+  return r.exercise.id === id ? null : `the exercise ${id} has another id inside`;
+}
+
 /** A name every screen can render: a non-empty string of at most 100 characters. */
 const saneName = (v: unknown): boolean => typeof v === 'string' && v.trim().length > 0 && v.length <= 100;
 
@@ -395,9 +421,6 @@ export function bandsProblem(bands: unknown): string | null {
   return null;
 }
 
-const weightList = (v: unknown): boolean =>
-  Array.isArray(v) && v.every((x) => typeof x === 'number' && Number.isFinite(x) && x > 0);
-
 function programProblem(p: unknown, label: string): string | null {
   if (!isRecord(p)) return `${label} is not a program`;
   if (!isRecord(p.rules)) return `${label} has no rules`;
@@ -406,6 +429,15 @@ function programProblem(p: unknown, label: string): string | null {
     p.days.some((d) => !isRecord(d) || !Array.isArray(d.slots) || d.slots.some((slot) => !isRecord(slot)))
   )
     return `${label} has damaged days`;
+  // The same check the builder and imports run, so a program stored before a limit existed cannot reach the
+  // maths with a scheme or group of any size. It needs no catalog: an exercise missing from it is shown by name.
+  let errors: string[];
+  try {
+    errors = validateProgram(p as unknown as Program);
+  } catch {
+    return `${label} has damaged days`;
+  }
+  if (errors.length > 0) return `${label} is not valid: ${errors[0]}`;
   return null;
 }
 
@@ -421,6 +453,10 @@ export function stateProblem(s: Record<string, unknown>): string | null {
     (!isRecord(s.exercises) || Object.values(s.exercises).some((e) => !isRecord(e)))
   )
     return 'an exercise is damaged';
+  for (const [id, e] of Object.entries((s.exercises as Record<string, unknown> | undefined) ?? {})) {
+    const problem = customExerciseProblem(id, e);
+    if (problem) return problem;
+  }
   if (s.program !== undefined && s.program !== null) {
     const problem = programProblem(s.program, 'the program');
     if (problem) return problem;
@@ -442,18 +478,22 @@ export function stateProblem(s: Record<string, unknown>): string | null {
         return `program ${i + 1} is damaged`;
     }
   }
+  if (isRecord(s.draft) && s.draft.skippedExercises !== undefined) {
+    const keys = s.draft.skippedExercises;
+    if (
+      !Array.isArray(keys) ||
+      keys.length > 100 ||
+      keys.some((k) => typeof k !== 'string' || k.length > 100 || k.split('@').some(isReservedKey))
+    )
+      return 'the skipped exercises are damaged';
+  }
   if (s.bands !== undefined) {
     const problem = bandsProblem(s.bands);
     if (problem) return problem;
   }
   if (s.inventory !== undefined) {
-    if (!isRecord(s.inventory)) return 'the equipment is damaged';
-    const inv = s.inventory;
-    for (const key of ['platesKg', 'platesLb', 'kettlebellsKg', 'kettlebellsLb'])
-      if (inv[key] !== undefined && !weightList(inv[key]))
-        return 'the plate or kettlebell weights are damaged';
-    for (const key of ['barKg', 'barLb'])
-      if (inv[key] !== undefined && !weightList([inv[key]])) return 'the bar weight is damaged';
+    const problem = inventoryProblem(s.inventory);
+    if (problem) return problem;
   }
   if (s.customPlans !== undefined) {
     if (!Array.isArray(s.customPlans)) return 'the saved plans are damaged';
@@ -465,6 +505,18 @@ export function stateProblem(s: Record<string, unknown>): string | null {
     }
   }
   return null;
+}
+
+/**
+ * `nextSession` raised above every id already used (finished, skipped or open), so a stored or restored counter
+ * that is too low or missing can never hand out an id twice.
+ */
+export function withNextSession<T extends Pick<AppState, 'nextSession' | 'sessions' | 'draft'>>(s: T): T {
+  const whole = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0;
+  let next = whole(s.nextSession) ? s.nextSession : 0;
+  for (const log of s.sessions ?? []) if (whole(log.n)) next = Math.max(next, log.n + 1);
+  if (s.draft && whole(s.draft.n)) next = Math.max(next, s.draft.n + 1);
+  return next === s.nextSession ? s : { ...s, nextSession: next };
 }
 
 const assertState = (s: Record<string, unknown>): void => {
@@ -481,18 +533,18 @@ export function migratePersisted(persistedState: unknown, fromVersion: number): 
   if (!isRecord(persistedState)) throw new Error('The saved data is damaged: it is not app data');
   const old = persistedState;
   assertState(old);
-  if (fromVersion < 4) return upgradeOneProgramState(old as Partial<OneProgramState>);
+  if (fromVersion < 4) return withNextSession(upgradeOneProgramState(old as Partial<OneProgramState>));
   if (!Array.isArray(old.programs)) throw new Error('The saved data is damaged: the programs are missing');
   const base = initialState();
   const state = old as Partial<AppState>;
-  return {
+  return withNextSession({
     ...base,
     ...state,
     version: 3,
     inventory: { ...base.inventory, ...state.inventory },
     equipment: knownEquipment(state.equipment),
     exercises: state.exercises ?? {},
-  };
+  });
 }
 
 const mapProgram = (
@@ -555,6 +607,26 @@ function draftFor(
     position: program.position,
     slots: session.slots,
   };
+}
+
+/**
+ * Keep a copy of what a restore or reset is about to replace: the unreadable files when the data could not be
+ * read (writes are then allowed again), else the current data file. Resolves false, with the reason shown on the
+ * recovery screen and nothing replaced, when the copy could not be made.
+ */
+async function keepAside(unreadable: boolean): Promise<boolean> {
+  try {
+    await (unreadable ? storage.allowWrites() : storage.keepBeforeRestore());
+    return true;
+  } catch (e) {
+    const why = e instanceof Error ? e.message : String(e);
+    useStore.setState({
+      storageError: unreadable
+        ? `The unreadable data could not be kept aside, so nothing was replaced: ${why}`
+        : `Your current data could not be kept aside, so nothing was replaced: ${why}`,
+    });
+    return false;
+  }
 }
 
 export const useStore = create<Store>()(
@@ -752,10 +824,31 @@ export const useStore = create<Store>()(
           const program = s.programs.find((p) => p.id === d.programId);
           if (!program) return {};
           const at = { ...program, position: d.position ?? program.position };
-          return { draft: draftFor(s, at, program.lifts, d.n, Date.parse(d.startedAt)) };
+          // Nothing is logged yet, so an exercise skipped before the ease is undone stays skipped.
+          const rebuilt = draftFor(s, at, program.lifts, d.n, Date.parse(d.startedAt));
+          return {
+            draft: d.skippedExercises ? { ...rebuilt, skippedExercises: d.skippedExercises } : rebuilt,
+          };
         }),
 
       discardDraft: () => set({ draft: null }),
+
+      skipExercise: (key) =>
+        set((s) => {
+          const d = s.draft;
+          const known = d && (Object.hasOwn(d.results, key) || d.slots?.some((slot) => slot.lift === key));
+          if (!d || !known || d.skippedExercises?.includes(key)) return {};
+          return { draft: { ...d, skippedExercises: [...(d.skippedExercises ?? []), key] } };
+        }),
+
+      unskipExercise: (key) =>
+        set((s) => {
+          const d = s.draft;
+          if (!d?.skippedExercises?.includes(key)) return {};
+          const { skippedExercises: _all, ...rest } = d;
+          const left = d.skippedExercises.filter((k) => k !== key);
+          return { draft: left.length > 0 ? { ...rest, skippedExercises: left } : rest };
+        }),
 
       logSet: (exerciseId, setIndex, reps) =>
         set((s) => {
@@ -790,6 +883,8 @@ export const useStore = create<Store>()(
         const outcomes: Record<string, Outcome> = {};
         const nextLifts = { ...lifts };
         const finishedAt = new Date().toISOString();
+        const skippedKeys = new Set(draft.skippedExercises);
+        const results = { ...draft.results };
         // Drafts carry their resolved exercises; only a draft from before that was stored lacks them.
         const slots =
           draft.slots ?? sessionFor({ ...program, position: draft.position ?? program.position }).slots;
@@ -799,6 +894,12 @@ export const useStore = create<Store>()(
           const result = draft.results[id];
           if (!exercise || !result) continue;
           const key = slot.lift;
+          // A skipped exercise changes nothing: no progression, no miss, no deload and no ease applied. It is
+          // logged as skipped with no reps, so history and charts leave it out.
+          if (skippedKeys.has(id) || skippedKeys.has(key)) {
+            results[id] = { ...result, sets: result.sets.map((x) => ({ ...x, reps: 0 })), skipped: true };
+            continue;
+          }
           // The lift state progression starts from: the eased one after a break, else the stored one.
           const eased = draft.eased?.lifts[key];
           const base = eased ?? lifts[key];
@@ -819,9 +920,9 @@ export const useStore = create<Store>()(
           if (!result.sets.some((set) => set.reps > 0)) continue;
           nextLifts[key] = { ...(outcome.change === 'none' ? eased : outcome.next), touchedAt: finishedAt };
         }
-        const { slots: _slots, ...log } = draft;
+        const { slots: _slots, skippedExercises: _skipped, ...log } = draft;
         set((s) => ({
-          sessions: insertLog(s.sessions, { ...log, finishedAt }),
+          sessions: insertLog(s.sessions, { ...log, results, finishedAt }),
           programs: mapProgram(s.programs, program.id, (p) => ({
             ...p,
             lifts: nextLifts,
@@ -926,9 +1027,12 @@ export const useStore = create<Store>()(
       setHealthSync: (on) => set({ healthSync: on }),
       setHealthIds: (entries) =>
         set((s) => {
+          // Only the workout the id was made for: a restore can leave another workout with the same number.
           const ids = new Map(entries.map((e) => [e.n, e.healthId]));
           return {
-            sessions: s.sessions.map((log) => (ids.has(log.n) ? { ...log, healthId: ids.get(log.n) } : log)),
+            sessions: s.sessions.map((log) =>
+              ids.get(log.n) === recordId(log) ? { ...log, healthId: recordId(log) } : log,
+            ),
           };
         }),
 
@@ -996,22 +1100,16 @@ export const useStore = create<Store>()(
 
       importBackup: async (state) => {
         // Restoring a backup is how the user recovers from unreadable data: it replaces the file only once the
-        // unreadable file has been kept aside.
-        if (get().storageError) {
-          try {
-            await storage.allowWrites();
-          } catch (e) {
-            const why = e instanceof Error ? e.message : String(e);
-            set({
-              storageError: `The unreadable data could not be kept aside, so nothing was replaced: ${why}`,
-            });
-            return;
-          }
-        }
-        set({ ...snapshot(state), legacyChecked: true, storageError: null });
+        // unreadable file has been kept aside. Readable data is kept aside as it is, before it is replaced.
+        if (!(await keepAside(get().storageError !== null))) return;
+        set({ ...snapshot(withNextSession(state)), legacyChecked: true, storageError: null });
       },
 
-      reset: () => set({ ...initialState(), legacyChecked: true }),
+      reset: async () => {
+        // Writes stay blocked while the data is unreadable: only a restore lifts that.
+        if (!(await keepAside(false))) return;
+        set({ ...initialState(), legacyChecked: true });
+      },
 
       importLegacy: async (raw) => {
         const data = raw ?? (await AsyncStorage.getItem(LEGACY_KEY));
@@ -1043,12 +1141,12 @@ export const useStore = create<Store>()(
         if (stored !== undefined) assertState(isRecord(stored) ? stored : { programs: null });
         const state = (stored ?? {}) as Partial<AppState>;
         // Nothing stored (a first launch): keep the exercises already in memory.
-        return {
+        return withNextSession({
           ...current,
           ...state,
           equipment: state.equipment === undefined ? current.equipment : knownEquipment(state.equipment),
           exercises: state.exercises ? restoreExercises(state.exercises) : current.exercises,
-        };
+        });
       },
     },
   ),

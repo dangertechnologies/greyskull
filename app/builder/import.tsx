@@ -65,11 +65,14 @@ export default function ImportPlan() {
       const asset = picked.assets?.[0];
       if (picked.canceled || !asset) return;
       // The text is at most a few bytes per character; refuse a huge file before reading it.
-      if (asset.size !== undefined && asset.size > MAX_IMPORT_CHARS * 4) {
+      // The picker may not report a size: then the file is asked.
+      const file = new File(asset.uri);
+      const size = asset.size ?? file.size;
+      if (size > MAX_IMPORT_CHARS * 4) {
         setError(`That file is too large to be a program (the limit is ${MAX_IMPORT_CHARS / 1000} kB).`);
         return;
       }
-      run(await new File(asset.uri).text());
+      run(await file.text());
     } catch (e) {
       setError(`The file could not be read: ${e instanceof Error ? e.message : String(e)}`);
     }

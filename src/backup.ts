@@ -1,5 +1,5 @@
 import type { AppState, Exercise, Program, SessionLog } from './domain';
-import { tryParseScheme, validateProgram } from './domain';
+import { validateProgram } from './domain';
 import { NULLABLE_USER_FIELDS, USER_FIELDS } from './domain/exerciseFields';
 import { isReservedKey } from './domain/own';
 import type { OneProgramState } from './store';
@@ -23,6 +23,10 @@ export type BackupResult =
   | { ok: true; state: AppState; summary: BackupSummary }
   | { ok: false; error: string };
 
+/** The largest backup read or parsed: a real one is a few MB at most, even with years of workouts. */
+export const MAX_BACKUP_BYTES = 20 * 1024 * 1024;
+export const BACKUP_TOO_LARGE = `That file is too large to be a backup (the limit is ${MAX_BACKUP_BYTES / 1024 / 1024} MB).`;
+
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -33,8 +37,16 @@ const reserved = (map: Record<string, unknown>): boolean => Object.keys(map).som
 const saneLiftKey = (k: unknown): boolean =>
   typeof k === 'string' && k.length > 0 && k.length <= 100 && !k.split('@').some(isReservedKey);
 
+/** An ISO 8601 date-time the app can compare and sort by time (`toISOString` output and its time-zone forms). */
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:?\d{2})$/;
+export const isIsoDate = (v: unknown): v is string =>
+  typeof v === 'string' && ISO_DATE.test(v) && !Number.isNaN(Date.parse(v));
+
 function badSession(s: unknown): string | null {
   if (!isObject(s) || !isNum(s.n) || typeof s.startedAt !== 'string') return 'a session is malformed';
+  if (!Number.isInteger(s.n) || s.n < 0) return `session ${String(s.n)} has an id that is not a whole number`;
+  if (!isIsoDate(s.startedAt) || (s.finishedAt !== undefined && !isIsoDate(s.finishedAt)))
+    return `session ${String(s.n)} has a date that is not a date and time`;
   if (!isObject(s.results) || !Array.isArray(s.order) || reserved(s.results))
     return `session ${String(s.n)} is malformed`;
   // The app reads `results[id]` for every id in the order, so each one must be a result of its own.
@@ -43,6 +55,7 @@ function badSession(s: unknown): string | null {
   for (const r of Object.values(s.results)) {
     if (!isObject(r) || !isNum(r.weightKg) || !Array.isArray(r.sets))
       return `session ${String(s.n)} has a bad result`;
+    if (r.skipped !== undefined && r.skipped !== true) return `session ${String(s.n)} has a bad result`;
     if (r.lift !== undefined && !saneLiftKey(r.lift)) return `session ${String(s.n)} has a bad lift key`;
     for (const set of r.sets) {
       if (
@@ -85,6 +98,7 @@ export function parseBackup(raw: string): BackupResult {
 }
 
 function parse(raw: string): BackupResult {
+  if (raw.length > MAX_BACKUP_BYTES) return { ok: false, error: BACKUP_TOO_LARGE };
   let data: unknown;
   try {
     data = JSON.parse(raw.trim());
@@ -104,9 +118,14 @@ function parse(raw: string): BackupResult {
   if (!isNum(data.nextSession) || (data.unit !== 'kg' && data.unit !== 'lb') || !isObject(data.inventory)) {
     return { ok: false, error: 'The backup is missing basic settings.' };
   }
+  const ids = new Set<number>();
   for (const s of data.sessions) {
     const problem = badSession(s);
     if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
+    // Edits and Health writes find a session by its id: two with one id would hit the wrong one.
+    const n = (s as { n: number }).n;
+    if (ids.has(n)) return { ok: false, error: `The backup is damaged: two sessions have the id ${n}.` };
+    ids.add(n);
   }
   if (
     !onePlan &&
@@ -152,7 +171,7 @@ function parse(raw: string): BackupResult {
   if (data.equipment !== undefined && !(Array.isArray(data.equipment) && data.equipment.every(isEquipment)))
     return { ok: false, error: 'The equipment list in the backup is invalid.' };
   const problem = stateProblem(data);
-  if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
+  if (problem) return { ok: false, error: `The backup is damaged: ${problem.replace(/\.$/, '')}.` };
 
   // A half-finished workout is not worth restoring across devices.
   const converted = onePlan
@@ -168,10 +187,7 @@ function parse(raw: string): BackupResult {
       return { ok: false, error: 'The program in the backup is invalid: it has no days' };
     }
     const errors = validateProgram(program, state.exercises);
-    const schemes = program.days.flatMap((d) => d.slots.map((s) => s.scheme));
-    if (errors.length > 0 || schemes.some((s) => !tryParseScheme(s))) {
-      return { ok: false, error: `The program in the backup is invalid: ${errors[0] ?? 'unknown scheme'}` };
-    }
+    if (errors.length > 0) return { ok: false, error: `The program in the backup is invalid: ${errors[0]}` };
   }
 
   const done = state.sessions.filter((s: SessionLog) => !s.skipped);

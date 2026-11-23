@@ -16,8 +16,20 @@ import { getPlan } from './config/plans';
 import fixture from './dev/v1-imperial.json';
 import type { AppState, LiftState, Program, SessionLog } from './domain';
 import { isLoadable, PLUGINS, TEMPLATES, toKg } from './domain';
-import { stateFile } from './storage';
-import { initialState, initStore, LEGACY_KEY, STORAGE_KEY, snapshot, storage, useStore } from './store';
+import { lastResult } from './domain/history';
+import { recordId } from './health/workout';
+import { resultFor } from './series';
+import { listBeforeRestore, listUnreadable, stateFile } from './storage';
+import {
+  initialState,
+  initStore,
+  LEGACY_KEY,
+  migratePersisted,
+  STORAGE_KEY,
+  snapshot,
+  storage,
+  useStore,
+} from './store';
 
 const get = () => useStore.getState();
 const baseProgram = (): Program => JSON.parse(JSON.stringify(TEMPLATES.base)) as Program;
@@ -52,14 +64,14 @@ const playSession = (reps: number) => play(programId(), reps);
 describe('actions', () => {
   beforeEach(() => setProgram(baseProgram()));
 
-  test('addProgram creates starting lifts (barbells at the bar, bodyweight at 0 kg) and validates', () => {
+  test('addProgram creates starting lifts (barbells at the bar, bodyweight at 0 kg) and validates', async () => {
     expect(lifts().BARBELL_SQUAT).toEqual({
       weightKg: 20,
       startKg: 20,
       fails: 0,
       touchedAt: expect.any(String),
     });
-    get().reset();
+    await get().reset();
     const id = get().addProgram({ ...PLUGINS.chins.apply(TEMPLATES.base), name: 'With chins' });
     expect(get().programs[0]).toMatchObject({ id, name: 'With chins', position: 0, template: 'base' });
     expect(id).toMatch(/^base-/);
@@ -243,14 +255,15 @@ describe('actions', () => {
     get().setBreakDeload(false);
     get().setHealthSync(true);
     playSession(5);
-    get().setHealthIds([{ n: 0, healthId: 'hk-1' }]);
+    const first = recordId(get().sessions[0]);
+    get().setHealthIds([{ n: 0, healthId: first }]);
     expect(get()).toMatchObject({
       equipment: ['barbell', 'rings'],
       bands: [{ id: 'red', label: 'Red' }],
       breakDeload: false,
       healthSync: true,
     });
-    expect(get().sessions[0].healthId).toBe('hk-1');
+    expect(get().sessions[0].healthId).toBe(first);
   });
 
   test('custom exercises: built-ins protected, referenced ones refused (programs and saved plans)', () => {
@@ -296,10 +309,10 @@ describe('actions', () => {
     expect(get().programs).toEqual([]);
   });
 
-  test('reset gives a fresh state and INITIAL is not mutated', () => {
+  test('reset gives a fresh state and INITIAL is not mutated', async () => {
     setLift('BARBELL_SQUAT', { weightKg: 123 });
     get().setInventory({ barKg: 15 });
-    get().reset();
+    await get().reset();
     expect(get().programs).toEqual([]);
     expect(get().inventory.barKg).toBe(20);
     expect(initialState().inventory.barKg).toBe(20);
@@ -450,6 +463,42 @@ describe('persistence and migration', () => {
     expect(await AsyncStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
+  describe('a restore or reset keeps the data it replaces', () => {
+    const keptTexts = () => listBeforeRestore().map((f) => files.get(f.uri));
+    beforeEach(async () => {
+      await initStore();
+      setProgram(baseProgram());
+      await storage.flush();
+    });
+
+    test('importBackup and reset each leave a before-restore copy of the file', async () => {
+      const before = files.get(stateFile().uri);
+      expect(before).toContain('"base"');
+      await get().importBackup({ ...initialState(), unit: 'lb' });
+      expect(keptTexts()).toEqual([before]);
+      expect(get().unit).toBe('lb');
+      await storage.flush();
+      const mid = files.get(stateFile().uri);
+      await get().reset();
+      expect(keptTexts()).toContain(mid);
+      expect(keptTexts()).toHaveLength(2);
+      expect(get().programs).toHaveLength(0);
+    });
+
+    test.each([
+      ['importBackup', () => get().importBackup({ ...initialState(), unit: 'lb' })],
+      ['reset', () => get().reset()],
+    ])('%s replaces nothing when the copy fails', async (_name, run) => {
+      const copy = jest.spyOn(File.prototype, 'copy').mockRejectedValueOnce(new Error('disk full'));
+      await run();
+      copy.mockRestore();
+      expect(get().storageError).toMatch(/could not be kept aside.*disk full/);
+      expect(get().programs).toHaveLength(1);
+      expect(get().unit).not.toBe('lb');
+      expect(keptTexts()).toEqual([]);
+    });
+  });
+
   test('the stored blob leaves out unedited built-ins; an edited one keeps its fields across two restarts', async () => {
     await initStore();
     get().upsertExercise({
@@ -485,7 +534,7 @@ describe('persistence and migration', () => {
     await initStore();
     expect(get().hydrated).toBe(true);
     expect(get().storageError).toBeTruthy();
-    get().reset();
+    await get().reset();
     setProgram(baseProgram());
     await storage.flush();
     expect(files.get(stateFile().uri)).toBe('{"state": {broken');
@@ -501,7 +550,7 @@ describe('persistence and migration', () => {
     await storage.flush();
     expect(get().storageError).toBeNull();
     expect(stored()?.state.unit).toBe('lb');
-    expect(files.get(stateFile('state.unreadable.json').uri)).toBe('{"state": {broken');
+    expect(listUnreadable().map((f) => files.get(f.uri))).toEqual(['{"state": {broken']);
   });
 
   test('a 5,000-session history round-trips', async () => {
@@ -557,7 +606,7 @@ describe('persistence and migration', () => {
     const raw = JSON.stringify(fixture);
     await AsyncStorage.setItem(LEGACY_KEY, raw);
     await initStore();
-    get().reset();
+    await get().reset();
     await relaunch();
     expect(get().programs).toEqual([]);
     expect(get().needsWeightConfirm).toBe(false);
@@ -737,8 +786,8 @@ describe('easing back after a break', () => {
     expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 100, stage: 0 });
   });
 
-  test('a 5/3/1 training max eased after a break stays lowered after a week-1 finish, not after an empty one', () => {
-    get().reset();
+  test('a 5/3/1 training max eased after a break stays lowered after a week-1 finish, not after an empty one', async () => {
+    await get().reset();
     setProgram(getPlan('531-beginners')!.program);
     stale('BARBELL_SQUAT', { weightKg: 100 });
     history(past(30, ['BARBELL_SQUAT']));
@@ -762,8 +811,8 @@ describe('easing back after a break', () => {
     expect(lifts().CHINUPS.weightKg).toBe(10);
   });
 
-  test('a lift set after the break (a new program, a retest) is not eased', () => {
-    get().reset();
+  test('a lift set after the break (a new program, a retest) is not eased', async () => {
+    await get().reset();
     useStore.setState({ sessions: [past(60, ['BARBELL_SQUAT'], 5, { programId: 'old' })] });
     setProgram(getPlan('531-beginners')!.program);
     setLift('BARBELL_SQUAT', { weightKg: 100 });
@@ -814,6 +863,98 @@ describe('easing back after a break', () => {
     }));
     get().setLiftStep(programId(), 'DEADLIFT', 0);
     expect(lifts().DEADLIFT.touchedAt).toEqual(expect.any(String));
+  });
+
+  describe('skipping an exercise changes nothing about its lift', () => {
+    const logRest = () => {
+      for (const id of get().draft?.order ?? []) logAll(id, 5);
+    };
+    test('skip then finish: the lift and its misses are unchanged and the log says skipped', () => {
+      stale('BARBELL_SQUAT', { weightKg: 100, fails: 1 });
+      startSession();
+      get().skipExercise('BARBELL_SQUAT');
+      logRest();
+      const draftN = get().draft?.n;
+      get().finishSession();
+      expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 100, fails: 1 });
+      expect(lifts().BARBELL_SQUAT.touchedAt).toBeUndefined();
+      const log = get().sessions.find((l) => l.n === draftN);
+      expect(log?.results.BARBELL_SQUAT).toMatchObject({ skipped: true });
+      expect(log?.results.BARBELL_SQUAT.sets.every((x) => x.reps === 0)).toBe(true);
+      expect(log).not.toHaveProperty('skippedExercises');
+      // The others still progressed.
+      expect(Math.max(lifts().MILITARY_PRESS.weightKg, lifts().BENCH_PRESS.weightKg)).toBeGreaterThan(20);
+    });
+
+    test('a skipped lift is not a miss even when no reps would have counted', () => {
+      stale('BARBELL_SQUAT', { weightKg: 100, fails: 0 });
+      startSession();
+      get().skipExercise('BARBELL_SQUAT');
+      get().finishSession();
+      expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 100, fails: 0 });
+    });
+
+    test('unskip restores normal scoring', () => {
+      stale('BARBELL_SQUAT', { weightKg: 100 });
+      startSession();
+      get().skipExercise('BARBELL_SQUAT');
+      get().unskipExercise('BARBELL_SQUAT');
+      expect(get().draft).not.toHaveProperty('skippedExercises');
+      logRest();
+      get().finishSession();
+      expect(lifts().BARBELL_SQUAT.weightKg).toBe(102.5);
+      expect(get().sessions.at(-1)?.results.BARBELL_SQUAT.skipped).toBeUndefined();
+    });
+
+    test('skipped and eased: the stored lift keeps its pre-ease state and is not eased twice', () => {
+      history(past(30, ['BARBELL_SQUAT']));
+      const n = startSession().n;
+      expect(get().draft?.results.BARBELL_SQUAT.weightKg).toBe(80);
+      get().skipExercise('BARBELL_SQUAT');
+      logRest();
+      get().finishSession();
+      expect(lifts().BARBELL_SQUAT).toMatchObject({ weightKg: 100, fails: 0 });
+      expect(lifts().BARBELL_SQUAT.touchedAt).toBeUndefined();
+      expect(get().sessions.find((l) => l.n === n)?.results.BARBELL_SQUAT.skipped).toBe(true);
+    });
+
+    test('no draft, an unknown key and a repeat do nothing; a lift key works as well as a result key', () => {
+      get().skipExercise('BARBELL_SQUAT');
+      expect(get().draft).toBeNull();
+      startSession();
+      get().skipExercise('NOPE');
+      get().skipExercise('BARBELL_SQUAT');
+      get().skipExercise('BARBELL_SQUAT');
+      expect(get().draft?.skippedExercises).toEqual(['BARBELL_SQUAT']);
+      get().unskipExercise('BARBELL_SQUAT');
+      get().skipExercise(get().draft?.slots?.find((x) => x.exercise === 'BARBELL_SQUAT')?.lift ?? '');
+      expect(get().draft?.skippedExercises).toEqual(['BARBELL_SQUAT']);
+    });
+
+    test('history, personal records and charts leave skipped results out', () => {
+      startSession();
+      get().skipExercise('BARBELL_SQUAT');
+      logRest();
+      get().finishSession();
+      const log = get().sessions.at(-1) as SessionLog;
+      expect(lastResult(get().sessions, 'BARBELL_SQUAT')).toBeNull();
+      expect(resultFor(log, 'BARBELL_SQUAT')).toBeUndefined();
+      expect(resultFor(log, 'DEADLIFT') ?? resultFor(log, 'MILITARY_PRESS')).toBeDefined();
+    });
+
+    test('a stored draft without the field loads; a damaged field refuses the load', () => {
+      startSession();
+      const draft = get().draft as SessionLog;
+      const state = (patch: object) => ({
+        ...JSON.parse(JSON.stringify(initialState())),
+        programs: get().programs,
+        draft: { ...draft, ...patch },
+      });
+      expect(() => migratePersisted(state({}), 4)).not.toThrow();
+      expect(() => migratePersisted(state({ skippedExercises: ['BARBELL_SQUAT'] }), 4)).not.toThrow();
+      for (const bad of [{}, 'BARBELL_SQUAT', [5], ['__proto__'], ['constructor@T2'], ['x'.repeat(101)]])
+        expect(() => migratePersisted(state({ skippedExercises: bad }), 4)).toThrow(/damaged/);
+    });
   });
 });
 
@@ -963,24 +1104,25 @@ test('switching units snaps a ladder lift’s added load to single plates', () =
   expect(toKg(22.5, 'lb')).toBeCloseTo(lifts().rr_pullup.weightKg, 9);
 });
 
-test('setHealthIds records the Health ids of several sessions in one update', () => {
-  const log = (n: number): SessionLog => ({
+test('setHealthIds records the Health ids of several sessions in one update, only on the workout each was made for', () => {
+  const log = (n: number, startedAt = '2026-06-01T10:00:00.000Z'): SessionLog => ({
     n,
     dayName: 'A',
-    startedAt: '2026-06-01T10:00:00.000Z',
+    startedAt,
     finishedAt: '2026-06-01T11:00:00.000Z',
     results: {},
     order: [],
   });
-  useStore.setState({ sessions: [log(1), log(2), log(3)] });
+  useStore.setState({ sessions: [log(1), log(2), log(3, '2026-07-01T10:00:00.000Z')] });
   let updates = 0;
   const stop = useStore.subscribe(() => void updates++);
   get().setHealthIds([
-    { n: 1, healthId: 'a' },
-    { n: 3, healthId: 'c' },
+    { n: 1, healthId: recordId(log(1)) },
+    // Made for a workout that has since been replaced by another one with the same number.
+    { n: 3, healthId: recordId(log(3)) },
     { n: 9, healthId: 'gone' },
   ]);
   stop();
   expect(updates).toBe(1);
-  expect(get().sessions.map((l) => l.healthId)).toEqual(['a', undefined, 'c']);
+  expect(get().sessions.map((l) => l.healthId)).toEqual([recordId(log(1)), undefined, undefined]);
 });

@@ -5,7 +5,8 @@ import { CATALOG_VERSION } from './catalog';
 import fixture from './dev/v1-imperial.json';
 import type { Program } from './domain';
 import { TEMPLATES } from './domain';
-import { initialState, migratePersisted, STORAGE_KEY, useStore } from './store';
+import { stateFile } from './storage';
+import { initialState, initStore, migratePersisted, STORAGE_KEY, storage, useStore } from './store';
 
 const get = () => useStore.getState();
 
@@ -43,11 +44,11 @@ describe('backup import', () => {
     seeded();
     const json = get().exportJson();
     await AsyncStorage.setItem('GSLP_STATE_18', JSON.stringify(fixture));
-    get().reset();
+    await get().reset();
     expect(get().sessions).toHaveLength(0);
     const r = parseBackup(json);
     if (!r.ok) throw new Error(r.error);
-    get().importBackup(r.state);
+    await get().importBackup(r.state);
     expect(get().sessions).toHaveLength(1);
     expect(get().legacyChecked).toBe(true);
     expect(await AsyncStorage.getItem('GSLP_STATE_18')).toBe(JSON.stringify(fixture));
@@ -473,4 +474,136 @@ test("a one-program backup's built-in exercises take the shipped abbreviation", 
   if (!r.ok) throw new Error(r.error);
   expect(r.state.exercises.BENCH_PRESS.abbr).toBe(get().exercises.BENCH_PRESS.abbr);
   expect(r.state.exercises.BENCH_PRESS.increment).toEqual({ kg: 1, lb: 2 });
+});
+
+describe('limits hold on every path: a backup, an old stored file and a load', () => {
+  // biome-ignore lint/suspicious/noExplicitAny: tests mutate arbitrary JSON
+  type Doc = any;
+  const seededDoc = (): Doc => {
+    seeded();
+    return JSON.parse(get().exportJson());
+  };
+  const refusedEverywhere = async (doc: Doc) => {
+    expect(parseBackup(JSON.stringify(doc)).ok).toBe(false);
+    expect(() => migratePersisted(doc, 4)).toThrow(/damaged/);
+    // Loading the file: the recovery screen with the reason, and the file untouched.
+    const raw = JSON.stringify({ state: doc, version: 4 });
+    files.clear();
+    files.set(stateFile().uri, raw);
+    useStore.setState({ ...initialState(), hydrated: false, storageError: null });
+    await initStore();
+    expect(get().storageError).toMatch(/damaged/);
+    await storage.flush();
+    expect(files.get(stateFile().uri)).toBe(raw);
+  };
+
+  test.each([
+    [
+      'a custom exercise with a huge increment',
+      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { increment: { kg: 1e9, lb: 1 } })),
+    ],
+    [
+      'a custom exercise with a 500 kg bar',
+      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { barKg: { kg: 500, lb: 1 } })),
+    ],
+    [
+      'a custom exercise with a name of 5,000 letters',
+      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { name: 'x'.repeat(5000) })),
+    ],
+    ['a custom exercise stored under another id', (s: Doc) => (s.exercises.custom_x = custom('custom_y'))],
+    [
+      'a custom exercise with unknown muscles',
+      (s: Doc) => (s.exercises.custom_x = custom('custom_x', { muscles: ['wings'] })),
+    ],
+    ['a plate of 1,000,000 kg', (s: Doc) => (s.inventory.platesKg = [1e6])],
+    ['a bar of 500 kg', (s: Doc) => (s.inventory.barKg = 500)],
+    ['a thousand plate sizes', (s: Doc) => (s.inventory.platesLb = Array.from({ length: 1000 }, () => 5))],
+    [
+      'a stored program with 100 sets in a slot',
+      (s: Doc) => (s.programs[0].days[0].slots[0].scheme = '100x5'),
+    ],
+    [
+      'a saved plan with an EMOM of 500 minutes',
+      (s: Doc) => {
+        const day = {
+          name: 'A',
+          slots: [{ exercise: 'BARBELL_SQUAT', scheme: '3x5', group: 'g' }],
+          groups: [{ id: 'g', kind: 'emom', minutes: 500 }],
+        };
+        s.customPlans = [{ id: 'p', name: 'P', program: { ...s.programs[0], days: [day] } }];
+      },
+    ],
+  ])('%s is refused (never clamped or dropped)', async (_name, edit) => {
+    const doc = seededDoc();
+    edit(doc);
+    await refusedEverywhere(doc);
+  });
+
+  test('a custom exercise keeps archived and loses fields a custom exercise does not have', () => {
+    const doc = seededDoc();
+    doc.exercises.custom_x = custom('custom_x', { archived: true, secret: 'x', pictogram: 'barbell' });
+    const r = parseBackup(JSON.stringify(doc));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.state.exercises.custom_x).toMatchObject({ id: 'custom_x', custom: true, archived: true });
+    expect(r.state.exercises.custom_x).not.toHaveProperty('secret');
+  });
+
+  test('nextSession is raised above every id in use, on a backup and on a load', async () => {
+    const doc = seededDoc();
+    doc.sessions = [1, 2, 7].map((n) =>
+      session({ n, startedAt: `2026-01-0${n}T10:00:00.000Z`, finishedAt: `2026-01-0${n}T11:00:00.000Z` }),
+    );
+    doc.nextSession = 0;
+    const r = parseBackup(JSON.stringify(doc));
+    expect(r.ok && r.state.nextSession).toBe(8);
+    expect(migratePersisted(doc, 4).nextSession).toBe(8);
+    files.set(
+      stateFile().uri,
+      JSON.stringify({
+        state: { ...doc, draft: { ...session({ n: 12 }), programId: doc.programs[0].id } },
+        version: 4,
+      }),
+    );
+    useStore.setState({ ...initialState(), hydrated: false, storageError: null });
+    await initStore();
+    expect(get().storageError).toBeNull();
+    expect(get().nextSession).toBe(13);
+  });
+
+  test.each([
+    ['two sessions with one id', (s: Doc) => (s.sessions = [session({ n: 3 }), session({ n: 3 })])],
+    ['an id that is not a whole number', (s: Doc) => (s.sessions = [session({ n: 1.5 })])],
+    [
+      'a result flagged skipped with a string',
+      (s: Doc) =>
+        (s.sessions = [
+          session({ order: ['BENCH_PRESS'], results: { BENCH_PRESS: result({ skipped: 'yes' }) } }),
+        ]),
+    ],
+    ['a negative id', (s: Doc) => (s.sessions = [session({ n: -1 })])],
+    ['a start that is not a date', (s: Doc) => (s.sessions = [session({ startedAt: 'yesterday' })])],
+    ['a start without a time', (s: Doc) => (s.sessions = [session({ startedAt: '2026-01-01' })])],
+    ['a finish that is not text', (s: Doc) => (s.sessions = [session({ finishedAt: 5 })])],
+    [
+      'a finish that is not a date',
+      (s: Doc) => (s.sessions = [session({ finishedAt: '2026-13-45T99:00:00Z' })]),
+    ],
+  ])('a backup with %s is refused', (_name, edit) => {
+    const doc = seededDoc();
+    edit(doc);
+    expect(parseBackup(JSON.stringify(doc)).ok).toBe(false);
+  });
+
+  test('dates with a time-zone offset are still accepted', () => {
+    const doc = seededDoc();
+    doc.sessions = [
+      session({ startedAt: '2026-01-01T10:00:00+02:00', finishedAt: '2026-01-01T11:00:00.000+02:00' }),
+    ];
+    expect(parseBackup(JSON.stringify(doc)).ok).toBe(true);
+  });
+
+  test('a backup text over 20 MB is refused before it is parsed', () => {
+    const r = parseBackup(' '.repeat(20 * 1024 * 1024 + 1));
+    expect(r).toMatchObject({ ok: false, error: expect.stringMatching(/too large.*20 MB/) });
+  });
 });

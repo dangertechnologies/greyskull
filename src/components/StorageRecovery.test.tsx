@@ -56,7 +56,7 @@ test('Restore a backup asks first, then replaces the data with the picked file',
   for (const id of draft.order) useStore.getState().logSet(id, 0, 5);
   useStore.getState().finishSession();
   files.set('file:///backup.json', useStore.getState().exportJson());
-  useStore.getState().reset();
+  await useStore.getState().reset();
   expect(useStore.getState().sessions).toHaveLength(0);
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
   pick.mockResolvedValueOnce({ canceled: false, assets: [{ uri: 'file:///backup.json' }] });

@@ -1,6 +1,6 @@
 import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { Alert } from 'react-native';
 import { lifts, programId, setLift, setProgram, startSession } from '../__fixtures__/oneProgram';
 import fixture from '../dev/v1-imperial.json';
@@ -81,7 +81,8 @@ test('Reset in settings confirms, wipes the program and sends you to setup', asy
   await renderRouter(routes(), { initialUrl: '/settings' });
   fireEvent.press(await screen.findByLabelText('Reset'));
   expect(alert).toHaveBeenCalled();
-  expect(useStore.getState().programs).toEqual([]);
+  // The data is kept as a copy first, so the reset lands a moment later.
+  await waitFor(() => expect(useStore.getState().programs).toEqual([]));
   expect(await screen.findByText('Get started')).toBeTruthy();
   alert.mockRestore();
 });
