@@ -241,7 +241,7 @@ export interface SessionLog {
   position?: number;
   /** Draft only: the resolved exercises, so finishing never re-derives them from a changed program. */
   slots?: ResolvedSlot[];
-  /** Set when the session eased back after a long break: the gap and the lift states from before. */
+  /** Set when the session eased back after a long break: the longest gap in days and the eased lift states. */
   eased?: { gapDays: number; lifts: Record<string, LiftState> };
   /** Id of the workout written to Apple Health or Health Connect. */
   healthId?: string;
