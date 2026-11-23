@@ -31,9 +31,11 @@ export function SetRail({
         const selected = index === selectedIndex;
         const warmup = item.kind === 'warmup';
         const logged = item.logged;
+        const unitWord = item.timed ? 'seconds' : 'reps';
         const label = warmup
           ? `Warm-up ${item.position} of ${item.total}${logged ? ', done' : ''}`
-          : `Set ${item.position} of ${item.total}, ${logged ? `${item.reps} reps done` : `target ${item.targetReps ?? 'as many as possible'}`}`;
+          : `Set ${item.position} of ${item.total}, ${logged ? `${item.reps} ${unitWord} done` : `target ${item.targetReps === null ? 'as many as possible' : `${item.targetReps}${item.timed ? ' seconds' : ''}`}`}`;
+        const s = item.timed ? ' s' : '';
         return (
           <Pressable
             key={`${item.kind}-${item.position}`}
@@ -64,10 +66,10 @@ export function SetRail({
               {warmup
                 ? 'W'
                 : logged
-                  ? String(item.reps)
+                  ? `${item.reps}${s}`
                   : item.targetReps === null
                     ? `${item.minReps ?? 5}+`
-                    : String(item.targetReps)}
+                    : `${item.targetReps}${s}`}
             </Text>
             {item.perSetWeight ? (
               <Text variant="caption" color={logged ? 'background' : 'textMuted'}>

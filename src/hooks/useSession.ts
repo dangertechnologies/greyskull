@@ -20,7 +20,10 @@ export interface SessionItem {
   perSetWeight?: boolean;
   weightKg: number;
   logged: boolean;
+  /** Reps, or seconds for a timed set. */
   reps: number;
+  /** Held for time: targets and reps are seconds. */
+  timed?: boolean;
 }
 
 export interface FinishedExercise {
@@ -147,6 +150,7 @@ export function useSession(n: number, programId?: string): SessionApi | null {
           minReps:
             set.kg !== undefined ? (week === 2 ? 1 : week === 1 ? 3 : 5) : (parseScheme(scheme).reps ?? 5),
           ...(set.kg === undefined ? {} : { perSetWeight: true }),
+          ...(result.timed ? { timed: true } : {}),
           logged: set.reps > 0,
           reps: set.reps,
         });
