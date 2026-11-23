@@ -1,7 +1,8 @@
 import * as WebBrowser from 'expo-web-browser';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Exercise } from '../domain';
+import { linkProblem } from '../exerciseEdit';
 import { EQUIPMENT_LABELS, LEVEL_LABELS, MUSCLE_LABELS, PATTERN_LABELS } from '../exerciseFilter';
 import { ExerciseBadge } from '../ui/ExerciseBadge';
 import { Icon } from '../ui/Icon';
@@ -44,6 +45,15 @@ const Wrap = ({ children, center = false }: { children: React.ReactNode; center?
     </View>
   );
 };
+
+const couldNotOpen = () =>
+  Alert.alert(
+    'Could not open the link',
+    'Check that the link is a web address and that this device has a browser.',
+  );
+// Only web addresses open: a custom exercise saved before links were checked may hold anything.
+const open = (href: string) =>
+  linkProblem(href) ? couldNotOpen() : WebBrowser.openBrowserAsync(href).catch(couldNotOpen);
 
 /** Read-only view of one exercise: a large pictogram, what it trains, how to do it, and the form video. */
 export function ExerciseDetail({ exercise }: { exercise: Exercise }) {
@@ -109,7 +119,7 @@ export function ExerciseDetail({ exercise }: { exercise: Exercise }) {
               leading={<Icon name="video" size={28} color="accent" />}
               accessory="chevron"
               accessibilityLabel={`Watch a form video: ${exercise.name}`}
-              onPress={() => void WebBrowser.openBrowserAsync(exercise.video as string)}
+              onPress={() => void open(exercise.video as string)}
             />
           ) : null}
           {exercise.url ? (
@@ -119,7 +129,7 @@ export function ExerciseDetail({ exercise }: { exercise: Exercise }) {
               leading={<Icon name="guide" size={28} color="accent" />}
               accessory="chevron"
               accessibilityLabel={`Read a guide: ${exercise.name}`}
-              onPress={() => void WebBrowser.openBrowserAsync(exercise.url as string)}
+              onPress={() => void open(exercise.url as string)}
             />
           ) : null}
         </Section>

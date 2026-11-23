@@ -4,6 +4,7 @@ import { FlatList, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ExerciseRow, type RowPosition } from '../../src/components/ExerciseRow';
 import { FilterSheet } from '../../src/components/FilterSheet';
+import { haptics } from '../../src/design/haptics';
 import { useTheme } from '../../src/design/theme';
 import type { Equipment, Exercise, Muscle, Pattern } from '../../src/domain';
 import { exerciseIdsOf } from '../../src/domain';
@@ -35,43 +36,72 @@ const PATTERN_OPTIONS = options(PATTERN_LABELS);
 const toggle = <T,>(list: T[], value: T): T[] =>
   list.includes(value) ? list.filter((x) => x !== value) : [...list, value];
 
-/** The search text, applied 150 ms after the last keystroke so a long list is not redrawn on every letter. */
-function useDebounced<T>(value: T, ms = 150): T {
-  const [out, setOut] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setOut(value), ms);
-    return () => clearTimeout(id);
-  }, [value, ms]);
-  return out;
-}
-
 const open = (id: string) => router.push(`/exercises/${id}`);
 const position = (i: number, n: number): RowPosition =>
   n === 1 ? 'only' : i === 0 ? 'first' : i === n - 1 ? 'last' : 'middle';
 
+/** A filter chip that opens a list: a button (not a checkbox), filled when something is picked in it. */
+function SheetChip({ label, active, onPress }: { label: string; active: boolean; onPress(): void }) {
+  const t = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint="Opens a list of choices"
+      accessibilityState={{ expanded: false, selected: active }}
+      onPress={() => {
+        haptics.tick();
+        onPress();
+      }}
+      style={{
+        minHeight: 48,
+        minWidth: 56,
+        paddingHorizontal: t.space[4],
+        flexDirection: 'row',
+        gap: t.space[1],
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: t.radius.pill,
+        borderWidth: 1,
+        borderColor: active ? t.color.accent : t.color.borderStrong,
+        backgroundColor: active ? t.color.chartFill : 'transparent',
+      }}
+    >
+      <Text variant="bodyStrong" color={active ? 'accent' : 'text'}>
+        {label}
+      </Text>
+      <Icon name="down" size={12} color={active ? 'accent' : 'textMuted'} />
+    </Pressable>
+  );
+}
+
+/** An active filter; the whole 44 pt row is the remove button, the pill itself is smaller. */
 function Pill({ label, onRemove }: { label: string; onRemove(): void }) {
   const t = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Remove filter ${label}`}
-      hitSlop={8}
       onPress={onRemove}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: t.space[1],
-        borderRadius: t.radius.pill,
-        backgroundColor: t.color.chartFill,
-        paddingLeft: t.space[3],
-        paddingRight: t.space[2],
-        paddingVertical: t.space[1],
-      }}
+      style={{ minHeight: 44, justifyContent: 'center' }}
     >
-      <Text variant="caption" color="accent">
-        {label}
-      </Text>
-      <Icon name="close" size={12} color="accent" />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: t.space[1],
+          borderRadius: t.radius.pill,
+          backgroundColor: t.color.chartFill,
+          paddingLeft: t.space[3],
+          paddingRight: t.space[2],
+          paddingVertical: t.space[1],
+        }}
+      >
+        <Text variant="caption" color="accent">
+          {label}
+        </Text>
+        <Icon name="close" size={12} color="accent" />
+      </View>
     </Pressable>
   );
 }
@@ -84,7 +114,13 @@ export default function Exercises() {
   const programs = useStore((s) => s.programs);
   const owned = useStore((s) => s.equipment);
   const [input, setInput] = useState('');
-  const query = useDebounced(input);
+  // The search text is applied 150 ms after the last keystroke, so a long list is not redrawn on every letter.
+  const [query, setQuery] = useState('');
+  useEffect(() => {
+    const id = setTimeout(() => setQuery(input), 150);
+    return () => clearTimeout(id);
+  }, [input]);
+  const [mineOnly, setMineOnly] = useState(false);
   const [filters, setFilters] = useState<ExerciseFilters>(EMPTY_FILTERS);
   const [sheet, setSheet] = useState<Sheet>(null);
 
@@ -96,16 +132,26 @@ export default function Exercises() {
         .sort((a, b) => a.name.localeCompare(b.name)),
     [exercises],
   );
-  const active = useMemo(() => ({ ...filters, query }), [filters, query]);
+  // Read from the gym as it is now, not as it was when the filter was switched on.
+  const active = useMemo(
+    () => ({ ...filters, query, onlyMine: mineOnly ? owned : undefined }),
+    [filters, query, mineOnly, owned],
+  );
   const shown = useMemo(() => filterExercises(sorted, active), [sorted, active]);
-  const narrowed = filterCount(filters) > 0 || query.trim().length > 0;
+  const narrowed = filterCount(active) > 0 || query.trim().length > 0;
   const set = (patch: Partial<ExerciseFilters>) => setFilters((f) => ({ ...f, ...patch }));
-  const clear = () => {
+  const clearSearch = () => {
     setInput('');
+    setQuery('');
+  };
+  const clear = () => {
+    clearSearch();
     setFilters(EMPTY_FILTERS);
+    setMineOnly(false);
   };
 
   const pills = [
+    ...(mineOnly ? [{ key: 'mine', label: 'My equipment', remove: () => setMineOnly(false) }] : []),
     ...filters.equipment.map((v) => ({
       key: `e-${v}`,
       label: EQUIPMENT_LABELS[v],
@@ -163,7 +209,7 @@ export default function Exercises() {
           maxFontSizeMultiplier={1.6}
           style={[t.type.body, { flex: 1, minHeight: 54, color: t.color.text }]}
         />
-        {input ? <IconButton icon="close" label="Clear search" onPress={() => setInput('')} /> : null}
+        {input ? <IconButton icon="close" label="Clear search" onPress={clearSearch} /> : null}
       </View>
       <ScrollView
         horizontal
@@ -172,22 +218,15 @@ export default function Exercises() {
         contentContainerStyle={{ gap: t.space[2], paddingRight: gutter }}
         style={{ marginHorizontal: -gutter, paddingLeft: gutter }}
       >
-        <Chip
-          role="checkbox"
+        <SheetChip
           label="Equipment"
-          selected={filters.equipment.length > 0}
+          active={filters.equipment.length > 0}
           onPress={() => setSheet('equipment')}
         />
-        <Chip
-          role="checkbox"
-          label="Muscle"
-          selected={filters.muscles.length > 0}
-          onPress={() => setSheet('muscles')}
-        />
-        <Chip
-          role="checkbox"
+        <SheetChip label="Muscle" active={filters.muscles.length > 0} onPress={() => setSheet('muscles')} />
+        <SheetChip
           label="Pattern"
-          selected={filters.patterns.length > 0}
+          active={filters.patterns.length > 0}
           onPress={() => setSheet('patterns')}
         />
         <Chip
@@ -196,12 +235,12 @@ export default function Exercises() {
           selected={filters.timed}
           onPress={() => set({ timed: !filters.timed })}
         />
-        {owned.length > 0 ? (
+        {owned.length > 0 || mineOnly ? (
           <Chip
             role="checkbox"
             label="My equipment"
-            selected={!!filters.onlyMine}
-            onPress={() => set({ onlyMine: filters.onlyMine ? undefined : owned })}
+            selected={mineOnly}
+            onPress={() => setMineOnly(!mineOnly)}
           />
         ) : null}
       </ScrollView>

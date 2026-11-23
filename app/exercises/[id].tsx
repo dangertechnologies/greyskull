@@ -25,7 +25,7 @@ export default function ExerciseScreen() {
       </ScreenScroll>
     );
   }
-  if (edit) return <ExerciseEditor key={id} exercise={exercise} />;
+  if (edit && edit !== '0' && edit !== 'false') return <ExerciseEditor key={id} exercise={exercise} />;
   return (
     <ScreenScroll gap={8}>
       <Stack.Screen

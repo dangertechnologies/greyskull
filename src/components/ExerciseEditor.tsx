@@ -1,10 +1,10 @@
 import { router, Stack } from 'expo-router';
 import { type ReactNode, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Equipment, Exercise, Kind, Muscle } from '../domain';
 import { trim } from '../domain';
-import { exerciseFromForm, formFrom } from '../exerciseEdit';
+import { exerciseFromForm, formFrom, linkProblem } from '../exerciseEdit';
 import { EQUIPMENT_LABELS, MUSCLE_LABELS } from '../exerciseFilter';
 import { customId } from '../exerciseId';
 import { goBackOr } from '../navigation';
@@ -58,6 +58,46 @@ function ChipGroup<T extends string>({
   );
 }
 
+/** A type chip; a built-in keeps its type, so its chips are disabled (dimmed, announced as disabled). */
+function KindChip({
+  label,
+  selected,
+  disabled,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  disabled: boolean;
+  onPress(): void;
+}) {
+  const t = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityLabel={label}
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={{
+        minHeight: 48,
+        minWidth: 56,
+        paddingHorizontal: t.space[4],
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: t.radius.pill,
+        borderWidth: 1,
+        borderColor: selected ? t.color.accent : t.color.borderStrong,
+        backgroundColor: selected ? t.color.chartFill : 'transparent',
+        opacity: disabled && !selected ? 0.45 : 1,
+      }}
+    >
+      <Text variant="bodyStrong" color={selected ? 'accent' : 'text'}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 /** Text a built-in ships with: shown, not editable, because the app's version replaces it on every launch. */
 function Locked({ label, children }: { label: string; children: ReactNode }) {
   const t = useTheme();
@@ -84,7 +124,9 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
 
   const builtIn = !!exercise && !exercise.custom; // built-ins keep their kind
-  const valid = form.name.trim().length > 0;
+  const videoProblem = builtIn ? null : linkProblem(form.video);
+  const urlProblem = builtIn ? null : linkProblem(form.url);
+  const valid = form.name.trim().length > 0 && !videoProblem && !urlProblem;
   const weighted = form.kind === 'dumbbell' || form.kind === 'machine' || form.kind === 'kettlebell';
 
   const save = () => {
@@ -163,11 +205,12 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
             style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], paddingVertical: t.space[4] }}
           >
             {KINDS.map((k) => (
-              <Chip
+              <KindChip
                 key={k.kind}
                 label={k.label}
                 selected={form.kind === k.kind}
-                onPress={() => !builtIn && set({ kind: k.kind })}
+                disabled={builtIn}
+                onPress={() => set({ kind: k.kind })}
               />
             ))}
           </View>
@@ -297,6 +340,11 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
                   keyboardType="url"
                   placeholder="https://www.youtube.com/watch?v=…"
                 />
+                {videoProblem ? (
+                  <Text variant="callout" color="danger">
+                    {videoProblem}
+                  </Text>
+                ) : null}
                 <TextField
                   label="Link"
                   value={form.url}
@@ -305,6 +353,11 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
                   keyboardType="url"
                   placeholder="https://"
                 />
+                {urlProblem ? (
+                  <Text variant="callout" color="danger">
+                    {urlProblem}
+                  </Text>
+                ) : null}
               </>
             )}
           </View>

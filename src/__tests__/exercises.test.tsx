@@ -1,11 +1,14 @@
 import { act } from '@testing-library/react-native';
 import { router } from 'expo-router';
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import * as WebBrowser from 'expo-web-browser';
 import { Alert } from 'react-native';
 import { program as current, lifts, programId, setLift, setProgram } from '../__fixtures__/oneProgram';
 import { TEMPLATES } from '../domain';
 import { initialState, useStore } from '../store';
 import { routes } from '../testRoutes';
+
+jest.mock('expo-web-browser', () => ({ openBrowserAsync: jest.fn(() => Promise.resolve()) }));
 
 beforeEach(() => {
   useStore.setState({ ...initialState(), hydrated: true });
@@ -84,12 +87,14 @@ test('the library lists every exercise, flags custom ones and those in the progr
   fireEvent.changeText(screen.getByLabelText('Search exercises'), 'qqqq');
   expect(await screen.findByText('No exercises match')).toBeTruthy();
   fireEvent.press(screen.getByText('Clear filters'));
-  expect(await screen.findByLabelText('Search exercises')).toHaveProp('value', '');
+  // At once, without waiting for the search delay.
+  expect(screen.queryByText('No exercises match')).toBeNull();
+  expect(screen.getByLabelText('Search exercises')).toHaveProp('value', '');
 });
 
 test('filter chips open a sheet; picked values show as removable pills with a result count', async () => {
   await renderRouter(routes(), { initialUrl: '/exercises' });
-  fireEvent.press(await screen.findByRole('checkbox', { name: 'Equipment' }));
+  fireEvent.press(await screen.findByRole('button', { name: 'Equipment' }));
   fireEvent.press(await screen.findByRole('checkbox', { name: 'Pull-up bar' }));
   fireEvent.press(screen.getByText('Done'));
   const first = await screen.findByLabelText('Remove filter Pull-up bar');
@@ -160,4 +165,60 @@ test('built-in exercises cannot be deleted from the editor', async () => {
   await renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS?edit=1' });
   await screen.findByText('Short name');
   expect(screen.queryByLabelText('Delete exercise')).toBeNull();
+});
+
+test('a custom exercise refuses a link that is not http(s), with a message, and saves once it is fixed', async () => {
+  await renderRouter(routes(), { initialUrl: '/exercises/new' });
+  fireEvent.changeText(await screen.findByLabelText('Name'), 'Front squat');
+  fireEvent.changeText(screen.getByLabelText('Technique video'), 'javascript:alert(1)');
+  expect(await screen.findByText('Use a link that starts with http:// or https://')).toBeTruthy();
+  expect(screen.getByLabelText('Save').props.accessibilityState.disabled).toBe(true);
+  fireEvent.changeText(
+    screen.getByLabelText('Technique video'),
+    'https://www.youtube.com/watch?v=abcdefghijk',
+  );
+  expect(screen.queryByText('Use a link that starts with http:// or https://')).toBeNull();
+  expect(screen.getByLabelText('Save').props.accessibilityState.disabled).toBe(false);
+});
+
+test('a form video that cannot be opened shows a message instead of an unhandled error', async () => {
+  const open = WebBrowser.openBrowserAsync as jest.Mock;
+  open.mockRejectedValueOnce(new Error('no browser'));
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+  await renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS' });
+  const e = useStore.getState().exercises.BENCH_PRESS;
+  fireEvent.press(await screen.findByLabelText(`Watch a form video: ${e.name}`));
+  await waitFor(() => expect(alert).toHaveBeenCalledWith('Could not open the link', expect.any(String)));
+  alert.mockRestore();
+});
+
+test('?edit=0 shows the exercise instead of the editor', async () => {
+  await renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS?edit=0' });
+  expect(await screen.findByText('Muscles')).toBeTruthy();
+  expect(screen.queryByText('Short name')).toBeNull();
+});
+
+test('"My equipment" follows the gym as it changes, and stays removable when the gym is emptied', async () => {
+  await renderRouter(routes(), { initialUrl: '/exercises' });
+  await screen.findByLabelText('Search exercises');
+  act(() => useStore.getState().setEquipment(['rings']));
+  fireEvent.press(await screen.findByRole('checkbox', { name: 'My equipment' }));
+  fireEvent.changeText(screen.getByLabelText('Search exercises'), 'bench press');
+  expect(await screen.findByText('No exercises match')).toBeTruthy();
+  act(() => useStore.getState().setEquipment(['barbell', 'bench']));
+  expect(await screen.findByLabelText(/^Bench press, /)).toBeTruthy();
+  act(() => useStore.getState().setEquipment([]));
+  expect(await screen.findByLabelText('Remove filter My equipment')).toBeTruthy();
+  fireEvent.press(screen.getByLabelText('Remove filter My equipment'));
+  expect(screen.queryByLabelText('Remove filter My equipment')).toBeNull();
+});
+
+test('a built-in keeps its type: the type chips are shown as disabled', async () => {
+  await renderRouter(routes(), { initialUrl: '/exercises/BENCH_PRESS?edit=1' });
+  const barbell = await screen.findByRole('radio', { name: 'Barbell' });
+  const machine = screen.getByRole('radio', { name: 'Machine' });
+  expect(machine.props.accessibilityState.disabled).toBe(true);
+  fireEvent.press(machine);
+  expect(screen.getByRole('radio', { name: 'Barbell' }).props.accessibilityState.selected).toBe(true);
+  expect(barbell.props.accessibilityState.selected).toBe(true);
 });
