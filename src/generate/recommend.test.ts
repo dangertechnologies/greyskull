@@ -2,6 +2,7 @@ import { builtInExercises } from '../catalog';
 import { getPlan } from '../config/plans';
 import {
   type Answers,
+  answersFrom,
   DEFAULT_ANSWERS,
   decodeAnswers,
   encodeAnswers,
@@ -151,4 +152,20 @@ describe('answers in a route', () => {
       expect(decoded.equipment).toEqual([]);
     },
   );
+});
+
+describe('fix round: untrusted equipment in the route', () => {
+  test('prototype names and unknown values are ignored', () => {
+    const raw = JSON.stringify({
+      equipment: ['toString', '__proto__', 'constructor', 'hasOwnProperty', 'laser', 'rings', 5],
+    });
+    expect(decodeAnswers(raw).equipment).toEqual(['rings']);
+  });
+
+  test('answersFrom: no parameter takes the saved equipment', () => {
+    expect(answersFrom(undefined, ['barbell'])).toEqual({ ...DEFAULT_ANSWERS, equipment: ['barbell'] });
+    expect(
+      answersFrom(encodeAnswers({ ...DEFAULT_ANSWERS, equipment: ['rings'] }), ['barbell']).equipment,
+    ).toEqual(['rings']);
+  });
 });

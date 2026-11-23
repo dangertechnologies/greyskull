@@ -174,8 +174,18 @@ export function decodeAnswers(raw: string | undefined): Answers {
     days: days ? (data.days as number) : DEFAULT_ANSWERS.days,
     minutes: one(MINUTES, data.minutes, DEFAULT_ANSWERS.minutes),
     equipment: Array.isArray(data.equipment)
-      ? data.equipment.filter((e): e is Equipment => typeof e === 'string' && e in EQUIPMENT_LABELS)
+      ? [
+          ...new Set(
+            data.equipment.filter(
+              (e): e is Equipment => typeof e === 'string' && Object.hasOwn(EQUIPMENT_LABELS, e),
+            ),
+          ),
+        ]
       : [],
     experience: one(EXPERIENCE, data.experience, DEFAULT_ANSWERS.experience),
   };
 }
+
+/** Answers from a route parameter, or, when the screen was opened without one, the defaults with the saved equipment. */
+export const answersFrom = (raw: string | undefined, owned: Equipment[]): Answers =>
+  raw ? decodeAnswers(raw) : { ...DEFAULT_ANSWERS, equipment: [...owned] };

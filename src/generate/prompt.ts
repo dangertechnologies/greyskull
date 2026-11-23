@@ -5,7 +5,14 @@ import { getLadder, LADDERS } from '../domain/ladders';
 import { exerciseIdsOf, parseProgram, tryParseScheme, validateProgram } from '../domain/program';
 import { DEFAULT_RULES } from '../domain/types';
 import { canDoWith, EQUIPMENT_LABELS } from '../exerciseFilter';
-import { type Answers, EXPERIENCE_LABELS, GOAL_LABELS, type Goal } from './recommend';
+import {
+  type Answers,
+  EXPERIENCE_LABELS,
+  type Experience,
+  GOAL_LABELS,
+  type Goal,
+  sessionMinutes,
+} from './recommend';
 
 /** The longest description the user can type. */
 export const MAX_TEXT = 500;
@@ -82,25 +89,60 @@ const GOAL_KINDS: Record<Goal, Kind[]> = {
 };
 const IN_PLANS = new Set(PLANS.flatMap((p) => exerciseIdsOf(p.program)));
 
+/** The most work the model may put in one session. */
+const MAX_SETS = 30;
+const MAX_SLOTS = 8;
+/** How far over the answered session length the estimate may go. */
+const MINUTES_SLACK = 1.25;
+
+/**
+ * Exercise levels allowed for each experience, most fitting first. An exercise without a level counts as beginner:
+ * those are the app's original lifts (squat, bench, deadlift, press, row, chin-up, dip), the base of beginner plans.
+ */
+const LEVELS: Record<Experience, (Exercise['level'] | undefined)[]> = {
+  new: ['beginner', undefined],
+  '6mo': ['beginner', undefined, 'intermediate'],
+  '2y': ['intermediate', 'beginner', 'expert', undefined],
+};
+const LEVEL_TEXT: Record<Experience, string> = {
+  new: 'beginner',
+  '6mo': 'beginner or intermediate',
+  '2y': 'any',
+};
+
+/**
+ * Exercises that are a later step of a ladder (and the first step of none), with that ladder. Below two years of
+ * training they are reached through the ladder, which starts at its first step, never on their own.
+ */
+const LATER_STEPS = new Map<string, string>();
+for (const ladder of LADDERS)
+  ladder.steps.forEach((s, i) => {
+    if (i > 0 && !LATER_STEPS.has(s.exercise)) LATER_STEPS.set(s.exercise, ladder.id);
+  });
+for (const ladder of LADDERS) LATER_STEPS.delete(ladder.steps[0].exercise);
+
+/** `map[key]` only for the map's own keys, so ids from the model or a link never reach `Object.prototype`. */
+const own = <T>(map: Record<string, T>, key: string): T | undefined =>
+  Object.hasOwn(map, key) ? map[key] : undefined;
+
 /**
  * The short list the model may use: every ladder whose steps the equipment covers, and up to 80 exercises for
  * the goal (its movement patterns taken in turn, so each pattern is represented), doable with the equipment,
- * exercises of the built-in plans first. A step of an offered ladder is reached through the ladder, so it is
- * not offered again on its own.
+ * exercises of the built-in plans first, at the levels the experience allows. A step of an offered ladder is
+ * reached through the ladder, so it is not offered again on its own; below two years of training no later ladder
+ * step is offered on its own at all.
  */
 export function allowedFor(answers: Answers, exercises: Record<string, Exercise>): Allowed {
   const owned = answers.equipment;
   const doable = (id: string) => {
-    const e = exercises[id];
+    const e = own(exercises, id);
     return !!e && !e.archived && canDoWith(e, owned);
   };
   const ladders = LADDERS.filter((l) => l.steps.every((s) => doable(s.exercise))).map((l) => l.id);
   const steps = new Set(ladders.flatMap((id) => getLadder(id)?.steps.map((s) => s.exercise) ?? []));
   const kinds = GOAL_KINDS[answers.goal];
-  const levels =
-    answers.experience === '2y'
-      ? ['intermediate', 'beginner', 'expert', undefined]
-      : ['beginner', 'intermediate', undefined, ...(answers.experience === 'new' ? [] : ['expert'])];
+  const levels = LEVELS[answers.experience];
+  const later = answers.experience !== '2y';
   const rank = (e: Exercise) => [IN_PLANS.has(e.id) ? 0 : 1, kinds.indexOf(e.kind), levels.indexOf(e.level)];
   const byRank = (a: Exercise, b: Exercise) => {
     const [ra, rb] = [rank(a), rank(b)];
@@ -114,6 +156,7 @@ export function allowedFor(answers: Answers, exercises: Record<string, Exercise>
           kinds.includes(e.kind) &&
           levels.includes(e.level) &&
           !steps.has(e.id) &&
+          !(later && LATER_STEPS.has(e.id)) &&
           doable(e.id),
       )
       .sort(byRank),
@@ -267,33 +310,69 @@ export function checkGenerated(
   const parsed = parseProgram(toProgram(raw));
   if (!parsed.ok) return { ok: false, errors: [parsed.error] };
   const { program } = parsed;
-  const { exercises, allowed } = ctx;
-  const errors = validateProgram(program, exercises);
-  const name = (id: string) => exercises[id]?.name ?? id;
+  const { exercises, allowed, answers } = ctx;
+  const errors = [...fitErrors(program, answers), ...validateProgram(program, exercises)];
+  const name = (id: string) => own(exercises, id)?.name ?? id;
+  const levels = LEVELS[answers.experience];
   for (const day of program.days)
     for (const slot of day.slots) {
-      const id = typeof slot.exercise === 'string' ? slot.exercise : slot.exercise[0];
-      if (
-        slot.ladder === undefined ? !allowed.exercises.includes(id) : !allowed.ladders.includes(slot.ladder)
-      )
-        errors.push(`${day.name}: ${slot.ladder ?? id} is not on the list of exercises you were given.`);
+      if (slot.ladder !== undefined) {
+        if (!allowed.ladders.includes(slot.ladder))
+          errors.push(`${day.name}: ${slot.ladder} is not on the list of exercises you were given.`);
+        continue;
+      }
       const range = tryParseScheme(slot.scheme)?.repsMax != null;
-      if (
-        slot.ladder === undefined &&
-        exercises[id]?.kind === 'bodyweight' &&
-        !(slot.progression === 'double' && range)
-      )
-        errors.push(
-          `${day.name}: ${name(id)} is bodyweight; give it progression double and a rep range (such as 3x8-12), or use its ladder.`,
-        );
+      for (const id of typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise) {
+        const exercise = own(exercises, id);
+        if (!allowed.exercises.includes(id))
+          errors.push(`${day.name}: ${id} is not on the list of exercises you were given.`);
+        if (exercise?.kind === 'bodyweight' && !(slot.progression === 'double' && range))
+          errors.push(
+            `${day.name}: ${name(id)} is bodyweight; give it progression double and a rep range (such as 3x8-12), or use its ladder.`,
+          );
+        const ladder = LATER_STEPS.get(id);
+        if (ladder && answers.experience !== '2y')
+          errors.push(
+            `${day.name}: ${name(id)} is a later step of a ladder; use the ladder ${ladder} instead.`,
+          );
+        if (exercise?.level && !levels.includes(exercise.level))
+          errors.push(
+            `${day.name}: ${name(id)} is ${exercise.level} level; use ${LEVEL_TEXT[answers.experience]} exercises.`,
+          );
+      }
     }
-  for (const id of exerciseIdsOf(program))
-    if (exercises[id] && !canDoWith(exercises[id], ctx.answers.equipment))
+  for (const id of exerciseIdsOf(program)) {
+    const exercise = own(exercises, id);
+    if (exercise && !canDoWith(exercise, answers.equipment))
       errors.push(`${name(id)} needs equipment you do not have.`);
+  }
   if (errors.length > 0) return { ok: false, errors: [...new Set(errors)] };
   return {
     ok: true,
     name: cleanText(isObject(raw) ? raw.name : '', MAX_NAME) || 'Generated program',
     program,
   };
+}
+
+/** Whether the program stays inside the answers: days, session length, and work per session. */
+function fitErrors(program: Program, answers: Answers): string[] {
+  const errors: string[] = [];
+  if (program.sessionsPerWeek > answers.days)
+    errors.push(`The program has ${program.sessionsPerWeek} days a week; use at most ${answers.days}.`);
+  if (program.days.length > answers.days)
+    errors.push(`The program has ${program.days.length} days; use at most ${answers.days}.`);
+  const minutes = sessionMinutes(program);
+  const limit = Math.round(answers.minutes * MINUTES_SLACK);
+  if (minutes > limit)
+    errors.push(
+      `The longest day takes about ${minutes} minutes; the session is ${answers.minutes} minutes (at most ${limit}). Use fewer sets or exercises.`,
+    );
+  for (const day of program.days) {
+    const sets = day.slots.reduce((sum, s) => sum + (tryParseScheme(s.scheme)?.sets ?? 0), 0);
+    if (sets > MAX_SETS)
+      errors.push(`${day.name}: ${sets} sets; use at most ${MAX_SETS} working sets a session.`);
+    if (day.slots.length > MAX_SLOTS)
+      errors.push(`${day.name}: ${day.slots.length} exercises; use at most ${MAX_SLOTS} a day.`);
+  }
+  return errors;
 }

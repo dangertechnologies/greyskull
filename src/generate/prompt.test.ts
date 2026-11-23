@@ -304,3 +304,172 @@ describe('checkGenerated', () => {
     expect(result.ok && result.name).toBe('Generated program');
   });
 });
+
+describe('fix round: a program must fit the answers', () => {
+  const small: Answers = {
+    ...DEFAULT_ANSWERS,
+    goal: 'strength',
+    experience: 'new',
+    days: 2,
+    minutes: 30,
+    equipment: [],
+  };
+  const allowed = allowedFor(small, exercises);
+  const loaded = allowed.exercises.filter((id) => exercises[id].kind !== 'bodyweight');
+  const slot = (exercise: string, scheme = '5x5') => ({ exercise, scheme, progression: 'linear' });
+
+  test('the probe plan (7 days x 8 slots of 5x5, 7 a week) is rejected for 2 days of 30 minutes', () => {
+    const probe = generated(
+      Array.from({ length: 7 }, (_, i) =>
+        day(
+          `D${i + 1}`,
+          loaded.slice(0, 8).map((id) => slot(id)),
+        ),
+      ),
+      { sessionsPerWeek: 7 },
+    );
+    const result = checkGenerated(probe, { answers: small, allowed, exercises });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    const text = result.errors.join('\n');
+    expect(text).toMatch(/7 days a week.*at most 2/);
+    expect(text).toMatch(/7 days.*at most 2/);
+    expect(text).toMatch(/minutes/);
+    expect(text).toMatch(/40 sets.*at most 30/);
+  });
+
+  test('more than 8 exercises in a day is rejected', () => {
+    const wide = { ...small, minutes: 90 as const };
+    const raw = generated(
+      [
+        day(
+          'A',
+          loaded.slice(0, 9).map((id) => slot(id, '1x5+')),
+        ),
+      ],
+      { sessionsPerWeek: 1 },
+    );
+    const result = checkGenerated(raw, { answers: wide, allowed, exercises });
+    expect(!result.ok && result.errors.join('\n')).toMatch(/9 exercises.*at most 8/);
+  });
+
+  test('a plan inside the answers passes', () => {
+    const raw = generated(
+      [
+        day(
+          'A',
+          loaded.slice(0, 3).map((id) => slot(id, '3x5')),
+        ),
+        day(
+          'B',
+          loaded.slice(3, 6).map((id) => slot(id, '3x5')),
+        ),
+      ],
+      { sessionsPerWeek: 2 },
+    );
+    expect(checkGenerated(raw, { answers: small, allowed, exercises }).ok).toBe(true);
+  });
+});
+
+describe('fix round: experience gating', () => {
+  const steps = new Map(LADDERS.flatMap((l) => l.steps.map((s, i) => [s.exercise, i] as const)));
+
+  test.each([
+    ['new', ['beginner']],
+    ['6mo', ['beginner', 'intermediate']],
+  ] as const)('%s: only %p exercises, and never a later ladder step on its own', (experience, levels) => {
+    for (const goal of GOALS)
+      for (const equipment of [[], ['pull-up-bar'], bodyweight] as Equipment[][]) {
+        const allowed = allowedFor({ ...answers, goal, experience, equipment }, exercises);
+        for (const id of allowed.exercises) {
+          // No level: the original lifts (squat, bench, ...), counted as beginner.
+          expect([...levels, undefined]).toContain(exercises[id].level);
+          expect((steps.get(id) ?? 0) === 0).toBe(true);
+        }
+      }
+  });
+
+  test('the probe (calisthenics, pull-up bar only, 6+ months) gets none of the expert ladder tops', () => {
+    const allowed = allowedFor({ ...answers, equipment: ['pull-up-bar'], experience: '6mo' }, exercises);
+    for (const id of [
+      'CAL_PULLUP_ONE_ARM',
+      'CAL_PUSHUP_ONE_ARM',
+      'CAL_PUSHUP_LEVER',
+      'CAL_LSIT_PULLUP',
+      'CAL_NORDIC_CURL',
+    ])
+      expect(allowed.exercises).not.toContain(id);
+  });
+
+  test('2+ years may get expert exercises', () => {
+    const allowed = allowedFor({ ...answers, equipment: [], experience: '2y', goal: 'general' }, exercises);
+    expect(allowed.exercises.some((id) => exercises[id].level === 'expert')).toBe(true);
+  });
+
+  const standalone = (id: string, experience: Answers['experience']) => {
+    const a = { ...answers, equipment: [] as Equipment[], experience };
+    // The allowed list is widened on purpose: the check must hold even when the list would let it through.
+    const allowed = { exercises: [id], ladders: [] };
+    return checkGenerated(generated([day('A', [{ exercise: id, scheme: '3x3-5', progression: 'double' }])]), {
+      answers: a,
+      allowed,
+      exercises,
+    });
+  };
+
+  test('a later ladder step used on its own is rejected below 2+ years, with the ladder to use instead', () => {
+    const result = standalone('CAL_LSIT_PULLUP', '6mo');
+    expect(!result.ok && result.errors.join('\n')).toMatch(/rr_pullup/);
+    const twoYears = standalone('CAL_LSIT_PULLUP', '2y');
+    expect(twoYears.ok).toBe(true);
+  });
+
+  test('an exercise above the allowed level is rejected', () => {
+    const intermediate = Object.values(exercises).find(
+      (e) =>
+        e.level === 'intermediate' &&
+        e.kind === 'bodyweight' &&
+        !steps.has(e.id) &&
+        e.equipment?.every((q) => q === 'none'),
+    ) as Exercise;
+    const result = standalone(intermediate.id, 'new');
+    expect(!result.ok && result.errors.join('\n')).toMatch(/level/);
+    expect(standalone(intermediate.id, '6mo').ok).toBe(true);
+  });
+});
+
+describe('fix round: alternating pairs and untrusted keys', () => {
+  const allowed = allowedFor(answers, exercises);
+  const ctx = { answers, allowed, exercises };
+  const [first] = allowed.exercises;
+
+  test('every member of an alternating pair is checked against the list and the bodyweight rule', () => {
+    const off = checkGenerated(
+      generated([day('A', [{ exercise: [first, 'BENCH_PRESS'], scheme: '3x8-12', progression: 'double' }])]),
+      ctx,
+    );
+    expect(!off.ok && off.errors.join('\n')).toMatch(/BENCH_PRESS is not on the list/);
+    const second = allowed.exercises.find((id) => id !== first && !exercises[id].timed) as string;
+    const fixed = checkGenerated(
+      generated([day('A', [{ exercise: [first, second], scheme: '3x8', progression: 'linear' }])]),
+      ctx,
+    );
+    expect(!fixed.ok && fixed.errors.join('\n')).toMatch(
+      new RegExp(`${exercises[second].name} is bodyweight`),
+    );
+  });
+
+  test.each(['toString', '__proto__', 'constructor', 'hasOwnProperty'])(
+    'exercise id %s is rejected, never looked up on the prototype',
+    (id) => {
+      let result: ReturnType<typeof checkGenerated> | undefined;
+      expect(() => {
+        result = checkGenerated(
+          generated([day('A', [{ exercise: id, scheme: '3x8-12', progression: 'double' }])]),
+          ctx,
+        );
+      }).not.toThrow();
+      expect(result?.ok).toBe(false);
+    },
+  );
+});
