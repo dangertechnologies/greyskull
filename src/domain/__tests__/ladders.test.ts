@@ -1,6 +1,6 @@
 import { active } from '../../__fixtures__/oneProgram';
 import { builtInExercises } from '../../catalog';
-import { getLadder, LADDERS } from '../ladders';
+import { getLadder, LADDERS, stepTransition } from '../ladders';
 import { liftKeysOf, sessionFor, setTargets, tryParseScheme, validateProgram } from '../program';
 import { HOLD_STEP_S, nextLift } from '../progression';
 import {
@@ -351,5 +351,31 @@ describe('validateProgram with ladders', () => {
   ];
   test.each(rows)('%s', (_name, slots, error) => {
     expect(validateProgram(program(...slots), ex).join('\n')).toMatch(error);
+  });
+});
+
+describe('stepTransition', () => {
+  const pull = getLadder('rr_pullup')!;
+  const bands = [{ id: 'heavy' }, { id: 'light' }];
+  const lift = { weightKg: 0, startKg: 0, fails: 1, step: 2, reps: 7 };
+  test('onto a banded step: heaviest band, target back to the bottom, other fields kept', () => {
+    expect(stepTransition({ ...lift }, 3, pull, bands)).toEqual({
+      weightKg: 0,
+      startKg: 0,
+      fails: 1,
+      step: 3,
+      bandId: 'heavy',
+    });
+  });
+  test('off a banded step the band is cleared; steps are made whole and kept inside the ladder', () => {
+    expect(stepTransition({ ...lift, step: 3, bandId: 'light' }, 4, pull, bands)).toEqual({
+      weightKg: 0,
+      startKg: 0,
+      fails: 1,
+      step: 4,
+    });
+    expect(stepTransition(lift, 99, pull, bands).step).toBe(pull.steps.length - 1);
+    expect(stepTransition(lift, 1.7, pull, bands).step).toBe(1);
+    expect(stepTransition(lift, 3, pull, []).bandId).toBeUndefined();
   });
 });

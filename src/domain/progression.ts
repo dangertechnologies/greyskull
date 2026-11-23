@@ -1,4 +1,4 @@
-import { getLadder, stepIn } from './ladders';
+import { getLadder, stepIn, stepTransition } from './ladders';
 import { inventoryFor, nearestLoadableKg, roundAddedLoad, roundForExercise } from './plates';
 import { type ParsedScheme, tryParseScheme } from './program';
 import type {
@@ -181,7 +181,6 @@ function climb(
     }
   }
   const bands = context.bands ?? [];
-  const band = (s: number) => (ladder.steps[s].band && bands[0] ? { bandId: bands[0].id } : {});
   if (ladder.steps[step].band && bands.length > 0) {
     const i = bands.findIndex((b) => b.id === lift.bandId);
     // No band or one the user deleted: start this step's bands again from the heaviest.
@@ -190,7 +189,7 @@ function climb(
       return { next: { ...rest, weightKg, step, bandId: bands[i + 1].id, fails: 0 }, change: 'up' };
   }
   if (step < last)
-    return { next: { ...rest, weightKg, step: step + 1, fails: 0, ...band(step + 1) }, change: 'up' };
+    return { next: { ...stepTransition(lift, step + 1, ladder, bands), weightKg, fails: 0 }, change: 'up' };
   if (ladder.after === 'weighted') {
     const outcome = raised({ next: { ...rest, weightKg: up(1), step, fails: 0 }, change: 'up' });
     return outcome.change === 'up'
