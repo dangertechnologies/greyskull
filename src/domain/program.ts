@@ -2,6 +2,7 @@ import type { PluginId } from '../config/plans';
 import { PLANS } from '../config/plans';
 import { groupErrors } from './groups';
 import { getLadder, stepIn } from './ladders';
+import { isReservedKey } from './own';
 import type {
   ActiveProgram,
   Day,
@@ -206,6 +207,7 @@ const nameIn = (catalog: Record<string, Exercise> | undefined, id: string): stri
 
 export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
   const errors: string[] = [];
+  if (isReservedKey(p.template)) errors.push('Invalid program template.');
   if (p.days.length === 0) errors.push('Add at least one day.');
   if (!Number.isInteger(p.sessionsPerWeek) || p.sessionsPerWeek < 1 || p.sessionsPerWeek > 7)
     errors.push('Training days per week must be between 1 and 7.');
