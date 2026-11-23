@@ -26,10 +26,12 @@ import {
   fiveThreeOneSets,
   gapDays,
   getLadder,
+  isReservedKey,
   lastTrained,
   liftKeysOf,
   migrateV1,
   nextLift,
+  own,
   roundForExercise,
   sessionFor,
   sessionWeightKg,
@@ -642,6 +644,8 @@ export const useStore = create<Store>()(
         const { programs, exercises } = get();
         const program = programs.find((p) => p.id === programId);
         if (!program) throw new Error('No program');
+        // The key becomes a property of the program's lifts, so it must be a name of its own.
+        if (key.split('@').some(isReservedKey)) throw new Error(`${key} is not a lift`);
         const zeroOk = unweighted(program, key, exercises);
         const kg = patch.weightKg;
         if (kg !== undefined && !(kg > 0) && !(kg === 0 && zeroOk))
@@ -649,9 +653,9 @@ export const useStore = create<Store>()(
         const touchedAt = new Date().toISOString();
         set((s) => {
           const programs = mapProgram(s.programs, programId, (p) => {
-            const existing = p.lifts[key];
+            const existing = own(p.lifts, key);
             if (existing) return { ...p, lifts: { ...p.lifts, [key]: { ...existing, ...patch, touchedAt } } };
-            const exercise = s.exercises[exerciseOfLift(key)];
+            const exercise = own(s.exercises, exerciseOfLift(key));
             const start = exercise
               ? startingWeightKg(exercise, s.inventory, s.unit)
               : barKg(s.inventory, s.unit);
@@ -924,7 +928,7 @@ export const useStore = create<Store>()(
             lifts: Object.fromEntries(Object.entries(p.lifts).filter(([key]) => exerciseOfLift(key) !== id)),
           }));
           // History keeps the exercise's name: archive instead of deleting once a session used it.
-          if (s.sessions.some((log) => id in log.results)) {
+          if (s.sessions.some((log) => Object.hasOwn(log.results, id))) {
             return { exercises: { ...s.exercises, [id]: { ...exercise, archived: true } }, programs };
           }
           const { [id]: _removed, ...rest } = s.exercises;
@@ -1062,4 +1066,4 @@ export const useProgram = (id?: string): ActiveProgram | undefined =>
 export const useUnit = (): Unit => useStore((s) => s.unit);
 export const useInventory = (): PlateInventory => useStore((s) => s.inventory);
 export const useLift = (programId: string | undefined, key: string): LiftState | undefined =>
-  useStore((s) => s.programs.find((p) => p.id === programId)?.lifts[key]);
+  useStore((s) => own(s.programs.find((p) => p.id === programId)?.lifts, key));
