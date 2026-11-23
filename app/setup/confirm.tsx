@@ -28,7 +28,11 @@ export default function ConfirmWeights() {
   const t = useTheme();
 
   const ids = (program ? liftKeysOf(program) : []).filter(
-    (id) => storedLifts[id] && exercises[exerciseOfLift(id)]?.kind !== 'bodyweight',
+    // Only lifts with a weight of their own (no bodyweight lifts or ladders).
+    (id) =>
+      storedLifts[id] &&
+      !!exercises[exerciseOfLift(id)] &&
+      exercises[exerciseOfLift(id)].kind !== 'bodyweight',
   );
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(
