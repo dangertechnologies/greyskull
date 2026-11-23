@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Day, Group, GroupKind, GroupSettings, Program, Slot } from '../domain';
@@ -101,6 +101,9 @@ function SelectBox({ checked, label, onPress }: { checked: boolean; label: strin
   );
 }
 
+let rowKeyCount = 0;
+const newRowKey = (): string => `day-${rowKeyCount++}`;
+
 /**
  * The days of a program: add, remove, reorder and rename exercises, set each one's sets, reps or seconds and its
  * progression (including ladders), and group neighbouring exercises into supersets, circuits, EMOMs and
@@ -115,6 +118,10 @@ export function DaysEditor({ program, onChange }: { program: Program; onChange(p
   const [progOpen, setProgOpen] = useState<string | null>(null);
   const [selecting, setSelecting] = useState<{ day: number; picked: number[] } | null>(null);
   const [groupDraft, setGroupDraft] = useState<GroupDraft | null>(null);
+  // A row key per day that survives removing another day. Never saved: new days get one on the next render.
+  // ponytail: days only change here by add and remove; a day swapped from outside keeps its key.
+  const rowKeys = useRef<string[]>([]);
+  while (rowKeys.current.length < program.days.length) rowKeys.current.push(newRowKey());
 
   const onPick = (id: string) => {
     if (!picking) return;
@@ -374,8 +381,7 @@ export function DaysEditor({ program, onChange }: { program: Program; onChange(p
           const picked = selecting?.day === d ? selecting.picked : null;
           const reason = picked ? canGroup(day, picked, 'emom') : null;
           return (
-            // biome-ignore lint/suspicious/noArrayIndexKey: days are edited by position and have no id
-            <Card key={d} style={{ gap: t.space[5] }}>
+            <Card key={rowKeys.current[d]} style={{ gap: t.space[5] }}>
               <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: t.space[2] }}>
                 <View style={{ flex: 1 }}>
                   <TextField
@@ -392,6 +398,7 @@ export function DaysEditor({ program, onChange }: { program: Program; onChange(p
                   onPress={() => {
                     setProgOpen(null);
                     setSelecting(null);
+                    rowKeys.current.splice(d, 1);
                     onChange(removeDay(program, d));
                   }}
                 />

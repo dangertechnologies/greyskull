@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import { useState } from 'react';
 import { builtInExercises } from '../catalog';
 import { ThemeProvider } from '../design/theme';
 import type { Program } from '../domain';
@@ -36,4 +37,30 @@ test('a day with 20 exercises cannot take more', () => {
 test('a day with 19 can', () => {
   show(MAX_SLOTS - 1);
   expect(screen.getByRole('button', { name: 'Add exercise' }).props.accessibilityState.disabled).toBe(false);
+});
+
+test('removing a day keeps the later days as the same rows, not the same positions', () => {
+  useStore.setState({ ...initialState(), hydrated: true });
+  const day = (name: string) => ({ name, slots: [{ exercise: ids[0], scheme: '3x5' as const }] });
+  const start: Program = {
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES },
+    days: [day('A'), day('B'), day('C')],
+  };
+  function Host() {
+    const [program, setProgram] = useState(start);
+    return <DaysEditor program={program} onChange={setProgram} />;
+  }
+  render(
+    <ThemeProvider>
+      <Host />
+    </ThemeProvider>,
+  );
+  const third = screen.getByLabelText('Name of day 3');
+  fireEvent.press(screen.getByLabelText('Remove B'));
+  // Day C is now day 2, and it is still the row that was there before (a native text field keeps its focus).
+  const moved = screen.getByLabelText('Name of day 2');
+  expect(moved.props.value).toBe('C');
+  expect(moved).toBe(third);
 });
