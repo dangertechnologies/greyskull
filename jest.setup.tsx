@@ -35,6 +35,9 @@ jest.mock('expo-file-system', () => {
     get exists() {
       return files.has(this.uri);
     }
+    get name() {
+      return this.uri.split('/').pop() as string;
+    }
     async text() {
       return files.get(this.uri) ?? '';
     }
@@ -57,7 +60,13 @@ jest.mock('expo-file-system', () => {
       files.delete(this.uri);
     }
   }
-  return { File, Paths: { document: { uri: 'file:///documents' } }, __files: files };
+  const Paths = {
+    document: {
+      uri: 'file:///documents',
+      list: () => [...files.keys()].filter((u) => u.startsWith('file:///documents/')).map((u) => new File(u)),
+    },
+  };
+  return { File, Paths, __files: files };
 });
 // Every test starts with an empty file system, as each starts with empty AsyncStorage in its own setup.
 beforeEach(() => {
