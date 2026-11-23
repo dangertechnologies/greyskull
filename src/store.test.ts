@@ -857,6 +857,29 @@ describe('ladder lifts in the store', () => {
     expect(lifts().rr_pullup).toMatchObject({ step: 3, bandId: 'light' });
   });
 
+  test('changing the step during a workout swaps that exercise in place until one of its sets is logged', () => {
+    const p = ladderProgram();
+    p.days[0].slots.push({ exercise: 'BARBELL_SQUAT', scheme: '3x5' });
+    setProgram(p);
+    const { n } = startSession();
+    get().logSet('BARBELL_SQUAT', 0, 5);
+    get().setLiftStep(programId(), 'rr_pullup', 1);
+    let draft = get().draft!;
+    expect(draft.n).toBe(n);
+    expect(draft.order).toEqual(['CAL_ARCH_HANG', 'BARBELL_SQUAT']);
+    expect(draft.slots?.[0]).toMatchObject({ exercise: 'CAL_ARCH_HANG', step: 1, lift: 'rr_pullup' });
+    expect(draft.results.CAL_SCAPULAR_PULL).toBeUndefined();
+    expect(draft.results.CAL_ARCH_HANG).toMatchObject({ step: 1, timed: true, scheme: '3x10-30s' });
+    expect(draft.results.BARBELL_SQUAT.sets[0].reps).toBe(5);
+    get().logSet('CAL_ARCH_HANG', 0, 20);
+    get().setLiftStep(programId(), 'rr_pullup', 2);
+    draft = get().draft!;
+    expect(draft.order[0]).toBe('CAL_ARCH_HANG');
+    expect(lifts().rr_pullup.step).toBe(2);
+    get().finishSession();
+    expect(lifts().rr_pullup.step).toBe(2);
+  });
+
   test('after 30 days off a ladder goes one step down for the session, onto the heaviest band', () => {
     stale('rr_pullup', { step: 4, reps: 7 });
     useStore.setState({

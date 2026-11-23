@@ -106,6 +106,7 @@ interface Actions {
   updateRules(id: string, rules: Rules): void;
   setSessionsPerWeek(id: string, days: number): void;
   setLift(programId: string, key: string, patch: Partial<LiftState>): void;
+  /** Move a ladder to `step`; the workout in progress swaps that exercise while none of its sets is logged. */
   setLiftStep(programId: string, key: string, step: number): void;
   /** The program's workout: the open one when it belongs to this program, else a new one. */
   startSession(programId: string): SessionLog;
@@ -247,6 +248,36 @@ function withoutEase(
   const at = { ...program, position: d.position ?? program.position };
   const rebuilt = draftFor(s, at, { ...program.lifts, ...lifts }, d.n, Date.parse(d.startedAt));
   return kept.eased ? { ...rebuilt, eased: kept.eased } : rebuilt;
+}
+
+/**
+ * The draft once ladder `key` of `programId` moved to another step: that slot's exercise and result are swapped
+ * for the new step's, in place, while none of its sets is logged. Other exercises keep their sets.
+ */
+function withStep(
+  d: SessionLog | null,
+  s: AppState,
+  programs: ActiveProgram[],
+  programId: string,
+  key: string,
+): SessionLog | null {
+  if (d?.programId !== programId || !d.slots) return d;
+  const index = d.slots.findIndex((x) => x.lift === key);
+  const old = d.slots[index];
+  const program = programs.find((p) => p.id === programId);
+  if (!old || !program || d.results[old.exercise]?.sets.some((x) => x.reps !== 0)) return d;
+  const at = { ...program, position: d.position ?? program.position };
+  const fresh = draftFor(s, at, { ...program.lifts, ...d.eased?.lifts }, d.n, Date.parse(d.startedAt));
+  const slot = fresh.slots?.find((x) => x.lift === key);
+  const result = slot && fresh.results[slot.exercise];
+  if (!slot || !result) return d;
+  const { [old.exercise]: _old, ...results } = d.results;
+  return {
+    ...d,
+    slots: d.slots.map((x, i) => (i === index ? slot : x)),
+    order: d.order.map((id) => (id === old.exercise ? slot.exercise : id)),
+    results: { ...results, [slot.exercise]: result },
+  };
 }
 
 /** Bodyweight and ladder lifts are unweighted: 0 kg is a valid weight for them. */
@@ -630,7 +661,10 @@ export const useStore = create<Store>()(
               [key]: { ...(p.lifts[key] ?? { weightKg: 0, startKg: 0, fails: 0 }), step, touchedAt },
             },
           }));
-          return { programs, draft: withoutEase(s, programs, programId, key) };
+          return {
+            programs,
+            draft: withStep(withoutEase(s, programs, programId, key), s, programs, programId, key),
+          };
         });
       },
 
