@@ -1063,11 +1063,12 @@ export const useStore = create<Store>()(
       setHealthSync: (on) => set({ healthSync: on }),
       setHealthIds: (entries) =>
         set((s) => {
-          // Only the workout the id was made for: a restore can leave another workout with the same number.
-          const ids = new Map(entries.map((e) => [e.n, e.healthId]));
+          // Only the workout the id was made for (its record id), never by number alone: two workouts written
+          // in one run with the same number each get their own.
+          const ids = new Set(entries.map((e) => e.healthId));
           return {
             sessions: s.sessions.map((log) =>
-              ids.get(log.n) === recordId(log) ? { ...log, healthId: recordId(log) } : log,
+              ids.has(recordId(log)) ? { ...log, healthId: recordId(log) } : log,
             ),
           };
         }),

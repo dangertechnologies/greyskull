@@ -1114,7 +1114,8 @@ test('setHealthIds records the Health ids of several sessions in one update, onl
     results: {},
     order: [],
   });
-  useStore.setState({ sessions: [log(1), log(2), log(3, '2026-07-01T10:00:00.000Z')] });
+  const twin = log(1, '2026-05-01T10:00:00.000Z');
+  useStore.setState({ sessions: [log(1), log(2), log(3, '2026-07-01T10:00:00.000Z'), twin] });
   let updates = 0;
   const stop = useStore.subscribe(() => void updates++);
   get().setHealthIds([
@@ -1122,8 +1123,15 @@ test('setHealthIds records the Health ids of several sessions in one update, onl
     // Made for a workout that has since been replaced by another one with the same number.
     { n: 3, healthId: recordId(log(3)) },
     { n: 9, healthId: 'gone' },
+    // Another workout with the same number, written in the same run: both get their own id.
+    { n: 1, healthId: recordId(twin) },
   ]);
   stop();
   expect(updates).toBe(1);
-  expect(get().sessions.map((l) => l.healthId)).toEqual([recordId(log(1)), undefined, undefined]);
+  expect(get().sessions.map((l) => l.healthId)).toEqual([
+    recordId(log(1)),
+    undefined,
+    undefined,
+    recordId(twin),
+  ]);
 });

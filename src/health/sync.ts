@@ -163,9 +163,9 @@ export function createHealthSync(deps: {
     if (permission !== 'granted') return result;
 
     // Ids are put on the sessions once, at the end, in one store update.
-    const ids = new Map<number, string>();
+    const ids: { n: number; healthId: string }[] = [];
     const record = (log: SessionLog, workout: HealthWorkout) => {
-      ids.set(log.n, workout.id);
+      ids.push({ n: log.n, healthId: workout.id });
       // An edit that landed while this write was under way is not in it: leave the session marked.
       const current = store.getState().sessions.find((l) => recordId(l) === workout.id);
       const stale = !!current && current.results !== log.results;
@@ -214,9 +214,7 @@ export function createHealthSync(deps: {
       result.failed = true;
       await failureOf(error);
     } finally {
-      if (ids.size > 0) {
-        store.getState().setHealthIds([...ids].map(([n, healthId]) => ({ n, healthId })));
-      }
+      if (ids.length > 0) store.getState().setHealthIds(ids);
     }
     if (!result.failed && (all || store.getState().healthSync)) {
       status.setState({
