@@ -43,7 +43,9 @@ export function WeightStepper({
   }, [barbell, exercise, inventory, unit]);
   // Bodyweight: added load in single plates, from none at all.
   const bodyweight = exercise?.kind === 'bodyweight';
-  const smallestPlate = Math.min(...(unit === 'kg' ? inventory.platesKg : inventory.platesLb).filter((p) => p > 0));
+  const smallestPlate = Math.min(
+    ...(unit === 'kg' ? inventory.platesKg : inventory.platesLb).filter((p) => p > 0),
+  );
   const step = barbell
     ? undefined
     : bodyweight && Number.isFinite(smallestPlate)
