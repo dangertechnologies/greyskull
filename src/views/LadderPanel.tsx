@@ -20,6 +20,15 @@ export function ladderSlot(
   return slot && ladder ? { slot, ladder, step: stepIn(ladder, slot.step) } : undefined;
 }
 
+/** Why a ladder's step cannot change: sets of it are logged in the workout in progress. */
+export const LADDER_LOCKED = 'Sets are logged at this step. Change it in the next workout.';
+
+/** True when the open workout of `programId` has a logged set of ladder `key` (its step is then locked). */
+export function ladderLocked(draft: SessionLog | null, programId: string, key: string): boolean {
+  const slot = draft?.programId === programId ? draft.slots?.find((s) => s.lift === key) : undefined;
+  return !!slot && !!draft?.results[slot.exercise]?.sets.some((s) => s.reps !== 0);
+}
+
 /** "Pull-up progression · step 4 of 6" */
 export const ladderLine = (ladder: Ladder, step: number): string =>
   `${ladder.name} · step ${step + 1} of ${ladder.steps.length}`;
@@ -46,7 +55,7 @@ export function LadderPanel({
   if (!found || !programId) return null;
   const { slot, ladder, step } = found;
   const result = draft.results[exerciseId];
-  const locked = result?.sets.some((s) => s.reps > 0) ?? false;
+  const locked = ladderLocked(draft, programId, slot.lift);
   const move = (to: number) => setLiftStep(programId, slot.lift, to);
   const next = ladder.steps[step + 1];
   const rule = unlockRule(ladder, step, slot.scheme);
@@ -81,7 +90,7 @@ export function LadderPanel({
       </View>
       {locked ? (
         <Text variant="caption" color="textMuted">
-          Sets are logged at this step. Change it in the next workout.
+          {LADDER_LOCKED}
         </Text>
       ) : null}
     </View>
