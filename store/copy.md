@@ -62,6 +62,6 @@ Fixed weights jumping to huge numbers. Edit any weight at any time. Correct Grey
 ## Privacy notes (Health)
 - Health sync is opt-in (Settings, Health). When on, each finished workout is written to Apple Health (iOS) or Health Connect (Android) on the device: start, end, title and type only.
 - Write-only: the app never reads from Health. iOS permission: workouts (write). Android permission: `android.permission.health.WRITE_EXERCISE`.
-- Nothing leaves the device because of it, so App Privacy stays "Data Not Collected" and Play Data safety stays "no data collected, none shared".
+- Greyskull sends nothing to its developer or any third party because of it, so App Privacy stays "Data Not Collected" and Play Data safety stays "no data collected, none shared". What Apple (iCloud sync) or Google (Health Connect backup) do with Health data follows the user's own settings, and apps the user allows to read Health can see the workouts and their names; say this in the Health Connect declaration, not "nothing leaves the device".
 - Play Console needs the Health Connect permissions declaration for `WRITE_EXERCISE`: purpose "save the user's finished workouts to Health Connect", no reads, no sharing. Privacy policy URL: https://dangertechnologies.github.io/greyskull/privacy.html
 - iOS usage strings (app.json): update "Greyskull saves your finished workouts to Apple Health."; share "Greyskull does not read your health data."
