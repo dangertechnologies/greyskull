@@ -64,6 +64,7 @@ A second, isolated senior review (2026-11-23) found 3 blockers and 9 majors, ver
   dark, and what you could not check.
 - **Data safety:** never delete AsyncStorage keys `GSLP_STATE_18` or `gslp-v2`; every migration keeps every log and
   lift state; a failed read never leads to a write over stored data.
+  A failed preservation step (copy, backup, move) never enables an overwrite.
 - **Session ids:** `nextSession` is reserved (incremented) when a draft or a skip log is created; never rewound by
   finish, discard or Undo. Gaps in ids are fine.
 - **Content:** no third-party prose or images in the app unless their licence allows commercial redistribution;
