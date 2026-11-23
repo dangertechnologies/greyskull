@@ -138,6 +138,8 @@ function BandRow({
           if (text.trim()) onRename(text.trim());
         }}
         onBlur={() => setDraft(band.label)}
+        // Typing replaces the name ("Band 1" → "Red"), not appends to it.
+        selectTextOnFocus
         placeholder="Name"
         placeholderTextColor={t.color.textMuted}
         maxFontSizeMultiplier={1.6}

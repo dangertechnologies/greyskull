@@ -1,4 +1,5 @@
-import { PLANS } from '../config/plans';
+import { builtInExercises } from '../catalog';
+import { getPlan, PLANS } from '../config/plans';
 import type { Equipment, Exercise, Kind } from '../domain';
 import { TEMPLATES } from '../domain';
 import {
@@ -6,6 +7,7 @@ import {
   categoryOf,
   equipmentFit,
   fitLabel,
+  laterLabel,
   nameTaken,
   uniqueProgramName,
 } from '../programPicker';
@@ -89,16 +91,55 @@ describe('equipment fit', () => {
     });
   });
 
-  test('ladder steps count', () => {
+  test('a ladder needs its first step to start; later steps only add a soft line', () => {
     const program = {
       ...TEMPLATES.base,
       days: [{ name: 'A', slots: [{ exercise: 'CAL_PULLUP', scheme: '3x5' as const, ladder: 'rr_pullup' }] }],
     };
+    const first = (getPlan('recommended-routine')?.program.days[0].slots[0].exercise ?? '') as string;
     const own = {
-      CAL_PULLUP: ex('CAL_PULLUP', 'bodyweight', ['none']),
-      CAL_ARCH_HANG: ex('CAL_ARCH_HANG', 'bodyweight', ['pull-up-bar']),
+      [first]: ex(first, 'bodyweight', ['pull-up-bar']),
+      CAL_PULLUP: ex('CAL_PULLUP', 'bodyweight', ['rings']),
     };
-    expect(equipmentFit(program, own, ['rings'])).toEqual({ status: 'missing', missing: ['pull-up-bar'] });
+    expect(equipmentFit(program, own, ['dumbbell'])).toEqual({
+      status: 'missing',
+      missing: ['pull-up-bar'],
+      later: ['rings'],
+    });
+    expect(equipmentFit(program, own, ['pull-up-bar'])).toEqual({ status: 'fits', later: ['rings'] });
+  });
+
+  test('Recommended Routine: what you need to start decides the badge', () => {
+    const program = getPlan('recommended-routine')?.program;
+    if (!program) throw new Error('no plan');
+    const all = builtInExercises();
+    // The back-extension ladder starts with the reverse hyperextension, which the catalog lists on a bench.
+    const fit = equipmentFit(program, all, ['pull-up-bar', 'dip-bars', 'bands', 'bench']);
+    expect(fit.status).toBe('fits');
+    expect(laterLabel(fit)).toMatch(/^Later steps also use: /);
+    expect(equipmentFit(program, all, [])).toEqual({ status: 'unknown' });
+    const noBar = equipmentFit(program, all, ['dip-bars', 'bands', 'bench']);
+    expect(noBar.status === 'missing' && noBar.missing).toEqual(['pull-up-bar']);
+  });
+
+  test('bodyweight apparatus are alternatives; bands and other kinds are all needed', () => {
+    const program = (exercise: string) => ({
+      ...TEMPLATES.base,
+      days: [{ name: 'A', slots: [{ exercise, scheme: '3x5' as const }] }],
+    });
+    const own = {
+      HOLD: ex('HOLD', 'bodyweight', ['dip-bars', 'parallettes', 'rings']),
+      BAND: ex('BAND', 'bodyweight', ['pull-up-bar', 'bands']),
+    };
+    expect(equipmentFit(program('HOLD'), own, ['rings']).status).toBe('fits');
+    expect(equipmentFit(program('BAND'), own, ['pull-up-bar'])).toEqual({
+      status: 'missing',
+      missing: ['bands'],
+    });
+    expect(equipmentFit(TEMPLATES.base, exercises, ['barbell'])).toEqual({
+      status: 'missing',
+      missing: ['bench'],
+    });
   });
 });
 

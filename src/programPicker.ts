@@ -33,8 +33,9 @@ export function categoryOf(planId: string): Category | null {
 }
 
 export type EquipmentFit =
-  | { status: 'fits' }
-  | { status: 'missing'; missing: Equipment[] }
+  /** `later`: equipment only later ladder steps use, which the user does not own (never makes it a miss). */
+  | { status: 'fits'; later?: Equipment[] }
+  | { status: 'missing'; missing: Equipment[]; later?: Equipment[] }
   /** The user has not said what equipment they own. */
   | { status: 'unknown' };
 
@@ -46,39 +47,75 @@ const KIND_EQUIPMENT: Record<Kind, Equipment[]> = {
   bodyweight: [],
 };
 
-/** What an exercise needs: its listed equipment, or what its kind implies when none is listed. */
-const needs = (e: Exercise): Equipment[] => {
+/**
+ * What an exercise needs, as a list of requirements where any one item of each satisfies it. Listed equipment
+ * is all needed (a barbell and a bench), except on a bodyweight exercise, where the apparatus are alternatives
+ * (a support hold on dip bars, parallettes or rings) and only bands are an extra on top. With none listed, its
+ * kind decides.
+ */
+const needs = (e: Exercise): Equipment[][] => {
   const listed = (e.equipment ?? []).filter((x) => x !== 'none');
-  return listed.length > 0 || e.equipment?.length ? listed : KIND_EQUIPMENT[e.kind];
+  if (listed.length === 0) return e.equipment?.length ? [] : KIND_EQUIPMENT[e.kind].map((x) => [x]);
+  if (e.kind !== 'bodyweight') return listed.map((x) => [x]);
+  const apparatus = listed.filter((x) => x !== 'bands');
+  return [
+    ...(listed.includes('bands') ? [['bands' as Equipment]] : []),
+    ...(apparatus.length ? [apparatus] : []),
+  ];
 };
 
-/** Every exercise a program can ask for, including the steps of its ladders. */
-function exerciseIds(program: Program): string[] {
-  const ids = new Set<string>();
+/**
+ * The exercises a program starts with (each slot's exercise; for a ladder, its first step), and those only
+ * later ladder steps use.
+ */
+function exerciseIds(program: Program): { start: Set<string>; later: Set<string> } {
+  const start = new Set<string>();
+  const later = new Set<string>();
   for (const day of program.days) {
     for (const slot of day.slots) {
-      for (const id of typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise) ids.add(id);
       const ladder = slot.ladder ? (ladders as Ladder[]).find((l) => l.id === slot.ladder) : undefined;
-      for (const step of ladder?.steps ?? []) ids.add(step.exercise);
+      if (ladder && ladder.steps.length > 0) {
+        start.add(ladder.steps[0].exercise);
+        for (const step of ladder.steps.slice(1)) later.add(step.exercise);
+      } else
+        for (const id of typeof slot.exercise === 'string' ? [slot.exercise] : slot.exercise) start.add(id);
     }
   }
-  return [...ids];
+  return { start, later };
 }
 
-/** Whether the equipment the user owns covers every exercise of the program. */
+/**
+ * Whether the equipment the user owns covers what the program needs to start. Equipment that only later
+ * ladder steps use is listed in `later` and never makes the program a miss.
+ */
 export function equipmentFit(
   program: Program,
   exercises: Record<string, Exercise>,
   owned: Equipment[],
 ): EquipmentFit {
   if (owned.length === 0) return { status: 'unknown' };
-  const missing = new Set<Equipment>();
-  for (const id of exerciseIds(program)) {
-    const exercise = exercises[id];
-    if (!exercise) continue;
-    for (const item of needs(exercise)) if (!owned.includes(item)) missing.add(item);
-  }
-  return missing.size === 0 ? { status: 'fits' } : { status: 'missing', missing: [...missing] };
+  const { start, later } = exerciseIds(program);
+  const unowned = (ids: Set<string>) => {
+    const out = new Set<Equipment>();
+    for (const id of ids) {
+      const exercise = exercises[id];
+      if (!exercise) continue;
+      for (const anyOf of needs(exercise)) if (!anyOf.some((x) => owned.includes(x))) out.add(anyOf[0]);
+    }
+    return out;
+  };
+  const missing = unowned(start);
+  const laterOnly = [...unowned(later)].filter((e) => !missing.has(e));
+  const extra = laterOnly.length > 0 ? { later: laterOnly } : {};
+  return missing.size === 0
+    ? { status: 'fits', ...extra }
+    : { status: 'missing', missing: [...missing], ...extra };
+}
+
+/** The soft second line under the badge: equipment later ladder steps use that the user does not own. */
+export function laterLabel(fit: EquipmentFit): string | null {
+  if (fit.status === 'unknown' || !fit.later?.length) return null;
+  return `Later steps also use: ${fit.later.map((e) => e.replace('-', ' ')).join(', ')}`;
 }
 
 /** The badge text for a fit result. */

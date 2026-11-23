@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Pill } from '../../src/components/ProgramBits';
 import { RulesEditor } from '../../src/components/RulesEditor';
 import { getPlan, PLANS } from '../../src/config/plans';
@@ -8,7 +8,14 @@ import { useTheme } from '../../src/design/theme';
 import type { PluginId, Program } from '../../src/domain';
 import { DEFAULT_RULES, PLUGINS } from '../../src/domain';
 import { goBackOr } from '../../src/navigation';
-import { CATEGORIES, type Category, categoryOf, equipmentFit, fitLabel } from '../../src/programPicker';
+import {
+  CATEGORIES,
+  type Category,
+  categoryOf,
+  equipmentFit,
+  fitLabel,
+  laterLabel,
+} from '../../src/programPicker';
 import { useSetup } from '../../src/setup/SetupContext';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -16,7 +23,7 @@ import { Chip } from '../../src/ui/Chip';
 import { Icon } from '../../src/ui/Icon';
 import { IconButton } from '../../src/ui/IconButton';
 import { ListRow } from '../../src/ui/ListRow';
-import { BottomBar, ScreenScroll, useGutter } from '../../src/ui/layout';
+import { BottomBar, ScreenScroll } from '../../src/ui/layout';
 import { NumberStepper } from '../../src/ui/NumberStepper';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
@@ -68,7 +75,6 @@ export default function PlanStep() {
   } = useLocalSearchParams<{ change?: string; add?: string; pick?: string; program?: string }>();
   const { draft, rebuild } = useSetup();
   const t = useTheme();
-  const gutter = useGutter();
   const customPlans = useStore((s) => s.customPlans);
   const exercises = useStore((s) => s.exercises);
   const equipment = useStore((s) => s.equipment);
@@ -142,7 +148,9 @@ export default function PlanStep() {
         <Pressable
           accessibilityRole="radio"
           accessibilityLabel={`${c.title}${c.experimental ? ', experimental' : ''}`}
-          accessibilityHint={showFit ? `${c.summary}. ${fitLabel(fit)}` : c.summary}
+          accessibilityHint={
+            showFit ? [c.summary, fitLabel(fit), laterLabel(fit)].filter(Boolean).join('. ') : c.summary
+          }
           accessibilityState={{ selected }}
           onPress={() => choose(c)}
           style={{ padding: t.space[5], gap: t.space[2] }}
@@ -175,6 +183,11 @@ export default function PlanStep() {
               label={fitLabel(fit)}
               tone={fit.status === 'fits' ? 'success' : fit.status === 'missing' ? 'warning' : 'neutral'}
             />
+          ) : null}
+          {showFit && laterLabel(fit) ? (
+            <Text variant="caption" color="textMuted">
+              {laterLabel(fit)}
+            </Text>
           ) : null}
           {selected && c.description ? <Text style={{ paddingTop: t.space[3] }}>{c.description}</Text> : null}
         </Pressable>
@@ -235,11 +248,9 @@ export default function PlanStep() {
           </Text>
         )}
         <Text color="textMuted">You can change this later. Your history is kept.</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginHorizontal: -gutter, flexGrow: 0 }}
-          contentContainerStyle={{ gap: t.space[2], paddingHorizontal: gutter, paddingVertical: t.space[3] }}
+        {/* Wrapped, not a sideways scroll: every category stays visible at any width and text size. */}
+        <View
+          style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], paddingVertical: t.space[3] }}
         >
           {CATEGORIES.map((c) => (
             <Chip
@@ -249,7 +260,7 @@ export default function PlanStep() {
               onPress={() => setCategory(category === c ? null : c)}
             />
           ))}
-        </ScrollView>
+        </View>
         <View style={{ gap: t.space[4] }}>
           {shown.length === 0 ? (
             <Text color="textMuted">No programs in this category yet.</Text>

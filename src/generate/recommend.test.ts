@@ -29,7 +29,8 @@ describe('recommend', () => {
       'strength, two years, four days',
       { goal: 'strength', days: 4, minutes: 60, equipment: [...gym, 'machine'], experience: '2y' },
       ['gzclp'],
-      null,
+      // The skill session's first steps fit this gym (later steps only add a soft line), so it is offered.
+      'skill-track',
     ],
     [
       'muscle, six months, gym with cables and machines',
@@ -46,8 +47,9 @@ describe('recommend', () => {
     [
       'calisthenics skills with a pull-up bar and rings',
       { goal: 'calisthenics', days: 3, minutes: 45, equipment: [...rings], experience: '6mo' },
-      // Fewer missing items first: Six Ladders lacks a bench, box and bands; the Recommended Routine more.
-      ['six-ladders', 'recommended-routine'],
+      // What you need to start decides: Six Ladders fits; Hybrid lacks a barbell; the Recommended Routine lacks
+      // bands and a bench and runs longer than asked.
+      ['six-ladders', 'hybrid', 'recommended-routine'],
       null,
     ],
     [

@@ -124,6 +124,8 @@ export function recommend(answers: Answers, exercises: Record<string, Exercise>)
     let score = 10 - rank * 2;
     if (fit.status === 'fits') score += 2;
     if (fit.status === 'missing') score -= 1.5 * fit.missing.length;
+    // Equipment only later ladder steps use is a small tie-breaker, never a miss.
+    if (fit.status !== 'unknown') score -= 0.25 * (fit.later?.length ?? 0);
     score -= Math.abs(plan.program.sessionsPerWeek - answers.days) * 0.5;
     if (sessionMinutes(plan.program) > answers.minutes + 15) score -= 1;
     if (answers.experience === 'new' && NOT_FOR_NEW.has(plan.id)) score -= 3;
