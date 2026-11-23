@@ -22,10 +22,12 @@ const MODEL_HELP: Record<ProgressionChoice, string> = {
   ladder: 'Move to the next, harder exercise of the ladder when the top of the range is reached.',
 };
 
+const isChoice = (m: string): m is ProgressionChoice => Object.hasOwn(MODEL_LABEL, m);
+
 /** The model name shown on a slot: its own, the program's, or the plan-wide rule when it is not one of the four. */
 export function progressionLabel(slot: Slot, rules: Rules): string {
   const m = effectiveModel(slot, rules);
-  return m in MODEL_LABEL ? MODEL_LABEL[m as ProgressionChoice] : m === '531' ? '5/3/1' : 'Stages';
+  return isChoice(m) ? MODEL_LABEL[m] : m === '531' ? '5/3/1' : 'Stages';
 }
 
 /** The per-slot progression picker: AMRAP, Linear, Double or Ladder, with the reasons a choice is not offered. */
@@ -47,7 +49,7 @@ export function ProgressionPanel({
   const [note, setNote] = useState<string | null>(null);
   const options = progressionOptions(slot, exercises);
   const model = effectiveModel(slot, rules);
-  const current = model in MODEL_LABEL ? (model as ProgressionChoice) : '';
+  const current = isChoice(model) ? model : '';
   const ladder = slot.ladder === undefined ? undefined : getLadder(slot.ladder);
   const stuck = stuckReason(slot, rules, exercises);
   const blocked = options.filter((o) => o.disabled);

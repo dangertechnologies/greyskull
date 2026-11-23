@@ -44,8 +44,8 @@ import { SlotRow } from './SlotRow';
 type Picking = { day: number; mode: 'single' | 'pair'; first?: string } | null;
 type Cell = { day: number; slot: number };
 type GroupDraft =
-  | { day: number; kind: GroupKind; indices: number[] }
-  | { day: number; groupId: string; kind: GroupKind; count: number };
+  | { mode: 'new'; day: number; kind: GroupKind; indices: number[] }
+  | { mode: 'edit'; day: number; groupId: string; kind: GroupKind; count: number };
 type Block = { kind: 'slot'; i: number } | { kind: 'group'; group: Group; indices: number[] };
 
 const KINDS: GroupKind[] = ['superset', 'circuit', 'emom', 'interval'];
@@ -333,6 +333,7 @@ export function DaysEditor({
             accessibilityLabel={`Edit ${GROUP_LABELS[block.group.kind]} ${letter}`}
             onPress={() =>
               setGroupDraft({
+                mode: 'edit',
                 day: d,
                 groupId: block.group.id,
                 kind: block.group.kind,
@@ -354,11 +355,11 @@ export function DaysEditor({
 
   const sheetSlot = schemeFor ? program.days[schemeFor.day]?.slots[schemeFor.slot] : undefined;
   const draftGroup =
-    groupDraft && 'groupId' in groupDraft
+    groupDraft?.mode === 'edit'
       ? program.days[groupDraft.day]?.groups?.find((g) => g.id === groupDraft.groupId)
       : undefined;
   const draftCount = groupDraft
-    ? 'indices' in groupDraft
+    ? groupDraft.mode === 'new'
       ? groupDraft.indices.length
       : groupDraft.count
     : 0;
@@ -412,7 +413,7 @@ export function DaysEditor({
                         title={GROUP_LABELS[kind]}
                         variant="secondary"
                         disabled={canGroup(day, picked, kind) !== null}
-                        onPress={() => setGroupDraft({ day: d, kind, indices: picked })}
+                        onPress={() => setGroupDraft({ mode: 'new', day: d, kind, indices: picked })}
                       />
                     ))}
                   </View>
@@ -494,16 +495,16 @@ export function DaysEditor({
         />
       ) : null}
 
-      {groupDraft && (!('groupId' in groupDraft) || draftGroup) ? (
+      {groupDraft && (groupDraft.mode === 'new' || draftGroup) ? (
         <GroupSheet
           kind={groupDraft.kind}
           count={draftCount}
           initial={draftGroup ?? defaultGroupSettings(groupDraft.kind, draftCount)}
-          confirm={'groupId' in groupDraft ? 'Save' : `Make ${GROUP_LABELS[groupDraft.kind]}`}
+          confirm={groupDraft.mode === 'edit' ? 'Save' : `Make ${GROUP_LABELS[groupDraft.kind]}`}
           onClose={() => setGroupDraft(null)}
           onSave={(settings: GroupSettings) => {
             onChange(
-              'groupId' in groupDraft
+              groupDraft.mode === 'edit'
                 ? updateGroup(program, groupDraft.day, groupDraft.groupId, settings)
                 : groupSlots(program, groupDraft.day, groupDraft.indices, groupDraft.kind, settings),
             );
