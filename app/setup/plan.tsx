@@ -102,10 +102,11 @@ export default function PlanStep() {
       rules: { ...c.program.rules },
     });
   };
-  // Opened from "My programs" on the Programs tab: that saved program starts out chosen.
+  // Opened from "My programs" on the Programs tab, or from a recommendation of "Generate a program": that
+  // program starts out chosen.
   // biome-ignore lint/correctness/useExhaustiveDependencies: once, when the screen opens
   useEffect(() => {
-    const saved = mine.find((c) => c.id === pick);
+    const saved = [...mine, ...BUILT_IN, FROM_SCRATCH].find((c) => c.id === pick);
     if (saved) choose(saved);
   }, []);
 
@@ -255,6 +256,15 @@ export default function PlanStep() {
             shown.map(renderChoice)
           )}
         </View>
+        {adding ? (
+          <ListRow
+            title="Generate a program"
+            subtitle="Answer a few questions, or describe it in your own words"
+            accessory="chevron"
+            testID="setup-generate"
+            onPress={() => router.push('/generate')}
+          />
+        ) : null}
         {mine.length > 0 ? (
           <View style={{ gap: t.space[3], paddingTop: t.space[6] }}>
             <Text variant="label" color="textMuted" accessibilityRole="header">
