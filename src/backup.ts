@@ -2,12 +2,14 @@ import type { AppState, Exercise, Program, SessionLog } from './domain';
 import { STORED_LIMITS, validateProgram } from './domain';
 import { NULLABLE_USER_FIELDS, USER_FIELDS } from './domain/exerciseFields';
 import { isReservedKey } from './domain/own';
+import { NEWER_VERSION_ERROR } from './storage';
 import type { OneProgramState } from './store';
 import {
   isEquipment,
   migratePersisted,
   repairStored,
   restoreExercises,
+  STORE_VERSION,
   stateProblem,
   upgradeOneProgramState,
 } from './store';
@@ -85,9 +87,10 @@ const badLifts = (lifts: unknown): boolean =>
   );
 
 /**
- * Parse and validate a backup produced by "Export backup" (an AppState snapshot). Nothing is written:
- * the caller decides whether to apply it. Backups with one program (`version` 2) are converted like stored
- * data from that version; missing newer fields fall back to defaults.
+ * Parse and validate a backup produced by "Export backup" (an AppState snapshot), or the app's own data file
+ * (`state.json` or one of its kept copies, the snapshot inside `{ state, version }`). Nothing is written: the
+ * caller decides whether to apply it. Backups with one program (`version` 2) are converted like stored data
+ * from that version; missing newer fields fall back to defaults.
  */
 export function parseBackup(raw: string): BackupResult {
   try {
@@ -105,6 +108,11 @@ function parse(raw: string): BackupResult {
     parsed = JSON.parse(raw.trim());
   } catch {
     return { ok: false, error: 'That is not valid JSON.' };
+  }
+  // The data file: store versions before 4 held one program, as a version 2 backup does.
+  if (isObject(parsed) && isObject(parsed.state) && typeof parsed.version === 'number') {
+    if (parsed.version > STORE_VERSION) return { ok: false, error: NEWER_VERSION_ERROR };
+    parsed = { ...parsed.state, version: parsed.version < 4 ? 2 : 3 };
   }
   if (!isObject(parsed) || (parsed.version !== 2 && parsed.version !== 3))
     return { ok: false, error: 'This is not a Greyskull v2 backup.' };

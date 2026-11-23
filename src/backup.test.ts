@@ -592,3 +592,25 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
     expect(r).toMatchObject({ ok: false, error: expect.stringMatching(/too large.*20 MB/) });
   });
 });
+
+describe('the app’s own data file can be restored like a backup', () => {
+  test('state.json and its kept copies, current and from the one-program version', async () => {
+    seeded();
+    const file = JSON.stringify({ state: JSON.parse(get().exportJson()), version: 4 });
+    const r = parseBackup(file);
+    if (!r.ok) throw new Error(r.error);
+    expect(r.state.sessions).toHaveLength(1);
+    expect(r.state.programs[0].template).toBe('base');
+    const old = require('./__fixtures__/plan-base.json').persisted;
+    const v3 = parseBackup(JSON.stringify(old));
+    if (!v3.ok) throw new Error(v3.error);
+    expect(v3.state.programs).toHaveLength(1);
+    expect(v3.state.sessions).toHaveLength(old.state.sessions.length);
+  });
+
+  test('a file from a newer version is refused', () => {
+    seeded();
+    const file = JSON.stringify({ state: JSON.parse(get().exportJson()), version: 99 });
+    expect(parseBackup(file)).toMatchObject({ ok: false, error: expect.stringMatching(/newer version/) });
+  });
+});
