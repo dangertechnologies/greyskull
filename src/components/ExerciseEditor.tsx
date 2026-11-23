@@ -4,7 +4,7 @@ import { Alert, Pressable, View } from 'react-native';
 import { useTheme } from '../design/theme';
 import type { Equipment, Exercise, Kind, Muscle } from '../domain';
 import { trim } from '../domain';
-import { exerciseFromForm, formFrom, linkProblem } from '../exerciseEdit';
+import { exerciseFromForm, formFrom, LIMITS, linkProblem } from '../exerciseEdit';
 import { EQUIPMENT_LABELS, MUSCLE_LABELS } from '../exerciseFilter';
 import { customId } from '../exerciseId';
 import { goBackOr } from '../navigation';
@@ -153,6 +153,7 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
     unit: string,
     step: number,
     min: number,
+    max = 100,
   ) => (
     <NumberStepper
       inline
@@ -160,6 +161,7 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
       value={form[key]}
       step={step}
       min={min}
+      max={max}
       format={(v) => `${trim(v)} ${unit}`}
       onChange={(v) => set({ [key]: v })}
     />
@@ -179,12 +181,14 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
           <View style={{ gap: t.space[4], paddingVertical: t.space[4] }}>
             <TextField
               label="Name"
+              maxLength={LIMITS.name}
               value={form.name}
               onChangeText={(name) => set({ name })}
               placeholder="Front squat"
             />
             <TextField
               label="Short name"
+              maxLength={LIMITS.name}
               value={form.shortName}
               onChangeText={(shortName) => set({ shortName })}
               placeholder="Front"
@@ -292,8 +296,8 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
               switchValue={form.ownBar}
               onSwitch={(ownBar) => set({ ownBar })}
             />
-            {form.ownBar ? weightRow('Bar weight (kg)', 'barKg', 'kg', 0.5, 1) : null}
-            {form.ownBar ? weightRow('Bar weight (lb)', 'barLb', 'lb', 0.5, 1) : null}
+            {form.ownBar ? weightRow('Bar weight (kg)', 'barKg', 'kg', 0.5, 1, 50) : null}
+            {form.ownBar ? weightRow('Bar weight (lb)', 'barLb', 'lb', 0.5, 1, 110) : null}
           </Section>
         ) : null}
 
@@ -314,6 +318,7 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
               <>
                 <TextField
                   label="Description"
+                  maxLength={LIMITS.description}
                   value={form.description}
                   onChangeText={(description) => set({ description })}
                   multiline
@@ -323,14 +328,14 @@ export function ExerciseEditor({ exercise }: { exercise?: Exercise }) {
                   value={form.good}
                   onChangeText={(good) => set({ good })}
                   multiline
-                  placeholder="One tip per line"
+                  placeholder={`One tip per line, up to ${LIMITS.tips}`}
                 />
                 <TextField
                   label="Bad form"
                   value={form.bad}
                   onChangeText={(bad) => set({ bad })}
                   multiline
-                  placeholder="One tip per line"
+                  placeholder={`One tip per line, up to ${LIMITS.tips}`}
                 />
                 <TextField
                   label="Technique video"
