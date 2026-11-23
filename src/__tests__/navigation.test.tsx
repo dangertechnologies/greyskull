@@ -49,7 +49,7 @@ test('editing the program during a workout warns before discarding logged sets',
   startSession();
   useStore.getState().logSet('MILITARY_PRESS', 0, 5);
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
-  await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+  await renderRouter(routes(), { initialUrl: `/setup/days?edit=1&program=${programId()}` });
   fireEvent.press(await screen.findByText('Save'));
   expect(alert).toHaveBeenCalledWith(
     'Discard the workout in progress?',

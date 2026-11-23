@@ -5,12 +5,14 @@ import { LiftRow } from '../../src/components/LiftRow';
 import { CategoryPill, Pill, ProgramBadge } from '../../src/components/ProgramBits';
 import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
-import type { ActiveProgram } from '../../src/domain';
+import type { ActiveProgram, ProgressionModel } from '../../src/domain';
 import { fiveThreeOneSets, sessionFor, sessionWeightKg } from '../../src/domain';
 import { intensityLabel, liftLabel, nameOf, schemeLabel, weekLabel } from '../../src/format';
+import { useProgramById } from '../../src/hooks/useProgramById';
 import { goBackOr } from '../../src/navigation';
-import { startWorkout } from '../../src/programStart';
-import { useProgram, useStore } from '../../src/store';
+import { nameTaken } from '../../src/programPicker';
+import { setCounts, startWorkout } from '../../src/programStart';
+import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ListRow } from '../../src/ui/ListRow';
 import { BottomBar, ScreenScroll } from '../../src/ui/layout';
@@ -20,6 +22,15 @@ import { Sheet } from '../../src/ui/Sheet';
 import { Card } from '../../src/ui/Surface';
 import { Text } from '../../src/ui/Text';
 import { TextField } from '../../src/ui/TextField';
+
+const PROGRESSION_LABEL: Record<ProgressionModel, string> = {
+  amrap: 'Last set as many reps as possible',
+  linear: 'Add weight when every set is done',
+  double: 'Add reps, then weight',
+  stages: 'Move through stages',
+  '531': '5/3/1 cycles',
+  ladder: 'Move up a ladder step',
+};
 
 /** The weights of the program's next workout, as Today showed them when it had one program. */
 function NextWorkout({ program }: { program: ActiveProgram }) {
@@ -60,23 +71,48 @@ function NextWorkout({ program }: { program: ActiveProgram }) {
 
 export default function ProgramScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const program = useProgram(id);
+  const program = useProgramById(id);
   const exercises = useStore((s) => s.exercises);
   const draft = useStore((s) => s.draft);
   const t = useTheme();
   const [renaming, setRenaming] = useState<string | null>(null);
-  // Gone (removed from here): nothing to show while the screen closes.
-  if (!program) return null;
+  const programs = useStore((s) => s.programs);
+  if (!program) {
+    return (
+      <View style={{ flex: 1, backgroundColor: t.color.background }}>
+        <Stack.Screen options={{ title: 'Program' }} />
+        <ScreenScroll gap={6}>
+          <Text variant="headline" accessibilityRole="header">
+            Program not found
+          </Text>
+          <Text color="textMuted">It may have been removed.</Text>
+          <Button title="Back" variant="secondary" onPress={() => goBackOr('/')} />
+        </ScreenScroll>
+      </View>
+    );
+  }
 
   const plan = getPlan(program.template);
   const session = sessionFor(program);
   const light = intensityLabel(session.dayName, session.intensity);
   const open = draft?.programId === program.id;
 
+  const logged = open && draft ? setCounts(draft).done : 0;
+  const nameUsed =
+    renaming !== null &&
+    nameTaken(
+      renaming,
+      programs.filter((p) => p.id !== program.id).map((p) => p.name),
+    );
+
   const remove = () =>
     Alert.alert(
       `Remove ${program.name}?`,
-      'Its past workouts stay in History. Its working weights are deleted.',
+      `Its past workouts stay in History. Its working weights are deleted.${
+        open
+          ? ` This also discards your workout in progress (${logged} ${logged === 1 ? 'set' : 'sets'} logged).`
+          : ''
+      }`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -123,6 +159,15 @@ export default function ProgramScreen() {
         </Card>
 
         {program.paused ? null : <NextWorkout program={program} />}
+
+        <Section label="Rules" card>
+          <View style={{ gap: t.space[1], paddingVertical: t.space[4] }}>
+            <Text variant="bodyStrong">{PROGRESSION_LABEL[program.rules.progression ?? 'amrap']}</Text>
+            <Text variant="callout" color="textMuted">
+              {`Deload ${Math.round(program.rules.deloadPct * 100)} % after ${program.rules.failsBeforeDeload} ${program.rules.failsBeforeDeload === 1 ? 'miss' : 'misses'} · Warm-ups ${program.rules.warmups ? 'on' : 'off'}`}
+            </Text>
+          </View>
+        </Section>
 
         <Section label="Sessions a week">
           <NumberStepper
@@ -187,8 +232,14 @@ export default function ProgramScreen() {
             title={program.paused ? 'Resume program' : 'Pause program'}
             variant="plain"
             testID="pause-program"
+            disabled={open}
             onPress={() => useStore.getState().pauseProgram(program.id, !program.paused)}
           />
+          {open ? (
+            <Text variant="callout" color="textMuted" align="center">
+              Finish or discard the workout first.
+            </Text>
+          ) : null}
           <Button title="Remove program" variant="destructive" testID="remove-program" onPress={remove} />
         </View>
       </ScreenScroll>
@@ -212,9 +263,14 @@ export default function ProgramScreen() {
           autoFocus
           returnKeyType="done"
         />
+        {nameUsed ? (
+          <Text variant="callout" color="danger">
+            Another program already has this name.
+          </Text>
+        ) : null}
         <Button
           title="Save"
-          disabled={!renaming?.trim()}
+          disabled={!renaming?.trim() || nameUsed}
           testID="rename-save"
           onPress={() => {
             useStore.getState().renameProgram(program.id, renaming ?? '');

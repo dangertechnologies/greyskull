@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Sparkline } from '../../src/components/Sparkline';
 import { useTheme } from '../../src/design/theme';
-import type { ActiveProgram, AppState } from '../../src/domain';
+import type { ActiveProgram, SessionLog } from '../../src/domain';
 import { exerciseOfLift, formatWeight, liftKeysOf, project, trim } from '../../src/domain';
 import { liftLabel, logPosition, nameOf } from '../../src/format';
 import { seriesFor } from '../../src/series';
@@ -16,22 +16,27 @@ import { ScreenScroll } from '../../src/ui/layout';
 import { Section } from '../../src/ui/Section';
 import { Text } from '../../src/ui/Text';
 
+/** Whether a workout belongs to a program: by its program id, or for old history by the program's start. */
+const belongsTo = (log: SessionLog, program: ActiveProgram): boolean =>
+  log.programId !== undefined ? log.programId === program.id : logPosition(log, program) !== null;
+
 /** The lifts of one program with their trends, and what its next workouts will weigh. */
-function ProgramProgress({
-  program,
-  state,
-  only,
-}: {
-  program: ActiveProgram;
-  state: AppState;
-  only: boolean;
-}) {
-  const { sessions, unit, exercises } = state;
+function ProgramProgress({ program, only }: { program: ActiveProgram; only: boolean }) {
+  const sessions = useStore((s) => s.sessions);
+  const unit = useStore((s) => s.unit);
+  const exercises = useStore((s) => s.exercises);
+  const inventory = useStore((s) => s.inventory);
+  const nextSession = useStore((s) => s.nextSession);
   const t = useTheme();
   const ids = useMemo(() => liftKeysOf(program), [program]);
   // Only this program's workouts, so a lift two programs share charts each program's own progress.
-  const own = useMemo(() => sessions.filter((s) => logPosition(s, program) !== null), [sessions, program]);
-  const upcoming = useMemo(() => project(state, program.id, 6), [state, program]);
+  const own = useMemo(() => sessions.filter((s) => belongsTo(s, program)), [sessions, program]);
+  // `project` reads the programs, exercises, plates, unit and next id: the slices above re-run it on change.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the slices above stand for the store state
+  const upcoming = useMemo(
+    () => project(useStore.getState(), program.id, 6),
+    [program, exercises, inventory, unit, nextSession],
+  );
   const series = useMemo(
     () =>
       Object.fromEntries(
@@ -126,10 +131,56 @@ function ProgramProgress({
   );
 }
 
+/** Lifts trained in programs that no longer exist: their history stays visible, without a chart to open. */
+function EarlierPrograms({ logs }: { logs: SessionLog[] }) {
+  const unit = useStore((s) => s.unit);
+  const exercises = useStore((s) => s.exercises);
+  const t = useTheme();
+  const keys = useMemo(
+    () => [...new Set(logs.flatMap((l) => l.order.map((id) => l.results[id]?.lift ?? id)))],
+    [logs],
+  );
+  return (
+    <Section label="Earlier programs" footer="From programs you removed." card>
+      {keys.map((key) => {
+        const exercise = exercises[exerciseOfLift(key)];
+        if (!exercise) return null;
+        const values = seriesFor(logs, exercise, unit, key);
+        const last = values[values.length - 1];
+        const current =
+          last === undefined
+            ? ''
+            : exercise.kind === 'bodyweight'
+              ? `${trim(last)} reps`
+              : `${trim(last)} ${unit}`;
+        return (
+          <View
+            key={key}
+            accessible
+            accessibilityLabel={`${liftLabel(key, exercises)}, ${current}`}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4], minHeight: 72 }}
+          >
+            <ExerciseBadge exercise={exercise} size={40} />
+            <Text variant="bodyStrong" style={{ flex: 1 }}>
+              {liftLabel(key, exercises)}
+            </Text>
+            <Sparkline values={values} />
+            <Text variant="bodyStrong">{current}</Text>
+          </View>
+        );
+      })}
+    </Section>
+  );
+}
+
 export default function Progress() {
-  const state = useStore();
-  const { programs, sessions } = state;
+  const programs = useStore((s) => s.programs);
+  const sessions = useStore((s) => s.sessions);
   const finished = sessions.filter((s) => !s.skipped).length;
+  const earlier = useMemo(
+    () => sessions.filter((l) => !l.skipped && !programs.some((p) => belongsTo(l, p))),
+    [sessions, programs],
+  );
 
   return (
     <ScreenScroll headerless gap={10}>
@@ -146,8 +197,10 @@ export default function Progress() {
       ) : null}
 
       {programs.map((p) => (
-        <ProgramProgress key={p.id} program={p} state={state} only={programs.length === 1} />
+        <ProgramProgress key={p.id} program={p} only={programs.length === 1} />
       ))}
+
+      {earlier.length > 0 ? <EarlierPrograms logs={earlier} /> : null}
 
       <Section label="History">
         <Button title="See all workouts" variant="secondary" onPress={() => router.push('/history')} />

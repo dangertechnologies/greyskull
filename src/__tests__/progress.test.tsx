@@ -94,10 +94,10 @@ test('editing a past session changes its record, not the current lifts', async (
 test('the full history lists every workout, newest first', async () => {
   playSessions(3, 6);
   await renderRouter(routes(), { initialUrl: '/history' });
-  const rows = await screen.findAllByRole('button', { name: /^Workout \d+, edit$/ });
+  const rows = await screen.findAllByRole('button', { name: /^Workout \d+, Test program, edit$/ });
   expect(rows.map((r) => r.props.accessibilityLabel)).toEqual([
-    'Workout 3, edit',
-    'Workout 2, edit',
-    'Workout 1, edit',
+    'Workout 3, Test program, edit',
+    'Workout 2, Test program, edit',
+    'Workout 1, Test program, edit',
   ]);
 });

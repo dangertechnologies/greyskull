@@ -284,7 +284,161 @@ describe('Progress and History with several programs', () => {
       sessions: [...s.sessions, { ...s.sessions[0], n: 50, programId: undefined, programName: undefined }],
     }));
     await renderRouter(routes(), { initialUrl: '/history' });
-    expect(await screen.findByText('GSLP')).toBeTruthy();
-    expect(screen.getByText('Earlier program')).toBeTruthy();
+    // The program name above a row is hidden from screen readers (the row's own label has it).
+    const hidden = { includeHiddenElements: true };
+    expect(await screen.findByText('GSLP', hidden)).toBeTruthy();
+    expect(screen.getByText('Earlier program', hidden)).toBeTruthy();
+  });
+});
+
+describe('review fixes', () => {
+  const alertSpy = () => jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+  const openProgram = async (id: string) => {
+    await renderRouter(routes(), { initialUrl: '/' });
+    await screen.findAllByText(/^Next:|Draft$/);
+    act(() => router.push(`/program/${id}`));
+  };
+
+  test('removing the program that owns the open workout says its logged sets go too', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    useStore.getState().logSet('MILITARY_PRESS', 0, 5);
+    useStore.getState().logSet('MILITARY_PRESS', 1, 5);
+    const alert = alertSpy();
+    await openProgram(a);
+    fireEvent.press(await screen.findByTestId('remove-program'));
+    expect(alert.mock.calls[0][1]).toContain('This also discards your workout in progress (2 sets logged).');
+  });
+
+  test('removing a program without an open workout does not mention one', async () => {
+    const a = add('GSLP', 'base');
+    const alert = alertSpy();
+    await openProgram(a);
+    fireEvent.press(await screen.findByTestId('remove-program'));
+    expect(alert.mock.calls[0][1]).not.toContain('in progress');
+  });
+
+  test('adding a plan that is already running gives it the next free name', async () => {
+    add('Greyskull LP', 'base');
+    await renderRouter(routes(), { initialUrl: '/setup/plan?add=1' });
+    fireEvent.press(await screen.findByRole('radio', { name: /^Greyskull LP/ }));
+    fireEvent.press(screen.getByTestId('setup-next'));
+    fireEvent.press(await screen.findByTestId('start-training'));
+    await screen.findAllByText(/^Next:/);
+    expect(useStore.getState().programs.map((p) => p.name)).toEqual(['Greyskull LP', 'Greyskull LP 2']);
+  });
+
+  test('a name another program uses cannot be saved on rename', async () => {
+    add('GSLP', 'base');
+    const b = add('Mine', 'stronglifts');
+    await openProgram(b);
+    fireEvent.press(await screen.findByText('Rename'));
+    fireEvent.changeText(await screen.findByLabelText('Name'), ' gslp ');
+    expect(screen.getByText('Another program already has this name.')).toBeTruthy();
+    expect(screen.getByTestId('rename-save').props.accessibilityState.disabled).toBe(true);
+    fireEvent.changeText(screen.getByLabelText('Name'), 'MINE');
+    expect(screen.queryByText('Another program already has this name.')).toBeNull();
+  });
+
+  test('cards that share a name tell Start and Skip apart by their next day', async () => {
+    const a = add('Same', 'base');
+    const b = add('Same', 'stronglifts');
+    await renderRouter(routes(), { initialUrl: '/' });
+    expect(await screen.findByLabelText('Start Same, Day 1')).toBeTruthy();
+    expect(screen.getByLabelText('Skip Same, A')).toBeTruthy();
+    expect(screen.getByTestId(`start-${a}`)).toBeTruthy();
+    expect(screen.getByTestId(`start-${b}`)).toBeTruthy();
+  });
+
+  test('the program with the open workout cannot be paused from its screen', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    await openProgram(a);
+    expect(await screen.findByText('Finish or discard the workout first.')).toBeTruthy();
+    expect(screen.getByTestId('pause-program').props.accessibilityState.disabled).toBe(true);
+    fireEvent.press(screen.getByTestId('pause-program'));
+    expect(useStore.getState().programs[0].paused).toBeFalsy();
+  });
+
+  test('Today never lists the program of the open workout as paused', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    useStore.getState().pauseProgram(a, true);
+    await renderRouter(routes(), { initialUrl: '/' });
+    expect(await screen.findByText('GSLP · Day 1')).toBeTruthy();
+    expect(screen.queryByTestId(`resume-${a}`)).toBeNull();
+  });
+
+  test('an unknown program id shows a not-found state with a way back', async () => {
+    add('GSLP', 'base');
+    await renderRouter(routes(), { initialUrl: '/' });
+    await screen.findByText(/^Next:/);
+    act(() => router.push('/program/nope'));
+    expect(await screen.findByText('Program not found')).toBeTruthy();
+    fireEvent.press(screen.getByText('Back'));
+    expect(await screen.findByText(/^Next:/)).toBeTruthy();
+  });
+
+  test('the draft card follows a rename', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    useStore.getState().renameProgram(a, 'My lifts');
+    await renderRouter(routes(), { initialUrl: '/' });
+    expect(await screen.findByText('My lifts · Day 1')).toBeTruthy();
+  });
+
+  test('the program screen summarises the rules', async () => {
+    const a = add('GSLP', 'base');
+    await openProgram(a);
+    expect(await screen.findByText('Last set as many reps as possible')).toBeTruthy();
+    expect(screen.getByText('Deload 10 % after 1 miss · Warm-ups on')).toBeTruthy();
+  });
+
+  test('a category filter keeps the chosen plan on screen', async () => {
+    await renderRouter(routes(), { initialUrl: '/setup/plan?add=1' });
+    fireEvent.press(await screen.findByRole('radio', { name: /^Greyskull LP/ }));
+    fireEvent.press(screen.getByRole('radio', { name: 'Mobility' }));
+    expect(screen.getByRole('radio', { name: /^Greyskull LP/ }).props.accessibilityState.selected).toBe(true);
+    expect(screen.getByTestId('setup-next').props.accessibilityState.disabled).toBe(false);
+  });
+
+  test('progress keeps logs of a removed program under Earlier programs', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    useStore.getState().finishSession();
+    useStore.getState().removeProgram(a);
+    await renderRouter(routes(), { initialUrl: '/progress' });
+    expect(await screen.findByText('Earlier programs')).toBeTruthy();
+    expect(screen.queryByText('Nothing to chart yet')).toBeNull();
+  });
+
+  test('progress counts a workout of its program even without a stored position', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    useStore.getState().finishSession();
+    useStore.setState((s) => ({ sessions: s.sessions.map((l) => ({ ...l, position: undefined })) }));
+    await renderRouter(routes(), { initialUrl: '/progress' });
+    expect(await screen.findByText('Trends show once a lift has 2 workouts.')).toBeTruthy();
+    expect(screen.queryByText('Earlier programs')).toBeNull();
+  });
+
+  test('a history row names its program for screen readers', async () => {
+    const a = add('GSLP', 'base');
+    useStore.getState().startSession(a);
+    useStore.getState().finishSession();
+    await renderRouter(routes(), { initialUrl: '/history' });
+    expect(await screen.findByLabelText('Workout 1, GSLP, edit')).toBeTruthy();
+  });
+
+  test('a screen with no program in its route never shows another program', async () => {
+    const a = add('GSLP', 'base');
+    await renderRouter(routes(), { initialUrl: '/' });
+    await screen.findByText(/^Next:/);
+    act(() => router.push(`/plan/rules?program=${a}`));
+    expect(await screen.findByText('Save')).toBeTruthy();
+    act(() => router.back());
+    act(() => router.push('/plan/rules'));
+    await act(async () => undefined);
+    expect(screen.queryByText('Save')).toBeNull();
   });
 });

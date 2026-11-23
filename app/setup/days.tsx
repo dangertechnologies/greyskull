@@ -19,9 +19,10 @@ import {
   validateProgram,
 } from '../../src/domain';
 import { nameOf, schemeLabel } from '../../src/format';
+import { useProgramById } from '../../src/hooks/useProgramById';
 import { goBackOr, goHome } from '../../src/navigation';
 import { useSetup } from '../../src/setup/SetupContext';
-import { useProgram, useStore } from '../../src/store';
+import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { ExerciseBadge } from '../../src/ui/ExerciseBadge';
 import { IconButton } from '../../src/ui/IconButton';
@@ -42,7 +43,7 @@ export default function Days() {
   const setup = useSetup();
   const t = useTheme();
   const exercises = useStore((s) => s.exercises);
-  const stored = useProgram(programParam);
+  const stored = useProgramById(programParam);
   const updateProgram = useStore((s) => s.updateProgram);
   const [program, setLocal] = useState<Program | null>(editing ? (stored ?? null) : setup.draft.program);
   const [picking, setPicking] = useState<Picking>(null);

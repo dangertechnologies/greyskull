@@ -135,7 +135,7 @@ describe('editing the saved program', () => {
     startSession();
     store.logSet('MILITARY_PRESS', 0, 5);
     store.finishSession();
-    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: `/setup/days?edit=1&program=${current().id}` });
     expect(await screen.findByText('Your history and current weights are kept.')).toBeTruthy();
     fireEvent.press(screen.getAllByText('Add exercise')[1]);
     fireEvent.changeText(await screen.findByLabelText('Search exercises'), 'Dips');
@@ -150,7 +150,7 @@ describe('editing the saved program', () => {
 
   test('emptying a day shows the validation error and disables Save', async () => {
     setProgram(TEMPLATES.base);
-    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: `/setup/days?edit=1&program=${current().id}` });
     await screen.findByText('Your history and current weights are kept.');
     fireEvent.press(screen.getAllByLabelText('Remove exercise')[2]);
     fireEvent.press(screen.getAllByLabelText('Remove exercise')[2]);
@@ -161,7 +161,7 @@ describe('editing the saved program', () => {
 
   test('the scheme sheet changes sets and reps', async () => {
     setProgram(TEMPLATES.base);
-    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: `/setup/days?edit=1&program=${current().id}` });
     fireEvent.press((await screen.findAllByLabelText(/^Scheme 2x5\+/))[0]);
     fireEvent.press(await screen.findByRole('radio', { name: 'Fixed' }));
     for (let i = 0; i < 3; i++) fireEvent.press(screen.getAllByLabelText('Increase')[0]); // sets 2 → 5
@@ -176,7 +176,7 @@ describe('editing the saved program', () => {
     startSession();
     useStore.getState().logSet('MILITARY_PRESS', 0, 5);
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
-    await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
+    await renderRouter(routes(), { initialUrl: `/setup/days?edit=1&program=${current().id}` });
     fireEvent.press(await screen.findByText('Save'));
     expect(alert).toHaveBeenCalledWith(
       'Discard the workout in progress?',

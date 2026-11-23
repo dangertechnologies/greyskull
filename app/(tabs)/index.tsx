@@ -5,6 +5,7 @@ import { useTheme } from '../../src/design/theme';
 import type { ActiveProgram, SessionLog } from '../../src/domain';
 import { sessionFor } from '../../src/domain';
 import { nameOf, weekLabel } from '../../src/format';
+import { useNow } from '../../src/hooks/useNow';
 import { setCounts, startWorkout } from '../../src/programStart';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
@@ -27,14 +28,17 @@ function startedAgo(iso: string, now = Date.now()): string {
 
 function DraftCard({ draft }: { draft: SessionLog }) {
   const t = useTheme();
+  const now = useNow();
+  // The program's current name, so a rename shows; the name stored in the draft is for a removed program.
+  const name = useStore((s) => s.programs.find((p) => p.id === draft.programId)?.name) ?? draft.programName;
   const { done, total } = setCounts(draft);
   return (
     <Card style={{ gap: t.space[4], borderWidth: 2, borderColor: t.color.accent }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: t.space[3] }}>
         <View style={{ flex: 1, gap: t.space[1] }}>
-          <Text variant="headline">{`${draft.programName ?? 'Workout'} · ${draft.dayName}`}</Text>
+          <Text variant="headline">{`${name ?? 'Workout'} · ${draft.dayName}`}</Text>
           <Text variant="callout" color="textMuted">
-            {`${startedAgo(draft.startedAt)} · ${done} of ${total} sets`}
+            {`${startedAgo(draft.startedAt, now)} · ${done} of ${total} sets`}
           </Text>
         </View>
         <Pill label="Draft" tone="success" />
@@ -49,12 +53,14 @@ function DraftCard({ draft }: { draft: SessionLog }) {
   );
 }
 
-function ProgramCard({ program }: { program: ActiveProgram }) {
+function ProgramCard({ program, sameName }: { program: ActiveProgram; sameName: boolean }) {
   const t = useTheme();
   const exercises = useStore((s) => s.exercises);
   const snackbar = useSnackbar();
   const session = sessionFor(program);
-  const ids = session.slots.map((s) => s.exercise);
+  const ids = session.slots.map((s) => s.exercise).slice(0, 5);
+  // Two cards with one name are told apart by their next day.
+  const who = sameName ? `${program.name}, ${session.dayName}` : program.name;
 
   const skip = () => {
     useStore.getState().skipSession(program.id);
@@ -82,9 +88,7 @@ function ProgramCard({ program }: { program: ActiveProgram }) {
         <CategoryPill program={program} />
       </Pressable>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-        {ids
-          .slice(0, 5)
-          .map((id) => exercises[id] && <ExerciseBadge key={id} exercise={exercises[id]} size={40} />)}
+        {ids.map((id) => exercises[id] && <ExerciseBadge key={id} exercise={exercises[id]} size={40} />)}
       </View>
       <Text variant="callout" color="textMuted">
         {ids.map((id) => nameOf(exercises, id, true)).join(' · ')}
@@ -103,7 +107,7 @@ function ProgramCard({ program }: { program: ActiveProgram }) {
             title="Start"
             variant="secondary"
             testID={`start-${program.id}`}
-            accessibilityLabel={`Start ${program.name}`}
+            accessibilityLabel={`Start ${who}`}
             onPress={() => startWorkout(program)}
           />
         </View>
@@ -112,7 +116,7 @@ function ProgramCard({ program }: { program: ActiveProgram }) {
             title="Skip"
             variant="plain"
             testID={`skip-${program.id}`}
-            accessibilityLabel={`Skip ${program.name}`}
+            accessibilityLabel={`Skip ${who}`}
             onPress={skip}
           />
         </View>
@@ -161,7 +165,8 @@ export default function Today() {
 
   // The program with the open workout is shown by its draft card, not twice.
   const active = programs.filter((p) => !p.paused && p.id !== draft?.programId);
-  const paused = programs.filter((p) => p.paused);
+  // Never the program of the open workout: it has its draft card.
+  const paused = programs.filter((p) => p.paused && p.id !== draft?.programId);
   const recent = [...sessions].reverse().slice(0, 3);
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -187,7 +192,11 @@ export default function Today() {
 
       {draft ? <DraftCard draft={draft} /> : null}
       {active.map((p) => (
-        <ProgramCard key={p.id} program={p} />
+        <ProgramCard
+          key={p.id}
+          program={p}
+          sameName={programs.some((q) => q.id !== p.id && q.name.toLowerCase() === p.name.toLowerCase())}
+        />
       ))}
       {programs.length > 0 && active.length === 0 && !draft ? (
         <Text color="textMuted">All programs are paused. Resume one to see its next workout.</Text>
