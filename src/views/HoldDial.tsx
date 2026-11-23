@@ -36,17 +36,19 @@ export function HoldDial({ watch, targetS }: { watch: Stopwatch; targetS: number
             strokeWidth={STROKE}
             fill="none"
           />
-          <Circle
-            cx={SIZE / 2}
-            cy={SIZE / 2}
-            r={r}
-            stroke={t.color.accent}
-            strokeWidth={STROKE}
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={`${length * done} ${length}`}
-            transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
-          />
+          {done > 0 ? (
+            <Circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={r}
+              stroke={t.color.accent}
+              strokeWidth={STROKE}
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={`${length * done} ${length}`}
+              transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+            />
+          ) : null}
         </Svg>
         <Text variant="display" testID="hold-time">
           {clockLabel(watch.seconds)}

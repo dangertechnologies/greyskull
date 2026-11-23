@@ -50,32 +50,38 @@ export function LadderPanel({
   const next = ladder.steps[step + 1];
   const rule = unlockRule(ladder, step, slot.scheme);
   const band = result?.band?.label;
-  const hint = locked ? 'Sets are logged at this step; change the step in the next workout.' : undefined;
 
   const buttons = (
-    <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-      <View style={{ flex: 1 }}>
-        <Button
-          title="Easier"
-          icon="down"
-          variant="secondary"
-          testID="ladder-easier"
-          disabled={locked || step === 0}
-          accessibilityHint={hint ?? 'Moves this ladder one step down'}
-          onPress={() => move(step - 1)}
-        />
+    <View style={{ gap: t.space[2] }}>
+      <View style={{ flexDirection: 'row', gap: t.space[3] }}>
+        <View style={{ flex: 1 }}>
+          <Button
+            title="Easier"
+            icon="down"
+            variant="secondary"
+            testID="ladder-easier"
+            disabled={locked || step === 0}
+            accessibilityHint="Moves this ladder one step down"
+            onPress={() => move(step - 1)}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button
+            title="Harder"
+            icon="up"
+            variant="secondary"
+            testID="ladder-harder"
+            disabled={locked || step >= ladder.steps.length - 1}
+            accessibilityHint="Moves this ladder one step up"
+            onPress={() => move(step + 1)}
+          />
+        </View>
       </View>
-      <View style={{ flex: 1 }}>
-        <Button
-          title="Harder"
-          icon="up"
-          variant="secondary"
-          testID="ladder-harder"
-          disabled={locked || step >= ladder.steps.length - 1}
-          accessibilityHint={hint ?? 'Moves this ladder one step up'}
-          onPress={() => move(step + 1)}
-        />
-      </View>
+      {locked ? (
+        <Text variant="caption" color="textMuted">
+          Sets are logged at this step. Change it in the next workout.
+        </Text>
+      ) : null}
     </View>
   );
 

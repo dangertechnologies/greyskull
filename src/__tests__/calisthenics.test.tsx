@@ -254,3 +254,16 @@ test('the past-session editor edits seconds for holds and added load for bodywei
   expect(results.CAL_SUPPORT_HOLD.sets[0].reps).toBe(13);
   expect(results.DIPS.weightKg).toBe(6.25);
 });
+
+test('the one-page view shows and edits a bodyweight exercise’s added load', async () => {
+  const p = program();
+  p.days[0].slots.push({ exercise: 'CHINUPS', scheme: '3x5-8', progression: 'double' });
+  setProgram(p);
+  get().setLift(programId(), 'CHINUPS', { weightKg: 10 });
+  get().setSettings({ minimalist: true });
+  await renderRouter(allRoutes(), { initialUrl: `/session/0?program=${programId()}` });
+  fireEvent.press(await screen.findByLabelText('Change added load, now +10 kg'));
+  fireEvent.press(screen.getByLabelText('Increase'));
+  expect(get().draft?.results.CHINUPS.weightKg).toBe(11.25);
+  expect(screen.getAllByText('+11.25 kg').length).toBeGreaterThan(0);
+});
