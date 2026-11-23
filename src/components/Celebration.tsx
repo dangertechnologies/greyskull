@@ -83,7 +83,11 @@ export function Celebration({
           <View ref={summaryRef} collapsable={false} style={{ backgroundColor: t.color.background }}>
             <Card style={{ gap: t.space[6] }}>
               {shown.map((l) => {
-                const badge = BADGE[l.outcome.change];
+                // A hold's target grows by seconds, not by a rep.
+                const badge =
+                  l.timed && l.outcome.change === 'reps'
+                    ? { ...BADGE.reps, text: 'Longer hold next time' }
+                    : BADGE[l.outcome.change];
                 return (
                   <View
                     key={l.exercise.id}

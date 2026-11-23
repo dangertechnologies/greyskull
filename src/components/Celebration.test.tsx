@@ -108,5 +108,6 @@ describe('Celebration lines for calisthenics', () => {
     );
     expect(screen.getByText(`${ex.DIPS.name} → +2.5 kg`)).toBeTruthy();
     expect(screen.getByText(`${ex.CAL_ARCH_HANG.name} · target 15 s`)).toBeTruthy();
+    expect(screen.getByText('Longer hold next time')).toBeTruthy();
   });
 });
