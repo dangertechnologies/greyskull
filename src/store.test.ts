@@ -443,7 +443,7 @@ describe('persistence and migration', () => {
     get().upsertExercise({
       ...get().exercises.BENCH_PRESS,
       increment: { kg: 1.25, lb: 2.5 },
-      equipment: ['barbell', 'bench'],
+      equipment: ['barbell'],
     });
     get().upsertExercise({
       id: 'custom_curl',
@@ -461,7 +461,7 @@ describe('persistence and migration', () => {
     await relaunch();
     expect(get().exercises.BENCH_PRESS).toMatchObject({
       increment: { kg: 1.25, lb: 2.5 },
-      equipment: ['barbell', 'bench'],
+      equipment: ['barbell'],
       goodForm: shippedForm,
     });
     expect(get().exercises.custom_curl.name).toBe('Curl');

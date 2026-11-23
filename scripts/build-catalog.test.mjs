@@ -74,7 +74,7 @@ test('every source equipment value maps to exact kind, equipment and increments'
 });
 
 test('all 25 original entries retain every original field except specified increments', () => {
-  const original = JSON.parse(readFileSync(new URL('../src/exercises.json', import.meta.url)));
+  const original = JSON.parse(readFileSync(new URL('./data/original-exercises.json', import.meta.url)));
   assert.equal(Object.keys(original).length, 25);
   const r = buildCatalog(original, fixture);
   for (const [id, e] of Object.entries(original)) {
@@ -177,7 +177,7 @@ test('generated catalog meets count, vocabulary, original text and pictogram tar
 });
 
 test('original metadata without upstream matches covers all 25 originals', () => {
-  const originals = JSON.parse(readFileSync(new URL('../src/exercises.json', import.meta.url)));
+  const originals = JSON.parse(readFileSync(new URL('./data/original-exercises.json', import.meta.url)));
   const result = buildCatalog(originals, []).exercises;
   const expected = {
     BARBELL_SQUAT: ['quadriceps', 'barbell', 'squat'],

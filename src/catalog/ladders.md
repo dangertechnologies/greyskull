@@ -1,6 +1,6 @@
 # Progression ladders
 
-Steps run easiest first. Each step is an exercise id from `calisthenics.json` (or `CHINUPS`/`DIPS` from `src/exercises.json`). A step with no scheme uses the program slot's own scheme. `band` marks a band-assisted step; `after: weighted` means the ladder ends in added-load work.
+Steps run easiest first. Each step is an exercise id from `calisthenics.json` (or `CHINUPS`/`DIPS`, which are in the bundled `exercises.json`). A step with no scheme uses the program slot's own scheme. `band` marks a band-assisted step; `after: weighted` means the ladder ends in added-load work.
 
 Scheme format: `NxM` fixed reps, `NxA-B` rep range, trailing `s` for seconds (holds).
 

@@ -134,6 +134,7 @@ describe('editing the saved program', () => {
     await renderRouter(routes(), { initialUrl: '/setup/days?edit=1' });
     expect(await screen.findByText('Your history and current weights are kept.')).toBeTruthy();
     fireEvent.press(screen.getAllByText('Add exercise')[1]);
+    fireEvent.changeText(await screen.findByLabelText('Search exercises'), 'Dips');
     fireEvent.press(await screen.findByLabelText('Dips'));
     fireEvent.press(screen.getByText('Save'));
     expect((await screen.findAllByText('Day 2')).length).toBeGreaterThan(0);

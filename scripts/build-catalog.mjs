@@ -350,7 +350,7 @@ export async function main() {
     await writeFile(cache, raw);
   }
   const source = parseSource(raw);
-  const existing = JSON.parse(await readFile(new URL('src/exercises.json', root), 'utf8'));
+  const existing = JSON.parse(await readFile(new URL('scripts/data/original-exercises.json', root), 'utf8'));
   let calisthenics = {};
   try {
     calisthenics = JSON.parse(await readFile(new URL('src/catalog/calisthenics.json', root), 'utf8'));

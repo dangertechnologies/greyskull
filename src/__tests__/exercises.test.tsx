@@ -34,6 +34,7 @@ test('create a custom exercise, use it in Day 1, load 60 kg, delete is refused u
   // Add it to Day 1 through the program editor (the picker lists custom exercises).
   act(() => router.push('/setup/days?edit=1'));
   fireEvent.press((await screen.findAllByText('Add exercise'))[0]);
+  fireEvent.changeText(await screen.findByLabelText('Search exercises'), 'Front squat');
   fireEvent.press(await screen.findByLabelText('Front squat'));
   fireEvent.press(screen.getByText('Save'));
   expect((await screen.findAllByText('Front squat')).length).toBeGreaterThan(0);

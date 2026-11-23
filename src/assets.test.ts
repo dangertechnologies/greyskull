@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BACKGROUNDS } from './backgrounds';
 import { builtInExercises } from './catalog';
+import { PICTOGRAM_KEYS } from './ui/pictograms';
 
 const root = join(__dirname, '..');
 const requiredFiles = (source: string) =>
@@ -14,11 +15,11 @@ test('every background require points at a file that exists', () => {
   expect(Object.values(BACKGROUNDS).every((v) => v !== undefined && v !== null)).toBe(true);
 });
 
-test('every built-in exercise has a photo and a monogram', () => {
+test('every built-in exercise has a monogram and a known pictogram; background photos stay valid keys', () => {
   for (const e of Object.values(builtInExercises())) {
-    expect(e.background).toBeDefined();
-    expect(BACKGROUNDS[e.background ?? '']).toBeDefined();
-    expect(e.abbr?.length).toBeGreaterThanOrEqual(2);
+    expect(e.abbr?.length).toBeGreaterThanOrEqual(1);
+    expect(PICTOGRAM_KEYS).toContain(e.pictogram);
+    if (e.background) expect(BACKGROUNDS[e.background]).toBeDefined();
   }
   expect(BACKGROUNDS.default).toBeDefined();
   expect(BACKGROUNDS.rest).toBeDefined();
