@@ -1,5 +1,6 @@
 import { act } from '@testing-library/react-native';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { Alert } from 'react-native';
 import { lifts, programId, setProgram } from '../__fixtures__/oneProgram';
 import type { LiftState, Program } from '../domain';
 import { initialState, useStore } from '../store';
@@ -11,7 +12,7 @@ jest.mock('expo-keep-awake', () => ({
 }));
 
 const get = () => useStore.getState();
-const allRoutes = routes;
+const allRoutes = () => ({ ...routes(), 'ladder/[id]': require('../../app/ladder/[id]') });
 
 /** A pull-up ladder and a dip ladder (its first step is a timed support hold). */
 const program = (): Program => ({
@@ -124,4 +125,30 @@ test('finishing at the top of a step names the next step', async () => {
   fireEvent.press(await screen.findByTestId('finish-workout'));
   expect(await screen.findByText('Step up: Arch hang')).toBeTruthy();
   expect(screen.queryByText(/0 kg/)).toBeNull();
+});
+
+describe('the ladder screen', () => {
+  test('lists steps done, current with its rule, and next; tapping a step asks, then moves there', async () => {
+    setStale('rr_pullup', { step: 2 });
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
+      buttons?.find((b) => b.text === 'Start here')?.onPress?.();
+    });
+    await renderRouter(allRoutes(), { initialUrl: `/ladder/rr_pullup?program=${programId()}` });
+    expect(await screen.findByText('Step 3 of 6 · tap a step to start there')).toBeTruthy();
+    expect(screen.getByLabelText('1. Scapular pull, done, 3×8')).toBeTruthy();
+    expect(screen.getByText('3. Pull-up negative')).toBeTruthy();
+    expect(screen.getByText('3×8 to move on')).toBeTruthy();
+    expect(screen.getByLabelText(/4\. Band-assisted pull-up, not reached/)).toBeTruthy();
+    fireEvent.press(screen.getByTestId('ladder-step-4'));
+    expect(alert).toHaveBeenCalledWith('Start at Pull-up?', expect.any(String), expect.any(Array));
+    expect(lifts().rr_pullup.step).toBe(4);
+    alert.mockRestore();
+  });
+
+  test('an unknown ladder or program shows a not-found state', async () => {
+    await renderRouter(allRoutes(), { initialUrl: '/ladder/nope' });
+    expect(await screen.findByText('Ladder not found')).toBeTruthy();
+    act(() => require('expo-router').router.replace('/ladder/rr_pullup?program=gone'));
+    expect(await screen.findByText('Program not found')).toBeTruthy();
+  });
 });
