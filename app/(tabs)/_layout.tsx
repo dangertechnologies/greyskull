@@ -5,14 +5,13 @@ import { startHealthSync } from '../../src/health';
 
 /** Dev builds only: one line showing which native modules linked (the native modules do not exist in Jest). */
 async function logNativeModules() {
-  const [intents, ai, keepAwake] = await Promise.allSettled([
+  const [intents, keepAwake] = await Promise.allSettled([
     import('expo-app-intents').then((m) => m.isAvailable()),
-    import('expo-ai').then((m) => m.getAvailabilityAsync()),
     import('expo-keep-awake').then((m) => m.isAvailableAsync()),
   ]);
   const show = (r: PromiseSettledResult<unknown>) =>
     r.status === 'fulfilled' ? JSON.stringify(r.value) : `error: ${String(r.reason)}`;
-  console.log(`[native] appIntents=${show(intents)} onDeviceModel=${show(ai)} keepAwake=${show(keepAwake)}`);
+  console.log(`[native] appIntents=${show(intents)} keepAwake=${show(keepAwake)}`);
 }
 
 /** The only file that imports the native tabs API. */
