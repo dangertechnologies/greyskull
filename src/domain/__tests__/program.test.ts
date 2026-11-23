@@ -11,7 +11,7 @@ import {
   tryParseScheme,
   validateProgram,
 } from '../program';
-import { DEFAULT_RULES, type Program } from '../types';
+import { DEFAULT_RULES, type Program, type Slot } from '../types';
 
 const ex = builtInExercises();
 const ids = (p: Program, n: number) => sessionFor(active(p, n)).slots.map((s) => s.exercise);
@@ -300,4 +300,29 @@ test('parseProgram keeps only known rule and increment fields', () => {
   if (!parsed.ok) return;
   expect(JSON.stringify(parsed.program)).not.toContain('xxxx');
   expect(parsed.program.rules).toEqual({ ...DEFAULT_RULES, increments: { BENCH_PRESS: { kg: 2.5, lb: 5 } } });
+});
+
+describe('validateProgram: names every object has are not exercises, ladders or lift keys', () => {
+  const catalog = builtInExercises();
+  const one = (slot: Slot): Program => ({
+    template: 'custom',
+    sessionsPerWeek: 3,
+    rules: { ...DEFAULT_RULES },
+    days: [{ name: 'A', slots: [slot] }],
+  });
+  test.each(['constructor', '__proto__', 'toString', 'hasOwnProperty'])('%s', (id) => {
+    expect(validateProgram(one({ exercise: id, scheme: '3x5' }), catalog).join()).toMatch(/unknown exercise/);
+    expect(validateProgram(one({ exercise: ['BENCH_PRESS', id], scheme: '3x5' }), catalog).join()).toMatch(
+      /unknown exercise/,
+    );
+    expect(
+      validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', ladder: id }), catalog).join(),
+    ).toMatch(/unknown ladder/);
+    expect(
+      validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', lift: id }), catalog).join(),
+    ).toMatch(/lift .* must start with the exercise id BENCH_PRESS/);
+    expect(
+      validateProgram(one({ exercise: 'BENCH_PRESS', scheme: '3x5', lift: 'BENCH_PRESS@T2' }), catalog),
+    ).toEqual([]);
+  });
 });

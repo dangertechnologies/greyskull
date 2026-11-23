@@ -200,6 +200,10 @@ export function sessionFor(
   };
 }
 
+/** An exercise's name, or the id itself when the catalog has no such own entry (ids come from untrusted files). */
+const nameIn = (catalog: Record<string, Exercise> | undefined, id: string): string =>
+  catalog && Object.hasOwn(catalog, id) ? catalog[id].name : id;
+
 export function validateProgram(p: Program, catalog?: Record<string, Exercise>): string[] {
   const errors: string[] = [];
   if (p.days.length === 0) errors.push('Add at least one day.');
@@ -218,7 +222,7 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
     errors.push('Misses before a deload must be a whole number from 0 to 10.');
   for (const [id, inc] of Object.entries(increments ?? {}))
     if (![inc?.kg, inc?.lb].every((v) => Number.isFinite(v) && v >= 0 && v <= 100))
-      errors.push(`The increment for ${catalog?.[id]?.name ?? id} must be 0 to 100.`);
+      errors.push(`The increment for ${nameIn(catalog, id)} must be 0 to 100.`);
   const liftExercises = new Map<string, string>();
   const pairOrder = new Map<string, string>();
   for (const day of p.days) {
@@ -232,6 +236,13 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
       if (slot.ladder !== undefined && !ladder) errors.push(`${day.name}: unknown ladder ${slot.ladder}.`);
       if (ladder && slot.exercise !== ladder.steps[0].exercise)
         errors.push(`${day.name}: ${ladder.name} must start at ${ladder.steps[0].exercise}.`);
+      // A lift key becomes a property of the program's lifts, so it must be its exercise's id (or `<id>@tier`).
+      if (
+        slot.lift !== undefined &&
+        typeof slot.exercise === 'string' &&
+        exerciseOfLift(slot.lift) !== slot.exercise
+      )
+        errors.push(`${day.name}: lift ${slot.lift} must start with the exercise id ${slot.exercise}.`);
       if (slot.ladder !== undefined && slot.progression !== undefined && slot.progression !== 'ladder')
         errors.push(`${day.name}: a ladder slot uses ladder progression.`);
       if (slot.ladder === undefined && (slot.progression ?? p.rules.progression) === 'ladder')
@@ -246,8 +257,8 @@ export function validateProgram(p: Program, catalog?: Record<string, Exercise>):
             );
       // A ladder can reach any of its steps, and a session keeps one result per exercise.
       for (const id of ladder ? ladder.steps.map((s) => s.exercise) : slotIds(slot)) {
-        const name = catalog?.[id]?.name ?? id;
-        if (catalog && !(id in catalog)) errors.push(`${day.name}: unknown exercise ${id}.`);
+        const name = nameIn(catalog, id);
+        if (catalog && !Object.hasOwn(catalog, id)) errors.push(`${day.name}: unknown exercise ${id}.`);
         if (seen.has(id))
           errors.push(
             ladder
