@@ -489,11 +489,11 @@
         "scheme": "3x10-30s"
       },
       {
-        "exercise": "CAL_LSIT_ONE_LEG",
+        "exercise": "CAL_LSIT_TUCK",
         "scheme": "3x10-30s"
       },
       {
-        "exercise": "CAL_LSIT_TUCK",
+        "exercise": "CAL_LSIT_ONE_LEG",
         "scheme": "3x10-30s"
       },
       {
@@ -567,7 +567,8 @@
       },
       {
         "exercise": "CAL_MUSCLEUP_BAND",
-        "scheme": "3x3-5"
+        "scheme": "3x3-5",
+        "band": true
       },
       {
         "exercise": "CAL_MUSCLEUP",

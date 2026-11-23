@@ -202,8 +202,8 @@ Pattern: skill
 Pattern: skill
 
 1. Foot-supported L-sit (`CAL_LSIT_FOOT_SUPPORTED`) - 3x10-30s
-2. One-leg L-sit (`CAL_LSIT_ONE_LEG`) - 3x10-30s
-3. Tuck L-sit (`CAL_LSIT_TUCK`) - 3x10-30s
+2. Tuck L-sit (`CAL_LSIT_TUCK`) - 3x10-30s
+3. One-leg L-sit (`CAL_LSIT_ONE_LEG`) - 3x10-30s
 4. L-sit (`CAL_LSIT`) - 3x10-30s
 
 ### skill_front_lever - Front lever

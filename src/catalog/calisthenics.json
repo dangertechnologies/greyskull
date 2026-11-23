@@ -5,9 +5,16 @@
     "shortName": "Ab wheel",
     "abbr": "AWR",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["lats", "shoulders"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "lats",
+      "shoulders"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -20,7 +27,10 @@
       "Roll out slowly and stop before the back arches",
       "Return by squeezing the abs"
     ],
-    "badForm": ["Let the hips sag toward the floor", "Go farther than you can control"],
+    "badForm": [
+      "Let the hips sag toward the floor",
+      "Go farther than you can control"
+    ],
     "video": "https://www.youtube.com/watch?v=rqiTPdK1c_I",
     "pictogram": "ab-wheel"
   },
@@ -30,9 +40,18 @@
     "shortName": "Arch hang",
     "abbr": "AH",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "middle-back", "forearms"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back",
+      "forearms"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -45,7 +64,10 @@
       "Push the chest forward and look slightly up",
       "Squeeze the glutes so the hips stay in line with the body"
     ],
-    "badForm": ["Hang passively with the shoulders up by the ears", "Bend the elbows to fake the position"],
+    "badForm": [
+      "Hang passively with the shoulders up by the ears",
+      "Bend the elbows to fake the position"
+    ],
     "video": "https://www.youtube.com/watch?v=5cqheBp551U",
     "timed": true,
     "pictogram": "dead-hang"
@@ -56,9 +78,17 @@
     "shortName": "Assisted squat",
     "abbr": "AS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -71,7 +101,10 @@
       "Keep the whole foot on the floor",
       "Sit down between the hips until the thighs pass parallel"
     ],
-    "badForm": ["Pull yourself up with the arms", "Let the knees collapse inward"],
+    "badForm": [
+      "Pull yourself up with the arms",
+      "Let the knees collapse inward"
+    ],
     "video": "https://www.youtube.com/watch?v=HUq21S5Kcrw",
     "pictogram": "squat"
   },
@@ -81,9 +114,18 @@
     "shortName": "Full bridge",
     "abbr": "FB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes", "shoulders"],
-    "secondary": ["quadriceps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "quadriceps",
+      "abdominals"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -96,7 +138,10 @@
       "Straighten the arms and legs as far as you can",
       "Spread the arch over the whole spine"
     ],
-    "badForm": ["Hinge only at the lower back", "Hold the position through pain"],
+    "badForm": [
+      "Hinge only at the lower back",
+      "Hold the position through pain"
+    ],
     "video": "https://www.youtube.com/watch?v=4F4lTh09Z5E",
     "pictogram": "bridge"
   },
@@ -106,9 +151,17 @@
     "shortName": "Angled bridge",
     "abbr": "AB",
     "kind": "bodyweight",
-    "equipment": ["bench"],
-    "muscles": ["glutes", "lower-back"],
-    "secondary": ["shoulders", "hamstrings"],
+    "equipment": [
+      "bench"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back"
+    ],
+    "secondary": [
+      "shoulders",
+      "hamstrings"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -121,8 +174,10 @@
       "Push the hips toward the ceiling",
       "Lower the hands step by step over weeks"
     ],
-    "badForm": ["Let the shoulders collapse forward", "Bend the elbows"],
-    "video": "https://www.youtube.com/watch?v=o9yKAjvUQlM",
+    "badForm": [
+      "Let the shoulders collapse forward",
+      "Bend the elbows"
+    ],
     "pictogram": "bridge"
   },
   "CAL_BRIDGE_CLOSING": {
@@ -131,9 +186,18 @@
     "shortName": "Closing the",
     "abbr": "CTB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes", "shoulders"],
-    "secondary": ["abdominals", "quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "expert",
     "increment": {
@@ -146,7 +210,10 @@
       "Keep the arms straight",
       "Hold the closed position briefly"
     ],
-    "badForm": ["Strain the lower back alone", "Rush the transition"],
+    "badForm": [
+      "Strain the lower back alone",
+      "Rush the transition"
+    ],
     "pictogram": "bridge"
   },
   "CAL_BRIDGE_HALF": {
@@ -155,9 +222,17 @@
     "shortName": "Half bridge",
     "abbr": "HB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes", "shoulders"],
-    "secondary": ["quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -170,7 +245,10 @@
       "Press the hips up without locking the arms",
       "Breathe steadily"
     ],
-    "badForm": ["Hold the breath", "Let the knees fall inward"],
+    "badForm": [
+      "Hold the breath",
+      "Let the knees fall inward"
+    ],
     "video": "https://www.youtube.com/watch?v=CXJjUcn3-dY",
     "pictogram": "bridge"
   },
@@ -180,9 +258,17 @@
     "shortName": "Head bridge",
     "abbr": "HB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes"],
-    "secondary": ["neck", "shoulders"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes"
+    ],
+    "secondary": [
+      "neck",
+      "shoulders"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -195,7 +281,10 @@
       "Rest only lightly on the head",
       "Come down slowly and stop if the neck feels any pinch"
     ],
-    "badForm": ["Put heavy load on the neck", "Jerk in and out of the position"],
+    "badForm": [
+      "Put heavy load on the neck",
+      "Jerk in and out of the position"
+    ],
     "video": "https://www.youtube.com/watch?v=fEPJ2-WLk_M",
     "pictogram": "bridge"
   },
@@ -205,9 +294,16 @@
     "shortName": "Short bridge",
     "abbr": "SB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["glutes", "lower-back"],
-    "secondary": ["hamstrings"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back"
+    ],
+    "secondary": [
+      "hamstrings"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -220,7 +316,10 @@
       "Squeeze the glutes at the top",
       "Keep the neck relaxed on the floor"
     ],
-    "badForm": ["Push the hips so high the lower back arches hard", "Let the knees fall apart"],
+    "badForm": [
+      "Push the hips so high the lower back arches hard",
+      "Let the knees fall apart"
+    ],
     "video": "https://www.youtube.com/watch?v=L9KZfxT654Y",
     "pictogram": "bridge"
   },
@@ -230,9 +329,18 @@
     "shortName": "Stand-to-stand bridge",
     "abbr": "STS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes", "shoulders"],
-    "secondary": ["abdominals", "quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "expert",
     "increment": {
@@ -245,7 +353,10 @@
       "Reverse the movement with the same control",
       "Keep the arms and legs strong"
     ],
-    "badForm": ["Fall into the bridge", "Jerk up using momentum"],
+    "badForm": [
+      "Fall into the bridge",
+      "Jerk up using momentum"
+    ],
     "video": "https://www.youtube.com/watch?v=PhH-A4-mbYs",
     "pictogram": "bridge"
   },
@@ -255,9 +366,17 @@
     "shortName": "Straight bridge",
     "abbr": "SB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["glutes", "lower-back", "hamstrings"],
-    "secondary": ["abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back",
+      "hamstrings"
+    ],
+    "secondary": [
+      "abdominals"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -270,8 +389,10 @@
       "Push the hips up until the body is flat",
       "Look forward or slightly back, not at your feet"
     ],
-    "badForm": ["Let the hips sag", "Bend the knees to get up higher"],
-    "video": "https://www.youtube.com/watch?v=gkTVDJHHIZ0",
+    "badForm": [
+      "Let the hips sag",
+      "Bend the knees to get up higher"
+    ],
     "pictogram": "bridge"
   },
   "CAL_BRIDGE_WALL_DOWN": {
@@ -280,9 +401,17 @@
     "shortName": "Wall-walking bridge",
     "abbr": "WWB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes", "shoulders"],
-    "secondary": ["abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -295,7 +424,10 @@
       "Walk the hands down slowly",
       "Stand a short distance from the wall at first"
     ],
-    "badForm": ["Throw yourself backward", "Pitch the head back first"],
+    "badForm": [
+      "Throw yourself backward",
+      "Pitch the head back first"
+    ],
     "video": "https://www.youtube.com/watch?v=yvXjisvurdI",
     "pictogram": "bridge"
   },
@@ -305,9 +437,18 @@
     "shortName": "Wall-walking bridge",
     "abbr": "WWB",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lower-back", "glutes", "shoulders"],
-    "secondary": ["abdominals", "quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lower-back",
+      "glutes",
+      "shoulders"
+    ],
+    "secondary": [
+      "abdominals",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "expert",
     "increment": {
@@ -320,7 +461,10 @@
       "Walk in small steady steps",
       "Finish standing tall"
     ],
-    "badForm": ["Collapse the lower back", "Drop the head backward"],
+    "badForm": [
+      "Collapse the lower back",
+      "Drop the head backward"
+    ],
     "video": "https://www.youtube.com/watch?v=yvXjisvurdI",
     "pictogram": "bridge"
   },
@@ -330,9 +474,17 @@
     "shortName": "Bulgarian split",
     "abbr": "BSS",
     "kind": "bodyweight",
-    "equipment": ["bench"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "adductors"],
+    "equipment": [
+      "bench"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "adductors"
+    ],
     "pattern": "squat",
     "level": "intermediate",
     "increment": {
@@ -358,9 +510,17 @@
     "shortName": "Crow stand",
     "abbr": "CS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "abdominals"],
-    "secondary": ["forearms", "triceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "triceps"
+    ],
     "pattern": "skill",
     "level": "beginner",
     "increment": {
@@ -373,7 +533,10 @@
       "Lean forward until the feet lift",
       "Look slightly ahead"
     ],
-    "badForm": ["Look straight down at the hands", "Let the elbows spread outward"],
+    "badForm": [
+      "Look straight down at the hands",
+      "Let the elbows spread outward"
+    ],
     "video": "https://www.youtube.com/watch?v=1vwWeqpknUc",
     "timed": true,
     "pictogram": "generic"
@@ -384,9 +547,17 @@
     "shortName": "Dip negative",
     "abbr": "DN",
     "kind": "bodyweight",
-    "equipment": ["dip-bars"],
-    "muscles": ["triceps", "chest", "shoulders"],
-    "secondary": ["forearms"],
+    "equipment": [
+      "dip-bars"
+    ],
+    "muscles": [
+      "triceps",
+      "chest",
+      "shoulders"
+    ],
+    "secondary": [
+      "forearms"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -399,7 +570,10 @@
       "Keep the elbows tracking back and the chest slightly forward",
       "Stop at a depth where the shoulders feel comfortable"
     ],
-    "badForm": ["Drop the last part of the movement", "Go deeper than your shoulders allow"],
+    "badForm": [
+      "Drop the last part of the movement",
+      "Go deeper than your shoulders allow"
+    ],
     "video": "https://www.youtube.com/watch?v=TL0ZY615sCw",
     "pictogram": "dip"
   },
@@ -409,9 +583,19 @@
     "shortName": "Front lever",
     "abbr": "FL",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "abdominals"],
-    "secondary": ["middle-back", "shoulders", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -424,7 +608,10 @@
       "Pull the shoulders down and hold the arms straight",
       "Squeeze the glutes and legs together"
     ],
-    "badForm": ["Pike at the hips", "Let the head and feet sag"],
+    "badForm": [
+      "Pike at the hips",
+      "Let the head and feet sag"
+    ],
     "video": "https://www.youtube.com/watch?v=5lE8-EAC4mU",
     "timed": true,
     "pictogram": "front-lever"
@@ -435,9 +622,19 @@
     "shortName": "Advanced tuck",
     "abbr": "ATF",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "abdominals"],
-    "secondary": ["middle-back", "shoulders", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "intermediate",
     "increment": {
@@ -450,7 +647,10 @@
       "Keep the back flat and the arms straight",
       "Pull the shoulders down and back"
     ],
-    "badForm": ["Round the back", "Let the hips sag"],
+    "badForm": [
+      "Round the back",
+      "Let the hips sag"
+    ],
     "video": "https://www.youtube.com/watch?v=Rk7cJ3TXELY",
     "timed": true,
     "pictogram": "front-lever"
@@ -461,9 +661,19 @@
     "shortName": "One-leg front",
     "abbr": "OLF",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "abdominals"],
-    "secondary": ["middle-back", "shoulders", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -476,7 +686,10 @@
       "Hold the hips at shoulder height",
       "Alternate which leg is extended"
     ],
-    "badForm": ["Let the straight leg drop", "Bend the arms"],
+    "badForm": [
+      "Let the straight leg drop",
+      "Bend the arms"
+    ],
     "video": "https://www.youtube.com/watch?v=bD9dt5dHft4",
     "timed": true,
     "pictogram": "front-lever"
@@ -487,9 +700,19 @@
     "shortName": "Straddle front",
     "abbr": "SFL",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "abdominals"],
-    "secondary": ["middle-back", "shoulders", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -502,7 +725,10 @@
       "Open the legs as wide as needed",
       "Hold the arms straight and the shoulders down"
     ],
-    "badForm": ["Sag at the hips", "Pike the body up"],
+    "badForm": [
+      "Sag at the hips",
+      "Pike the body up"
+    ],
     "video": "https://www.youtube.com/watch?v=bgRVpNRMjG4",
     "timed": true,
     "pictogram": "front-lever"
@@ -513,9 +739,19 @@
     "shortName": "Tuck front",
     "abbr": "TFL",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "abdominals"],
-    "secondary": ["middle-back", "shoulders", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "abdominals"
+    ],
+    "secondary": [
+      "middle-back",
+      "shoulders",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "intermediate",
     "increment": {
@@ -528,7 +764,10 @@
       "Lift the hips to the same height as the shoulders",
       "Keep the knees close to the chest"
     ],
-    "badForm": ["Let the hips drop", "Bend the elbows"],
+    "badForm": [
+      "Let the hips drop",
+      "Bend the elbows"
+    ],
     "video": "https://www.youtube.com/watch?v=lkGhntOoLNk",
     "timed": true,
     "pictogram": "front-lever"
@@ -539,9 +778,18 @@
     "shortName": "Freestanding handstand",
     "abbr": "FH",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["abdominals", "forearms", "traps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "traps"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -554,7 +802,10 @@
       "Press tall through the shoulders",
       "Look between the hands"
     ],
-    "badForm": ["Arch the back to hold balance", "Let the shoulders collapse"],
+    "badForm": [
+      "Arch the back to hold balance",
+      "Let the shoulders collapse"
+    ],
     "video": "https://www.youtube.com/watch?v=2-3wv5kLNnw",
     "timed": true,
     "pictogram": "handstand"
@@ -565,9 +816,18 @@
     "shortName": "Chest-to-wall handstand",
     "abbr": "CTW",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["abdominals", "forearms", "traps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "traps"
+    ],
     "pattern": "skill",
     "level": "beginner",
     "increment": {
@@ -580,7 +840,10 @@
       "Keep the ribs tucked and the body in a straight line",
       "Point the toes lightly against the wall"
     ],
-    "badForm": ["Arch the back", "Let the shoulders sink toward the ears"],
+    "badForm": [
+      "Arch the back",
+      "Let the shoulders sink toward the ears"
+    ],
     "video": "https://www.youtube.com/watch?v=udZZb1mif_I",
     "timed": true,
     "pictogram": "handstand"
@@ -591,9 +854,18 @@
     "shortName": "Handstand heel",
     "abbr": "HHP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["abdominals", "forearms", "traps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "traps"
+    ],
     "pattern": "skill",
     "level": "intermediate",
     "increment": {
@@ -606,7 +878,10 @@
       "Press the fingertips into the floor to correct balance",
       "Return to the wall before you fall"
     ],
-    "badForm": ["Kick hard off the wall", "Arch deeply to hold balance"],
+    "badForm": [
+      "Kick hard off the wall",
+      "Arch deeply to hold balance"
+    ],
     "video": "https://www.youtube.com/watch?v=OYehg2ruMN0",
     "timed": true,
     "pictogram": "handstand"
@@ -617,9 +892,17 @@
     "shortName": "Wall plank",
     "abbr": "WP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "abdominals"],
-    "secondary": ["triceps", "forearms"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "abdominals"
+    ],
+    "secondary": [
+      "triceps",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "beginner",
     "increment": {
@@ -632,7 +915,10 @@
       "Squeeze the glutes and abs",
       "Walk up only as far as you can hold"
     ],
-    "badForm": ["Let the hips sag", "Bend the elbows"],
+    "badForm": [
+      "Let the hips sag",
+      "Bend the elbows"
+    ],
     "video": "https://www.youtube.com/watch?v=h7_EkZeE68Y",
     "timed": true,
     "pictogram": "handstand"
@@ -643,9 +929,16 @@
     "shortName": "Hanging bent-leg",
     "abbr": "HBL",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["abdominals"],
-    "secondary": ["forearms", "quadriceps"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -658,8 +951,10 @@
       "Keep a soft bend in the knees",
       "Lower slowly"
     ],
-    "badForm": ["Kick up with momentum", "Let the shoulders rise toward the ears"],
-    "video": "https://www.youtube.com/watch?v=CtFMjDbU0P4",
+    "badForm": [
+      "Kick up with momentum",
+      "Let the shoulders rise toward the ears"
+    ],
     "pictogram": "leg-raise"
   },
   "CAL_HANGING_FROG_RAISE": {
@@ -668,9 +963,16 @@
     "shortName": "Hanging frog",
     "abbr": "HFR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["abdominals"],
-    "secondary": ["forearms", "quadriceps"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -683,7 +985,10 @@
       "Lift the knees past chest height",
       "Control the way down"
     ],
-    "badForm": ["Swing the legs up", "Let the back arch"],
+    "badForm": [
+      "Swing the legs up",
+      "Let the back arch"
+    ],
     "video": "https://www.youtube.com/watch?v=L2XU8Evz_iI",
     "pictogram": "leg-raise"
   },
@@ -693,9 +998,16 @@
     "shortName": "Hanging knee",
     "abbr": "HKR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["abdominals"],
-    "secondary": ["forearms", "quadriceps"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -708,7 +1020,10 @@
       "Curl the pelvis up as the knees rise",
       "Lower without swinging"
     ],
-    "badForm": ["Swing the body for momentum", "Hang loosely with shrugged shoulders"],
+    "badForm": [
+      "Swing the body for momentum",
+      "Hang loosely with shrugged shoulders"
+    ],
     "video": "https://www.youtube.com/watch?v=l7OroezzX9k",
     "pictogram": "leg-raise"
   },
@@ -718,9 +1033,16 @@
     "shortName": "Hanging straight-leg",
     "abbr": "HSL",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["abdominals"],
-    "secondary": ["forearms", "quadriceps"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "expert",
     "increment": {
@@ -733,7 +1055,10 @@
       "Curl the pelvis up at the top",
       "Lower for a count of three"
     ],
-    "badForm": ["Swing the legs", "Bend the knees to finish the rep"],
+    "badForm": [
+      "Swing the legs",
+      "Bend the knees to finish the rep"
+    ],
     "video": "https://www.youtube.com/watch?v=S2QVHl6DoNo",
     "pictogram": "leg-raise"
   },
@@ -743,9 +1068,16 @@
     "shortName": "Partial hanging",
     "abbr": "PHS",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["abdominals"],
-    "secondary": ["forearms", "quadriceps"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "forearms",
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -753,8 +1085,15 @@
       "lb": 5
     },
     "description": "Hang and raise straight legs only up to about forty-five degrees, then lower. It builds toward the full straight-leg raise.",
-    "goodForm": ["Keep the knees locked", "Raise the legs to about forty-five degrees", "Lower with control"],
-    "badForm": ["Bend the knees to lift higher", "Swing the torso"],
+    "goodForm": [
+      "Keep the knees locked",
+      "Raise the legs to about forty-five degrees",
+      "Lower with control"
+    ],
+    "badForm": [
+      "Bend the knees to lift higher",
+      "Swing the torso"
+    ],
     "pictogram": "leg-raise"
   },
   "CAL_HEADSTAND_WALL": {
@@ -763,9 +1102,17 @@
     "shortName": "Wall headstand",
     "abbr": "WH",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["abdominals", "traps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "traps"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -778,7 +1125,10 @@
       "Keep most of the weight on the hands",
       "Stack the hips over the shoulders against the wall"
     ],
-    "badForm": ["Rest most of the weight on the neck", "Kick up wildly"],
+    "badForm": [
+      "Rest most of the weight on the neck",
+      "Kick up wildly"
+    ],
     "video": "https://www.youtube.com/watch?v=p5aR61Lt6ok",
     "timed": true,
     "pictogram": "handstand"
@@ -789,9 +1139,17 @@
     "shortName": "Handstand push-up",
     "abbr": "HPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -804,7 +1162,10 @@
       "Lower the head to a mat",
       "Press up to full lockout"
     ],
-    "badForm": ["Kip with the legs", "Rebound off the floor"],
+    "badForm": [
+      "Kip with the legs",
+      "Rebound off the floor"
+    ],
     "video": "https://www.youtube.com/watch?v=gdhmNaZ7nAk",
     "pictogram": "handstand-push-up"
   },
@@ -814,9 +1175,17 @@
     "shortName": "Close handstand",
     "abbr": "CHP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -829,7 +1198,10 @@
       "Keep the elbows tucked",
       "Press to full lockout"
     ],
-    "badForm": ["Let the elbows flare", "Bounce at the bottom"],
+    "badForm": [
+      "Let the elbows flare",
+      "Bounce at the bottom"
+    ],
     "pictogram": "handstand-push-up"
   },
   "CAL_HSPU_HALF": {
@@ -838,9 +1210,17 @@
     "shortName": "Half handstand",
     "abbr": "HHP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "intermediate",
     "increment": {
@@ -853,7 +1233,10 @@
       "Lower the head halfway toward the floor",
       "Press up to straight arms"
     ],
-    "badForm": ["Flare the elbows wide", "Arch the back deeply"],
+    "badForm": [
+      "Flare the elbows wide",
+      "Arch the back deeply"
+    ],
     "pictogram": "handstand-push-up"
   },
   "CAL_HSPU_LEVER": {
@@ -862,9 +1245,17 @@
     "shortName": "Lever handstand",
     "abbr": "LHP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -872,8 +1263,15 @@
       "lb": 5
     },
     "description": "A handstand push-up with one arm extended sideways on a support, so most load is on the other arm. Close to the one-arm version.",
-    "goodForm": ["Keep the helper arm light", "Lower the head slowly", "Press up with a straight body"],
-    "badForm": ["Push hard with the helper", "Twist open"],
+    "goodForm": [
+      "Keep the helper arm light",
+      "Lower the head slowly",
+      "Press up with a straight body"
+    ],
+    "badForm": [
+      "Push hard with the helper",
+      "Twist open"
+    ],
     "pictogram": "handstand-push-up"
   },
   "CAL_HSPU_ONE_ARM": {
@@ -882,9 +1280,17 @@
     "shortName": "One-arm handstand",
     "abbr": "OAH",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -892,8 +1298,15 @@
       "lb": 5
     },
     "description": "Lower and press back up on one arm in a handstand. An elite pressing skill reached after years of training.",
-    "goodForm": ["Stay square to the wall", "Keep the free arm out of the way", "Press smoothly to lockout"],
-    "badForm": ["Twist to find balance", "Bounce off the floor"],
+    "goodForm": [
+      "Stay square to the wall",
+      "Keep the free arm out of the way",
+      "Press smoothly to lockout"
+    ],
+    "badForm": [
+      "Twist to find balance",
+      "Bounce off the floor"
+    ],
     "pictogram": "handstand-push-up"
   },
   "CAL_HSPU_ONE_ARM_HALF": {
@@ -902,9 +1315,17 @@
     "shortName": "Half one-arm",
     "abbr": "HOA",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -917,7 +1338,10 @@
       "Lower only as far as you can control",
       "Keep the body square to the wall"
     ],
-    "badForm": ["Rotate the chest open", "Go lower than you can press back"],
+    "badForm": [
+      "Rotate the chest open",
+      "Go lower than you can press back"
+    ],
     "pictogram": "handstand-push-up"
   },
   "CAL_HSPU_UNEVEN": {
@@ -926,9 +1350,17 @@
     "shortName": "Uneven handstand",
     "abbr": "UHP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "triceps"],
-    "secondary": ["traps", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "traps",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -936,8 +1368,15 @@
       "lb": 5
     },
     "description": "A handstand push-up with one hand on a raised block and the other on the floor, so the low arm does more work.",
-    "goodForm": ["Keep the shoulders level", "Lower toward the low hand", "Alternate which hand is raised"],
-    "badForm": ["Twist the torso", "Rely on the raised hand"],
+    "goodForm": [
+      "Keep the shoulders level",
+      "Lower toward the low hand",
+      "Alternate which hand is raised"
+    ],
+    "badForm": [
+      "Twist the torso",
+      "Rely on the raised hand"
+    ],
     "pictogram": "handstand-push-up"
   },
   "CAL_KNEE_RAISE_LYING": {
@@ -946,9 +1385,15 @@
     "shortName": "Lying knee",
     "abbr": "LKR",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -961,7 +1406,10 @@
       "Lift the hips slightly at the top",
       "Lower under control"
     ],
-    "badForm": ["Let the feet drop to the floor", "Jerk the legs up"],
+    "badForm": [
+      "Let the feet drop to the floor",
+      "Jerk the legs up"
+    ],
     "video": "https://www.youtube.com/watch?v=aK8Rm_tv3WM",
     "pictogram": "leg-raise"
   },
@@ -971,9 +1419,15 @@
     "shortName": "Lying knee",
     "abbr": "LKT",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -986,7 +1440,10 @@
       "Bring the knees to the chest",
       "Lower slowly and stop just above the floor"
     ],
-    "badForm": ["Let the lower back arch", "Swing the legs"],
+    "badForm": [
+      "Let the lower back arch",
+      "Swing the legs"
+    ],
     "video": "https://www.youtube.com/watch?v=jYzDETk1oUk",
     "pictogram": "leg-raise"
   },
@@ -996,9 +1453,15 @@
     "shortName": "Lying bent-leg",
     "abbr": "LBL",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -1011,7 +1474,10 @@
       "Keep a slight bend in the knees",
       "Lower the legs slowly"
     ],
-    "badForm": ["Arch the lower back as the legs descend", "Swing to start the lift"],
+    "badForm": [
+      "Arch the lower back as the legs descend",
+      "Swing to start the lift"
+    ],
     "video": "https://www.youtube.com/watch?v=T31_qyE7Xqw",
     "pictogram": "leg-raise"
   },
@@ -1021,9 +1487,15 @@
     "shortName": "Lying frog",
     "abbr": "LFR",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -1036,7 +1508,10 @@
       "Lift the hips off the floor at the top",
       "Lower the legs slowly"
     ],
-    "badForm": ["Throw the legs up with momentum", "Let the back arch"],
+    "badForm": [
+      "Throw the legs up with momentum",
+      "Let the back arch"
+    ],
     "video": "https://www.youtube.com/watch?v=S0b-mqGlGLs",
     "pictogram": "leg-raise"
   },
@@ -1046,9 +1521,15 @@
     "shortName": "Lying straight-leg",
     "abbr": "LSL",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["quadriceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -1061,7 +1542,10 @@
       "Press the lower back into the floor",
       "Lower with a count of three"
     ],
-    "badForm": ["Let the back arch at the bottom", "Bend the knees to cheat"],
+    "badForm": [
+      "Let the back arch at the bottom",
+      "Bend the knees to cheat"
+    ],
     "video": "https://www.youtube.com/watch?v=Zr-PtqcpeWM",
     "pictogram": "leg-raise"
   },
@@ -1071,9 +1555,19 @@
     "shortName": "L-sit",
     "abbr": "LS",
     "kind": "bodyweight",
-    "equipment": ["parallettes", "dip-bars"],
-    "muscles": ["abdominals", "triceps"],
-    "secondary": ["shoulders", "quadriceps", "forearms"],
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps",
+      "forearms"
+    ],
     "pattern": "skill",
     "level": "intermediate",
     "increment": {
@@ -1086,7 +1580,10 @@
       "Keep the legs together and the knees straight",
       "Point the toes and hold the legs level"
     ],
-    "badForm": ["Let the legs drop below horizontal", "Bend the elbows"],
+    "badForm": [
+      "Let the legs drop below horizontal",
+      "Bend the elbows"
+    ],
     "video": "https://www.youtube.com/watch?v=HxDP7SqggpI",
     "timed": true,
     "pictogram": "l-sit"
@@ -1097,9 +1594,18 @@
     "shortName": "Foot-supported L-sit",
     "abbr": "FSL",
     "kind": "bodyweight",
-    "equipment": ["parallettes", "dip-bars"],
-    "muscles": ["abdominals", "triceps"],
-    "secondary": ["shoulders", "quadriceps"],
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps"
+    ],
     "pattern": "skill",
     "level": "beginner",
     "increment": {
@@ -1112,7 +1618,10 @@
       "Keep the legs straight with the heels touching the floor",
       "Lift the weight off the feet gradually"
     ],
-    "badForm": ["Shrug the shoulders", "Round the back and collapse the chest"],
+    "badForm": [
+      "Shrug the shoulders",
+      "Round the back and collapse the chest"
+    ],
     "video": "https://www.youtube.com/watch?v=a4qGW79QtrE",
     "timed": true,
     "pictogram": "l-sit"
@@ -1123,9 +1632,18 @@
     "shortName": "One-leg L-sit",
     "abbr": "OLL",
     "kind": "bodyweight",
-    "equipment": ["parallettes", "dip-bars"],
-    "muscles": ["abdominals", "triceps"],
-    "secondary": ["shoulders", "quadriceps"],
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps"
+    ],
     "pattern": "skill",
     "level": "beginner",
     "increment": {
@@ -1138,7 +1656,10 @@
       "Switch legs between sets",
       "Press the floor away through the arms"
     ],
-    "badForm": ["Let the straight leg drop", "Lean back and slump"],
+    "badForm": [
+      "Let the straight leg drop",
+      "Lean back and slump"
+    ],
     "timed": true,
     "pictogram": "l-sit"
   },
@@ -1148,9 +1669,18 @@
     "shortName": "L-sit pull-up",
     "abbr": "LSP",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps", "abdominals"],
-    "secondary": ["quadriceps", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps",
+      "abdominals"
+    ],
+    "secondary": [
+      "quadriceps",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -1163,7 +1693,10 @@
       "Keep the legs level with the hips for the whole rep",
       "Pull smoothly without swinging"
     ],
-    "badForm": ["Let the legs sag as you tire", "Swing the legs forward to gain momentum"],
+    "badForm": [
+      "Let the legs sag as you tire",
+      "Swing the legs forward to gain momentum"
+    ],
     "video": "https://www.youtube.com/watch?v=QHVbofO5SN8",
     "pictogram": "pull-up"
   },
@@ -1173,9 +1706,18 @@
     "shortName": "Tuck L-sit",
     "abbr": "TLS",
     "kind": "bodyweight",
-    "equipment": ["parallettes", "dip-bars"],
-    "muscles": ["abdominals", "triceps"],
-    "secondary": ["shoulders", "quadriceps"],
+    "equipment": [
+      "parallettes",
+      "dip-bars"
+    ],
+    "muscles": [
+      "abdominals",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "quadriceps"
+    ],
     "pattern": "skill",
     "level": "beginner",
     "increment": {
@@ -1188,7 +1730,10 @@
       "Pull the knees to the chest",
       "Round the upper back slightly"
     ],
-    "badForm": ["Let the shoulders shrug up", "Swing the body"],
+    "badForm": [
+      "Let the shoulders shrug up",
+      "Swing the body"
+    ],
     "video": "https://www.youtube.com/watch?v=PLffPwepgiY",
     "timed": true,
     "pictogram": "l-sit"
@@ -1199,9 +1744,20 @@
     "shortName": "Muscle-up",
     "abbr": "MU",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "chest", "triceps"],
-    "secondary": ["biceps", "shoulders", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "biceps",
+      "shoulders",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -1214,7 +1770,10 @@
       "Lean forward over the bar through the transition",
       "Press to full lockout on top"
     ],
-    "badForm": ["Kip excessively", "Chicken-wing one arm over the bar"],
+    "badForm": [
+      "Kip excessively",
+      "Chicken-wing one arm over the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=OyRj1z3sNgs",
     "pictogram": "muscle-up"
   },
@@ -1224,9 +1783,19 @@
     "shortName": "Band-assisted muscle-up",
     "abbr": "BAM",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "bands"],
-    "muscles": ["lats", "chest", "triceps"],
-    "secondary": ["biceps", "shoulders"],
+    "equipment": [
+      "pull-up-bar",
+      "bands"
+    ],
+    "muscles": [
+      "lats",
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "biceps",
+      "shoulders"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -1239,7 +1808,10 @@
       "Move through the transition with elbows close",
       "Press out to straight arms above the bar"
     ],
-    "badForm": ["Rely on a big kick", "Skip the lowering"],
+    "badForm": [
+      "Rely on a big kick",
+      "Skip the lowering"
+    ],
     "video": "https://www.youtube.com/watch?v=8wa2Lj-VOwA",
     "pictogram": "muscle-up"
   },
@@ -1249,9 +1821,16 @@
     "shortName": "Nordic curl",
     "abbr": "NC",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["hamstrings"],
-    "secondary": ["glutes", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "hamstrings"
+    ],
+    "secondary": [
+      "glutes",
+      "calves"
+    ],
     "pattern": "hinge",
     "level": "expert",
     "increment": {
@@ -1264,7 +1843,10 @@
       "Lower for as long as you can control it",
       "Catch yourself with the hands and push back up if needed"
     ],
-    "badForm": ["Fold at the hips to cheat the lever", "Rush the lowering phase"],
+    "badForm": [
+      "Fold at the hips to cheat the lever",
+      "Rush the lowering phase"
+    ],
     "video": "https://www.youtube.com/watch?v=3-4pKUhkzoQ",
     "pictogram": "nordic"
   },
@@ -1274,9 +1856,16 @@
     "shortName": "Banded Nordic",
     "abbr": "BNC",
     "kind": "bodyweight",
-    "equipment": ["bands"],
-    "muscles": ["hamstrings"],
-    "secondary": ["glutes", "calves"],
+    "equipment": [
+      "bands"
+    ],
+    "muscles": [
+      "hamstrings"
+    ],
+    "secondary": [
+      "glutes",
+      "calves"
+    ],
     "pattern": "hinge",
     "level": "intermediate",
     "increment": {
@@ -1289,7 +1878,10 @@
       "Lower as slowly as you can under control",
       "Use a thicker band if you fall in the first half"
     ],
-    "badForm": ["Bend at the hips instead of staying straight", "Let go and drop to the floor"],
+    "badForm": [
+      "Bend at the hips instead of staying straight",
+      "Let go and drop to the floor"
+    ],
     "video": "https://www.youtube.com/watch?v=I9S20HrolmI",
     "pictogram": "nordic"
   },
@@ -1299,9 +1891,16 @@
     "shortName": "Banded Pallof",
     "abbr": "BPP",
     "kind": "bodyweight",
-    "equipment": ["bands"],
-    "muscles": ["abdominals"],
-    "secondary": ["shoulders", "glutes"],
+    "equipment": [
+      "bands"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "shoulders",
+      "glutes"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -1314,7 +1913,10 @@
       "Press the hands straight in front of the chest",
       "Pause with arms extended before returning"
     ],
-    "badForm": ["Let the band pull the torso around", "Lean away from the anchor"],
+    "badForm": [
+      "Let the band pull the torso around",
+      "Lean away from the anchor"
+    ],
     "video": "https://www.youtube.com/watch?v=y1fOBVtANdM",
     "pictogram": "generic"
   },
@@ -1324,9 +1926,18 @@
     "shortName": "Pistol squat",
     "abbr": "PS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "abdominals", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals",
+      "calves"
+    ],
     "pattern": "squat",
     "level": "expert",
     "increment": {
@@ -1339,7 +1950,10 @@
       "Let the arms reach forward for balance",
       "Drive up through the heel with the chest tall"
     ],
-    "badForm": ["Drop into the bottom without control", "Roll the knee inward"],
+    "badForm": [
+      "Drop into the bottom without control",
+      "Roll the knee inward"
+    ],
     "video": "https://www.youtube.com/watch?v=vq5-vdgJc0I",
     "pictogram": "pistol"
   },
@@ -1349,9 +1963,17 @@
     "shortName": "Assisted pistol",
     "abbr": "APS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
     "pattern": "squat",
     "level": "expert",
     "increment": {
@@ -1364,7 +1986,10 @@
       "Keep the free leg off the floor",
       "Sit all the way to the bottom and rise smoothly"
     ],
-    "badForm": ["Pull yourself up on the support", "Let the heel lift"],
+    "badForm": [
+      "Pull yourself up on the support",
+      "Let the heel lift"
+    ],
     "video": "https://www.youtube.com/watch?v=tiA23NSUm7A",
     "pictogram": "pistol"
   },
@@ -1374,9 +1999,18 @@
     "shortName": "Advanced tuck",
     "abbr": "ATP",
     "kind": "bodyweight",
-    "equipment": ["parallettes"],
-    "muscles": ["shoulders", "chest"],
-    "secondary": ["abdominals", "forearms", "triceps"],
+    "equipment": [
+      "parallettes"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -1389,7 +2023,10 @@
       "Keep the arms straight",
       "Hold the shoulders far over the hands"
     ],
-    "badForm": ["Round the back", "Bend the elbows"],
+    "badForm": [
+      "Round the back",
+      "Bend the elbows"
+    ],
     "video": "https://www.youtube.com/watch?v=oSNVpyQmhGk",
     "timed": true,
     "pictogram": "planche"
@@ -1400,9 +2037,18 @@
     "shortName": "Planche lean",
     "abbr": "PL",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["shoulders", "chest"],
-    "secondary": ["abdominals", "forearms", "triceps"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
     "pattern": "skill",
     "level": "intermediate",
     "increment": {
@@ -1415,7 +2061,10 @@
       "Lean forward until the shoulders are well past the hands",
       "Keep the body in a straight line"
     ],
-    "badForm": ["Bend the elbows", "Let the hips sag"],
+    "badForm": [
+      "Bend the elbows",
+      "Let the hips sag"
+    ],
     "video": "https://www.youtube.com/watch?v=3MzSVM-yEI0",
     "timed": true,
     "pictogram": "planche"
@@ -1426,9 +2075,18 @@
     "shortName": "Straddle planche",
     "abbr": "SP",
     "kind": "bodyweight",
-    "equipment": ["parallettes"],
-    "muscles": ["shoulders", "chest"],
-    "secondary": ["abdominals", "forearms", "triceps"],
+    "equipment": [
+      "parallettes"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -1441,7 +2099,10 @@
       "Hold the body flat and level",
       "Push strongly through the shoulders"
     ],
-    "badForm": ["Pike the hips", "Let the arms bend"],
+    "badForm": [
+      "Pike the hips",
+      "Let the arms bend"
+    ],
     "video": "https://www.youtube.com/watch?v=WzGybj0aVwU",
     "timed": true,
     "pictogram": "planche"
@@ -1452,9 +2113,18 @@
     "shortName": "Tuck planche",
     "abbr": "TP",
     "kind": "bodyweight",
-    "equipment": ["parallettes"],
-    "muscles": ["shoulders", "chest"],
-    "secondary": ["abdominals", "forearms", "triceps"],
+    "equipment": [
+      "parallettes"
+    ],
+    "muscles": [
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms",
+      "triceps"
+    ],
     "pattern": "skill",
     "level": "expert",
     "increment": {
@@ -1467,7 +2137,10 @@
       "Round the back and tuck the knees tight",
       "Keep the hips at shoulder height"
     ],
-    "badForm": ["Bend the elbows", "Let the hips rise too high"],
+    "badForm": [
+      "Bend the elbows",
+      "Let the hips rise too high"
+    ],
     "video": "https://www.youtube.com/watch?v=M5il8Jpltt8",
     "timed": true,
     "pictogram": "planche"
@@ -1478,9 +2151,16 @@
     "shortName": "Plank",
     "abbr": "P",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["abdominals"],
-    "secondary": ["shoulders", "glutes"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "shoulders",
+      "glutes"
+    ],
     "pattern": "core",
     "level": "beginner",
     "increment": {
@@ -1493,7 +2173,10 @@
       "Squeeze the glutes and tuck the ribs down",
       "Breathe steadily without letting the hips drop"
     ],
-    "badForm": ["Let the lower back sag", "Raise the hips into a pike"],
+    "badForm": [
+      "Let the lower back sag",
+      "Raise the hips into a pike"
+    ],
     "video": "https://www.youtube.com/watch?v=6LqqeBtFn9M",
     "timed": true,
     "pictogram": "plank"
@@ -1504,9 +2187,18 @@
     "shortName": "Pull-up",
     "abbr": "PU",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms", "abdominals"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -1519,7 +2211,10 @@
       "Pull the elbows down and back, chest toward the bar",
       "Lower under control to full extension"
     ],
-    "badForm": ["Kip or swing the legs", "Crane the neck forward to reach the bar"],
+    "badForm": [
+      "Kip or swing the legs",
+      "Crane the neck forward to reach the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=eGo4IYlbE5g",
     "pictogram": "pull-up"
   },
@@ -1529,9 +2224,18 @@
     "shortName": "Band-assisted pull-up",
     "abbr": "BAP",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "bands"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "bands"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -1544,7 +2248,10 @@
       "Pull the elbows toward the ribs",
       "Move to a thinner band as you get stronger"
     ],
-    "badForm": ["Bounce out of the bottom on the band", "Stop short of getting the chin over the bar"],
+    "badForm": [
+      "Bounce out of the bottom on the band",
+      "Stop short of getting the chin over the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=4yE-XGDWJPg",
     "pictogram": "pull-up"
   },
@@ -1554,9 +2261,18 @@
     "shortName": "Chest-to-bar pull-up",
     "abbr": "CTB",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms", "abdominals"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -1569,7 +2285,10 @@
       "Lean back slightly at the top",
       "Lower to a full hang"
     ],
-    "badForm": ["Swing the legs", "Reach the chin to the bar only"],
+    "badForm": [
+      "Swing the legs",
+      "Reach the chin to the bar only"
+    ],
     "video": "https://www.youtube.com/watch?v=KVnxsJpKyOA",
     "pictogram": "pull-up"
   },
@@ -1579,9 +2298,17 @@
     "shortName": "Close-grip pull-up",
     "abbr": "CGP",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -1594,7 +2321,10 @@
       "Pull the chest toward the bar",
       "Lower to full extension"
     ],
-    "badForm": ["Kip the legs", "Pull the chin forward to the bar"],
+    "badForm": [
+      "Kip the legs",
+      "Pull the chin forward to the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=j--ftfgTL5I",
     "pictogram": "pull-up"
   },
@@ -1604,9 +2334,17 @@
     "shortName": "Half pull-up",
     "abbr": "HPU",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -1619,7 +2357,10 @@
       "Pull until the elbows are bent about ninety degrees",
       "Lower to straight arms"
     ],
-    "badForm": ["Swing the legs", "Cut the hang short at the bottom"],
+    "badForm": [
+      "Swing the legs",
+      "Cut the hang short at the bottom"
+    ],
     "pictogram": "pull-up"
   },
   "CAL_PULLUP_HIGH": {
@@ -1628,9 +2369,18 @@
     "shortName": "High pull-up",
     "abbr": "HPU",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms", "abdominals"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -1643,7 +2393,10 @@
       "Aim the bar toward the sternum",
       "Keep the legs together and body tight"
     ],
-    "badForm": ["Kip with the legs", "Stop with the chin at the bar"],
+    "badForm": [
+      "Kip with the legs",
+      "Stop with the chin at the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=cgYMLffRiMk",
     "pictogram": "pull-up"
   },
@@ -1653,9 +2406,17 @@
     "shortName": "Jackknife pull-up",
     "abbr": "JPU",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -1668,7 +2429,10 @@
       "Pull the chest toward the bar",
       "Lower to straight arms each rep"
     ],
-    "badForm": ["Push hard with the feet", "Stop with the elbows still bent"],
+    "badForm": [
+      "Push hard with the feet",
+      "Stop with the elbows still bent"
+    ],
     "video": "https://www.youtube.com/watch?v=fRJDlmUrN84",
     "pictogram": "pull-up"
   },
@@ -1678,9 +2442,17 @@
     "shortName": "Pull-up negative",
     "abbr": "PUN",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -1693,7 +2465,10 @@
       "Take at least three seconds to lower",
       "Finish in a full dead hang before the next rep"
     ],
-    "badForm": ["Drop quickly through the lower half", "Start with the head poked forward over the bar"],
+    "badForm": [
+      "Drop quickly through the lower half",
+      "Start with the head poked forward over the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=gbPURTSxQLY",
     "pictogram": "pull-up"
   },
@@ -1703,9 +2478,18 @@
     "shortName": "One-arm pull-up",
     "abbr": "OAP",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms", "abdominals"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms",
+      "abdominals"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -1718,7 +2502,10 @@
       "Pull the elbow down toward the hip",
       "Lower smoothly to full extension"
     ],
-    "badForm": ["Kip or swing", "Loosen the grip at the bottom"],
+    "badForm": [
+      "Kip or swing",
+      "Loosen the grip at the bottom"
+    ],
     "video": "https://www.youtube.com/watch?v=mTJHClMQPM8",
     "pictogram": "pull-up"
   },
@@ -1728,9 +2515,18 @@
     "shortName": "Assisted one-arm",
     "abbr": "AOA",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "bands"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "bands"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -1743,7 +2539,10 @@
       "Pull the elbow toward the ribs",
       "Lower slowly to a full hang"
     ],
-    "badForm": ["Let the helper do the work", "Twist away from the bar"],
+    "badForm": [
+      "Let the helper do the work",
+      "Twist away from the bar"
+    ],
     "pictogram": "pull-up"
   },
   "CAL_PULLUP_ONE_ARM_HALF": {
@@ -1752,9 +2551,17 @@
     "shortName": "Half one-arm",
     "abbr": "HOA",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -1767,7 +2574,10 @@
       "Pull until the elbow reaches ninety degrees",
       "Lower under control"
     ],
-    "badForm": ["Use the free hand to pull", "Kick the legs"],
+    "badForm": [
+      "Use the free hand to pull",
+      "Kick the legs"
+    ],
     "pictogram": "pull-up"
   },
   "CAL_PULLUP_UNEVEN": {
@@ -1776,9 +2586,17 @@
     "shortName": "Uneven pull-up",
     "abbr": "UPU",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -1791,7 +2609,10 @@
       "Keep the shoulders level",
       "Switch which hand is higher each set"
     ],
-    "badForm": ["Pull hard with the helping hand", "Twist the body"],
+    "badForm": [
+      "Pull hard with the helping hand",
+      "Twist the body"
+    ],
     "pictogram": "pull-up"
   },
   "CAL_PULL_VERTICAL": {
@@ -1800,9 +2621,17 @@
     "shortName": "Vertical pull",
     "abbr": "VP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["lats", "biceps"],
-    "secondary": ["middle-back", "forearms"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "lats",
+      "biceps"
+    ],
+    "secondary": [
+      "middle-back",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -1815,7 +2644,10 @@
       "Pull the elbows toward the ribs",
       "Lower back slowly to straight arms"
     ],
-    "badForm": ["Pull with the shoulders shrugged up", "Bend at the hips"],
+    "badForm": [
+      "Pull with the shoulders shrugged up",
+      "Bend at the hips"
+    ],
     "pictogram": "row"
   },
   "CAL_PUSHUP": {
@@ -1824,9 +2656,17 @@
     "shortName": "Push-up",
     "abbr": "PU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -1839,7 +2679,10 @@
       "Elbows at about 45 degrees from the ribs",
       "Touch the chest down and lock the arms out"
     ],
-    "badForm": ["Let the hips sag or rise", "Reach forward with the head"],
+    "badForm": [
+      "Let the hips sag or rise",
+      "Reach forward with the head"
+    ],
     "video": "https://www.youtube.com/watch?v=IODxDxX7oi4",
     "pictogram": "push-up"
   },
@@ -1849,9 +2692,16 @@
     "shortName": "Close push-up",
     "abbr": "CPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["triceps", "chest"],
-    "secondary": ["shoulders"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "triceps",
+      "chest"
+    ],
+    "secondary": [
+      "shoulders"
+    ],
     "pattern": "push",
     "level": "intermediate",
     "increment": {
@@ -1864,7 +2714,10 @@
       "Keep the elbows brushing the sides",
       "Lower under control and press to lockout"
     ],
-    "badForm": ["Let the elbows drift out", "Sag through the middle"],
+    "badForm": [
+      "Let the elbows drift out",
+      "Sag through the middle"
+    ],
     "video": "https://www.youtube.com/watch?v=G2mlaEfpEIM",
     "pictogram": "push-up"
   },
@@ -1874,9 +2727,16 @@
     "shortName": "Diamond push-up",
     "abbr": "DPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["triceps", "chest"],
-    "secondary": ["shoulders"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "triceps",
+      "chest"
+    ],
+    "secondary": [
+      "shoulders"
+    ],
     "pattern": "push",
     "level": "intermediate",
     "increment": {
@@ -1889,7 +2749,10 @@
       "Lower the chest to the hands",
       "Brace the core so the hips stay level"
     ],
-    "badForm": ["Flare the elbows outward", "Let the wrists collapse"],
+    "badForm": [
+      "Flare the elbows outward",
+      "Let the wrists collapse"
+    ],
     "video": "https://www.youtube.com/watch?v=J0DnG1_S92I",
     "pictogram": "push-up"
   },
@@ -1899,9 +2762,17 @@
     "shortName": "Half push-up",
     "abbr": "HPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -1914,7 +2785,10 @@
       "Hold the plank position the whole time",
       "Lock out at the top"
     ],
-    "badForm": ["Flare the elbows wide", "Let the hips drop"],
+    "badForm": [
+      "Flare the elbows wide",
+      "Let the hips drop"
+    ],
     "video": "https://www.youtube.com/watch?v=1OG1PDZE_r0",
     "pictogram": "push-up"
   },
@@ -1924,9 +2798,18 @@
     "shortName": "Incline push-up",
     "abbr": "IPU",
     "kind": "bodyweight",
-    "equipment": ["bench", "box"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "bench",
+      "box"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -1939,7 +2822,10 @@
       "Lower the chest to the edge of the support",
       "Point the elbows about 45 degrees from the torso"
     ],
-    "badForm": ["Let the hips sag or pike", "Do half reps"],
+    "badForm": [
+      "Let the hips sag or pike",
+      "Do half reps"
+    ],
     "video": "https://www.youtube.com/watch?v=yAbg3_pJKvw",
     "pictogram": "push-up"
   },
@@ -1949,9 +2835,17 @@
     "shortName": "Kneeling push-up",
     "abbr": "KPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -1964,7 +2858,10 @@
       "Lower the chest to the floor",
       "Press all the way to straight arms"
     ],
-    "badForm": ["Sit the hips back toward the heels", "Lower only partway"],
+    "badForm": [
+      "Sit the hips back toward the heels",
+      "Lower only partway"
+    ],
     "video": "https://www.youtube.com/watch?v=utzhPQuXWcA",
     "pictogram": "push-up"
   },
@@ -1974,9 +2871,17 @@
     "shortName": "Lever push-up",
     "abbr": "LPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -1989,7 +2894,10 @@
       "Let the straight arm help only as much as you need",
       "Lower the chest to the floor under control"
     ],
-    "badForm": ["Push off the helping hand", "Twist the hips open"],
+    "badForm": [
+      "Push off the helping hand",
+      "Twist the hips open"
+    ],
     "pictogram": "push-up"
   },
   "CAL_PUSHUP_ONE_ARM": {
@@ -1998,9 +2906,17 @@
     "shortName": "One-arm push-up",
     "abbr": "OAP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -2013,8 +2929,10 @@
       "Keep the hips and shoulders square to the floor",
       "Press the floor away smoothly until the arm is locked"
     ],
-    "badForm": ["Twist the body open as you tire", "Jerk up out of the bottom"],
-    "video": "https://www.youtube.com/watch?v=xp1tgjT_3k0",
+    "badForm": [
+      "Twist the body open as you tire",
+      "Jerk up out of the bottom"
+    ],
     "pictogram": "push-up"
   },
   "CAL_PUSHUP_ONE_ARM_HALF": {
@@ -2023,9 +2941,17 @@
     "shortName": "Half one-arm",
     "abbr": "HOA",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -2038,7 +2964,10 @@
       "Tuck the working elbow near the ribs",
       "Lower to ninety degrees and press up"
     ],
-    "badForm": ["Rotate the hips open", "Collapse the shoulder at the bottom"],
+    "badForm": [
+      "Rotate the hips open",
+      "Collapse the shoulder at the bottom"
+    ],
     "pictogram": "push-up"
   },
   "CAL_PUSHUP_PSEUDO_PLANCHE": {
@@ -2047,9 +2976,18 @@
     "shortName": "Pseudo planche",
     "abbr": "PPP",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "shoulders", "triceps"],
-    "secondary": ["abdominals", "forearms"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "shoulders",
+      "triceps"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms"
+    ],
     "pattern": "push",
     "level": "expert",
     "increment": {
@@ -2062,7 +3000,10 @@
       "Lean the shoulders far over the hands",
       "Keep the body straight and the shoulder blades spread"
     ],
-    "badForm": ["Let the hips pike up to cut the load", "Hold the lean with bent arms and a sagging chest"],
+    "badForm": [
+      "Let the hips pike up to cut the load",
+      "Hold the lean with bent arms and a sagging chest"
+    ],
     "video": "https://www.youtube.com/watch?v=i-gSmqe9tNw",
     "pictogram": "push-up"
   },
@@ -2072,9 +3013,17 @@
     "shortName": "Uneven push-up",
     "abbr": "UPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders",
+      "abdominals"
+    ],
     "pattern": "push",
     "level": "intermediate",
     "increment": {
@@ -2087,7 +3036,10 @@
       "Lean toward the lower hand as you descend",
       "Switch which hand is raised between sets"
     ],
-    "badForm": ["Twist the torso", "Use the raised hand to push off hard"],
+    "badForm": [
+      "Twist the torso",
+      "Use the raised hand to push off hard"
+    ],
     "video": "https://www.youtube.com/watch?v=tLE6iBjJJt8",
     "pictogram": "push-up"
   },
@@ -2097,9 +3049,16 @@
     "shortName": "Wall push-up",
     "abbr": "WPU",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["chest", "triceps"],
-    "secondary": ["shoulders"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "chest",
+      "triceps"
+    ],
+    "secondary": [
+      "shoulders"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -2112,7 +3071,10 @@
       "Keep the body straight from head to heels",
       "Lower until the nose nearly touches the wall"
     ],
-    "badForm": ["Stick the hips back", "Flare the elbows straight out to the sides"],
+    "badForm": [
+      "Stick the hips back",
+      "Flare the elbows straight out to the sides"
+    ],
     "video": "https://www.youtube.com/watch?v=wIPJvBQs7RA",
     "pictogram": "push-up"
   },
@@ -2122,9 +3084,16 @@
     "shortName": "Bodyweight Romanian",
     "abbr": "BRD",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["hamstrings", "glutes"],
-    "secondary": ["lower-back"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "hamstrings",
+      "glutes"
+    ],
+    "secondary": [
+      "lower-back"
+    ],
     "pattern": "hinge",
     "level": "beginner",
     "increment": {
@@ -2137,7 +3106,10 @@
       "Send the hips straight back like closing a door with them",
       "Squeeze the glutes to stand up"
     ],
-    "badForm": ["Round the lower back", "Turn it into a squat by bending the knees a lot"],
+    "badForm": [
+      "Round the lower back",
+      "Turn it into a squat by bending the knees a lot"
+    ],
     "video": "https://www.youtube.com/watch?v=EK-Fi5sFSm4",
     "pictogram": "rdl"
   },
@@ -2147,9 +3119,16 @@
     "shortName": "Reverse hyperextension",
     "abbr": "RH",
     "kind": "bodyweight",
-    "equipment": ["bench"],
-    "muscles": ["glutes", "lower-back"],
-    "secondary": ["hamstrings"],
+    "equipment": [
+      "bench"
+    ],
+    "muscles": [
+      "glutes",
+      "lower-back"
+    ],
+    "secondary": [
+      "hamstrings"
+    ],
     "pattern": "hinge",
     "level": "beginner",
     "increment": {
@@ -2162,7 +3141,10 @@
       "Lift the legs by squeezing the glutes",
       "Lower slowly without swinging"
     ],
-    "badForm": ["Swing the legs with momentum", "Arch the lower back past neutral at the top"],
+    "badForm": [
+      "Swing the legs with momentum",
+      "Arch the lower back past neutral at the top"
+    ],
     "video": "https://www.youtube.com/watch?v=WCha157af1E",
     "pictogram": "back-extension"
   },
@@ -2172,9 +3154,16 @@
     "shortName": "Ring ab",
     "abbr": "RAR",
     "kind": "bodyweight",
-    "equipment": ["rings"],
-    "muscles": ["abdominals"],
-    "secondary": ["lats", "shoulders"],
+    "equipment": [
+      "rings"
+    ],
+    "muscles": [
+      "abdominals"
+    ],
+    "secondary": [
+      "lats",
+      "shoulders"
+    ],
     "pattern": "core",
     "level": "intermediate",
     "increment": {
@@ -2187,7 +3176,10 @@
       "Reach only as far as you can keep the back flat",
       "Pull back with the abs rather than the hips"
     ],
-    "badForm": ["Let the lower back arch at full reach", "Fold at the hips to come back"],
+    "badForm": [
+      "Let the lower back arch at full reach",
+      "Fold at the hips to come back"
+    ],
     "video": "https://www.youtube.com/watch?v=cGz4fNiEFW0",
     "pictogram": "ab-wheel"
   },
@@ -2197,9 +3189,18 @@
     "shortName": "Archer row",
     "abbr": "AR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "middle-back"],
-    "secondary": ["biceps", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "expert",
     "increment": {
@@ -2212,7 +3213,10 @@
       "Keep the hips level and the body rigid",
       "Control the lowering to the center"
     ],
-    "badForm": ["Bend both arms equally", "Twist the torso to reach the bar"],
+    "badForm": [
+      "Bend both arms equally",
+      "Twist the torso to reach the bar"
+    ],
     "video": "https://www.youtube.com/watch?v=OKKUSKbemtQ",
     "pictogram": "inverted-row"
   },
@@ -2222,9 +3226,19 @@
     "shortName": "Horizontal row",
     "abbr": "HR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "middle-back"],
-    "secondary": ["biceps", "forearms", "abdominals"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms",
+      "abdominals"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -2237,7 +3251,10 @@
       "Pull the shoulder blades back first",
       "Touch the chest to the bar or rings"
     ],
-    "badForm": ["Let the hips sag", "Stop halfway"],
+    "badForm": [
+      "Let the hips sag",
+      "Stop halfway"
+    ],
     "video": "https://www.youtube.com/watch?v=hXTc1mDnZCw",
     "pictogram": "inverted-row"
   },
@@ -2247,9 +3264,18 @@
     "shortName": "Incline row",
     "abbr": "IR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "middle-back"],
-    "secondary": ["biceps", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -2262,7 +3288,10 @@
       "Pull the chest toward the hands",
       "Lower to straight arms with control"
     ],
-    "badForm": ["Let the hips drop", "Jerk with the legs"],
+    "badForm": [
+      "Let the hips drop",
+      "Jerk with the legs"
+    ],
     "video": "https://www.youtube.com/watch?v=5W8F6MzZ8Rk",
     "pictogram": "inverted-row"
   },
@@ -2272,9 +3301,18 @@
     "shortName": "Vertical row",
     "abbr": "VR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "middle-back"],
-    "secondary": ["biceps", "forearms"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -2287,7 +3325,10 @@
       "Pull the elbows back and squeeze the shoulder blades",
       "Walk the feet forward to make it harder"
     ],
-    "badForm": ["Sag at the hips", "Shrug the shoulders toward the ears"],
+    "badForm": [
+      "Sag at the hips",
+      "Shrug the shoulders toward the ears"
+    ],
     "video": "https://www.youtube.com/watch?v=PlUXvBmue90",
     "pictogram": "inverted-row"
   },
@@ -2297,9 +3338,18 @@
     "shortName": "Wide row",
     "abbr": "WR",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar", "rings"],
-    "muscles": ["lats", "middle-back"],
-    "secondary": ["biceps", "shoulders"],
+    "equipment": [
+      "pull-up-bar",
+      "rings"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "biceps",
+      "shoulders"
+    ],
     "pattern": "pull",
     "level": "intermediate",
     "increment": {
@@ -2312,7 +3362,10 @@
       "Lead with the elbows, pointing them outward",
       "Keep the body straight and tight"
     ],
-    "badForm": ["Pull with the neck and shoulders only", "Let the hips rise or sag"],
+    "badForm": [
+      "Pull with the neck and shoulders only",
+      "Let the hips rise or sag"
+    ],
     "pictogram": "inverted-row"
   },
   "CAL_SCAPULAR_PULL": {
@@ -2321,9 +3374,17 @@
     "shortName": "Scapular pull",
     "abbr": "SP",
     "kind": "bodyweight",
-    "equipment": ["pull-up-bar"],
-    "muscles": ["lats", "middle-back"],
-    "secondary": ["traps", "forearms"],
+    "equipment": [
+      "pull-up-bar"
+    ],
+    "muscles": [
+      "lats",
+      "middle-back"
+    ],
+    "secondary": [
+      "traps",
+      "forearms"
+    ],
     "pattern": "pull",
     "level": "beginner",
     "increment": {
@@ -2336,7 +3397,10 @@
       "Drive the shoulders away from the ears, then let them rise slowly",
       "Pause for a second at the top of each rep"
     ],
-    "badForm": ["Bend the elbows to help the movement", "Swing or kick to get the body moving"],
+    "badForm": [
+      "Bend the elbows to help the movement",
+      "Swing or kick to get the body moving"
+    ],
     "video": "https://www.youtube.com/watch?v=-ZIpSoTRsuE",
     "pictogram": "dead-hang"
   },
@@ -2346,9 +3410,17 @@
     "shortName": "Advanced shrimp",
     "abbr": "ASS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
     "pattern": "squat",
     "level": "expert",
     "increment": {
@@ -2361,7 +3433,10 @@
       "Lower with control until the knee just touches",
       "Press up through the heel of the standing foot"
     ],
-    "badForm": ["Collapse into the bottom", "Use momentum from the back leg to rise"],
+    "badForm": [
+      "Collapse into the bottom",
+      "Use momentum from the back leg to rise"
+    ],
     "video": "https://www.youtube.com/watch?v=xfl7SDj0Gzs",
     "pictogram": "shrimp-squat"
   },
@@ -2371,9 +3446,17 @@
     "shortName": "Beginner shrimp",
     "abbr": "BSS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
     "pattern": "squat",
     "level": "intermediate",
     "increment": {
@@ -2386,7 +3469,10 @@
       "Reach the back knee down gently toward the floor",
       "Keep the standing heel planted"
     ],
-    "badForm": ["Drop the last few centimetres onto the knee", "Lean far forward to stay balanced"],
+    "badForm": [
+      "Drop the last few centimetres onto the knee",
+      "Lean far forward to stay balanced"
+    ],
     "video": "https://www.youtube.com/watch?v=85YE86ipw_w",
     "pictogram": "shrimp-squat"
   },
@@ -2396,9 +3482,17 @@
     "shortName": "Intermediate shrimp",
     "abbr": "ISS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
     "pattern": "squat",
     "level": "intermediate",
     "increment": {
@@ -2411,7 +3505,10 @@
       "Touch the back knee lightly to a mat each rep",
       "Stand up without pushing off the back leg"
     ],
-    "badForm": ["Rest the full weight on the rear knee", "Let the standing knee roll inward"],
+    "badForm": [
+      "Rest the full weight on the rear knee",
+      "Let the standing knee roll inward"
+    ],
     "video": "https://www.youtube.com/watch?v=AEVjjU0pVV8",
     "pictogram": "shrimp-squat"
   },
@@ -2421,9 +3518,17 @@
     "shortName": "Single-leg deadlift",
     "abbr": "SLD",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["hamstrings", "glutes"],
-    "secondary": ["lower-back", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "hamstrings",
+      "glutes"
+    ],
+    "secondary": [
+      "lower-back",
+      "abdominals"
+    ],
     "pattern": "hinge",
     "level": "intermediate",
     "increment": {
@@ -2436,7 +3541,10 @@
       "Reach the free leg back in line with the torso",
       "Soften the standing knee and keep the foot flat"
     ],
-    "badForm": ["Open the hips to the side", "Round the back to reach lower"],
+    "badForm": [
+      "Open the hips to the side",
+      "Round the back to reach lower"
+    ],
     "video": "https://www.youtube.com/watch?v=JQZqPsmeesc",
     "pictogram": "rdl"
   },
@@ -2446,9 +3554,17 @@
     "shortName": "Split squat",
     "abbr": "SS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "adductors"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "adductors"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -2461,7 +3577,10 @@
       "Lower straight down rather than forward",
       "Drive up through the whole front foot"
     ],
-    "badForm": ["Let the front knee cave inward", "Shorten the stance so the heel lifts"],
+    "badForm": [
+      "Let the front knee cave inward",
+      "Shorten the stance so the heel lifts"
+    ],
     "video": "https://www.youtube.com/watch?v=Ms7aIhDm0uc",
     "pictogram": "split-squat"
   },
@@ -2471,9 +3590,18 @@
     "shortName": "Bodyweight squat",
     "abbr": "BS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "adductors", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "adductors",
+      "calves"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -2486,7 +3614,10 @@
       "Keep the heels down and the chest up",
       "Reach full hip extension at the top"
     ],
-    "badForm": ["Let the heels lift", "Stop well above parallel"],
+    "badForm": [
+      "Let the heels lift",
+      "Stop well above parallel"
+    ],
     "video": "https://www.youtube.com/watch?v=P-yaD24bUE8",
     "pictogram": "squat"
   },
@@ -2496,9 +3627,17 @@
     "shortName": "Close squat",
     "abbr": "CS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["calves", "adductors"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "calves",
+      "adductors"
+    ],
     "pattern": "squat",
     "level": "intermediate",
     "increment": {
@@ -2511,7 +3650,10 @@
       "Sit straight down and keep the heels planted",
       "Hold the arms forward for balance"
     ],
-    "badForm": ["Let the heels come off the floor", "Fall backward at the bottom"],
+    "badForm": [
+      "Let the heels come off the floor",
+      "Fall backward at the bottom"
+    ],
     "video": "https://www.youtube.com/watch?v=sMVyjUCp-XI",
     "pictogram": "squat"
   },
@@ -2521,9 +3663,17 @@
     "shortName": "Half squat",
     "abbr": "HS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -2536,7 +3686,10 @@
       "Keep the heels flat and the chest up",
       "Drive up through the whole foot"
     ],
-    "badForm": ["Let the knees buckle inward", "Bounce at the bottom"],
+    "badForm": [
+      "Let the knees buckle inward",
+      "Bounce at the bottom"
+    ],
     "video": "https://www.youtube.com/watch?v=zWvxJ7bBMmU",
     "pictogram": "squat"
   },
@@ -2546,9 +3699,17 @@
     "shortName": "Jackknife squat",
     "abbr": "JS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["abdominals", "hamstrings"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "abdominals",
+      "hamstrings"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -2561,8 +3722,10 @@
       "Keep the hands light on the floor",
       "Stand fully upright between reps"
     ],
-    "badForm": ["Push off the floor with the hands", "Lift the heels"],
-    "video": "https://www.youtube.com/watch?v=QhyRsrPOkoY",
+    "badForm": [
+      "Push off the floor with the hands",
+      "Lift the heels"
+    ],
     "pictogram": "squat"
   },
   "CAL_SQUAT_ONE_LEG_HALF": {
@@ -2571,9 +3734,17 @@
     "shortName": "Half one-leg",
     "abbr": "HOL",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "abdominals"
+    ],
     "pattern": "squat",
     "level": "expert",
     "increment": {
@@ -2586,7 +3757,10 @@
       "Lower until the thigh is halfway to level",
       "Keep the standing heel flat"
     ],
-    "badForm": ["Let the knee fall inward", "Fall back onto the free foot"],
+    "badForm": [
+      "Let the knee fall inward",
+      "Fall back onto the free foot"
+    ],
     "pictogram": "pistol"
   },
   "CAL_SQUAT_SHOULDERSTAND": {
@@ -2595,9 +3769,16 @@
     "shortName": "Shoulderstand squat",
     "abbr": "SS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["abdominals"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "abdominals"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -2610,8 +3791,10 @@
       "Bend the knees until the thighs near the chest",
       "Push back to straight legs without swinging"
     ],
-    "badForm": ["Pull on the neck with the hands", "Rock hard to build momentum"],
-    "video": "https://www.youtube.com/watch?v=5XDjserman8",
+    "badForm": [
+      "Pull on the neck with the hands",
+      "Rock hard to build momentum"
+    ],
     "pictogram": "squat"
   },
   "CAL_SQUAT_SUPPORTED": {
@@ -2620,9 +3803,17 @@
     "shortName": "Supported squat",
     "abbr": "SS",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
     "pattern": "squat",
     "level": "beginner",
     "increment": {
@@ -2635,7 +3826,10 @@
       "Sit between the hips to full depth",
       "Use the arms only for balance"
     ],
-    "badForm": ["Hang from the support to stand up", "Let the knees drift inward"],
+    "badForm": [
+      "Hang from the support to stand up",
+      "Let the knees drift inward"
+    ],
     "video": "https://www.youtube.com/watch?v=VV_0K2Dud3o",
     "pictogram": "squat"
   },
@@ -2645,9 +3839,17 @@
     "shortName": "Uneven squat",
     "abbr": "US",
     "kind": "bodyweight",
-    "equipment": ["none"],
-    "muscles": ["quadriceps", "glutes"],
-    "secondary": ["hamstrings", "calves"],
+    "equipment": [
+      "none"
+    ],
+    "muscles": [
+      "quadriceps",
+      "glutes"
+    ],
+    "secondary": [
+      "hamstrings",
+      "calves"
+    ],
     "pattern": "squat",
     "level": "intermediate",
     "increment": {
@@ -2660,7 +3862,10 @@
       "Keep both feet pointing forward",
       "Switch legs between sets"
     ],
-    "badForm": ["Shift sideways over the low leg", "Let the knee cave in"],
+    "badForm": [
+      "Shift sideways over the low leg",
+      "Let the knee cave in"
+    ],
     "pictogram": "squat"
   },
   "CAL_SUPPORT_HOLD": {
@@ -2669,9 +3874,20 @@
     "shortName": "Support hold",
     "abbr": "SH",
     "kind": "bodyweight",
-    "equipment": ["dip-bars", "parallettes", "rings"],
-    "muscles": ["triceps", "shoulders", "chest"],
-    "secondary": ["abdominals", "forearms"],
+    "equipment": [
+      "dip-bars",
+      "parallettes",
+      "rings"
+    ],
+    "muscles": [
+      "triceps",
+      "shoulders",
+      "chest"
+    ],
+    "secondary": [
+      "abdominals",
+      "forearms"
+    ],
     "pattern": "push",
     "level": "beginner",
     "increment": {
@@ -2684,7 +3900,10 @@
       "Keep the chest tall and the legs together",
       "Breathe steadily and keep the body still"
     ],
-    "badForm": ["Shrug the shoulders up toward the ears", "Let the elbows bend or flare"],
+    "badForm": [
+      "Shrug the shoulders up toward the ears",
+      "Let the elbows bend or flare"
+    ],
     "video": "https://www.youtube.com/watch?v=eLI7t-5wHno",
     "timed": true,
     "pictogram": "support-hold"
