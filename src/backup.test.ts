@@ -125,6 +125,30 @@ describe('persist migration', () => {
   });
 });
 
+describe('stored equipment keeps only equipment this app knows', () => {
+  const dirty = ['barbell', 'constructor', '__proto__', 'toString', 'jetpack', 7, 'barbell', 'rings'];
+  test('loading the file, migrating an older snapshot and a one-program snapshot', async () => {
+    await AsyncStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ state: { ...initialState(), equipment: dirty }, version: 4 }),
+    );
+    await useStore.persist.rehydrate();
+    expect(get().equipment).toEqual(['barbell', 'rings']);
+    expect(migratePersisted({ ...initialState(), equipment: dirty }, 4).equipment).toEqual([
+      'barbell',
+      'rings',
+    ]);
+    expect(migratePersisted({ equipment: dirty }, 2).equipment).toEqual(['barbell', 'rings']);
+    expect(migratePersisted({ equipment: 'barbell' }, 2).equipment).toEqual([]);
+    expect(migratePersisted({}, 2).equipment).toEqual([]);
+  });
+
+  test('the gym setter never stores an unknown value', () => {
+    get().setEquipment(['barbell', 'constructor' as never, 'barbell']);
+    expect(get().equipment).toEqual(['barbell']);
+  });
+});
+
 describe('soft delete', () => {
   test('a custom exercise used in history is archived, not removed', () => {
     get().upsertExercise({
@@ -235,6 +259,7 @@ const hostileCases = (id: string): [string, (s: any) => void][] => [
     (s) => (s.exercises.custom_x = custom('custom_x', { pattern: id })),
   ],
   [`${id} as an equipment value`, (s) => (s.exercises.custom_x = custom('custom_x', { equipment: [id] }))],
+  [`${id} as owned equipment`, (s) => (s.equipment = ['barbell', id])],
   [`${id} as a lift key`, (s) => own(s.programs[0].lifts, id, { weightKg: 20, startKg: 20, fails: 0 })],
 ];
 
@@ -254,6 +279,8 @@ describe('a damaged backup is refused, never thrown', () => {
     ['a slot that is null', (s) => (s.programs[0].days[0].slots = [null])],
     ['lifts that are a list', (s) => (s.programs[0].lifts = [])],
     ['exercises with a null entry', (s) => (s.exercises.BENCH_PRESS = null)],
+    ['equipment that is not a list', (s) => (s.equipment = 'barbell')],
+    ['equipment this app does not know', (s) => (s.equipment = ['barbell', 'jetpack'])],
     ['an exercise filed under another id', (s) => (s.exercises.custom_x = custom('custom_y'))],
     ...HOSTILE.flatMap(hostileCases),
     [

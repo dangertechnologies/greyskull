@@ -41,6 +41,7 @@ import {
   validateProgram,
 } from './domain';
 import { isEdited, userFieldsOf, withUserFields } from './domain/exerciseFields';
+import { EQUIPMENT_LABELS } from './exerciseFilter';
 import { createFileStorage } from './storage';
 
 /** AsyncStorage entry the state lived in before it moved to a file (read once, then kept untouched). */
@@ -352,12 +353,21 @@ export function upgradeOneProgramState(old: Partial<OneProgramState>): AppState 
     exercises: rest.exercises ? refreshCatalog(rest.exercises, ['abbr']) : base.exercises,
     programs,
     customPlans: rest.customPlans ?? [],
+    equipment: knownEquipment(rest.equipment),
     nextSession: next,
     draft,
   };
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+
+/** Whether `v` is an equipment id this app knows. Own keys only: "constructor" and "toString" are not equipment. */
+export const isEquipment = (v: unknown): v is Equipment =>
+  typeof v === 'string' && Object.hasOwn(EQUIPMENT_LABELS, v);
+
+/** The known, distinct equipment ids of a stored list; anything else (a value this app has never had) is dropped. */
+export const knownEquipment = (list: unknown): Equipment[] =>
+  Array.isArray(list) ? [...new Set(list.filter(isEquipment))] : [];
 /** An object that is not an array. */
 const isRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !Array.isArray(v);
 
@@ -438,6 +448,7 @@ export function migratePersisted(persistedState: unknown, fromVersion: number): 
     ...state,
     version: 3,
     inventory: { ...base.inventory, ...state.inventory },
+    equipment: knownEquipment(state.equipment),
     exercises: state.exercises ?? {},
   };
 }
@@ -871,7 +882,7 @@ export const useStore = create<Store>()(
 
       deleteCustomPlan: (id) => set((s) => ({ customPlans: s.customPlans.filter((p) => p.id !== id) })),
 
-      setEquipment: (list) => set({ equipment: [...new Set(list)] }),
+      setEquipment: (list) => set({ equipment: knownEquipment(list) }),
       setBands: (list) => set({ bands: list }),
       setBreakDeload: (on) => set({ breakDeload: on }),
       setHealthSync: (on) => set({ healthSync: on }),
@@ -992,6 +1003,7 @@ export const useStore = create<Store>()(
         return {
           ...current,
           ...state,
+          equipment: state.equipment === undefined ? current.equipment : knownEquipment(state.equipment),
           exercises: state.exercises ? restoreExercises(state.exercises) : current.exercises,
         };
       },
