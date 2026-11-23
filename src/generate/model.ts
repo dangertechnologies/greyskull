@@ -60,14 +60,17 @@ export type Failure =
 
 export type Outcome = { ok: true; plan: CustomPlan } | { ok: false; failure: Failure; errors: string[] };
 
-const FAILURES: Record<string, Failure> = {
-  ERR_TIMEOUT: 'timeout',
-  ERR_MODEL_REFUSAL: 'refused',
-  ERR_APP_BACKGROUND: 'background',
-  ERR_ABORTED: 'cancelled',
-  ERR_MODEL_NOT_READY: 'unavailable',
-  ERR_MODEL_UNAVAILABLE: 'unavailable',
-};
+/** A Map, so an error code such as `constructor` never matches an object's inherited members. */
+const FAILURES = new Map<string, Failure>([
+  ['ERR_TIMEOUT', 'timeout'],
+  ['ERR_MODEL_REFUSAL', 'refused'],
+  ['ERR_APP_BACKGROUND', 'background'],
+  ['ERR_ABORTED', 'cancelled'],
+  ['ERR_MODEL_NOT_READY', 'unavailable'],
+  ['ERR_MODEL_UNAVAILABLE', 'unavailable'],
+]);
+/** Below this much time left, a retry would only end as a timeout, so the errors are shown instead. */
+const MIN_RETRY_MS = 3_000;
 /** The model answered, but not in the schema's shape even after the library's own repair. */
 const MALFORMED = new Set([
   'ERR_VALIDATION_RETRIES_EXHAUSTED',
@@ -93,8 +96,8 @@ export interface Request {
 
 /**
  * Asks the on-device model for a program and checks it. A program that fails the checks (or an answer the
- * library could not fit to the schema) gets one retry with the errors in the prompt; a second failure returns
- * them. Nothing is saved: the caller saves the plan when the user chooses to review it.
+ * library could not fit to the schema) gets one retry with the errors in the prompt, when at least 3 s of the
+ * deadline are left; a second failure, or too little time, returns them. Nothing is saved: the caller saves the plan when the user chooses to review it.
  */
 export async function generatePlan(req: Request): Promise<Outcome> {
   const allowed = allowedFor(req.answers, req.exercises);
@@ -115,11 +118,12 @@ export async function generatePlan(req: Request): Promise<Outcome> {
       if (req.signal?.aborted) return { ok: false, failure: 'cancelled', errors: [] };
       if (MALFORMED.has(code)) {
         errors = [MALFORMED_TEXT];
+        if (deadline - Date.now() < MIN_RETRY_MS) break;
         continue;
       }
       if (code === 'ERR_CONTEXT_WINDOW_EXCEEDED')
         return { ok: false, failure: 'error', errors: ['The request is too long for the on-device model.'] };
-      return { ok: false, failure: FAILURES[code] ?? 'error', errors: [] };
+      return { ok: false, failure: FAILURES.get(code) ?? 'error', errors: [] };
     }
     const checked = checkGenerated(value, { answers: req.answers, allowed, exercises: req.exercises });
     if (checked.ok) {
@@ -135,6 +139,7 @@ export async function generatePlan(req: Request): Promise<Outcome> {
       };
     }
     errors = checked.errors;
+    if (deadline - Date.now() < MIN_RETRY_MS) break;
   }
   return { ok: false, failure: 'invalid', errors };
 }

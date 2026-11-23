@@ -209,3 +209,42 @@ describe('generatePlan', () => {
     now.mockRestore();
   });
 });
+
+describe('fix round', () => {
+  test.each(['toString', '__proto__', 'constructor', 'hasOwnProperty'])(
+    'an error code %s is a plain error, not a prototype member',
+    async (code) => {
+      generate.mockRejectedValue(fail(code));
+      await expect(generatePlan(request())).resolves.toEqual({ ok: false, failure: 'error', errors: [] });
+    },
+  );
+
+  test('a validation failure with under 3 s left skips the retry and shows the errors, not a timeout', async () => {
+    const now = jest.spyOn(Date, 'now');
+    now.mockReturnValue(1_000_000);
+    generate.mockImplementationOnce(async () => {
+      now.mockReturnValue(1_000_000 + 28_000);
+      return { value: bad };
+    });
+    const result = await generatePlan(request());
+    expect(result).toEqual({
+      ok: false,
+      failure: 'invalid',
+      errors: expect.arrayContaining([expect.stringMatching(/NOPE/)]),
+    });
+    expect(generate).toHaveBeenCalledTimes(1);
+    now.mockRestore();
+  });
+
+  test('a schema failure with under 3 s left is shown as invalid too', async () => {
+    const now = jest.spyOn(Date, 'now');
+    now.mockReturnValue(1_000_000);
+    generate.mockImplementationOnce(async () => {
+      now.mockReturnValue(1_000_000 + 29_000);
+      throw fail('ERR_RESPONSE_INVALID');
+    });
+    await expect(generatePlan(request())).resolves.toMatchObject({ ok: false, failure: 'invalid' });
+    expect(generate).toHaveBeenCalledTimes(1);
+    now.mockRestore();
+  });
+});
