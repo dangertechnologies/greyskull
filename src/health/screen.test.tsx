@@ -71,7 +71,7 @@ test('Export sends every finished workout and says how many', async () => {
         dayName: 'A',
         startedAt: '2026-11-01T08:00:00.000Z',
         finishedAt: '2026-11-01T09:00:00.000Z',
-        results: {},
+        results: { SQUAT: { weightKg: 60, sets: [{ target: 5, reps: 5 }] } },
         order: [],
       },
       {

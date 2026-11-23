@@ -9,11 +9,28 @@ export interface HealthView {
   /** Label of the button that opens the system screen, or null when there is nothing to open. */
   settingsButton: string | null;
   exportEnabled: boolean;
+  /** What the app does and does not do with the data, shown under the controls. */
+  privacyNote: string;
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const shortDate = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+
+/** One line for the result of Export: what was sent, what was there already, what was empty. */
+export function exportSummary(r: {
+  written: number;
+  alreadyThere: number;
+  skippedEmpty: number;
+  failed: boolean;
+}): string {
+  const w = (n: number) => `${n} ${n === 1 ? 'workout' : 'workouts'}`;
+  const parts = [`Sent ${w(r.written)}`];
+  if (r.alreadyThere > 0) parts.push(`${r.alreadyThere} already there`);
+  if (r.skippedEmpty > 0) parts.push(`skipped ${r.skippedEmpty} empty`);
+  const text = `${parts.join(', ')}.`;
+  return r.failed ? `${text} Some could not be sent. Try again later.` : text;
+}
 
 export function describeHealth(input: {
   os: 'ios' | 'android' | string;
@@ -51,6 +68,9 @@ export function describeHealth(input: {
         : null,
     settingsButton: unavailable || !blocked ? null : ios ? 'Open system Settings' : 'Open Health Connect',
     exportEnabled: permission === 'granted',
+    privacyNote: ios
+      ? 'Greyskull writes each workout to Apple Health on this device and never reads your Health data. It sends nothing to its developer or any third party. What Apple does with Health data, such as syncing it through iCloud, and which apps can read it follows your Health settings.'
+      : 'Greyskull writes each workout to Health Connect on this device and never reads your Health data. It sends nothing to its developer or any third party. What Google does with Health Connect data, such as backing it up, and which apps can read it follows your Health Connect settings.',
   };
 }
 

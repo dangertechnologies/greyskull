@@ -1,8 +1,14 @@
 import { Stack } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useTheme } from '../../src/design/theme';
-import { describeHealth, getHealthSync, lastSyncLabel, useHealthStatus } from '../../src/health';
+import {
+  describeHealth,
+  exportSummary,
+  getHealthSync,
+  lastSyncLabel,
+  useHealthStatus,
+} from '../../src/health';
 import { useStore } from '../../src/store';
 import { Button } from '../../src/ui/Button';
 import { Icon } from '../../src/ui/Icon';
@@ -22,25 +28,20 @@ export default function HealthSettings() {
   const view = describeHealth({ os: Platform.OS, healthSync, status });
 
   const refresh = useCallback(() => void sync.refreshPermission(), [sync]);
-  // Ask the system on opening and again when the user comes back from its Settings screen.
-  useEffect(() => {
-    refresh();
-    const sub = AppState.addEventListener('change', (state) => state === 'active' && refresh());
-    return () => sub.remove();
-  }, [refresh]);
+  // Ask the system on opening; coming back from its Settings screen is handled for the whole app.
+  useEffect(refresh, [refresh]);
 
   const onExport = async () => {
     setExporting(true);
     setExportNote(null);
-    const result = await sync.exportPast();
-    setExporting(false);
-    setExportNote(
-      result.failed
-        ? 'Some workouts could not be sent. Try again later.'
-        : result.permission !== 'granted'
-          ? 'Health access is off.'
-          : `Sent ${result.written} ${result.written === 1 ? 'workout' : 'workouts'}.`,
-    );
+    try {
+      const result = await sync.exportPast();
+      setExportNote(result.permission !== 'granted' ? 'Health access is off.' : exportSummary(result));
+    } catch {
+      setExportNote('Some workouts could not be sent. Try again later.');
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -86,6 +87,10 @@ export default function HealthSettings() {
         <ListRow title="Last sync" subtitle={lastSyncLabel(status, writtenCount)} />
       </Section>
 
+      {status.lastError && healthSync && !view.banner ? (
+        <Button title="Try again now" variant="secondary" onPress={() => void sync.retryNow()} />
+      ) : null}
+
       <Button
         title={exporting ? 'Sending…' : 'Export past workouts'}
         variant="secondary"
@@ -100,12 +105,10 @@ export default function HealthSettings() {
       ) : null}
 
       <Text color="textMuted">
-        Sends every finished workout to Health. Running it twice is harmless: each workout keeps one entry.
+        Sends the finished workouts that are not in Health yet. Running it twice is harmless: each workout
+        keeps one entry.
       </Text>
-      <Text color="textMuted">
-        Workouts are written to Health on this device. Nothing leaves your phone, and Greyskull never reads
-        from Health.
-      </Text>
+      <Text color="textMuted">{view.privacyNote}</Text>
     </ScreenScroll>
   );
 }

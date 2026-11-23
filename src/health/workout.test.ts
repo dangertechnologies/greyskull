@@ -1,12 +1,12 @@
 import type { ActiveProgram, SessionLog } from '../domain';
-import { isSyncable, recordId, toWorkout } from './workout';
+import { isEmpty, isSyncable, MAX_WORKOUT_MS, recordId, toWorkout } from './workout';
 
 const log = (patch: Partial<SessionLog> = {}): SessionLog => ({
   n: 7,
   dayName: 'Day A',
   startedAt: '2026-11-20T08:00:00.000Z',
   finishedAt: '2026-11-20T08:50:00.000Z',
-  results: {},
+  results: { SQUAT: { weightKg: 60, sets: [{ target: 5, reps: 5 }] } },
   order: [],
   programId: 'p1',
   programName: 'Greyskull LP',
@@ -58,5 +58,26 @@ describe('health workout', () => {
     expect(isSyncable(log({ finishedAt: undefined }))).toBe(false);
     expect(isSyncable(log({ skipped: true }))).toBe(false);
     expect(toWorkout(log({ skipped: true }), [], 1)).toBeNull();
+  });
+
+  it('clamps a very long workout to six hours', () => {
+    const w = toWorkout(log({ finishedAt: '2026-11-22T08:00:00.000Z' }), [], 1);
+    expect(w && w.end.getTime() - w.start.getTime()).toBe(MAX_WORKOUT_MS);
+    expect(MAX_WORKOUT_MS).toBe(6 * 3_600_000);
+  });
+
+  it('does not write a finish with no set done', () => {
+    const none = log({ results: { SQUAT: { weightKg: 60, sets: [{ target: 5, reps: 0 }] } } });
+    expect(isEmpty(none)).toBe(true);
+    expect(isEmpty(log({ results: {} }))).toBe(true);
+    expect(isEmpty(log())).toBe(false);
+    expect(toWorkout(none, [], 1)).toBeNull();
+  });
+
+  it('cuts the title to 80 characters and strips control characters', () => {
+    const w = toWorkout(log({ programName: `A\u0000B\n${'x'.repeat(200)}` }), [], 1);
+    expect(w?.title.length).toBeLessThanOrEqual(80);
+    expect([...(w?.title ?? '')].some((c) => c.charCodeAt(0) < 32)).toBe(false);
+    expect(w?.title.startsWith('AB')).toBe(true);
   });
 });

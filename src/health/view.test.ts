@@ -1,5 +1,5 @@
 import { type HealthStatus, initialHealthStatus } from './status';
-import { describeHealth, lastSyncLabel } from './view';
+import { describeHealth, exportSummary, lastSyncLabel } from './view';
 
 const status = (patch: Partial<HealthStatus> = {}): HealthStatus => ({ ...initialHealthStatus(), ...patch });
 const NOW = new Date(2026, 10, 23, 15, 0);
@@ -78,5 +78,40 @@ describe('lastSyncLabel', () => {
 
   it('says nothing was written yet', () => {
     expect(lastSyncLabel(status(), 0, NOW)).toBe('Nothing written yet');
+  });
+});
+
+describe('privacy note', () => {
+  it('says what Greyskull does and leaves the rest to Apple or Google, without claiming nothing leaves the phone', () => {
+    const ios = describeHealth({
+      os: 'ios',
+      healthSync: true,
+      status: status({ permission: 'granted' }),
+    }).privacyNote;
+    expect(ios).toContain('never reads your Health data');
+    expect(ios).toContain('sends nothing to its developer or any third party');
+    expect(ios).toContain('iCloud');
+    expect(ios).not.toMatch(/leaves your phone/i);
+    const android = describeHealth({
+      os: 'android',
+      healthSync: true,
+      status: status({ permission: 'granted' }),
+    }).privacyNote;
+    expect(android).toContain('Health Connect');
+    expect(android).toContain('Google');
+  });
+});
+
+describe('exportSummary', () => {
+  it('counts what was sent, already there and empty', () => {
+    expect(exportSummary({ written: 2, alreadyThere: 5, skippedEmpty: 1, failed: false })).toBe(
+      'Sent 2 workouts, 5 already there, skipped 1 empty.',
+    );
+    expect(exportSummary({ written: 1, alreadyThere: 0, skippedEmpty: 0, failed: false })).toBe(
+      'Sent 1 workout.',
+    );
+    expect(exportSummary({ written: 0, alreadyThere: 0, skippedEmpty: 0, failed: true })).toContain(
+      'could not be sent',
+    );
   });
 });

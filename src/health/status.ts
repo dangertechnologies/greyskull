@@ -12,6 +12,8 @@ export interface HealthStatus {
   dirty: number[];
   /** After a failure: how many failures in a row, and when the next automatic try may start (ms since epoch). */
   retry: { attempts: number; at: number } | null;
+  /** Version of the last write per session number: the next write goes higher, even if the clock went back. */
+  versions: Record<number, number>;
   lastSyncAt: string | null;
   lastError: { at: string; message: string } | null;
   /** Last answer from the system. Not persisted: it is asked again on every launch. */
@@ -22,6 +24,7 @@ export const initialHealthStatus = (): HealthStatus => ({
   since: null,
   dirty: [],
   retry: null,
+  versions: {},
   lastSyncAt: null,
   lastError: null,
   permission: 'unknown',
