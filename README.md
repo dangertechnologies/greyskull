@@ -2,7 +2,7 @@
 
 A Greyskull LP (GSLP) workout tracker built with Expo SDK 58 and expo-router. It replaces the 2019 bare
 React Native app and ships under the same store ids: `com.dangertechnologies.gslp` on iOS and
-`com.greyskull` on Android. Version `1.2.0` (`package.json`; build numbers are managed by EAS).
+`com.greyskull` on Android. Version `1.1.0` (`package.json`; build numbers are managed by EAS).
 
 ## Run
 
