@@ -1,4 +1,4 @@
-import type { ActiveProgram, SessionLog } from '../domain';
+import type { ActiveProgram, Exercise, SessionLog } from '../domain';
 import type { HealthStatus, Permission } from './status';
 import { type HealthWorkout, isEmpty, isSyncable, toWorkout } from './workout';
 
@@ -23,6 +23,7 @@ export interface SyncState {
   healthSync: boolean;
   sessions: SessionLog[];
   programs: ActiveProgram[];
+  exercises: Record<string, Exercise>;
   setHealthSync(on: boolean): void;
   setHealthIds(entries: { n: number; healthId: string }[]): void;
 }
@@ -179,7 +180,7 @@ export function createHealthSync(deps: {
     };
     const next = (log: SessionLog) => {
       const version = Math.max((status.getState().versions[log.n] ?? 0) + 1, now());
-      return toWorkout(log, store.getState().programs, version);
+      return toWorkout(log, store.getState().programs, version, store.getState().exercises);
     };
     try {
       if (platform.writeMany && list.length > 1) {

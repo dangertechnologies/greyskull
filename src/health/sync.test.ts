@@ -31,6 +31,7 @@ function setup(
     healthSync: opts.healthSync ?? true,
     sessions: opts.sessions ?? [],
     programs: [] as ActiveProgram[],
+    exercises: {},
     setHealthSync: (on) => set({ healthSync: on }),
     setHealthIds: (entries) =>
       set((s) => ({

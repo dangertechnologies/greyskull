@@ -1,5 +1,5 @@
 import { getPlan } from '../config/plans';
-import type { ActiveProgram, SessionLog } from '../domain';
+import type { ActiveProgram, Exercise, SessionLog } from '../domain';
 
 export type HealthActivity = 'strength' | 'functional';
 
@@ -34,10 +34,29 @@ export const recordId = (log: Pick<SessionLog, 'startedAt' | 'n'>): string =>
 const FUNCTIONAL_CATEGORIES = ['calisthenics', 'skills'];
 const MINUTE_MS = 60_000;
 
-export function toWorkout(log: SessionLog, programs: ActiveProgram[], version: number): HealthWorkout | null {
+/**
+ * A plan's own category; a program of your own has none, so it counts as functional training when it has slots
+ * and every one is a ladder or a bodyweight exercise (a paired slot needs both bodyweight), else as strength.
+ */
+function isFunctional(program: ActiveProgram, exercises: Record<string, Exercise>): boolean {
+  const category = getPlan(program.template)?.category;
+  if (category) return FUNCTIONAL_CATEGORIES.includes(category);
+  const slots = program.days.flatMap((d) => d.slots);
+  const bodyweight = (id: string) => exercises[id]?.kind === 'bodyweight';
+  return (
+    slots.length > 0 && slots.every((s) => s.ladder !== undefined || [s.exercise].flat().every(bodyweight))
+  );
+}
+
+/** `exercises` is the store's catalog, which tells a bodyweight exercise from a loaded one. */
+export function toWorkout(
+  log: SessionLog,
+  programs: ActiveProgram[],
+  version: number,
+  exercises: Record<string, Exercise> = {},
+): HealthWorkout | null {
   if (!isSyncable(log) || !log.finishedAt || isEmpty(log)) return null;
   const program = programs.find((p) => p.id === log.programId);
-  const category = program ? getPlan(program.template)?.category : undefined;
   const name = log.programName ?? program?.name;
   const start = new Date(log.startedAt);
   if (Number.isNaN(start.getTime())) return null;
@@ -52,6 +71,6 @@ export function toWorkout(log: SessionLog, programs: ActiveProgram[], version: n
     start,
     end,
     title: cleanTitle(name ? `${name} · ${log.dayName}` : log.dayName),
-    activity: category && FUNCTIONAL_CATEGORIES.includes(category) ? 'functional' : 'strength',
+    activity: program && isFunctional(program, exercises) ? 'functional' : 'strength',
   };
 }

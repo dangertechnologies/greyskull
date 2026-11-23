@@ -41,6 +41,33 @@ describe('health workout', () => {
     }
   });
 
+  describe('a program of your own has no plan category: its exercises decide', () => {
+    const { builtInExercises } = require('../catalog') as typeof import('../catalog');
+    const exercises = builtInExercises();
+    const own = (slots: ActiveProgram['days'][number]['slots']): ActiveProgram =>
+      ({ ...program('custom'), days: [{ name: 'A', slots }] }) as never;
+    const activity = (p: ActiveProgram) => toWorkout(log(), [p], 1, exercises)?.activity;
+
+    it('is functional when every slot is a ladder or a bodyweight exercise', () => {
+      expect(activity(own([{ exercise: 'CAL_SCAPULAR_PULL', scheme: '3x5-8', ladder: 'rr_pullup' }]))).toBe(
+        'functional',
+      );
+      expect(activity(own([{ exercise: 'CHINUPS', scheme: '3x5' }]))).toBe('functional');
+    });
+
+    it('is traditional strength training when any slot is loaded, or the program is empty', () => {
+      expect(
+        activity(
+          own([
+            { exercise: 'CHINUPS', scheme: '3x5' },
+            { exercise: 'BARBELL_SQUAT', scheme: '3x5' },
+          ]),
+        ),
+      ).toBe('strength');
+      expect(activity(own([]))).toBe('strength');
+    });
+  });
+
   it('carries the version and the times', () => {
     const w = toWorkout(log(), [program('base')], 42);
     expect(w).toMatchObject({ id: 'greyskull-2026-11-20T08:00:00.000Z-7', version: 42 });
