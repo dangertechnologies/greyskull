@@ -556,8 +556,6 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
   });
 
   test.each([
-    ['two sessions with one id', (s: Doc) => (s.sessions = [session({ n: 3 }), session({ n: 3 })])],
-    ['an id that is not a whole number', (s: Doc) => (s.sessions = [session({ n: 1.5 })])],
     [
       'a result flagged skipped with a string',
       (s: Doc) =>
@@ -565,7 +563,6 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
           session({ order: ['BENCH_PRESS'], results: { BENCH_PRESS: result({ skipped: 'yes' }) } }),
         ]),
     ],
-    ['a negative id', (s: Doc) => (s.sessions = [session({ n: -1 })])],
     ['a start that is not a date', (s: Doc) => (s.sessions = [session({ startedAt: 'yesterday' })])],
     ['a start without a time', (s: Doc) => (s.sessions = [session({ startedAt: '2026-01-01' })])],
     ['a finish that is not text', (s: Doc) => (s.sessions = [session({ finishedAt: 5 })])],
@@ -577,6 +574,47 @@ describe('limits hold on every path: a backup, an old stored file and a load', (
     const doc = seededDoc();
     edit(doc);
     expect(parseBackup(JSON.stringify(doc)).ok).toBe(false);
+  });
+
+  test('repeated, broken and missing session ids are renumbered after the highest, on a backup and a load', async () => {
+    const doc = seededDoc();
+    const at = (n: number) => `2026-01-0${n}T10:00:00.000Z`;
+    doc.sessions = [
+      session({ n: 3, startedAt: at(1), healthId: 'h' }),
+      session({ n: 3, startedAt: at(2), healthId: 'h2' }),
+      session({ n: 1.5, startedAt: at(3) }),
+      session({ n: -1, startedAt: at(4) }),
+      session({ startedAt: at(5), n: undefined }),
+      session({ n: 1, startedAt: at(6) }),
+    ];
+    doc.nextSession = 2;
+    const expected = [3, 4, 5, 6, 7, 1];
+    const r = parseBackup(JSON.stringify(doc));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.state.sessions.map((l) => [l.n, l.startedAt])).toEqual(expected.map((n, i) => [n, at(i + 1)]));
+    expect(r.state.nextSession).toBe(8);
+    // The renumbered workout keeps its Health id, so it is not written to Health a second time.
+    expect(r.state.sessions[1].healthId).toBe('h2');
+    const draft = { ...session({ n: 1, startedAt: at(7) }), programId: doc.programs[0].id };
+    const migrated = migratePersisted({ ...doc, draft }, 4);
+    expect(migrated.sessions.map((l) => l.n)).toEqual(expected);
+    expect([migrated.draft?.n, migrated.nextSession]).toEqual([8, 9]);
+    files.set(stateFile().uri, JSON.stringify({ state: { ...doc, draft }, version: 4 }));
+    useStore.setState({ ...initialState(), hydrated: false, storageError: null });
+    await initStore();
+    expect(get().storageError).toBeNull();
+    expect(get().sessions.map((l) => l.n)).toEqual(expected);
+    expect([get().draft?.n, get().nextSession]).toEqual([8, 9]);
+  });
+
+  test('the store’s own export with a repeated id (an older version could make one) restores', () => {
+    seeded();
+    useStore.setState((s) => ({
+      sessions: [...s.sessions, { ...s.sessions[0], startedAt: '2026-02-01T10:00:00.000Z' }],
+    }));
+    const r = parseBackup(get().exportJson());
+    if (!r.ok) throw new Error(r.error);
+    expect(r.state.sessions.map((l) => l.n)).toEqual([0, 1]);
   });
 
   test('dates with a time-zone offset are still accepted', () => {

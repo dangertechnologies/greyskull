@@ -1,4 +1,5 @@
 import { exerciseIdsOf, PLUGINS, TEMPLATES } from './program';
+import { normaliseSessionIds } from './sessionIds';
 import type { AppState, Exercise, ExerciseResult, LiftState, Program, SessionLog } from './types';
 import { DEFAULT_INVENTORY } from './types';
 
@@ -116,24 +117,16 @@ export function migrateV1(
     const when = new Date(workout.completed as number).toISOString();
     sessions.push({ n: workout.id, dayName: '', startedAt: when, finishedAt: when, results, order });
   }
-  // Session ids must be unique whole numbers: editing and Health sync find a workout by its id. v1 ids are kept;
-  // a missing, broken or repeated one gets a new id after the highest, and new workouts continue after that.
-  const validId = (n: unknown): n is number => Number.isSafeInteger(n) && (n as number) >= 0;
-  let nextSession = 0;
-  for (const s of sessions) if (validId(s.n)) nextSession = Math.max(nextSession, s.n + 1);
-  const seen = new Set<number>();
-  for (const s of sessions) {
-    if (!validId(s.n) || seen.has(s.n)) s.n = nextSession++;
-    seen.add(s.n);
-  }
-  sessions.sort((a, b) => a.n - b.n);
+  // v1 ids are kept; a missing, broken or repeated one gets a new id after the highest (see normaliseSessionIds).
+  const { sessions: numbered, nextSession } = normaliseSessionIds({ sessions, draft: null, nextSession: 0 });
+  numbered.sort((a, b) => a.n - b.n);
 
   return {
     patch: {
       unit,
       program,
       lifts,
-      sessions,
+      sessions: numbered,
       nextSession,
       needsWeightConfirm: true,
       needsWeightConfirmSuspects: suspects,

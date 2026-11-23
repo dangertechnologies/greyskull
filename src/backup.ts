@@ -12,6 +12,7 @@ import {
   STORE_VERSION,
   stateProblem,
   upgradeOneProgramState,
+  withNextSession,
 } from './store';
 
 export interface BackupSummary {
@@ -46,8 +47,8 @@ export const isIsoDate = (v: unknown): v is string =>
   typeof v === 'string' && ISO_DATE.test(v) && !Number.isNaN(Date.parse(v));
 
 function badSession(s: unknown): string | null {
-  if (!isObject(s) || !isNum(s.n) || typeof s.startedAt !== 'string') return 'a session is malformed';
-  if (!Number.isInteger(s.n) || s.n < 0) return `session ${String(s.n)} has an id that is not a whole number`;
+  // An id that is missing, broken or repeated is renumbered (`normaliseSessionIds`), never refused.
+  if (!isObject(s) || typeof s.startedAt !== 'string') return 'a session is malformed';
   if (!isIsoDate(s.startedAt) || (s.finishedAt !== undefined && !isIsoDate(s.finishedAt)))
     return `session ${String(s.n)} has a date that is not a date and time`;
   if (!isObject(s.results) || !Array.isArray(s.order) || reserved(s.results))
@@ -129,14 +130,9 @@ function parse(raw: string): BackupResult {
   if (!isNum(data.nextSession) || (data.unit !== 'kg' && data.unit !== 'lb') || !isObject(data.inventory)) {
     return { ok: false, error: 'The backup is missing basic settings.' };
   }
-  const ids = new Set<number>();
   for (const s of data.sessions) {
     const problem = badSession(s);
     if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
-    // Edits and Health writes find a session by its id: two with one id would hit the wrong one.
-    const n = (s as { n: number }).n;
-    if (ids.has(n)) return { ok: false, error: `The backup is damaged: two sessions have the id ${n}.` };
-    ids.add(n);
   }
   if (
     !onePlan &&
@@ -185,9 +181,11 @@ function parse(raw: string): BackupResult {
   if (problem) return { ok: false, error: `The backup is damaged: ${problem.replace(/\.$/, '')}.` };
 
   // A half-finished workout is not worth restoring across devices.
-  const converted = onePlan
-    ? upgradeOneProgramState({ ...(data as unknown as OneProgramState), draft: null })
-    : migratePersisted({ ...data, draft: null }, 4);
+  const converted = withNextSession(
+    onePlan
+      ? upgradeOneProgramState({ ...(data as unknown as OneProgramState), draft: null })
+      : migratePersisted({ ...data, draft: null }, 4),
+  );
   // Built-ins come from this app's catalog with the user's own fields from the backup on top (a one-program
   // backup's built-ins were refreshed by the conversion, so their stale content does not count as the user's).
   const state: AppState = { ...converted, exercises: restoreExercises(converted.exercises) };

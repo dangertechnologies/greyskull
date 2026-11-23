@@ -45,6 +45,7 @@ import {
 } from './domain';
 import { isEdited, userFieldsOf, withUserFields } from './domain/exerciseFields';
 import { sanitizeExercise } from './domain/sanitizeExercise';
+import { normaliseSessionIds } from './domain/sessionIds';
 import { EQUIPMENT_LABELS } from './exerciseFilter';
 import { recordId } from './health/workout';
 import { createFileStorage } from './storage';
@@ -547,16 +548,10 @@ export function stateProblem(s: Record<string, unknown>): string | null {
 }
 
 /**
- * `nextSession` raised above every id already used (finished, skipped or open), so a stored or restored counter
- * that is too low or missing can never hand out an id twice.
+ * Session ids made unique (a repeated one renumbered, every session kept) and `nextSession` raised above every id
+ * already used (finished, skipped or open), so stored or restored data can never hand out an id twice.
  */
-export function withNextSession<T extends Pick<AppState, 'nextSession' | 'sessions' | 'draft'>>(s: T): T {
-  const whole = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0;
-  let next = whole(s.nextSession) ? s.nextSession : 0;
-  for (const log of s.sessions ?? []) if (whole(log.n)) next = Math.max(next, log.n + 1);
-  if (s.draft && whole(s.draft.n)) next = Math.max(next, s.draft.n + 1);
-  return next === s.nextSession ? s : { ...s, nextSession: next };
-}
+export const withNextSession = normaliseSessionIds;
 
 const assertState = (s: Record<string, unknown>): void => {
   const problem = stateProblem(s);
