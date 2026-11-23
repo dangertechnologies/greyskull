@@ -1,6 +1,7 @@
 import type { AppState } from '../domain';
 import { fiveThreeOneSets, sessionFor, sessionWeightKg } from '../domain';
 import { nameOf, weekLabel, weightLabel } from '../format';
+import { pickProgram } from '../programStart';
 
 /** What the "Next workout" widget shows. Plain JSON: it is handed to the widget extension as-is. */
 export interface NextWorkoutProps {
@@ -24,13 +25,32 @@ export const EMPTY_NEXT: NextWorkoutProps = {
   ready: false,
 };
 
+export const ALL_PAUSED_NEXT: NextWorkoutProps = {
+  title: 'All programs paused',
+  subtitle: 'Open the app to resume one',
+  lines: [],
+  inProgress: false,
+  ready: false,
+};
+
+/** Weights moved from the old version stay hidden until the person has checked them. */
+export const CONFIRM_NEXT: NextWorkoutProps = {
+  title: 'Confirm your weights',
+  subtitle: 'Open the app to check them',
+  lines: [],
+  inProgress: false,
+  ready: false,
+};
+
 /** The workout in progress, else the next session of the first program that is not paused. */
 export function nextWorkoutProps(
-  s: Pick<AppState, 'programs' | 'exercises' | 'inventory' | 'unit' | 'draft'>,
+  s: Pick<AppState, 'programs' | 'exercises' | 'inventory' | 'unit' | 'draft'> &
+    Partial<Pick<AppState, 'needsWeightConfirm'>>,
 ): NextWorkoutProps {
-  const program =
-    s.programs.find((p) => s.draft && p.id === s.draft.programId) ?? s.programs.find((p) => !p.paused);
-  if (!program) return EMPTY_NEXT;
+  if (s.programs.length === 0) return EMPTY_NEXT;
+  if (s.needsWeightConfirm) return CONFIRM_NEXT;
+  const program = pickProgram(s);
+  if (!program) return ALL_PAUSED_NEXT;
   const inProgress = !!s.draft && s.draft.programId === program.id;
   const session = sessionFor(
     inProgress && s.draft?.position !== undefined ? { ...program, position: s.draft.position } : program,

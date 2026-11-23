@@ -3,7 +3,7 @@ import { builtInExercises } from '../catalog';
 import { TEMPLATES } from '../domain';
 import { initialState } from '../store';
 import { endRestActivity, startRestActivity, syncNextWorkout } from './index';
-import { EMPTY_NEXT, nextWorkoutProps, restProps } from './summary';
+import { ALL_PAUSED_NEXT, EMPTY_NEXT, nextWorkoutProps, restProps } from './summary';
 
 const mockDefinitionsLoaded = jest.fn();
 // Stands in for the real definitions, whose expo-widgets import throws without the native module.
@@ -68,12 +68,12 @@ describe('widget props', () => {
     expect(nextWorkoutProps(s).lines).toEqual(['Dips +10 kg', 'Chin']);
   });
 
-  test('paused programs are skipped; all paused shows the set-up prompt', () => {
+  test('paused programs are skipped; all paused says to resume one', () => {
     const s = withProgram();
     s.programs = [{ ...s.programs[0], id: 'paused', name: 'Paused', paused: true }, s.programs[0]];
     expect(nextWorkoutProps(s).ready).toBe(true);
     s.programs = [s.programs[0]];
-    expect(nextWorkoutProps(s)).toEqual(EMPTY_NEXT);
+    expect(nextWorkoutProps(s)).toEqual(ALL_PAUSED_NEXT);
   });
 
   test('props are JSON-serialisable (they cross into the extension as JSON)', () => {
