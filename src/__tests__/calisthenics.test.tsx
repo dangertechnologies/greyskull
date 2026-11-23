@@ -145,6 +145,31 @@ describe('the ladder screen', () => {
     alert.mockRestore();
   });
 
+  test('with sets of the ladder logged in the open workout, steps cannot be chosen', async () => {
+    get().startSession(programId());
+    get().logSet('CAL_SCAPULAR_PULL', 0, 5);
+    const alert = jest.spyOn(Alert, 'alert');
+    await renderRouter(allRoutes(), { initialUrl: `/ladder/rr_pullup?program=${programId()}` });
+    expect(await screen.findByTestId('ladder-locked')).toBeTruthy();
+    fireEvent.press(screen.getByTestId('ladder-step-3'));
+    expect(alert).not.toHaveBeenCalled();
+    expect(lifts().rr_pullup.step ?? 0).toBe(0);
+    alert.mockRestore();
+  });
+
+  test('the dialog says the workout in progress changes too when the ladder is in it', async () => {
+    get().startSession(programId());
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    await renderRouter(allRoutes(), { initialUrl: `/ladder/rr_pullup?program=${programId()}` });
+    fireEvent.press(await screen.findByTestId('ladder-step-2'));
+    expect(alert).toHaveBeenCalledWith(
+      'Start at Pull-up negative?',
+      'The workout in progress and your next workouts use this step.',
+      expect.any(Array),
+    );
+    alert.mockRestore();
+  });
+
   test('an unknown ladder or program shows a not-found state', async () => {
     await renderRouter(allRoutes(), { initialUrl: '/ladder/nope' });
     expect(await screen.findByText('Ladder not found')).toBeTruthy();

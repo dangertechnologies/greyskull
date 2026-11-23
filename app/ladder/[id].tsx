@@ -10,6 +10,7 @@ import { EmptyState } from '../../src/ui/EmptyState';
 import { Icon } from '../../src/ui/Icon';
 import { ScreenScroll } from '../../src/ui/layout';
 import { Text } from '../../src/ui/Text';
+import { LADDER_LOCKED, ladderLocked } from '../../src/views/LadderPanel';
 import { stepScheme, topOf, unlockRule } from '../../src/views/ladder';
 
 /** Best result at one step of a ladder: "3×6 on 21 Nov 2026" (every set at least that many), or null. */
@@ -35,6 +36,7 @@ export default function LadderScreen() {
   const exercises = useStore((s) => s.exercises);
   const sessions = useStore((s) => s.sessions);
   const setLiftStep = useStore((s) => s.setLiftStep);
+  const draft = useStore((s) => s.draft);
   const t = useTheme();
 
   if (!ladder || (programParam && !program)) {
@@ -59,9 +61,13 @@ export default function LadderScreen() {
     | undefined;
   const name = (step: number) => nameOf(exercises, ladder.steps[step].exercise);
 
+  const locked = !!program && ladderLocked(draft, program.id, ladder.id);
+  const inWorkout =
+    !!program && draft?.programId === program.id && !!draft.slots?.some((s) => s.lift === ladder.id);
   const choose = (step: number) => {
-    if (!program || step === current) return;
-    Alert.alert(`Start at ${name(step)}?`, 'Your next sets of this ladder use this step.', [
+    if (!program || locked || step === current) return;
+    const when = inWorkout ? 'The workout in progress and your next workouts use' : 'Your next workouts use';
+    Alert.alert(`Start at ${name(step)}?`, `${when} this step.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Start here', onPress: () => setLiftStep(program.id, ladder.id, step) },
     ]);
@@ -72,9 +78,14 @@ export default function LadderScreen() {
       <Stack.Screen options={{ title: ladder.name }} />
       <Text color="textMuted">
         {current >= 0
-          ? `Step ${current + 1} of ${ladder.steps.length} · tap a step to start there`
+          ? `Step ${current + 1} of ${ladder.steps.length}${locked ? '' : ' · tap a step to start there'}`
           : `${ladder.steps.length} steps, easiest first`}
       </Text>
+      {locked ? (
+        <Text variant="callout" color="textMuted" testID="ladder-locked">
+          {LADDER_LOCKED}
+        </Text>
+      ) : null}
       <View style={{ gap: t.space[2] }}>
         {ladder.steps.map((s, i) => {
           const state = i < current ? 'done' : i === current ? 'current' : 'next';
@@ -88,8 +99,8 @@ export default function LadderScreen() {
               testID={`ladder-step-${i}`}
               accessibilityRole="button"
               accessibilityLabel={`${label}, ${state === 'done' ? 'done' : state === 'current' ? 'current step' : 'not reached'}${top ? `, ${top}` : ''}${rule ? `, ${rule}` : ''}`}
-              accessibilityState={{ selected: state === 'current', disabled: !program }}
-              disabled={!program}
+              accessibilityState={{ selected: state === 'current', disabled: !program || locked }}
+              disabled={!program || locked}
               onPress={() => choose(i)}
               style={({ pressed }) => ({
                 flexDirection: 'row',
