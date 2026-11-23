@@ -6,7 +6,8 @@ export function customId(name: string, existing: Record<string, unknown>): strin
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
-  const base = `custom_${slug || 'exercise'}`;
+  // A short slug keeps the id inside what a shared program accepts (100 letters) however long the name is.
+  const base = `custom_${slug.slice(0, 60) || 'exercise'}`;
   if (!Object.hasOwn(existing, base)) return base;
   let i = 2;
   while (Object.hasOwn(existing, `${base}_${i}`)) i++;
