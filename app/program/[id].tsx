@@ -6,7 +6,7 @@ import { CategoryPill, Pill, ProgramBadge } from '../../src/components/ProgramBi
 import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
 import type { ActiveProgram, ProgressionModel } from '../../src/domain';
-import { easedLifts, fiveThreeOneSets, sessionFor, sessionWeightKg } from '../../src/domain';
+import { easedLifts, fiveThreeOneSets, MAX_TEXT, sessionFor, sessionWeightKg } from '../../src/domain';
 import { intensityLabel, liftLabel, nameOf, schemeLabel, weekLabel } from '../../src/format';
 import { useProgramById } from '../../src/hooks/useProgramById';
 import { goBackOr } from '../../src/navigation';
@@ -277,6 +277,7 @@ export default function ProgramScreen() {
           label="Name"
           value={renaming ?? ''}
           onChangeText={setRenaming}
+          maxLength={MAX_TEXT}
           autoFocus
           returnKeyType="done"
         />

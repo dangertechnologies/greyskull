@@ -1,6 +1,6 @@
 import ladders from './catalog/ladders.json';
 import { getPlan, type PlanCategory } from './config/plans';
-import type { Equipment, Exercise, Kind, Ladder, Program } from './domain';
+import { type Equipment, type Exercise, type Kind, type Ladder, MAX_TEXT, type Program } from './domain';
 
 export const CATEGORIES = ['Strength', 'Hypertrophy', 'Calisthenics', 'Skills', 'Mobility'] as const;
 export type Category = (typeof CATEGORIES)[number];
@@ -131,8 +131,16 @@ const sameName = (a: string, b: string): boolean => a.trim().toLowerCase() === b
 /** Whether `name` is already used by one of `taken` (ignoring case and surrounding spaces). */
 export const nameTaken = (name: string, taken: string[]): boolean => taken.some((t) => sameName(t, name));
 
-/** `name`, or `name 2`, `name 3`, ... when programs already use it. */
+/**
+ * `name`, or `name 2`, `name 3`, ... when programs already use it; never longer than a name may be (`MAX_TEXT`):
+ * the name is cut first, so the number always shows.
+ */
 export function uniqueProgramName(name: string, taken: string[]): string {
-  if (!nameTaken(name, taken)) return name;
-  for (let n = 2; ; n++) if (!nameTaken(`${name} ${n}`, taken)) return `${name} ${n}`;
+  const base = name.trim().slice(0, MAX_TEXT);
+  if (!nameTaken(base, taken)) return base;
+  for (let n = 2; ; n++) {
+    const suffix = ` ${n}`;
+    const candidate = `${base.slice(0, MAX_TEXT - suffix.length).trimEnd()}${suffix}`;
+    if (!nameTaken(candidate, taken)) return candidate;
+  }
 }

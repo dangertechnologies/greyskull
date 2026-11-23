@@ -148,6 +148,14 @@ describe('program names', () => {
     expect(uniqueProgramName('GSLP', [])).toBe('GSLP');
     expect(uniqueProgramName('GSLP', ['gslp'])).toBe('GSLP 2');
     expect(uniqueProgramName('GSLP', ['GSLP', 'GSLP 2', ' gslp 3 '])).toBe('GSLP 4');
+    // Never past 100 letters, so the name saves and loads: the name is cut, the number kept.
+    const long = 'x'.repeat(100);
+    expect(uniqueProgramName(long, [])).toBe(long);
+    expect(uniqueProgramName(`${long}y`, [])).toBe(long);
+    expect(uniqueProgramName(long, [long])).toBe(`${'x'.repeat(98)} 2`);
+    expect(
+      uniqueProgramName(long, [long, ...Array.from({ length: 8 }, (_, i) => `${'x'.repeat(98)} ${i + 2}`)]),
+    ).toBe(`${'x'.repeat(97)} 10`);
     expect(nameTaken('  Mine ', ['mine'])).toBe(true);
     expect(nameTaken('Mine', ['Yours'])).toBe(false);
   });
