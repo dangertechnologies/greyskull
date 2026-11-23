@@ -146,7 +146,7 @@ describe('calisthenics plans', () => {
       const steps: Record<string, number> = {};
       const state = () => get().programs.find((p) => p.id === id)!;
       for (let i = 0; i < 120; i++) {
-        // The first set of every fourth session is a miss, so deloads happen too.
+        // The first set of every fourth session is a miss; one miss alone never deloads (see the next test).
         const draft = play(id, (_e, set) => i % 4 === 3 && set === 0);
         for (const key of draft.order) {
           const result = draft.results[key];
@@ -174,6 +174,96 @@ describe('calisthenics plans', () => {
         }
       }
       for (const ladder of ladderIds(planId)) expect(steps[ladder]).toBeGreaterThan(0);
+    });
+  });
+
+  describe.each(NEW_PLANS.map((id) => [id] as const))('%s: two misses in a row', (planId) => {
+    test('the target goes back to the bottom, the step stays, added load drops and stays loadable', () => {
+      useStore.setState({ ...initialState(), hydrated: true });
+      const program = getPlan(planId)!.program;
+      const id = get().addProgram({ ...program, name: planId });
+      const lifts = () => get().programs.find((p) => p.id === id)!.lifts;
+      for (let i = 0; i < 80; i++) {
+        play(id);
+        get().finishSession();
+      }
+      const before = structuredClone(lifts());
+      const withLoad = Object.entries(before).filter(([k, l]) => getLadder(k) && l.weightKg > 0);
+      // Weighted ladders reach their added load within 80 sessions, so the drop below is really checked.
+      if (['recommended-routine', 'hybrid'].includes(planId)) expect(withLoad.length).toBeGreaterThan(0);
+      // Every lift is trained twice in a row: each day of the rotation, twice.
+      const days = program.days.length;
+      for (let i = 0; i < days * 2; i++) {
+        play(id, () => true);
+        get().finishSession();
+      }
+      for (const [key, lift] of Object.entries(lifts())) {
+        const ladder = getLadder(key);
+        if (!ladder) {
+          expect(lift.weightKg).toBeLessThanOrEqual(before[key].weightKg);
+          if (get().exercises[exerciseOfLift(key)]?.kind === 'barbell')
+            expect(isLoadable(lift.weightKg, get().inventory, 'kg')).toBe(true);
+          continue;
+        }
+        expect(lift.step ?? 0).toBe(before[key].step ?? 0);
+        // The target is back at the bottom of the step's range: no stored rep target.
+        expect(lift.reps).toBeUndefined();
+        expect(lift.weightKg).toBeLessThanOrEqual(before[key].weightKg);
+        if (before[key].weightKg > 0) expect(lift.weightKg).toBeLessThan(before[key].weightKg);
+        expect(roundAddedLoad(lift.weightKg, get().inventory, 'kg')).toBe(lift.weightKg);
+      }
+    });
+  });
+
+  test('weighted ladders add loadable load after their top step', () => {
+    useStore.setState({ ...initialState(), hydrated: true });
+    const id = get().addProgram({ ...getPlan('recommended-routine')!.program, name: 'Routine' });
+    for (let i = 0; i < 120; i++) {
+      play(id);
+      get().finishSession();
+    }
+    const lifts = get().programs.find((p) => p.id === id)!.lifts;
+    for (const key of ['rr_pullup', 'rr_dip', 'rr_pushup']) {
+      const ladder = getLadder(key)!;
+      expect(ladder.after).toBe('weighted');
+      expect(lifts[key].step).toBe(ladder.steps.length - 1);
+      expect(lifts[key].weightKg).toBeGreaterThan(0);
+      expect(roundAddedLoad(lifts[key].weightKg, get().inventory, 'kg')).toBe(lifts[key].weightKg);
+      expect(Number.isInteger(lifts[key].weightKg / 1.25)).toBe(true);
+    }
+    // The ladders that are not weighted stay at no added load.
+    expect(lifts.rr_row.weightKg).toBe(0);
+  });
+
+  describe.each([
+    ['recommended-routine', 'rr_pullup', 'CAL_PULLUP_BAND_ASSISTED', 'CAL_PULLUP'],
+    ['skill-track', 'skill_muscleup', 'CAL_MUSCLEUP_BAND', 'CAL_MUSCLEUP'],
+  ])('%s with bands set', (planId, ladderId, bandStep, nextStep) => {
+    test(`${ladderId} goes heavy, medium, light, no band, then the next step`, () => {
+      useStore.setState({ ...initialState(), hydrated: true });
+      get().setBands([
+        { id: 'heavy', label: 'Heavy band' },
+        { id: 'medium', label: 'Medium band' },
+        { id: 'light', label: 'Light band' },
+      ]);
+      const id = get().addProgram({ ...getPlan(planId)!.program, name: planId });
+      const bands: (string | undefined)[] = [];
+      let next: string | undefined;
+      for (let i = 0; i < 300 && next === undefined; i++) {
+        const draft = play(id);
+        if (draft.results[bandStep]) {
+          bands.push(draft.results[bandStep].band?.id);
+          expect(draft.results[bandStep].lift).toBe(ladderId);
+        }
+        if (draft.results[nextStep]) {
+          next = draft.results[nextStep].band?.id ?? 'none';
+        }
+        get().finishSession();
+      }
+      expect(next).toBe('none');
+      // Each band is kept for several sessions; the order of the distinct bands is what matters.
+      expect(bands.filter((b, i) => b !== bands[i - 1])).toEqual(['heavy', 'medium', 'light']);
+      expect(get().programs.find((p) => p.id === id)!.lifts[ladderId].bandId).toBeUndefined();
     });
   });
 
