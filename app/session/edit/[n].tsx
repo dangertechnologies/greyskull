@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { WeightStepper } from '../../../src/components/WeightStepper';
 import { useTheme } from '../../../src/design/theme';
 import type { ExerciseResult } from '../../../src/domain';
-import { formatWeight } from '../../../src/domain';
+import { formatWeight, own } from '../../../src/domain';
 import { formatDate, nameOf } from '../../../src/format';
 import { goBackOr } from '../../../src/navigation';
 import { useStore } from '../../../src/store';
@@ -51,8 +51,8 @@ export default function EditSession() {
 
         <View style={{ gap: t.space[6] }}>
           {log.order.map((id) => {
-            const result = results[id];
-            const exercise = exercises[id];
+            const result = own(results, id);
+            const exercise = own(exercises, id);
             if (!result) return null;
             const bodyweight = exercise?.kind === 'bodyweight';
             // Bodyweight reps can carry added load (not holds or band-assisted steps); a 0 kg loaded lift had none.
