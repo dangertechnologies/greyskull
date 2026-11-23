@@ -2,7 +2,13 @@ import type { AppState, Exercise, Program, SessionLog } from './domain';
 import { tryParseScheme, validateProgram } from './domain';
 import { NULLABLE_USER_FIELDS, USER_FIELDS } from './domain/exerciseFields';
 import type { OneProgramState } from './store';
-import { migratePersisted, restoreExercises, stateProblem, upgradeOneProgramState } from './store';
+import {
+  isEquipment,
+  migratePersisted,
+  restoreExercises,
+  stateProblem,
+  upgradeOneProgramState,
+} from './store';
 
 export interface BackupSummary {
   sessions: number;
@@ -130,6 +136,8 @@ function parse(raw: string): BackupResult {
       return { ok: false, error: 'An exercise is malformed.' };
     }
   }
+  if (data.equipment !== undefined && !(Array.isArray(data.equipment) && data.equipment.every(isEquipment)))
+    return { ok: false, error: 'The equipment list in the backup is invalid.' };
   const problem = stateProblem(data);
   if (problem) return { ok: false, error: `The backup is damaged: ${problem}.` };
 
