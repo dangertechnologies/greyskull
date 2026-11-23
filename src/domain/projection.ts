@@ -1,3 +1,4 @@
+import { easedLifts } from './breakDeload';
 import { startingWeightKg } from './plates';
 import { parseScheme, sessionFor, setTargets } from './program';
 import { fiveThreeOneSets, nextLift, SUCCESS_REPS, sessionWeightKg } from './progression';
@@ -11,13 +12,20 @@ export interface ProjectedSession {
 
 /**
  * Simulate `count` plain-success sessions of one program (light/medium days at their reduced weight) from its
- * position; the draft is ignored. `n` numbers the projected sessions from `state.nextSession` (a list key only).
+ * position (the first one eased after a break when `breakDeload` is on, with `now` as the clock); the draft is
+ * ignored. `n` numbers the projected sessions from `state.nextSession` (a list key only).
  */
-export function project(state: AppState, programId: string, count: number): ProjectedSession[] {
+export function project(
+  state: AppState,
+  programId: string,
+  count: number,
+  now = Date.now(),
+): ProjectedSession[] {
   const program = state.programs.find((p) => p.id === programId);
   if (!program) return [];
   const unit = state.unit;
-  const lifts: Record<string, LiftState> = { ...program.lifts };
+  // The first workout starts from the lifts eased after a break, exactly as `startSession` would.
+  const lifts: Record<string, LiftState> = { ...program.lifts, ...easedLifts(state, program, now).lifts };
   const out: ProjectedSession[] = [];
   for (let i = 0; i < count; i++) {
     const n = state.nextSession + i;

@@ -6,7 +6,16 @@ import { nextWorkoutProps } from '../widgets/summary';
 
 type State = Pick<
   AppState,
-  'programs' | 'exercises' | 'inventory' | 'unit' | 'draft' | 'nextSession' | 'needsWeightConfirm'
+  | 'programs'
+  | 'exercises'
+  | 'inventory'
+  | 'unit'
+  | 'draft'
+  | 'nextSession'
+  | 'needsWeightConfirm'
+  | 'breakDeload'
+  | 'bands'
+  | 'sessions'
 >;
 
 /** Catalog kinds; the Swift side (app-intents/WorkoutSnapshot.swift) reads the same strings. */

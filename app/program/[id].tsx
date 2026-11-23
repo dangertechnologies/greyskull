@@ -6,7 +6,7 @@ import { CategoryPill, Pill, ProgramBadge } from '../../src/components/ProgramBi
 import { getPlan } from '../../src/config/plans';
 import { useTheme } from '../../src/design/theme';
 import type { ActiveProgram, ProgressionModel } from '../../src/domain';
-import { fiveThreeOneSets, sessionFor, sessionWeightKg } from '../../src/domain';
+import { easedLifts, fiveThreeOneSets, sessionFor, sessionWeightKg } from '../../src/domain';
 import { intensityLabel, liftLabel, nameOf, schemeLabel, weekLabel } from '../../src/format';
 import { useProgramById } from '../../src/hooks/useProgramById';
 import { goBackOr } from '../../src/navigation';
@@ -38,13 +38,24 @@ function NextWorkout({ program }: { program: ActiveProgram }) {
   const exercises = useStore((s) => s.exercises);
   const unit = useStore((s) => s.unit);
   const inventory = useStore((s) => s.inventory);
-  const session = useMemo(() => sessionFor(program), [program]);
+  const bands = useStore((s) => s.bands);
+  const breakDeload = useStore((s) => s.breakDeload);
+  const sessions = useStore((s) => s.sessions);
+  // After a break the workout starts from eased lifts: show those weights, not the stored ones.
+  const { lifts, session } = useMemo(() => {
+    const eased = easedLifts(
+      { breakDeload, exercises, inventory, unit, bands, sessions },
+      program,
+      Date.now(),
+    );
+    const lifts = { ...program.lifts, ...eased.lifts };
+    return { lifts, session: sessionFor(program, lifts) };
+  }, [program, breakDeload, exercises, inventory, unit, bands, sessions]);
   return (
     <Card style={{ gap: t.space[5] }}>
       {session.slots.map(({ exercise: id, lift, scheme, progression, week }) => {
         const exercise = exercises[id];
         if (!exercise) return null;
-        const lifts = program.lifts;
         const sets =
           progression === '531'
             ? fiveThreeOneSets(lifts[lift]?.weightKg ?? 0, week ?? 0, exercise, inventory, unit)

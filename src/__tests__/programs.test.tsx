@@ -162,6 +162,30 @@ describe('program screen', () => {
     act(() => router.push(`/program/${id}`));
   };
 
+  test('the next workout shows the weight eased after a long break, as starting it will use', async () => {
+    const id = add('GSLP', 'base');
+    const long = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    useStore.setState((s) => ({
+      programs: s.programs.map((p) => ({
+        ...p,
+        lifts: { ...p.lifts, BARBELL_SQUAT: { weightKg: 100, startKg: 100, fails: 0 } },
+      })),
+      sessions: [
+        {
+          n: 1,
+          dayName: 'Old',
+          startedAt: long,
+          finishedAt: long,
+          results: { BARBELL_SQUAT: { weightKg: 100, sets: [{ target: 5, reps: 5 }] } },
+          order: ['BARBELL_SQUAT'],
+        },
+      ],
+    }));
+    await open(id);
+    expect(await screen.findByText('80 kg')).toBeTruthy();
+    expect(screen.queryByText('100 kg')).toBeNull();
+  });
+
   test('pauses and resumes', async () => {
     const id = add('GSLP', 'base');
     await open(id);

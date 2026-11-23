@@ -1,7 +1,9 @@
 import { getLadder, stepIn, stepTransition } from './ladders';
 import { roundForExercise } from './plates';
-import { exerciseOfLift } from './program';
+import { exerciseOfLift, sessionFor } from './program';
 import type {
+  ActiveProgram,
+  AppState,
   Exercise,
   LiftState,
   PlateInventory,
@@ -79,4 +81,32 @@ export function easeBack(lift: LiftState, gap: number, ctx: EaseContext): LiftSt
     return stepTransition(next, step - 1, ladder, ctx.bands ?? []);
   // Resetting misses alone is no ease: nothing the user would lift or see changes.
   return JSON.stringify({ ...next, fails: lift.fails }) === JSON.stringify(lift) ? null : next;
+}
+
+/**
+ * The lift states the next workout of `program` starts from after a break (only the lifts that change), and the
+ * longest gap eased. Empty when `breakDeload` is off. The one place `startSession` and every preview of the
+ * next workout decide this, so a preview never shows a weight the workout will not use.
+ */
+export function easedLifts(
+  s: Pick<AppState, 'breakDeload' | 'exercises' | 'inventory' | 'unit' | 'bands' | 'sessions'>,
+  program: ActiveProgram,
+  now: number,
+): { lifts: Record<string, LiftState>; gap: number } {
+  const lifts: Record<string, LiftState> = {};
+  let gap = 0;
+  if (!s.breakDeload) return { lifts, gap };
+  for (const slot of sessionFor(program).slots) {
+    const lift = program.lifts[slot.lift];
+    const exercise = s.exercises[slot.exercise];
+    const last = lastTrained(s.sessions, slot.lift);
+    // A state set since the last training (a new program, a retest, an earlier eased session) is current.
+    if (!lift || !exercise || !last || lifts[slot.lift] || touchedSince(lift, last)) continue;
+    const days = gapDays(last, now);
+    const next = easeBack(lift, days, { ...slot, exercise, inv: s.inventory, unit: s.unit, bands: s.bands });
+    if (!next) continue;
+    lifts[slot.lift] = next;
+    gap = Math.max(gap, days);
+  }
+  return { lifts, gap };
 }

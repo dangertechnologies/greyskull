@@ -21,13 +21,11 @@ import type {
 } from './domain';
 import {
   DEFAULT_INVENTORY,
-  easeBack,
+  easedLifts,
   exerciseOfLift,
   fiveThreeOneSets,
-  gapDays,
   getLadder,
   isReservedKey,
-  lastTrained,
   liftKeysOf,
   migrateV1,
   nextLift,
@@ -39,7 +37,6 @@ import {
   startingWeightKg,
   stepTransition,
   toKg,
-  touchedSince,
   tryParseScheme,
   validateProgram,
 } from './domain';
@@ -693,7 +690,7 @@ export const useStore = create<Store>()(
 
       startSession: (programId) => {
         const state = get();
-        const { draft, programs, exercises, inventory, unit, bands, sessions, nextSession } = state;
+        const { draft, programs, nextSession } = state;
         if (draft) {
           if (draft.programId === programId) return draft;
           throw new Error('Another workout is in progress');
@@ -702,21 +699,7 @@ export const useStore = create<Store>()(
         if (!program) throw new Error('No program');
         const now = Date.now();
         // After a break the session starts from eased lift states; the stored ones change only on finish.
-        const eased: Record<string, LiftState> = {};
-        let gap = 0;
-        if (state.breakDeload)
-          for (const slot of sessionFor(program).slots) {
-            const lift = program.lifts[slot.lift];
-            const exercise = exercises[slot.exercise];
-            const last = lastTrained(sessions, slot.lift);
-            // A state set since the last training (a new program, a retest, an earlier eased session) is current.
-            if (!lift || !exercise || !last || eased[slot.lift] || touchedSince(lift, last)) continue;
-            const days = gapDays(last, now);
-            const next = easeBack(lift, days, { ...slot, exercise, inv: inventory, unit, bands });
-            if (!next) continue;
-            eased[slot.lift] = next;
-            gap = Math.max(gap, days);
-          }
+        const { lifts: eased, gap } = easedLifts(state, program, now);
         const created = draftFor(state, program, { ...program.lifts, ...eased }, nextSession, now);
         if (Object.keys(eased).length > 0) created.eased = { gapDays: gap, lifts: eased };
         set({ draft: created, nextSession: nextSession + 1 });

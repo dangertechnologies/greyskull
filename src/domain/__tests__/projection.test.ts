@@ -88,3 +88,27 @@ test('ladder lifts climb through their steps', () => {
   ]);
   expect(p[4].lifts[0]).toMatchObject({ scheme: '3x10-30s', weightKg: 0 });
 });
+
+test('after a long break the first projected session starts from the eased weight, like startSession', () => {
+  const NOW = Date.parse('2026-06-30T12:00:00Z');
+  const long = new Date(NOW - 30 * 86_400_000).toISOString();
+  const lifts = { ...LIFTS, BARBELL_SQUAT: { weightKg: 100, startKg: 100, fails: 0 } };
+  const s = state(TEMPLATES.base, 0, {
+    programs: [active(TEMPLATES.base, 0, lifts)],
+    sessions: [
+      {
+        n: 1,
+        dayName: 'Old',
+        startedAt: long,
+        finishedAt: long,
+        results: { BARBELL_SQUAT: { weightKg: 100, sets: [{ target: 5, reps: 5 }] } },
+        order: ['BARBELL_SQUAT'],
+      },
+    ],
+  });
+  expect(project(s, 'test', 1, NOW)[0].lifts.find((l) => l.exercise === 'BARBELL_SQUAT')?.weightKg).toBe(80);
+  expect(
+    project({ ...s, breakDeload: false }, 'test', 1, NOW)[0].lifts.find((l) => l.exercise === 'BARBELL_SQUAT')
+      ?.weightKg,
+  ).toBe(100);
+});
