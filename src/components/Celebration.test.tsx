@@ -75,7 +75,7 @@ describe('Celebration lines for calisthenics', () => {
           {
             ...base,
             exercise: ex.CAL_PULLUP_BAND_ASSISTED,
-            band: 'Green',
+            band: { label: 'Green', change: 'lighter' as const },
             outcome: { change: 'up', next: { weightKg: 0, startKg: 0, fails: 0, step: 3, bandId: 'g' } },
           },
         ]}
@@ -83,6 +83,27 @@ describe('Celebration lines for calisthenics', () => {
     );
     expect(screen.getByText('Step up: Negative pull-up')).toBeTruthy();
     expect(screen.getByText(`${ex.CAL_PULLUP_BAND_ASSISTED.name} · Lighter band: Green`)).toBeTruthy();
+    screen.unmount();
+    const band = (change: 'heavier' | 'start') => ({
+      ...base,
+      exercise: ex.CAL_PULLUP_BAND_ASSISTED,
+      band: { label: 'Black', change },
+      outcome: {
+        change: 'deload' as const,
+        next: { weightKg: 0, startKg: 0, fails: 0, step: 3, bandId: 'b' },
+      },
+    });
+    wrap(<Celebration unit="kg" onHome={jest.fn()} lines={[band('heavier')]} />);
+    expect(screen.getByText(`${ex.CAL_PULLUP_BAND_ASSISTED.name} · Heavier band: Black`)).toBeTruthy();
+    screen.unmount();
+    wrap(
+      <Celebration
+        unit="kg"
+        onHome={jest.fn()}
+        lines={[{ ...band('start'), outcome: { ...band('start').outcome, change: 'same' } }]}
+      />,
+    );
+    expect(screen.getByText(`${ex.CAL_PULLUP_BAND_ASSISTED.name} · Band: Black`)).toBeTruthy();
     expect(screen.queryByText(/0 kg/)).toBeNull();
   });
 

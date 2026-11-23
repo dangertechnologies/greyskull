@@ -1,6 +1,6 @@
 import { builtInExercises } from '../catalog';
 import { getLadder } from '../domain';
-import { easeSummary, ladderAt, topOf, unlockRule } from './ladder';
+import { easeSummary, ladderAt, ladderMove, topOf, unlockRule } from './ladder';
 
 const pull = getLadder('rr_pullup')!;
 const lift = (weightKg: number, step?: number) => ({ weightKg, startKg: 0, fails: 0, step });
@@ -36,4 +36,25 @@ test('the ease banner says what the ease changed', () => {
   expect(easeSummary({ gapDays: 15, lifts: { L: lift(0, 3) } }, { L: { ...lift(0, 3), reps: 7 } })).toBe(
     '15 days since you last trained · rep targets back to the bottom of the range',
   );
+});
+
+test('the celebration names a step up, or a band change by the band order', () => {
+  const bands = [
+    { id: 'black', label: 'Black' },
+    { id: 'red', label: 'Red' },
+    { id: 'green', label: 'Green' },
+  ];
+  const ex = builtInExercises();
+  const at = (step: number, bandId?: string) => ({ ...lift(0, step), ...(bandId ? { bandId } : {}) });
+  expect(ladderMove(at(2), at(3, 'black'), pull, bands, ex)).toEqual({ step: 'Band-assisted pull-up' });
+  expect(ladderMove(at(3, 'black'), at(3, 'red'), pull, bands, ex)).toEqual({
+    band: { label: 'Red', change: 'lighter' },
+  });
+  expect(ladderMove(at(3, 'red'), at(3, 'black'), pull, bands, ex)).toEqual({
+    band: { label: 'Black', change: 'heavier' },
+  });
+  expect(ladderMove(at(3), at(3, 'black'), pull, bands, ex)).toEqual({
+    band: { label: 'Black', change: 'start' },
+  });
+  expect(ladderMove(at(3, 'red'), at(3, 'red'), pull, bands, ex)).toEqual({});
 });

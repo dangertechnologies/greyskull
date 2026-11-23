@@ -1,5 +1,6 @@
 import type { Exercise, Ladder, LiftState, Scheme } from '../domain';
 import { getLadder, stepIn, tryParseScheme } from '../domain';
+import { nameOf } from '../format';
 
 /** A ladder lift key resolved to its ladder, the current step (made whole) and that step's exercise. */
 export function ladderAt(
@@ -53,4 +54,31 @@ export function easeSummary(
   ].filter(Boolean);
   const days = `${eased.gapDays} ${eased.gapDays === 1 ? 'day' : 'days'} since you last trained`;
   return [days, ...(parts.length > 0 ? parts : ['rep targets back to the bottom of the range'])].join(' · ');
+}
+
+/** A band change after a session: lighter or heavier by the band order (heaviest first), or a first band. */
+export interface BandMove {
+  label: string;
+  change: 'lighter' | 'heavier' | 'start';
+}
+
+/**
+ * What a ladder lift's outcome changed, for the celebration: the name of the step it moved up to, or the band it
+ * moved to and in which direction. Nothing when neither changed.
+ */
+export function ladderMove(
+  from: LiftState | undefined,
+  next: LiftState,
+  ladder: Ladder,
+  bands: readonly { id: string; label: string }[],
+  exercises: Record<string, Exercise>,
+): { step?: string; band?: BandMove } {
+  if (!from) return {};
+  const step = stepIn(ladder, next.step);
+  if (step > stepIn(ladder, from.step)) return { step: nameOf(exercises, ladder.steps[step].exercise) };
+  if (!next.bandId || next.bandId === from.bandId) return {};
+  const to = bands.findIndex((b) => b.id === next.bandId);
+  const was = bands.findIndex((b) => b.id === from.bandId);
+  const label = bands[to]?.label ?? '';
+  return { band: { label, change: was < 0 || to < 0 ? 'start' : to > was ? 'lighter' : 'heavier' } };
 }

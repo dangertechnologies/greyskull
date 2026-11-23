@@ -9,6 +9,7 @@ import { ExerciseBadge } from '../ui/ExerciseBadge';
 import { BottomBar, ScreenScroll, useGutter } from '../ui/layout';
 import { Card } from '../ui/Surface';
 import { Text } from '../ui/Text';
+import type { BandMove } from '../views/ladder';
 import { Confetti } from './Confetti';
 import { PhotoHeader } from './PhotoHeader';
 
@@ -19,8 +20,8 @@ export interface CelebrationLine {
   pr: boolean;
   /** Ladder: the name of the step the lift moved up to. */
   step?: string;
-  /** Ladder: the label of the lighter band the lift moved to. */
-  band?: string;
+  /** Ladder: the band the lift moved to, lighter or heavier, or its first band. */
+  band?: BandMove;
   /** Held for time: targets are seconds. */
   timed?: boolean;
 }
@@ -29,7 +30,10 @@ export interface CelebrationLine {
 function lineText(l: CelebrationLine, unit: Unit): string {
   if (l.step) return `Step up: ${l.step}`;
   const { name } = l.exercise;
-  if (l.band !== undefined) return `${name} · Lighter band${l.band ? `: ${l.band}` : ''}`;
+  if (l.band) {
+    const kind = { lighter: 'Lighter band', heavier: 'Heavier band', start: 'Band' }[l.band.change];
+    return `${name} · ${kind}${l.band.label ? `: ${l.band.label}` : ''}`;
+  }
   const from = weightLabel(l.fromKg, l.exercise, unit);
   const head = from ? `${name}${from}` : name;
   const { next, change } = l.outcome;
@@ -83,11 +87,13 @@ export function Celebration({
           <View ref={summaryRef} collapsable={false} style={{ backgroundColor: t.color.background }}>
             <Card style={{ gap: t.space[6] }}>
               {shown.map((l) => {
-                // A hold's target grows by seconds, not by a rep.
+                // A hold's target grows by seconds, not by a rep; a first band is no weight change.
                 const badge =
                   l.timed && l.outcome.change === 'reps'
                     ? { ...BADGE.reps, text: 'Longer hold next time' }
-                    : BADGE[l.outcome.change];
+                    : l.band?.change === 'start'
+                      ? BADGE.none
+                      : BADGE[l.outcome.change];
                 return (
                   <View
                     key={l.exercise.id}

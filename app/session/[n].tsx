@@ -1,29 +1,24 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Celebration, type CelebrationLine } from '../../src/components/Celebration';
-import { getLadder, project, sessionFor, stepIn } from '../../src/domain';
+import { getLadder, project, sessionFor } from '../../src/domain';
 import { nameOf, weightLabel } from '../../src/format';
 import type { FinishedExercise } from '../../src/hooks/useSession';
 import { useSession } from '../../src/hooks/useSession';
 import { goBackOr, goHome } from '../../src/navigation';
 import { useStore } from '../../src/store';
+import { ladderMove } from '../../src/views/ladder';
 import { SessionImmersive } from '../../src/views/SessionImmersive';
 import { SessionMinimal } from '../../src/views/SessionMinimal';
 
-/** What a ladder lift's outcome changed: the step it moved up to, or the lighter band it moved to. */
-function ladderMove(f: FinishedExercise): Pick<CelebrationLine, 'step' | 'band' | 'timed'> {
-  const { next } = f.outcome;
+/** What a ladder lift's outcome changed (see `ladderMove`), and whether its sets were holds. */
+function ladderLine(f: FinishedExercise): Pick<CelebrationLine, 'step' | 'band' | 'timed'> {
   const ladder = f.ladder ? getLadder(f.ladder) : undefined;
-  const timed = f.timed ? { timed: true } : {};
-  if (!ladder || !f.from) return timed;
-  const step = stepIn(ladder, next.step);
-  if (step > stepIn(ladder, f.from.step)) {
-    const id = ladder.steps[step].exercise;
-    return { ...timed, step: nameOf(useStore.getState().exercises, id) };
-  }
-  if (next.bandId && next.bandId !== f.from.bandId)
-    return { ...timed, band: useStore.getState().bands.find((b) => b.id === next.bandId)?.label ?? '' };
-  return timed;
+  const { bands, exercises } = useStore.getState();
+  return {
+    ...(f.timed ? { timed: true } : {}),
+    ...(ladder ? ladderMove(f.from, f.outcome.next, ladder, bands, exercises) : {}),
+  };
 }
 
 /** Session `n`: the workout in progress, or a new one of `?program=<id>` when `n` is the next session id. */
@@ -48,7 +43,7 @@ export default function SessionScreen() {
               fromKg: f.fromKg,
               outcome: f.outcome,
               pr: f.pr,
-              ...ladderMove(f),
+              ...ladderLine(f),
             },
           ]
         : [],
