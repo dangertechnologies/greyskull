@@ -3,6 +3,7 @@ import * as Sharing from 'expo-sharing';
 import { Alert, Platform, Share, View } from 'react-native';
 import { GymEquipment } from '../../src/components/GymEquipment';
 import { GymSettings } from '../../src/components/GymSettings';
+import { VersionRow } from '../../src/components/VersionRow';
 import { haptics } from '../../src/design/haptics';
 import { dynamicColorSupported, useTheme } from '../../src/design/theme';
 import { TEMPLATES } from '../../src/domain';
@@ -219,6 +220,7 @@ export default function Settings() {
 
       <Section label="About" card>
         <ListRow title="Credits" accessory="chevron" onPress={() => router.push('/credits')} />
+        <VersionRow />
       </Section>
 
       {__DEV__ ? (

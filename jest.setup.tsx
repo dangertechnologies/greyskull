@@ -73,7 +73,20 @@ beforeEach(() => {
   (jest.requireMock('expo-file-system') as { __files: Map<string, string> }).__files.clear();
 });
 // expo-constants needs the native launcher module; the app config reads nothing special in tests.
-jest.mock('expo-constants', () => ({ __esModule: true, default: { expoConfig: { extra: {} } } }));
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: { expoConfig: { version: '1.1.0', extra: {} } },
+}));
+// Over-the-air updates are off in tests; a test that needs them sets `isEnabled` and the async functions.
+jest.mock('expo-updates', () => ({
+  isEnabled: false,
+  updateId: null,
+  isEmbeddedLaunch: true,
+  checkForUpdateAsync: jest.fn(async () => ({ isAvailable: false })),
+  fetchUpdateAsync: jest.fn(async () => ({ isNew: false })),
+  reloadAsync: jest.fn(async () => undefined),
+  useUpdates: jest.fn(() => ({ isUpdatePending: false })),
+}));
 jest.mock('react-native-view-shot', () => ({ captureRef: jest.fn(async () => 'file:///tmp/summary.png') }));
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn(async () => true),
