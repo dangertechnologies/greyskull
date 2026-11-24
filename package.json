@@ -71,7 +71,8 @@
     "submit:android": "eas submit --profile production --platform android --latest",
     "release:ios": "pnpm check && eas build --profile production --platform ios --auto-submit",
     "release:android": "pnpm check && eas build --profile production --platform android --auto-submit",
-    "update": "eas update --branch production"
+    "update": "eas update --channel production --environment production",
+    "update:testflight": "GREYSKULL_HEALTHKIT=off eas update --channel production --environment production"
   },
   "private": true,
   "jest": {
