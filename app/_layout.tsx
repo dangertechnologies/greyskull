@@ -10,6 +10,7 @@ import { AppIntentsBridge } from '../src/intents/Bridge';
 import { useStackOptions } from '../src/navigation';
 import { initStore, useStore } from '../src/store';
 import { SnackbarProvider } from '../src/ui/Snackbar';
+import { startForegroundUpdates } from '../src/updates';
 import { watchStoreForWidgets } from '../src/widgets';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -39,6 +40,7 @@ export default function RootLayout() {
     void initStore();
   }, []);
   useEffect(() => watchStoreForWidgets(useStore), []);
+  useEffect(() => startForegroundUpdates(), []);
   // Only on data that loaded and is writable: the sync reads the history and writes Health ids back into it.
   const storageHealthy = hydrated && !storageError;
   useEffect(() => (storageHealthy ? startHealthSync() : undefined), [storageHealthy]);
