@@ -59,6 +59,13 @@ or production build, not Expo Go. Run `npx expo prebuild` / `eas build` after ch
   `package.json` (patch/minor/major/none), commits `chore(release): vX.Y.Z`, tags `vX.Y.Z`, publishes an
   over-the-air update to the `production` channel, and can start EAS store builds (`build`: ios/android/all).
 
+**Updates in the app.** `expo-updates` checks at launch and downloads a newer update, which starts the next time the
+app opens; `src/updates.ts` also checks when the app returns to the foreground (at most once an hour), and tapping
+Version in Settings checks now. An update only reaches builds with the same native fingerprint. Builds made with
+`eas build --profile testflight` leave HealthKit out (`GREYSKULL_HEALTHKIT=off`), so they have a different fingerprint
+from `production` builds: publish with both `pnpm update` and `pnpm update:testflight` while both exist. The
+GitHub preview and release workflows need the `EXPO_TOKEN` secret (below) and fail without it.
+
 **Versioning.** `package.json` `version` is the single source of truth; `app.config.ts` copies it to the
 store version. iOS build numbers and Android version codes are managed by EAS (`appVersionSource: remote`,
 `autoIncrement` on production builds). OTA updates use `runtimeVersion.policy = fingerprint`, so a JS-only
@@ -80,7 +87,8 @@ pnpm build:ios          # App Store build (channel `production`, build number au
 pnpm build:android      # Play build
 pnpm submit:ios         # send the latest iOS build to App Store Connect (app id 1449769260)
 pnpm release:ios        # pnpm check, then build and submit in one go
-pnpm update -- --message "what changed"   # OTA update to `production` for JS-only changes
+pnpm update -- --platform ios --message "what changed"             # OTA update for JS-only changes (HealthKit builds)
+pnpm update:testflight -- --platform ios --message "what changed"  # the same for TestFlight builds made without HealthKit
 ```
 
 Profiles are in `eas.json`. `eas init` must have been run once in this checkout (it writes
